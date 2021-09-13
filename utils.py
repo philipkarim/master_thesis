@@ -10,8 +10,41 @@ import random
 
 random.seed(2021)
 
-def expression_A():
-    
+def expression_A(tau_value, deriv_V_dagg, deriv_V, rho_in):
+    """
+    Computes expression A
+
+    Args:
+        tau_value:      Value of tau to be evaluated
+        deriv_V_dagg:   Derivated of V dagger with respect to \omega(\tau)
+        deriv_V:        Derivated of V with respect to \omega(\tau)
+        rho_in:         Input quantum state projected(?) |psi_in><psi_in|
+
+        returns real part of trace
+    """
+    A=np.trace(deriv_V_dagg(tau_value)*deriv_V(tau_value)*rho_in)
+    return A.real
+
+def expression_C(theta_params, h_qubits, tau_value, deriv_V_dagg, V_cir, rho_in):
+    """
+    Computes expression C
+
+    Args:
+        theta_params:   Variational parameters
+        h_qubits:       Hidden qubits?
+        tau_value:      The value of the tau value
+        deriv_V_dagg:   Derivated of V dagger with respect to \omega(\tau)
+        V_cir:              The quantum circuit V
+        rho_in:         Input quantum state projected(?) |psi_in><psi_in|
+
+        returns real part of trace
+    """
+    C=0
+
+    for i in range(len(theta_params)):
+        traced_matrix=np.trace(deriv_V_dagg(tau_value)*h_qubits[i]*V_cir(tau_value)*rho_in)
+        C-=theta_params[i]*traced_matrix.real
+    return C 
 
 
 def accuracy_score(y, y_pred):
