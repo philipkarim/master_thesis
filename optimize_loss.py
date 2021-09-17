@@ -29,6 +29,23 @@ class optimize:
         params-= update
 
         return params
+    
+    def cross_entropy_distribution(self, p_data, p_BM):
+        """
+        Computes loss by cross entropy between the visible nodes and the boltzmann distribution
+        
+        Args:
+            p_data: (list?) distribution data to be modelled
+            p_BM:    (list?)BM distributions computed by probability_function in varQBM corresponding to each visible node v
+                    maybe create a list depending on the different v?
+        
+        Returns: (float) Loss as a scalar
+        """
+        loss=0
+        for v in range(len(p_data)):
+            loss-=p_data[v]*np.log(p_BM[v])
+
+        return loss
 
     def cross_entropy(self, preds, targets, classes=2, epsilon=1e-12):
         """

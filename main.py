@@ -1,3 +1,105 @@
+import numpy as np
+import random
+
+# Import the other classes and functions
+from PQC import QML
+from optimize_loss import optimize
+from utils import *
+from varqbm import *
+
+"""
+Reproduce example: Trying to mimic a bell state as the article to check if the it works correct
+"""
+
+# Seeding the program to ensure reproducibillity
+random.seed(2021)
+
+#Set parameters
+n_params=3         #Number of variational parameters
+init_params=np.random.uniform(-1,1,size=n_params) #Distribution of the initial variational parameters
+learning_rate=0.1  #Learning rate
+Hamiltonian="bell state"    #theta_0 ZZ +theta_1 IZ + theta2 ZI
+epochs=50           #Number of epochs
+batch_size=1        #Batch size, set equal to 1
+
+#Creating some qunatum cirquit object
+qc=QML(ansatz,X.shape[1], 1, n_params, backend="qasm_simulator", shots=1024)
+qc_2=QML(1,X.shape[1], 1, 30, backend="qasm_simulator", shots=1024)
+
+def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, y_te):
+    """
+     Train(and validation) function that runs the simulation
+
+     Args:
+             circuit:        Quantum circuit (object from the QML class)
+             n_epochs:       Number of epochs(integer) 
+             n_batch_size:   Batch size (integer)
+             initial_thetas: Initialisation values of the variational parameters
+                             (List or array)
+             lr:             Learning rate (float)
+             X_tr:           Training data (2D array or list)
+             y_tr:           True labels of the training data(list or array)
+             X_te:           Test data (2D array or list)
+             y_tr:           True labels of the test data(list or array)
+     Returns:
+             loss_train,     Loss of train set per epoch (list)
+             accuracy_train, Accuracy of train set per epoch (list)
+             loss_test:      Loss of test set per epoch (list)
+             accuracy_test:  Accuracy of test set per epoch (list)
+    """
+    #Creating optimization object
+    optimizer=optimize(lr, circuit)
+    #Splits the dataset into batches
+    batches=len(X_tr)//n_batch_size
+    #Adds another batch if it has a reminder
+    if len(X_tr)%n_batch_size!=0:
+         batches+=1
+    #Reshapes the data into batches
+    X_reshaped=np.reshape(X_tr,(batches,n_batch_size,X_tr.shape[1]))
+    theta_params=initial_thetas.copy()
+
+    #Defines a list containing all the prediction for each epoch
+    prediction_epochs_train=[]
+    loss_train=[]
+    accuracy_train=[]
+
+    prediction_epochs_test=[]
+    loss_test=[]
+    accuracy_test=[]
+
+    temp_list=[]
+    #Train parameters
+    for epoch in range(n_epochs):
+        for batch in range(batches):
+            batch_pred=circuit.predict(X_reshaped[batch],theta_params)
+            temp_list+=batch_pred
+            theta_params=optimizer.gradient_descent(theta_params, batch_pred, y_tr[batch:batch+n_batch_size], X_reshaped[batch])
+    
+        #Computes loss and predicts on the test set with the new parameters
+        train_loss=optimizer.binary_cross_entropy(temp_list,y_tr)
+        test_pred=circuit.predict(X_te,theta_params)
+        test_loss=optimizer.binary_cross_entropy(test_pred,y_te)
+    
+        #Tresholding the probabillities into hard label predictions
+        temp_list=hard_labels(temp_list, 0.5)
+        test_pred=hard_labels(test_pred,0.5)
+
+        #Computes the accuracy scores
+        acc_score=accuracy_score(y_tr,temp_list)
+        acc_score_test=accuracy_score(y_te, test_pred)
+    
+        print(f"Epoch: {epoch}, loss:{train_loss}, accuracy:{acc_score}")
+        #Appends the results to lists
+        loss_train.append(train_loss)
+        accuracy_train.append(acc_score)
+        prediction_epochs_train.append(temp_list)
+        loss_test.append(test_loss)#
+        accuracy_test.append(acc_score_test)
+        prediction_epochs_test.append(test_pred)
+
+        temp_list.clear()
+
+    return loss_train, accuracy_train, loss_test, accuracy_test
 
 
 
