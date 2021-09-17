@@ -2,6 +2,7 @@
 Expressions utilized throughout the scripts
 """
 # Common imports
+from typing import ValuesView
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -22,6 +23,7 @@ def expression_A(tau_value, deriv_V_dagg, deriv_V, rho_in):
 
         returns real part of trace
     """
+
     A=np.trace(deriv_V_dagg(tau_value)*deriv_V(tau_value)*rho_in)
     return A.real
 
@@ -39,12 +41,17 @@ def expression_C(theta_params, h_qubits, tau_value, deriv_V_dagg, V_cir, rho_in)
 
         returns real part of trace
     """
-    C=0
+    C_p=0
 
     for i in range(len(theta_params)):
         traced_matrix=np.trace(deriv_V_dagg(tau_value)*h_qubits[i]*V_cir(tau_value)*rho_in)
         C-=theta_params[i]*traced_matrix.real
     return C 
+
+def dV_dw():
+    #parameter_shift?
+    
+    return value
 
 
 def accuracy_score(y, y_pred):

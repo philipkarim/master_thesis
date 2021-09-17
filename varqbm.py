@@ -68,7 +68,7 @@ class varQBM:
         return np.exp(-E_v/(k_b*temp_T))/Z_partition
 
 
-    def var_QITE_state_preparation(self, steps_n, params):
+    def varQITE_state_preparation(self, steps_n, params):
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
@@ -77,6 +77,8 @@ class varQBM:
         #And find out how to solve the differential equations
 
         #Input: page 6 in article algorithm first lines
+        k_b=1
+        temp_T=1
         tau=0.5*k_b*temp_T
 
         time_step=tau/steps_n

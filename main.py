@@ -23,8 +23,10 @@ epochs=50           #Number of epochs
 batch_size=1        #Batch size, set equal to 1
 
 #Creating some qunatum cirquit object
-qc=QML(ansatz,X.shape[1], 1, n_params, backend="qasm_simulator", shots=1024)
-qc_2=QML(1,X.shape[1], 1, 30, backend="qasm_simulator", shots=1024)
+qc=QML(Hamiltonian,X.shape[1], 1, n_params, backend="qasm_simulator", shots=1024)
+
+
+
 
 def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, y_te):
     """
@@ -55,7 +57,6 @@ def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, 
     if len(X_tr)%n_batch_size!=0:
          batches+=1
     #Reshapes the data into batches
-    X_reshaped=np.reshape(X_tr,(batches,n_batch_size,X_tr.shape[1]))
     theta_params=initial_thetas.copy()
 
     #Defines a list containing all the prediction for each epoch
