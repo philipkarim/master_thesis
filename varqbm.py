@@ -91,8 +91,8 @@ class varQBM:
             #No idea how to do it
             for i in range(len(params)):
                 #Compute the derivative of dC/dtheta_i and dA/dtheta_i
-                derivative_C=
-                derivative_A=
+                derivative_C=1
+                derivative_A=1
 
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
@@ -101,21 +101,61 @@ class varQBM:
             #compute dw
             #w(t+time_step)=w(t)dw(t)time_step
 
-        return w(t), dw(t)/d\theta 
+        return w(t), dw(t)/dtheta 
 
-
-
-
-        pass
         
     def parameter_Hamiltonian(parameters):
         """
-        Should I create a paraterized quantum circuit here?
+        Should I create a paraterized quantum circuit here or just matrices?
         """
         for params in range(len(parameters)):
-            for j in range()
+            for j in range():
 
-    
+        pass
+
+
+    def expression_A(tau_value, deriv_V_dagg, deriv_V, rho_in):
+        """
+        Computes expression A
+
+        Args:
+            tau_value:      Value of tau to be evaluated
+            deriv_V_dagg:   Derivated of V dagger with respect to \omega(\tau)
+            deriv_V:        Derivated of V with respect to \omega(\tau)
+            rho_in:         Input quantum state projected(?) |psi_in><psi_in|
+
+            returns real part of trace
+        """
+
+        A=np.trace(deriv_V_dagg(tau_value)*deriv_V(tau_value)*rho_in)
+
+        return A.real
+
+    def expression_C(theta_params, h_qubits, tau_value, deriv_V_dagg, V_cir, rho_in):
+        """
+        Computes expression C
+
+        Args:
+            theta_params:   Variational parameters
+            h_qubits:       Hidden qubits?
+            tau_value:      The value of the tau value
+            deriv_V_dagg:   Derivated of V dagger with respect to \omega(\tau)
+            V_cir:              The quantum circuit V
+            rho_in:         Input quantum state projected(?) |psi_in><psi_in|
+
+            returns real part of trace
+        """
+        C_p=0
+
+        for i in range(len(theta_params)):
+            traced_matrix=np.trace(deriv_V_dagg(tau_value)*h_qubits[i]*V_cir(tau_value)*rho_in)
+            C-=theta_params[i]*traced_matrix.real
+        return C 
+
+    def dV_dw():
+        #parameter_shift?
+        
+        return value
 
 
 
@@ -131,6 +171,7 @@ class varQITE:
         """
 
         pass
+
     
 
 class Hamiltonian:

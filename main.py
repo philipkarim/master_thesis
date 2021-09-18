@@ -5,7 +5,7 @@ import random
 from PQC import QML
 from optimize_loss import optimize
 from utils import *
-from varqbm import *
+#from varqbm import *
 
 """
 Reproduce example: Trying to mimic a bell state as the article to check if the it works correct
@@ -22,8 +22,30 @@ Hamiltonian="bell state"    #theta_0 ZZ +theta_1 IZ + theta2 ZI
 epochs=50           #Number of epochs
 batch_size=1        #Batch size, set equal to 1
 
+
+"""
+Testing hamiltonian stuff
+"""
+#1 qubit hamiltonian
+H_1q=1*np.array(([1, 0],[0, -1]))
+time_tau=0.5
+psi_0=np.array([1,0])
+
+def C_first(time, Ham, psi_0):
+    deno=np.exp(-2*Ham*time)*psi_0*psi_0.T
+    C_start= 1/np.sqrt(np.trace(deno))
+    return C_start
+
+C_expression=C_first(time_tau, H_1q, psi_0)
+
+#Create psi_w=V(w)|psi_in
+
+
+
+
+
 #Creating some qunatum cirquit object
-qc=QML(Hamiltonian,X.shape[1], 1, n_params, backend="qasm_simulator", shots=1024)
+#qc=QML(Hamiltonian,X.shape[1], 1, n_params, backend="qasm_simulator", shots=1024)
 
 
 
