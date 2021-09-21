@@ -1,3 +1,4 @@
+from matplotlib.colors import makeMappingArray
 import numpy as np
 import random
 import qiskit as qk
@@ -42,14 +43,15 @@ C_expression=C_first(time_tau, H_1q, psi_0)
 #Create psi_w=V(w)|psi_in
 
 
-
 #Define a qc cirquit creating V: U_1=e^(iH(w)) where i think M could be the gates in H? or not?
 #So basicly: define \psi_in and \V each run probably.
 
 ###okay lets fucking do this! Here is the plan:
 
 """
-Define V and psi_in as psi tau (0). Try using V from 
+Define V and psi_in as psi tau (0). Try using V from figure
+
+Need one gate to compute A and C, and one gate as encoder/ansatz
 """
 n_qubits=2
 n_cbits=1
@@ -60,40 +62,33 @@ classical_register = qk.ClassicalRegister(n_cbits)
 #Define encoder, maybe use the same as usual?
 qc_enc = qk.QuantumCircuit(data_register, classical_register)
 
-#switch out sample with the input?
 
-for feature_idx in range(n_qubits):
-    qc_enc.h(data_register[feature_idx])
-    qc_enc.rz(2*np.pi*sample[feature_idx],data_register[feature_idx])
+#Making figure 4, with Hademard gate in start
+for qubit in range(n_qubits):
+    qc_enc.h(data_register[qubit])
+    qc_enc.rz(2*np.pi*sample[qubit],data_register[qubit])
 
 #Define V
 
-thetas=thetas
 qc_ansatz = qk.QuantumCircuit(data_register, classical_register)
 
-ansatz_parts=n_parameters//n_qubits
-reminder_gates=n_parameters%n_qubits
+#Creating the ansatz circuit:
+for i in range(n_qubits):
+    qc_.rz(2*np.pi*sample[qubit],data_register[qubit])
 
-if ansatz==0:
-    #Checks how many "blocks of repetitions goes in the circuit"
-    if reminder_gates!=0:
-        blocks=ansatz_parts+1
-    else:
-        blocks=ansatz_parts
 
-    #Creating the ansatz circuit:
-    tot_gates=0
-    for block in range(blocks):
-        for rot_y in range(n_qubits):
-            if rot_y+n_qubits*block<n_parameters:
-                qc_ansatz.ry(2*np.pi*thetas[rot_y+n_qubits*block], data_register[rot_y])
-                tot_gates+=1
-            if rot_y!=0 and tot_gates<len(thetas)-reminder_gates-1:
-                qc_ansatz.cx(data_register[rot_y-1], data_register[rot_y])
-    
-    #Entangling the qubits before measuring
-    c3h_gate = XGate().control(3)
-    qc_ansatz.append(c3h_gate, data_register)
+tot_gates=0
+for block in range(blocks):
+    for rot_y in range(n_qubits):
+        if rot_y+n_qubits*block<n_parameters:
+            qc_ansatz.ry(2*np.pi*thetas[rot_y+n_qubits*block], data_register[rot_y])
+            tot_gates+=1
+        if rot_y!=0 and tot_gates<len(thetas)-reminder_gates-1:
+            qc_ansatz.cx(data_register[rot_y-1], data_register[rot_y])
+
+#Entangling the qubits before measuring
+c3h_gate = XGate().control(3)
+qc_ansatz.append(c3h_gate, data_register)
 """
 Define expression A and C as functions, maybe use a class? or parameter shift rule
 (The derivative of U can be computed by the formula below)
