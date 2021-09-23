@@ -33,6 +33,8 @@ H_1q=1*np.array(([1, 0],[0, -1]))
 time_tau=0.5
 psi_0=np.array([1,0])
 
+
+
 def C_first(time, Ham, psi_0):
     deno=np.exp(-2*Ham*time)*psi_0*psi_0.T
     C_start= 1/np.sqrt(np.trace(deno))
