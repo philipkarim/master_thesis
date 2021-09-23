@@ -53,21 +53,106 @@ Define V and psi_in as psi tau (0). Try using V from figure
 
 Need one gate to compute A and C, and one gate as encoder/ansatz
 """
-n_qubits=2
+n_qubits=4
 n_cbits=1
 
 data_register = qk.QuantumRegister(n_qubits)
 classical_register = qk.ClassicalRegister(n_cbits)
 
 #Define encoder, maybe use the same as usual?
-qc_enc = qk.QuantumCircuit(data_register, classical_register)
+qc_fig_4 = qk.QuantumCircuit(data_register, classical_register)
 
 
-#Making figure 4, with Hademard gate in start
+#Making figure 4+ Hademard gate at the start
 for qubit in range(n_qubits):
-    qc_enc.h(data_register[qubit])
-    qc_enc.rz(2*np.pi*sample[qubit],data_register[qubit])
+    qc_fig_4.h(data_register[qubit])
+    qc_fig_4.ry(2*np.pi*0,data_register[qubit])
+    qc_fig_4.rz(2*np.pi*0,data_register[qubit])
+    
+#Adding a couple of controleld gates
+for j in range(0,n_qubits-1):
+    qc_fig_4.cx(data_register[j+1], data_register[j])
 
+qc_fig_4.ry(np.pi/2, data_register[0])
+qc_fig_4.ry(np.pi/2, data_register[1])
+qc_fig_4.ry(0, data_register[2])
+qc_fig_4.ry(0, data_register[3])
+
+for z_gate in range(n_qubits):
+    qc_fig_4.rz(2*np.pi*0,data_register[z_gate])
+
+def evaluation_circuit(psi_in, A_or_C, V_circuit, U_gate):
+    data_register = qk.QuantumRegister(2)
+    classical_register = qk.ClassicalRegister(1)
+
+    """
+    Input states
+    """
+    #Input for the first qubit in figure 8
+    qc_AC= qk.QuantumCircuit(data_register, classical_register)
+    qc_AC.h(data_register[0])
+
+    if A_or_C == 'C':
+        qc_AC.s(data_register[0])
+
+    #Input for the second qubit in  figure 8
+    qc_AC.append(psi_in, [1])
+
+    """
+    Then create circuit in fig 8
+    """
+    #Define the V_circuit as a controlled gate
+    V_gate=V_circuit.to_gate(label="V").control(1)
+    #print(V_gate)
+    #V_gate=V_gate.control(1)
+
+    qc_AC.append(V_gate, [0,1])
+    qc_AC.x(data_register[0])
+
+    U_gate=U_gate.to_gate(label="U").control(1)
+    #U_gate=U_gate.control(1)
+    qc_AC.append(U_gate, [0,1])
+
+    qc_AC.x(data_register[0])
+    qc_AC.h(data_register[0])
+
+    """
+    Measuring the first qubit
+    """
+    qc_AC.measure(data_register[0],classical_register[0])
+    print(qc_AC)
+    expectation_val=run_circuit(qc_AC)
+
+    return expectation_val
+
+
+"""
+Just testing the function computing the A and C expressions
+"""
+data_register_1q = qk.QuantumRegister(1)
+classical_register_1 = qk.ClassicalRegister(1)
+
+V_test = qk.QuantumCircuit(data_register_1q)
+V_test.x(0)
+V_test.h(0)
+
+U_test= qk.QuantumCircuit(data_register_1q)
+U_test.y(0)
+
+psi_in_test = qk.QuantumCircuit(1, name='|psi_in>')  # Create a quantum circuit with one qubit
+initial_state = [0,1]   # Define initial_state as |1>
+psi_in_test.initialize(initial_state, 0)
+
+expectation=evaluation_circuit(psi_in_test, 'C', V_test, U_test)
+
+
+
+
+
+
+
+
+"""
 #Define V
 
 qc_ansatz = qk.QuantumCircuit(data_register, classical_register)
@@ -90,14 +175,10 @@ for block in range(blocks):
 c3h_gate = XGate().control(3)
 qc_ansatz.append(c3h_gate, data_register)
 """
+"""
 Define expression A and C as functions, maybe use a class? or parameter shift rule
 (The derivative of U can be computed by the formula below)
 """
-
-"""
-The 
-"""
-
 
 
 
@@ -107,9 +188,9 @@ The
 
 
 
-
+"""
 def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, y_te):
-    """
+    
      Train(and validation) function that runs the simulation
 
      Args:
@@ -128,7 +209,7 @@ def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, 
              accuracy_train, Accuracy of train set per epoch (list)
              loss_test:      Loss of test set per epoch (list)
              accuracy_test:  Accuracy of test set per epoch (list)
-    """
+
     #Creating optimization object
     optimizer=optimize(lr, circuit)
     #Splits the dataset into batches
@@ -181,7 +262,7 @@ def train(circuit, n_epochs, n_batch_size, initial_thetas,lr, X_tr, y_tr, X_te, 
         temp_list.clear()
 
     return loss_train, accuracy_train, loss_test, accuracy_test
-
+    """
 
 
 """

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import random
+import qiskit as qk
 
 random.seed(2021)
 
@@ -71,3 +72,21 @@ def plotter(*args, x_axis,x_label, y_label):
     plt.show()
 
     return
+
+def run_circuit(qc, shots=1024, backend="qasm_simulator"):
+    job = qk.execute(qc,
+                    backend=qk.Aer.get_backend(backend),
+                    shots=shots,
+                    seed_simulator=10
+                    )
+    results = job.result()
+    results = results.get_counts(qc)
+
+    prediction = 0
+    for key,value in results.items():
+        #print(key, value)
+        if key == '1':
+            prediction += value
+    prediction/=shots
+
+    return prediction
