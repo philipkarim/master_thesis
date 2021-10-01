@@ -34,7 +34,6 @@ time_tau=0.5
 psi_0=np.array([1,0])
 
 
-
 def C_first(time, Ham, psi_0):
     deno=np.exp(-2*Ham*time)*psi_0*psi_0.T
     C_start= 1/np.sqrt(np.trace(deno))
@@ -145,7 +144,42 @@ psi_in_test = qk.QuantumCircuit(1, name='|psi_in>')  # Create a quantum circuit 
 initial_state = [0,1]   # Define initial_state as |1>
 psi_in_test.initialize(initial_state, 0)
 
-expectation=evaluation_circuit(psi_in_test, 'C', V_test, U_test)
+#expectation=evaluation_circuit(psi_in_test, 'C', V_test, U_test)
+
+
+
+"""
+Okay lezzgo, plan is as follows:
+-Write a function to return the derivative for 1 qubit without controlled gates
+Easy return, then fill a matrix A and see what happens
+"""
+n_qubits=2
+q1_test = qk.QuantumRegister(n_qubits)
+V_series_test = qk.QuantumCircuit(q1_test)
+
+theta_test=np.random.uniform(-1,1, size=1)
+
+V_series_test.crx(2*np.pi*theta_test[0],0,1)
+
+#V_series_test.ry(2*np.pi*theta_test[0],0)
+
+print(V_series_test.num_unitary_factors())
+
+print(V_series_test.width())
+
+
+#print(V_series_test.qbit_argument_conversion(V_series_test))
+
+print(V_series_test)
+
+#rint(V_series_test.num_ctrl_qubits())
+
+def derivative_U(U_gate):
+    qubits=U_gate.width()
+    for k in range(qubits):
+        if U_gate.num_ctrl_qubits()==0:
+            return np.imag(j/2)* something
+    return 
 
 
 
