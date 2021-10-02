@@ -2,7 +2,6 @@ from matplotlib.colors import makeMappingArray
 import numpy as np
 import random
 import qiskit as qk
-
 # Import the other classes and functions
 from PQC import QML
 from optimize_loss import optimize
@@ -153,39 +152,96 @@ Okay lezzgo, plan is as follows:
 -Write a function to return the derivative for 1 qubit without controlled gates
 Easy return, then fill a matrix A and see what happens
 """
-n_qubits=2
+n_qubits=1
 q1_test = qk.QuantumRegister(n_qubits)
 V_series_test = qk.QuantumCircuit(q1_test)
 
 theta_test=np.random.uniform(-1,1, size=1)
 
-V_series_test.crx(2*np.pi*theta_test[0],0,1)
+V_series_test.rx(2*np.pi*theta_test[0],0, label='rx')
+
+print(V_series_test[0])
 
 #V_series_test.ry(2*np.pi*theta_test[0],0)
 
-print(V_series_test.num_unitary_factors())
-
-print(V_series_test.width())
+#print(V_series_test.num_unitary_factors())
+#print(V_series_test.width())
 
 
 #print(V_series_test.qbit_argument_conversion(V_series_test))
 
-print(V_series_test)
 
 #rint(V_series_test.num_ctrl_qubits())
 
 def derivative_U(U_gate):
     qubits=U_gate.width()
     for k in range(qubits):
-        if U_gate.num_ctrl_qubits()==0:
-            return np.imag(j/2)* something
+        #Return gate as matrix, then if size is larger than 4=control, else not?, also check if gates are equal
+        #if U_gate.num_ctrl_qubits()==0:
+            return np.imag(j/2)
     return 
 
 
+def decomposing_to_pauli(H):
+    """
+    DOES NOT WORK FOR CONTROLLED QUBITS
+    https://quantumcomputing.stackexchange.com/questions/8725/can-arbitrary-matrices-be-decomposed-using-the-pauli-basis
 
+    This functions takes hermitian matrices and decomposes them into coefficients of Pauli terms
 
+    Args:
+        H(np.array)     Hermitian matrix
 
+    Return: (np.array) size 4 containing coefficients of [I,X,Y,Z] terms
 
+    """
+    pauli_terms=np.array([[[1,0],[0,1]], [[0,1], [1,0]], [[0,-1.j], [1.j,0]], [[1,0], [0,-1]]])
+
+    #Check that matrix H is hermitian:
+    assert (H.conj().T == H).all(), "How should I say it.. Well, your Hermitian matrix is not really.. Hermitian"
+
+    decomp=np.zeros(len(pauli_terms), dtype = 'complex_')
+    for i in range(len(pauli_terms)):
+        decomp[i]=np.trace(pauli_terms[i]@H)
+
+    #decomp = decomp.astype(np.float)
+
+    #Just normalizes it
+    return np.real(decomp/np.sum(decomp))
+        
+
+#Hermitian matrix on stanby
+H_test=np.array([[1,1-1.j], [1+1.j,1]])
+
+"""
+Next step: Make a gate, then decompose it to a matrix and 
+send it into the thing and see if we get the correct result.
+The main goal is to extract the f_i,k and the term
+"""
+
+V_series_gate=V_series_test.to_gate(label='rx')
+print(type(V_series_gate.label))
+
+pauli_matrix=pauli_terms(theta_test, V_series_gate.label)
+x=pauli_matrix.gate_to_matrix()
+
+print(x)
+
+plt.plot()
+
+#V_series_matrix=V_series_gate.to_matrix()
+#print(V_series_matrix)
+
+#decomp_matrix=decomposing_to_pauli(V_series_test)
+#print(decomp_matrix)
+#mat=qk.unitary(V_series_gate)
+
+#qc=qk.QuantumCircuit(2)
+#mat=qc.unitary(V_series_gate, [0])
+#V_series_matrix=mat.to_matrix()
+
+#qc=transpile(qc,basis_gates=['I','x', 'y', 'z'])
+#print(qc)
 
 
 """

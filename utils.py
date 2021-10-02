@@ -90,3 +90,53 @@ def run_circuit(qc, shots=1024, backend="qasm_simulator"):
     prediction/=shots
 
     return prediction
+
+
+class pauli_terms:
+    def __init__(self, theta, label):
+        self.theta=theta
+        self.label=label
+    
+    def gate_to_matrix(self):
+        if self.label=='rx':
+            return self.rx_gate()
+        elif self.label=='ry':
+            return self.rx_gate()
+        elif self.label=='rz':
+            return self.rx_gate()
+
+        else:
+            return "Something is wrong"
+
+        """
+        Continue with controlled gates, if no better method is found
+        """
+
+    def rx_gate(self):
+        cos_term=np.cos(self.theta/2)
+        sin_term=
+        return np.array([[np.cos(self.theta/2), -np.sin(self.theta/2).j], [-np.sin(self.theta/2).j ,np.cos(self.theta/2)]], dtype=complex)
+
+    def get_I(self):
+        """
+        Returns an I matrix
+        """
+        return np.array([[1,0],[0,1]])
+
+    def get_X(self):
+        """
+        Returns an X matrix
+        """
+        return np.array([[0,1], [1,0]])
+
+    def get_Y(self):
+        """
+        Returns an Y matrix
+        """
+        return np.array([[0,-1.j], [1.j,0]])
+
+    def get_Z(self):
+        """
+        Returns an Z matrix
+        """
+        return np.array([[1,0],[0,-1]])
