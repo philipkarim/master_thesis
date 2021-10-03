@@ -9,6 +9,7 @@ import seaborn as sns
 import os
 import random
 import qiskit as qk
+import cmath
 
 random.seed(2021)
 
@@ -101,9 +102,9 @@ class pauli_terms:
         if self.label=='rx':
             return self.rx_gate()
         elif self.label=='ry':
-            return self.rx_gate()
+            return self.ry_gate()
         elif self.label=='rz':
-            return self.rx_gate()
+            return self.rz_gate()
 
         else:
             return "Something is wrong"
@@ -114,8 +115,17 @@ class pauli_terms:
 
     def rx_gate(self):
         cos_term=np.cos(self.theta/2)
-        sin_term=
-        return np.array([[np.cos(self.theta/2), -np.sin(self.theta/2).j], [-np.sin(self.theta/2).j ,np.cos(self.theta/2)]], dtype=complex)
+        sin_term=np.sin(self.theta/2)
+        return np.array([[cos_term, -1j*sin_term], [-1j*sin_term ,cos_term]])
+
+    
+    def ry_gate(self):
+        cos_term=np.cos(self.theta/2)
+        sin_term=np.sin(self.theta/2)
+        return np.array([[cos_term, -sin_term], [sin_term ,cos_term]])
+    
+    def rz_gate(self):
+        return np.array([[-np.exp(-1j*self.theta/2), 0], [0,-np.exp(1j*self.theta/2)]])
 
     def get_I(self):
         """

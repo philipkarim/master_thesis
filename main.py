@@ -194,13 +194,15 @@ def decomposing_to_pauli(H):
 
     Return: (np.array) size 4 containing coefficients of [I,X,Y,Z] terms
 
+    Example: Works for RX(pi) then it decomposes into x gates, might round the smallest numbers? e-33
+
     """
     pauli_terms=np.array([[[1,0],[0,1]], [[0,1], [1,0]], [[0,-1.j], [1.j,0]], [[1,0], [0,-1]]])
 
     #Check that matrix H is hermitian:
-    assert (H.conj().T == H).all(), "How should I say it.. Well, your Hermitian matrix is not really.. Hermitian"
+    #assert (H.conj().T == H).all(), "How should I say it.. Well, your Hermitian matrix is not really.. Hermitian"
 
-    decomp=np.zeros(len(pauli_terms), dtype = 'complex_')
+    decomp=np.zeros(len(pauli_terms), dtype = 'complex')
     for i in range(len(pauli_terms)):
         decomp[i]=np.trace(pauli_terms[i]@H)
 
@@ -220,28 +222,17 @@ The main goal is to extract the f_i,k and the term
 """
 
 V_series_gate=V_series_test.to_gate(label='rx')
-print(type(V_series_gate.label))
 
-pauli_matrix=pauli_terms(theta_test, V_series_gate.label)
-x=pauli_matrix.gate_to_matrix()
+pauli_matrix=pauli_terms(np.pi, V_series_gate.label)
+rx_as_matrix=pauli_matrix.gate_to_matrix()
 
-print(x)
-
-plt.plot()
-
+print(rx_as_matrix)
 #V_series_matrix=V_series_gate.to_matrix()
 #print(V_series_matrix)
+decomp_matrix=decomposing_to_pauli(rx_as_matrix)
 
-#decomp_matrix=decomposing_to_pauli(V_series_test)
-#print(decomp_matrix)
-#mat=qk.unitary(V_series_gate)
+print(decomp_matrix)
 
-#qc=qk.QuantumCircuit(2)
-#mat=qc.unitary(V_series_gate, [0])
-#V_series_matrix=mat.to_matrix()
-
-#qc=transpile(qc,basis_gates=['I','x', 'y', 'z'])
-#print(qc)
 
 
 """
