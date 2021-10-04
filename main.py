@@ -200,6 +200,33 @@ decomp_pauli_terms=decomposing_to_pauli(mat_M)
 
 #print(decomp_matrix)
 
+"""
+Okay now the pauli terms are good, and also f=-i/2 if it is a rotational Gate
+
+Next task:
+Make the circuit and loop over it computing A for simple rotational gates
+Maybe insert the gate parameters by using a dict? bound parameters to gates?
+Do the same for C
+"""
+
+n_params=2
+parameters=np.random.uniform(0,1,size=1)
+
+gates_params_dict={}
+
+A_mat=np.zeros((len(parameters), 2))
+C_vec=np.zeros(len(parameters))
+
+#For each U(\theta_i)
+for i in range(len(parameters)):
+    #For each gate 
+    #range(1) if there is no controlled qubits?
+    for k in range(1):
+        if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
+            run_A(sigma, params, ...)
+
+
+
 
 
 """
