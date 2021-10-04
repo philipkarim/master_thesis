@@ -198,7 +198,15 @@ rx_as_matrix=pauli_matrix.gate_to_matrix()
 mat_M=get_M(rx_as_matrix)
 decomp_pauli_terms=decomposing_to_pauli(mat_M)
 
-#print(decomp_matrix)
+#print(mat_M)
+#print(decomp_pauli_terms)
+test_mat=np.zeros_like(pauli_matrix.get_Y())
+test_mat+=decomp_pauli_terms[0]*pauli_matrix.get_I()
+test_mat+=decomp_pauli_terms[1]*pauli_matrix.get_X()
+test_mat+=decomp_pauli_terms[2]*pauli_matrix.get_Y()
+test_mat+=decomp_pauli_terms[3]*pauli_matrix.get_Z()
+
+#print(test_mat)
 
 """
 Okay now the pauli terms are good, and also f=-i/2 if it is a rotational Gate
@@ -212,18 +220,72 @@ Do the same for C
 n_params=2
 parameters=np.random.uniform(0,1,size=1)
 
-gates_params_dict={}
+"""
+Make a dict, containing gate and parameter
+"""
+qc_param = qk.QuantumCircuit(2)
+params = [qk.circuit.Parameter('rx'), qk.circuit.Parameter('rz')]
+#params = [qk.circuit.Parameter('rx').bind(4), qk.circuit.Parameter('rz')]
+
+qc_param.ry(params[0], 0)
+qc_param.crx(params[1], 0, 1)
+
+print('Original circuit:')
+print(qc_param)
+
+qc_param.assign_parameters({params[0]: 5}, inplace=True)
+
+#qc_param.bind({[3.0,2.0]})
+
+
+print(qc_param)
+
+gates_params_dict={
+  "brand": "Ford",
+  "model": "Mustang",
+  "year": 1964
+}
+print(gates_params_dict["brand"])
 
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
+
 
 #For each U(\theta_i)
 for i in range(len(parameters)):
     #For each gate 
     #range(1) if there is no controlled qubits?
     for k in range(1):
-        if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
-            run_A(sigma, params, ...)
+        #if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
+            """
+            Make loop for function A
+            """
+            #run_A(sigma, params, ...)
+
+
+"""
+Make function run_A()
+"""
+
+"""
+Compute C with a loop, can this be done inside the other looop?
+"""
+
+"""
+Make function run_C
+"""
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

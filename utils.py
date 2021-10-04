@@ -192,4 +192,6 @@ def decomposing_to_pauli(H):
     #Just normalizes it
     #Should I do it?
     #return np.real(decomp/np.sum(decomp))
-    return np.real(decomp)
+
+    #why divide by 2?
+    return np.real(decomp)/2
