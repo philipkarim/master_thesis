@@ -114,18 +114,20 @@ class pauli_terms:
         """
 
     def rx_gate(self):
-        cos_term=np.cos(self.theta/2)
-        sin_term=np.sin(self.theta/2)
-        return np.array([[cos_term, -1j*sin_term], [-1j*sin_term ,cos_term]])
+        #cos_term=np.cos(self.theta/2)
+        #sin_term=np.sin(self.theta/2)
+        #return np.array([[cos_term, -1j*sin_term], [-1j*sin_term ,cos_term]])
+        return np.exp(-1j*self.get_X()*self.theta/2)
 
-    
     def ry_gate(self):
-        cos_term=np.cos(self.theta/2)
-        sin_term=np.sin(self.theta/2)
-        return np.array([[cos_term, -sin_term], [sin_term ,cos_term]])
-    
+        #cos_term=np.cos(self.theta/2)
+        #sin_term=np.sin(self.theta/2)
+        #return np.array([[cos_term, -sin_term], [sin_term ,cos_term]])
+        return np.exp(-1j*self.get_Y()*self.theta/2)
+
     def rz_gate(self):
-        return np.array([[-np.exp(-1j*self.theta/2), 0], [0,-np.exp(1j*self.theta/2)]])
+        return np.exp(-1j*self.get_Z()*self.theta/2)
+        #return np.array([[np.exp(-1j*self.theta/2), 0], [0, np.exp(1j*self.theta/2)]])
 
     def get_I(self):
         """
@@ -150,3 +152,44 @@ class pauli_terms:
         Returns an Z matrix
         """
         return np.array([[1,0],[0,-1]])
+    
+def get_M(unitary_gate):
+    """
+    Args:
+        An unitary gate as a matrix
+
+    Returns: (Matrix) the hermitian matrix M in e^(iM(w))
+    """
+
+    return np.log(unitary_gate)/1j
+
+def decomposing_to_pauli(H):
+    """
+    DOES NOT WORK FOR CONTROLLED QUBITS
+    https://quantumcomputing.stackexchange.com/questions/8725/can-arbitrary-matrices-be-decomposed-using-the-pauli-basis
+
+    This functions takes hermitian matrices and decomposes them into coefficients of Pauli terms
+
+    Args:
+        H(np.array)     Hermitian matrix
+
+    Return: (np.array) size 4 containing coefficients of [I,X,Y,Z] terms
+
+    Example: Works for RX(pi) then it decomposes into x gates, might round the smallest numbers? e-33
+
+    """
+    pauli_terms=np.array([[[1,0],[0,1]], [[0,1], [1,0]], [[0,-1.j], [1.j,0]], [[1,0], [0,-1]]])
+
+    #Check that matrix H is hermitian:
+    #assert (H.conj().T == H).all(), "How should I say it.. Well, your Hermitian matrix is not really.. Hermitian"
+
+    decomp=np.zeros(len(pauli_terms), dtype = 'complex')
+    for i in range(len(pauli_terms)):
+        decomp[i]=np.trace(pauli_terms[i]@H)
+
+    #decomp = decomp.astype(np.float)
+
+    #Just normalizes it
+    #Should I do it?
+    #return np.real(decomp/np.sum(decomp))
+    return np.real(decomp)

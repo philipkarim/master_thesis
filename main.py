@@ -179,38 +179,7 @@ def derivative_U(U_gate):
         #Return gate as matrix, then if size is larger than 4=control, else not?, also check if gates are equal
         #if U_gate.num_ctrl_qubits()==0:
             return np.imag(j/2)
-    return 
-
-
-def decomposing_to_pauli(H):
-    """
-    DOES NOT WORK FOR CONTROLLED QUBITS
-    https://quantumcomputing.stackexchange.com/questions/8725/can-arbitrary-matrices-be-decomposed-using-the-pauli-basis
-
-    This functions takes hermitian matrices and decomposes them into coefficients of Pauli terms
-
-    Args:
-        H(np.array)     Hermitian matrix
-
-    Return: (np.array) size 4 containing coefficients of [I,X,Y,Z] terms
-
-    Example: Works for RX(pi) then it decomposes into x gates, might round the smallest numbers? e-33
-
-    """
-    pauli_terms=np.array([[[1,0],[0,1]], [[0,1], [1,0]], [[0,-1.j], [1.j,0]], [[1,0], [0,-1]]])
-
-    #Check that matrix H is hermitian:
-    #assert (H.conj().T == H).all(), "How should I say it.. Well, your Hermitian matrix is not really.. Hermitian"
-
-    decomp=np.zeros(len(pauli_terms), dtype = 'complex')
-    for i in range(len(pauli_terms)):
-        decomp[i]=np.trace(pauli_terms[i]@H)
-
-    #decomp = decomp.astype(np.float)
-
-    #Just normalizes it
-    return np.real(decomp/np.sum(decomp))
-        
+    return         
 
 #Hermitian matrix on stanby
 H_test=np.array([[1,1-1.j], [1+1.j,1]])
@@ -221,17 +190,15 @@ send it into the thing and see if we get the correct result.
 The main goal is to extract the f_i,k and the term
 """
 
-V_series_gate=V_series_test.to_gate(label='rx')
+V_series_gate=V_series_test.to_gate(label='ry')
 
-pauli_matrix=pauli_terms(np.pi, V_series_gate.label)
+#pauli_matrix=pauli_terms(0.5, V_series_gate.label)
+pauli_matrix=pauli_terms(np.pi, 'rz')
 rx_as_matrix=pauli_matrix.gate_to_matrix()
+mat_M=get_M(rx_as_matrix)
+decomp_pauli_terms=decomposing_to_pauli(mat_M)
 
-print(rx_as_matrix)
-#V_series_matrix=V_series_gate.to_matrix()
-#print(V_series_matrix)
-decomp_matrix=decomposing_to_pauli(rx_as_matrix)
-
-print(decomp_matrix)
+#print(decomp_matrix)
 
 
 
