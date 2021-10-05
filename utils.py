@@ -194,4 +194,4 @@ def decomposing_to_pauli(H):
     #return np.real(decomp/np.sum(decomp))
 
     #why divide by 2?
-    return np.real(decomp)/2
+    return np.real(decomp)/len(H)
