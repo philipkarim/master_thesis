@@ -217,35 +217,54 @@ Maybe insert the gate parameters by using a dict? bound parameters to gates?
 Do the same for C
 """
 
-n_params=2
-parameters=np.random.uniform(0,1,size=1)
+#Number of parameters and gates
+gates_str=['rx', 'ry', 'rz', 'rx']
+n_params=len(gates_str)
+
+#Assertion statement
+assert n_params==len(gates_str), "Number of gates and parameters do not match"
+
+parameters=np.random.uniform(0,1,size=n_params)
+
+#Creates the circuit
+#for i in range(n_params):
+#    gates_str[i]=qk.circuit.Parameter('rx')
+#Fill circuit with gates
 
 """
 Make a dict, containing gate and parameter
 """
+
 qc_param = qk.QuantumCircuit(2)
-params = [qk.circuit.Parameter('rx'), qk.circuit.Parameter('rz')]
+
+#Initializing the parameters
+parameters=[]
+#Make list of parameters:
+for name in range(len(gates_str)):
+    parameters.append(qk.circuit.Parameter(gates_str[name]))
 #params = [qk.circuit.Parameter('rx').bind(4), qk.circuit.Parameter('rz')]
 
-qc_param.ry(params[0], 0)
-qc_param.crx(params[1], 0, 1)
+#Creates the circuit
+for i in range(len(gates_str)):
+    getattr(qc_param, gates_str[i])(qk.circuit.Parameter(chr(65+i)), 0)
+    qc_param.crx(parameters[i], 0, 1)
 
 print('Original circuit:')
 print(qc_param)
 
-qc_param.assign_parameters({params[0]: 5}, inplace=True)
+qc_param.assign_parameters({parameters[0]: 5}, inplace=True)
 
 #qc_param.bind({[3.0,2.0]})
 
 
-print(qc_param)
+#print(qc_param)
 
 gates_params_dict={
   "brand": "Ford",
   "model": "Mustang",
   "year": 1964
 }
-print(gates_params_dict["brand"])
+#print(gates_params_dict["brand"])
 
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
