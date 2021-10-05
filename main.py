@@ -300,16 +300,6 @@ Make function run_C
 
 
 
-
-
-
-
-
-
-
-
-
-
 """
 #Define V
 
