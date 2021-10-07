@@ -294,15 +294,26 @@ qc_param2=qc_param.bind_parameters(test_par)
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
 
+"""
+Fix input state here, the one that is on the circuit
+"""
+
+
+
 #For each U(\theta_i)
 for i in range(len(parameters)):
     #For each gate 
     #range(1) if there is no controlled qubits?
     for k in range(1):
+        """
+        
+        """
+
         #if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
             """
             Make loop for function A
             """
+
             #run_A(sigma, params, ...)
 
 
