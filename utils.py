@@ -195,3 +195,14 @@ def decomposing_to_pauli(H):
 
     #why divide by 2?
     return np.real(decomp)/len(H)
+
+def update_parameter_dict(dict, new_parameters):
+    """
+    Just updating the parameters.
+    This function could for sure be optimized
+    """
+    i=0
+    for key in dict:
+        dict[key]=new_parameters[i]
+        i+=1
+    return dict

@@ -8,6 +8,9 @@ from optimize_loss import optimize
 from utils import *
 #from varqbm import *
 
+from qiskit.circuit import Parameter, ParameterVector
+
+
 """
 Reproduce example: Trying to mimic a bell state as the article to check if the it works correct
 """
@@ -218,7 +221,7 @@ Do the same for C
 """
 
 #Number of parameters and gates
-gates_str=['rx', 'ry', 'rz', 'rx']
+gates_str=[['rx',0],['ry', 0]]
 n_params=len(gates_str)
 
 #Assertion statement
@@ -226,6 +229,13 @@ assert n_params==len(gates_str), "Number of gates and parameters do not match"
 
 parameters=np.random.uniform(0,1,size=n_params)
 
+param_vec = ParameterVector('Init_param', n_params)
+"""
+circuit.ry(param_vec[0], 0)
+circuit.crx(param_vec[1], 0, 1)
+
+bound_circuit = circuit.assign_parameters({params[0]: 1, params[1]: 2})
+"""
 #Creates the circuit
 #for i in range(n_params):
 #    gates_str[i]=qk.circuit.Parameter('rx')
@@ -238,37 +248,51 @@ Make a dict, containing gate and parameter
 qc_param = qk.QuantumCircuit(2)
 
 #Initializing the parameters
-parameters=[]
 #Make list of parameters:
-for name in range(len(gates_str)):
-    parameters.append(qk.circuit.Parameter(gates_str[name]))
+#parameters22=[]
+#for name in range(len(gates_str)):
+#    parameters22.append(qk.circuit.Parameter(gates_str[name]))
 #params = [qk.circuit.Parameter('rx').bind(4), qk.circuit.Parameter('rz')]
 
 #Creates the circuit
 for i in range(len(gates_str)):
-    getattr(qc_param, gates_str[i])(qk.circuit.Parameter(chr(65+i)), 0)
-    qc_param.crx(parameters[i], 0, 1)
+    if len(gates_str[i])==2:
+        getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
+    elif len(gates_str[i])==3:
+        getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1], gates_str[i][2])
+    else:
+        print("Function not implemented with double controlled gates yet")
+        exit()
 
-print('Original circuit:')
-print(qc_param)
+"""
+#Creates the circuit
+for i in range(len(gates_str)):
+    if len(gates_str[i])==2:
+        getattr(qc_param, gates_str[i][0])(qk.circuit.Parameter(chr(65+i)), gates_str[i][1])
+    elif len(gates_str[i])==3:
+        getattr(qc_param, gates_str[i][0])(qk.circuit.Parameter(chr(65+i)), gates_str[i][1], gates_str[i][2])
+    else:
+        print("Function not implemented with double controlled gates yet")
+        exit()
+"""
 
-qc_param.assign_parameters({parameters[0]: 5}, inplace=True)
-
-#qc_param.bind({[3.0,2.0]})
-
-
+"""
+This basicly, creates a new circuit with the existing gates, 
+then the runs the copy, and when completed makes a copy of the main circuit with
+new parameters. Difference between (bind_parameters and assign_parameters?)
+"""
+#print('Original circuit:')
 #print(qc_param)
+parameter_dict={param_vec[0]: 1, param_vec[1]: 2}
+qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
+#print(qc_param2)
 
-gates_params_dict={
-  "brand": "Ford",
-  "model": "Mustang",
-  "year": 1964
-}
-#print(gates_params_dict["brand"])
+test_par=update_parameter_dict(parameter_dict, [0,3])
+qc_param2=qc_param.bind_parameters(test_par)
+#print(qc_param2)
 
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
-
 
 #For each U(\theta_i)
 for i in range(len(parameters)):
