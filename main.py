@@ -1,4 +1,3 @@
-from matplotlib.colors import makeMappingArray
 import numpy as np
 import random
 import qiskit as qk
@@ -289,7 +288,7 @@ qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 
 test_par=update_parameter_dict(parameter_dict, [0,3])
 qc_param2=qc_param.bind_parameters(test_par)
-#print(qc_param2)
+print(qc_param2)
 
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
@@ -304,15 +303,20 @@ Fix input state here, the one that is on the circuit
 for i in range(len(parameters)):
     #For each gate 
     #range(1) if there is no controlled qubits?
-    for k in range(1):
+    for j in range(len(parameters)):
+        A_mat[i][j]=run_A()
+
+        """
+        Plan:
+        -Find eq.17 with fk,j adn sigma, the evaluate the circuit for each sigma
         """
         
-        """
 
         #if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
-            """
-            Make loop for function A
-            """
+        """
+        Make loop for function A
+        """
+
 
             #run_A(sigma, params, ...)
 
@@ -320,6 +324,15 @@ for i in range(len(parameters)):
 """
 Make function run_A()
 """
+def run_A(gates_list):
+    gates_str=[['rx',0],['ry', 0]]
+
+    
+
+
+    getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
+    for 
+
 
 """
 Compute C with a loop, can this be done inside the other looop?
