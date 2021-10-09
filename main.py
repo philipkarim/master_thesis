@@ -224,14 +224,11 @@ Do the same for C
 This does not work, if a control qubit is applied to the last qubit and is the only one
 should work for most of them tho 
 """
-gates_str=[['rx',0],['ry', 1], ['rz', 0]]
-
+gates_str=[['rx',0],['ry', 0], ['rz', 0]]
 num_qubits= max([el[1] for el in gates_str])
-
-#print(np.amax(gates_str, axis=2))
-
 n_params=len(gates_str)
 
+theta_list=np.random.uniform(0,2*np.pi,size=n_params)
 #Assertion statement
 assert n_params==len(gates_str), "Number of gates and parameters do not match"
 
@@ -306,17 +303,64 @@ C_vec=np.zeros(len(parameters))
 """
 Make function run_A()
 """
-def run_A(gate_label_i, gate_label_j, i, j):
+def run_A(U_list, params_circ, i, j):
     #gates_str=[['rx',0],['ry', 0]]
-    f_k_i=get_f_sigma(gate_label_i)
-    f_l_j=()
+
+    gate_label_i=U_list[i][0]
+    gate_label_j=U_list[j][0]
+    
+    f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+    f_l_j=get_f_sigma(gate_label_j)
+    V_circ=encoding_circ()
+
+    pauli_names=['i', 'x', 'y', 'z']
+
+    sum_A=0
+    for i in range(len(f_k_i)):
+        for j in range(len(f_l_j)):
+            if f_k_i[i]==0 or f_l_j[j]==0:
+                pass
+            else:
+                #First lets make the circuit:
+                temp_circ=V_circ.copy()
+
+                """
+                Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
+                """
+                #Add x gate                
+                temp_circ.x(1)
+                #Then we loop thorugh the gates in U untill we reach the sigma
+                for ii in range(i-1):
+                    getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1])
+                #Then we add the sigma
+                getattr(temp_circ, pauli_names[i])(1)
+                #Continue the U_i gate:
+                for keep_going in range(i, len(U_list)):
+                    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1])
+                for jj in range(i-1):
+                    getattr(temp_circ, U_list[jj][0])(params_circ[jj], U_list[jj][1])
+                
+
+
+
+
+
+                    
+                    
+                    for jj in range(len(U_list)+1):
+                        getattr(temp_circ, U_list[i][0])(params_circ[i], U_list[i][1])
+
+
+
+                temp_circ.
+                getattr(qc_param, U_list[i][0])(param_vec[i], gates_str[i][1])
+
     pauli_matrix=pauli_terms(gates_list[i][1], gates_list[i][0])
     rx_as_matrix=pauli_matrix.gate_to_matrix()
     mat_M=get_M(rx_as_matrix)
     decomp_pauli_terms=decomposing_to_pauli(mat_M)
 
     #Circuit that will be extended
-    V_circ=encoding_circ()
 
     #Composes the circuit and creates the circuit each time
     #prep_circ.compose()
@@ -339,9 +383,7 @@ for i in range(len(parameters)):
         #Get, the sigma terms
         
         #4? dimension of hermitian or n pauliterms? 
-        for k in range(1):
-            for l in range(1):
-                a_term=run_A(gates_str[i][0], gates_str[j][0], i, j)
+        a_term=run_A(gates_str, theta_list, i, j)
             
         
         A_mat[i][j]=np.real(a_term)
