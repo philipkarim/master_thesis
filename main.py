@@ -220,7 +220,16 @@ Do the same for C
 """
 
 #Number of parameters and gates
-gates_str=[['rx',0],['ry', 0]]
+"""
+This does not work, if a control qubit is applied to the last qubit and is the only one
+should work for most of them tho 
+"""
+gates_str=[['rx',0],['ry', 1], ['rz', 0]]
+
+num_qubits= max([el[1] for el in gates_str])
+
+#print(np.amax(gates_str, axis=2))
+
 n_params=len(gates_str)
 
 #Assertion statement
@@ -244,7 +253,7 @@ bound_circuit = circuit.assign_parameters({params[0]: 1, params[1]: 2})
 Make a dict, containing gate and parameter
 """
 
-qc_param = qk.QuantumCircuit(2)
+qc_param = qk.QuantumCircuit(num_qubits+1)
 
 #Initializing the parameters
 #Make list of parameters:
@@ -293,19 +302,51 @@ print(qc_param2)
 A_mat=np.zeros((len(parameters), 2))
 C_vec=np.zeros(len(parameters))
 
+
+"""
+Make function run_A()
+"""
+def run_A(gate_label_i, gate_label_j, i, j):
+    #gates_str=[['rx',0],['ry', 0]]
+    f_k_i=get_f_sigma(gate_label_i)
+    f_l_j=()
+    pauli_matrix=pauli_terms(gates_list[i][1], gates_list[i][0])
+    rx_as_matrix=pauli_matrix.gate_to_matrix()
+    mat_M=get_M(rx_as_matrix)
+    decomp_pauli_terms=decomposing_to_pauli(mat_M)
+
+    #Circuit that will be extended
+    V_circ=encoding_circ()
+
+    #Composes the circuit and creates the circuit each time
+    #prep_circ.compose()
+
+    #print(V_circ)
+
+    getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
+    
+    return 1
+
 """
 Fix input state here, the one that is on the circuit
 """
-
-
-
 #For each U(\theta_i)
 for i in range(len(parameters)):
     #For each gate 
     #range(1) if there is no controlled qubits?
     for j in range(len(parameters)):
-        A_mat[i][j]=run_A()
+        #Get f_i and f_j
+        #Get, the sigma terms
+        
+        #4? dimension of hermitian or n pauliterms? 
+        for k in range(1):
+            for l in range(1):
+                a_term=run_A(gates_str[i][0], gates_str[j][0], i, j)
+            
+        
+        A_mat[i][j]=np.real(a_term)
 
+        
         """
         Plan:
         -Find eq.17 with fk,j adn sigma, the evaluate the circuit for each sigma
@@ -321,17 +362,6 @@ for i in range(len(parameters)):
             #run_A(sigma, params, ...)
 
 
-"""
-Make function run_A()
-"""
-def run_A(gates_list):
-    gates_str=[['rx',0],['ry', 0]]
-
-    
-
-
-    getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
-    for 
 
 
 """

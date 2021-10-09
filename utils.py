@@ -94,7 +94,7 @@ def run_circuit(qc, shots=1024, backend="qasm_simulator"):
 
 
 class pauli_terms:
-    def __init__(self, theta, label):
+    def __init__(self, theta=None, label=None):
         self.theta=theta
         self.label=label
     
@@ -196,6 +196,35 @@ def decomposing_to_pauli(H):
     #why divide by 2?
     return np.real(decomp)/len(H)
 
+def get_f_sigma(label):
+    """
+    Args:
+        label of the gate
+
+    returns:f, sigma(2 lists)
+    """
+    if label=='rx':
+        return np.array([0,-0.5j,0,0])
+    elif label=='ry':
+        return np.array([0,0,-0.5j,0])
+    elif label=='rz':
+        return np.array([0,0,0,-0.5j])
+    else:
+        print("Only rx,ry and rz gates are implemented")
+        exit()
+    """
+    Here it is possible to implement for arbitrary hermitian matrices by
+    using the following approach under
+    """
+    #pauli_matrix=pauli_terms(gates_list[i][1], gates_list[i][0])
+    #rx_as_matrix=pauli_matrix.gate_to_matrix()
+    #mat_M=get_M(rx_as_matrix)
+    #decomp_pauli_terms=decomposing_to_pauli(mat_M)
+
+    return 
+
+
+
 def update_parameter_dict(dict, new_parameters):
     """
     Just updating the parameters.
@@ -206,3 +235,18 @@ def update_parameter_dict(dict, new_parameters):
         dict[key]=new_parameters[i]
         i+=1
     return dict
+
+def encoding_circ():
+    """
+    Just defining the quantum circuit encoder in FidS1. in the supplememnt
+    """
+    data_register_enc = qk.QuantumRegister(2)
+    classical_register_enc = qk.ClassicalRegister(1)
+    
+    qc_enc = qk.QuantumCircuit(data_register_enc, classical_register_enc)
+    qc_enc.h(data_register_enc[0])
+
+    #print(qc_enc)
+
+    return qc_enc
+
