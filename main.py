@@ -294,124 +294,34 @@ qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 
 test_par=update_parameter_dict(parameter_dict, [0,3])
 qc_param2=qc_param.bind_parameters(test_par)
-print(qc_param2)
 
-A_mat=np.zeros((len(parameters), 2))
-C_vec=np.zeros(len(parameters))
+A_mat=np.zeros((len(theta_list), len(theta_list)))
+C_vec=np.zeros(len(theta_list))
 
-
-"""
-Make function run_A()
-"""
-def run_A(U_list, params_circ, i, j):
-    #gates_str=[['rx',0],['ry', 0]]
-
-    gate_label_i=U_list[i][0]
-    gate_label_j=U_list[j][0]
-    
-    f_k_i=np.conjugate(get_f_sigma(gate_label_i))
-    f_l_j=get_f_sigma(gate_label_j)
-    V_circ=encoding_circ()
-
-    pauli_names=['i', 'x', 'y', 'z']
-
-    sum_A=0
-    for i in range(len(f_k_i)):
-        for j in range(len(f_l_j)):
-            if f_k_i[i]==0 or f_l_j[j]==0:
-                pass
-            else:
-                #First lets make the circuit:
-                temp_circ=V_circ.copy()
-
-                """
-                Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
-                """
-                #Add x gate                
-                temp_circ.x(1)
-                #Then we loop thorugh the gates in U untill we reach the sigma
-                for ii in range(i-1):
-                    getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1])
-                #Then we add the sigma
-                getattr(temp_circ, pauli_names[i])(1)
-                #Continue the U_i gate:
-                for keep_going in range(i, len(U_list)):
-                    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1])
-                for jj in range(i-1):
-                    getattr(temp_circ, U_list[jj][0])(params_circ[jj], U_list[jj][1])
-                
-
-
-
-
-
-                    
-                    
-                    for jj in range(len(U_list)+1):
-                        getattr(temp_circ, U_list[i][0])(params_circ[i], U_list[i][1])
-
-
-
-                temp_circ.
-                getattr(qc_param, U_list[i][0])(param_vec[i], gates_str[i][1])
-
-    pauli_matrix=pauli_terms(gates_list[i][1], gates_list[i][0])
-    rx_as_matrix=pauli_matrix.gate_to_matrix()
-    mat_M=get_M(rx_as_matrix)
-    decomp_pauli_terms=decomposing_to_pauli(mat_M)
-
-    #Circuit that will be extended
-
-    #Composes the circuit and creates the circuit each time
-    #prep_circ.compose()
-
-    #print(V_circ)
-
-    getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
-    
-    return 1
-
-"""
-Fix input state here, the one that is on the circuit
-"""
-#For each U(\theta_i)
-for i in range(len(parameters)):
+#Loops through the indices of A
+for i in range(len(theta_list)):
     #For each gate 
     #range(1) if there is no controlled qubits?
-    for j in range(len(parameters)):
+    for j in range(len(theta_list)):
         #Get f_i and f_j
         #Get, the sigma terms
         
         #4? dimension of hermitian or n pauliterms? 
         a_term=run_A(gates_str, theta_list, i, j)
-            
         
         A_mat[i][j]=np.real(a_term)
 
-        
-        """
-        Plan:
-        -Find eq.17 with fk,j adn sigma, the evaluate the circuit for each sigma
-        """
-        
 
-        #if gates_params_dict['param']!=0 and gates_params_dict['param']!=0:
-        """
-        Make loop for function A
-        """
-
-
-            #run_A(sigma, params, ...)
-
-
-
+#Lets create C also
+for i in range(len(theta_list)):
+    c_term=run_C(gates_str, theta_list, j)
+    
+    C_vec[i]=np.real(c_term)
 
 """
-Compute C with a loop, can this be done inside the other looop?
-"""
-
-"""
-Make function run_C
+Next step:
+Make the ITE handle tensorproducts also, find a smart
+way to implement it
 """
 
 
