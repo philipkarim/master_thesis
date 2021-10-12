@@ -303,10 +303,13 @@ C_vec=np.copy(get_C(theta_list, gates_str))
 """
 I dont see how A and C depends on A or C except maybe from the hamiltonian?
 ...Anyway here it the next step:
+-Implement tensor product
 -Find omega cdot{w}, by inverting A.
 -Find derivative of thetaC and theta A
 -floow the loop in varQITE
 """
+
+
 
 def varQITE_state_preparation(self, steps_n, params):
     """
@@ -350,7 +353,6 @@ Next step:
 Make the ITE handle tensorproducts also, find a smart
 way to implement it
 """
-
 
 
 
