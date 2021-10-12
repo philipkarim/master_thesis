@@ -308,6 +308,40 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 -floow the loop in varQITE
 """
 
+def varQITE_state_preparation(self, steps_n, params):
+    """
+    Prepares an approximation for the gibbs states using imaginary time evolution 
+    """
+    #Basicly some input values, and then the returned values are the gibbs states.
+    #Probably should make this an own function
+    #And find out how to solve the differential equations
+
+    #Input: page 6 in article algorithm first lines
+    k_b=1
+    temp_T=1
+    tau=0.5*k_b*temp_T
+
+    time_step=tau/steps_n
+    for t in range(time_step, tau+1):   #+1?
+        #Compute A(t) and C(t)
+        A_temp=expression_A(t)
+        C_temp=expression_C(t)
+
+        #Solve A* derivative of \omega=C
+        #No idea how to do it
+        for i in range(len(params)):
+            #Compute the derivative of dC/dtheta_i and dA/dtheta_i
+            derivative_C=1
+            derivative_A=1
+
+            #Solve A(d d omega)=d C -(d A)*d omega(t)
+            
+            #Compute:
+            #dw(t)=dw(t-time_step)+d d w time_step
+        #compute dw
+        #w(t+time_step)=w(t)dw(t)time_step
+
+    return w(t), dw(t)/dtheta 
 
 
 
