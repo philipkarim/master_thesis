@@ -380,3 +380,30 @@ def run_C(U_list, params_circ, i):
                 sum_C+=f_k_i[i]*lambda_l[l]*prediction
 
     return sum_C
+
+def get_A(parameters_list, gates_list):
+    A_mat_temp=np.zeros((len(parameters_list), len(parameters_list)))
+
+    #Loops through the indices of A
+    for i in range(len(parameters_list)):
+        #For each gate 
+        #range(1) if there is no controlled qubits?
+        for j in range(len(parameters_list)):
+            #Get f_i and f_j
+            #Get, the sigma terms
+            
+            #4? dimension of hermitian or n pauliterms? 
+            a_term=run_A(gates_list, parameters_list, i, j)
+            
+            A_mat_temp[i][j]=np.real(a_term)
+
+    return A_mat_temp
+
+def get_C(parameters_list, gates_list):
+    C_vec_temp=np.zeros(len(parameters_list))
+    #Lets create C also
+    for i in range(len(parameters_list)):
+        c_term=run_C(gates_list, parameters_list, i)
+        C_vec_temp[i]=np.real(c_term)
+
+    return C_vec_temp

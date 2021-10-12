@@ -295,34 +295,28 @@ qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 test_par=update_parameter_dict(parameter_dict, [0,3])
 qc_param2=qc_param.bind_parameters(test_par)
 
-A_mat=np.zeros((len(theta_list), len(theta_list)))
-C_vec=np.zeros(len(theta_list))
-
-#Loops through the indices of A
-for i in range(len(theta_list)):
-    #For each gate 
-    #range(1) if there is no controlled qubits?
-    for j in range(len(theta_list)):
-        #Get f_i and f_j
-        #Get, the sigma terms
-        
-        #4? dimension of hermitian or n pauliterms? 
-        a_term=run_A(gates_str, theta_list, i, j)
-        
-        A_mat[i][j]=np.real(a_term)
 
 
-#Lets create C also
-for i in range(len(theta_list)):
-    c_term=run_C(gates_str, theta_list, j)
-    
-    C_vec[i]=np.real(c_term)
+A_mat=np.copy(get_A(theta_list, gates_str))
+C_vec=np.copy(get_C(theta_list, gates_str))
+
+"""
+I dont see how A and C depends on A or C except maybe from the hamiltonian?
+...Anyway here it the next step:
+-Find omega cdot{w}, by inverting A.
+-Find derivative of thetaC and theta A
+-floow the loop in varQITE
+"""
+
+
+
 
 """
 Next step:
 Make the ITE handle tensorproducts also, find a smart
 way to implement it
 """
+
 
 
 
