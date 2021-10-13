@@ -147,6 +147,8 @@ psi_in_test.initialize(initial_state, 0)
 
 #expectation=evaluation_circuit(psi_in_test, 'C', V_test, U_test)
 
+
+
 """
 Okay lezzgo, plan is as follows:
 -Write a function to return the derivative for 1 qubit without controlled gates
@@ -163,9 +165,14 @@ V_series_test.rx(2*np.pi*theta_test[0],0, label='rx')
 print(V_series_test[0])
 
 #V_series_test.ry(2*np.pi*theta_test[0],0)
+
 #print(V_series_test.num_unitary_factors())
 #print(V_series_test.width())
+
+
 #print(V_series_test.qbit_argument_conversion(V_series_test))
+
+
 #rint(V_series_test.num_ctrl_qubits())
 
 def derivative_U(U_gate):
@@ -217,10 +224,7 @@ Do the same for C
 This does not work, if a control qubit is applied to the last qubit and is the only one
 should work for most of them tho 
 """
-gates_str=[['rx',0],['ry', 0], ['rz', 0]] #, ['crz', 0, 1]]
-
-H_simple=[[0.2, 'x'], [0.4, 'z'], [1-np.sqrt(0.2**2+0.4**2),'y']]
-
+gates_str=[['rx',0],['ry', 0], ['rz', 0]]
 num_qubits= max([el[1] for el in gates_str])
 n_params=len(gates_str)
 
@@ -266,6 +270,18 @@ for i in range(len(gates_str)):
         exit()
 
 """
+#Creates the circuit
+for i in range(len(gates_str)):
+    if len(gates_str[i])==2:
+        getattr(qc_param, gates_str[i][0])(qk.circuit.Parameter(chr(65+i)), gates_str[i][1])
+    elif len(gates_str[i])==3:
+        getattr(qc_param, gates_str[i][0])(qk.circuit.Parameter(chr(65+i)), gates_str[i][1], gates_str[i][2])
+    else:
+        print("Function not implemented with double controlled gates yet")
+        exit()
+"""
+
+"""
 This basicly, creates a new circuit with the existing gates, 
 then the runs the copy, and when completed makes a copy of the main circuit with
 new parameters. Difference between (bind_parameters and assign_parameters?)
@@ -279,48 +295,19 @@ qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 test_par=update_parameter_dict(parameter_dict, [0,3])
 qc_param2=qc_param.bind_parameters(test_par)
 
-print(qc_param2)
+
 
 A_mat=np.copy(get_A(theta_list, gates_str))
-C_vec=np.copy(get_C(theta_list, gates_str, H_simple))
+C_vec=np.copy(get_C(theta_list, gates_str))
 
-print(A_mat)
-print(C_vec)
 """
 I dont see how A and C depends on A or C except maybe from the hamiltonian?
 ...Anyway here it the next step:
 -Implement tensor product
 -Find omega cdot{w}, by inverting A.
 -Find derivative of thetaC and theta A
--follow the loop in varQITE
+-floow the loop in varQITE
 """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -357,7 +344,7 @@ def varQITE_state_preparation(self, steps_n, params):
         #compute dw
         #w(t+time_step)=w(t)dw(t)time_step
 
-    return w(t), dw(t) 
+    return w(t), dw(t)/dtheta 
 
 
 

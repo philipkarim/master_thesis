@@ -276,13 +276,7 @@ def run_A(U_list, params_circ, i, j):
                 """
                 #Then we loop thorugh the gates in U untill we reach the sigma
                 for ii in range(i-1):
-                    if len(U_list[ii])==2:
-                        getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1])
-                    elif len(U_list[ii])==3:
-                        getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1], U_list[ii][2])
-                    else:
-                        print('Something is wrong, I can sense it')
-                        exit()
+                    getattr(temp_circ, U_list[ii][0])(params_circ[ii], 1)
                 #Add x gate                
                 temp_circ.x(0)
                 #Then we add the sigma
@@ -291,22 +285,9 @@ def run_A(U_list, params_circ, i, j):
                 temp_circ.x(0)
                 #Continue the U_i gate:
                 for keep_going in range(i-1, len(U_list)):
-                    if len(U_list[keep_going])==2:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], 1)
-                    elif len(U_list[keep_going])==3:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1], U_list[keep_going][2])
-                    else:
-                        print('Something is wrong, I can feel it')
-                        exit()
+                    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going],1)
                 for jj in range(j-1):
-                    if len(U_list[jj])==2:
-                        getattr(temp_circ, U_list[jj][0])(params_circ[jj], 1)
-                    elif len(U_list[jj])==3:
-                        getattr(temp_circ, U_list[jj][0])(params_circ[jj], U_list[jj][1], U_list[jj][2])
-                    else:
-                        print('Something is wrong, I can feel it')
-                        exit()
-
+                    getattr(temp_circ, U_list[jj][0])(params_circ[jj], 1)
                 getattr(temp_circ, 'c'+pauli_names[i])(0,1)
                 temp_circ.h(0)
                 temp_circ.measure(0, 0)
@@ -332,9 +313,9 @@ def run_A(U_list, params_circ, i, j):
     return sum_A
 
 
-def run_C(U_list, params_circ, H_list, i):
+def run_C(U_list, params_circ, i):
     gate_label_i=U_list[i][0]
-
+    
     f_k_i=np.conjugate(get_f_sigma(gate_label_i))
     """
     lambda is actually the coefficirents of the hamiltonian,
@@ -344,8 +325,6 @@ def run_C(U_list, params_circ, H_list, i):
     """
     #The length might be longer than this
     lambda_l=np.random.uniform(0,1,size=len(f_k_i))
-    lambda_l=(np.array(H_list)[:, 0], dtype=np.complex)
-
     #This is just to have something there
     h_l=['i', 'x', 'y', 'z']
 
@@ -364,13 +343,7 @@ def run_C(U_list, params_circ, H_list, i):
 
                 #Then we loop thorugh the gates in U untill we reach the sigma
                 for ii in range(i-1):
-                    if len(U_list[ii])==2:
-                        getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1])
-                    elif len(U_list[ii])==3:
-                        getattr(temp_circ, U_list[ii][0])(params_circ[ii], U_list[ii][1], U_list[ii][2])
-                    else:
-                        print('Something is wrong')
-
+                    getattr(temp_circ, U_list[ii][0])(params_circ[ii], 1)
                 #Add x gate                
                 temp_circ.x(0)
                 #Then we add the sigma
@@ -379,17 +352,10 @@ def run_C(U_list, params_circ, H_list, i):
                 temp_circ.x(0)
                 #Continue the U_i gate:
                 for keep_going in range(i-1, len(U_list)):
-                    if len(U_list[keep_going])==2:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], 1)
-                    elif len(U_list[keep_going])==3:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1], U_list[keep_going][2])
-                    else:
-                        print('Something is wrong, I can feel it')
-                        exit()
+                    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going],1)
                 #Then add the h_l gate
-                #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
-                if H_list[l][1]!='I':
-                    getattr(temp_circ, 'c'+H_list[l][1])(0,1)
+                if l!=0:
+                    getattr(temp_circ, 'c'+h_l[l])(0,1)
                 
                 temp_circ.h(0)
                 temp_circ.measure(0, 0)
@@ -411,12 +377,7 @@ def run_C(U_list, params_circ, H_list, i):
                         prediction += value
                 prediction/=1024
                 
-                
-                #print(prediction)
-                print(f_k_i[i]*3)
-                #print(lambda_l[l])
-                print()
-                sum_C+=np.real(f_k_i[i])*lambda_l[l]*prediction
+                sum_C+=f_k_i[i]*lambda_l[l]*prediction
 
     return sum_C
 
@@ -438,11 +399,11 @@ def get_A(parameters_list, gates_list):
 
     return A_mat_temp
 
-def get_C(parameters_list, gates_list, hamilton_list):
+def get_C(parameters_list, gates_list):
     C_vec_temp=np.zeros(len(parameters_list))
     #Lets create C also
     for i in range(len(parameters_list)):
-        c_term=run_C(gates_list, parameters_list,hamilton_list, i)
+        c_term=run_C(gates_list, parameters_list, i)
         C_vec_temp[i]=np.real(c_term)
 
     return C_vec_temp
