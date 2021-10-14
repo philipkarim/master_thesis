@@ -344,9 +344,9 @@ def run_C(U_list, params_circ, H_list, i):
     """
 
     #The length might be longer than this
-    lambda_l=np.random.uniform(0,1,size=len(f_k_i))
-    lambda_l=(np.array(H_list)[:, 0])
-    lambda_l=lambda_l, type=complex
+    #lambda_l=np.random.uniform(0,1,size=len(f_k_i))
+    lambda_l=(np.array(H_list)[:, 0]).astype('complex')
+    #arr = arr.astype('float64')
 
     #lambda_l=(np.array(H_list)[:, 0], dtype=np.complex)
 
@@ -415,12 +415,7 @@ def run_C(U_list, params_circ, H_list, i):
                         prediction += value
                 prediction/=1024
                 
-                
-                #print(prediction)
-                print(f_k_i[i]*3)
-                #print(lambda_l[l])
-                print()
-                sum_C+=np.real(f_k_i[i])*lambda_l[l]*prediction
+                sum_C+=f_k_i[i]*lambda_l[l]*prediction
 
     return sum_C
 

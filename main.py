@@ -324,7 +324,9 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 
 
 
-def varQITE_state_preparation(self, steps_n, params):
+
+
+def varQITE_state_preparation(steps_n, H_theta):
     """
     Prepares an approximation for the gibbs states using imaginary time evolution 
     """
@@ -338,17 +340,31 @@ def varQITE_state_preparation(self, steps_n, params):
     tau=0.5*k_b*temp_T
 
     time_step=tau/steps_n
+
+    #initialisation of w for each theta, starting with 0?
+    w_dtheta=np.zeros(len(H_theta))
+
     for t in range(time_step, tau+1):   #+1?
         #Compute A(t) and C(t)
         A_temp=expression_A(t)
         C_temp=expression_C(t)
 
+        omega_derivative=np.inv(A_temp)@C_temp
+
         #Solve A* derivative of \omega=C
         #No idea how to do it
-        for i in range(len(params)):
-            #Compute the derivative of dC/dtheta_i and dA/dtheta_i
-            derivative_C=1
-            derivative_A=1
+        for i in range(len(H_theta)): 
+            #Compute the expression of the derivative
+            dA_mat=np.copy(get_dA(theta_list, gates_str))
+            dC_vec=np.copy(get_dC(theta_list, gates_str, H_simple))
+
+            #Now we compute the derivative of omega derivated with respect to
+            #hamiltonian parameter
+            A_inv_temp=np.inv(A_temp)
+            #dA_mat_inv=np.inv(dA_mat)
+            w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
+
+            w_dtheta[i]=w_dtheta[i]+w_dtheta_dt*time_step
 
             #Solve A(d d omega)=d C -(d A)*d omega(t)
             
@@ -367,6 +383,10 @@ Make the ITE handle tensorproducts also, find a smart
 way to implement it
 """
 
+#Theta parameters are dependent of the hamiltonian so for each
+#rotation in the fig, the theta params are equal.
+#Then the omega things are initialized, and then the next can be
+#computed forward.
 
 
 
