@@ -342,9 +342,13 @@ def run_C(U_list, params_circ, H_list, i):
     Hamiltonian to implement is xD
     Also h_l are tensorproducts of the thing, find out how to compute tensor products optimized way
     """
+
     #The length might be longer than this
     lambda_l=np.random.uniform(0,1,size=len(f_k_i))
-    lambda_l=(np.array(H_list)[:, 0], dtype=np.complex)
+    lambda_l=(np.array(H_list)[:, 0])
+    lambda_l=lambda_l, type=complex
+
+    #lambda_l=(np.array(H_list)[:, 0], dtype=np.complex)
 
     #This is just to have something there
     h_l=['i', 'x', 'y', 'z']
