@@ -407,8 +407,9 @@ dwt=1
 #with qubit systems
 qubits_in_H=4
 
-test_parameters_H=np.random.randn(5)
-print(test_parameters_H)
+np.random.seed(222)
+test_parameters=np.random.randn(5)
+print(test_parameters)
 
 p_v_data=abs(np.random.randn(2**qubits_in_H))
 
@@ -421,17 +422,20 @@ p_v_QBM=abs(np.random.randn(2**qubits_in_H))
 dp_v_QBM=1
 
 #Then find dL/d theta by using eq. 10
-gradient_theta=0.5
+gradient_theta=np.random.randn(5)
 
 #Update the classical parameters, this could be done by using a classical optimizer
 """
 Updating the parameters:
 """
-optim=optimize()
+optim=optimize(len(test_parameters)) ##Do not call this each iteration, it will mess with the momentum
 loss=optim.cross_entropy_new(p_v_data,p_v_QBM)
 #Update the parameters
-new_parameters=optim.gradient_descent_gradient_done(test_parameters_H, 0.01, gradient_theta)
-new_parameters=optim.adam()
+#new_parameters=optim.gradient_descent_gradient_done(test_parameters, 0.01, gradient_theta)
+
+new_parameters=optim.adam(test_parameters, gradient_theta)
+
+#print(loss)
 
 
 

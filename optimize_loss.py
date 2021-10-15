@@ -1,7 +1,7 @@
 import numpy as np
 
 class optimize:
-    def __init__(self, learning_rate=None, circuit=None):
+    def __init__(self, number_params, learning_rate=0.001, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -10,9 +10,12 @@ class optimize:
             learning_rate:  Learning rate used in gradient descent
             circuit:        Quantum circuit that is used
         """
-
+        self.number_params=number_params
         self.learning_rate=learning_rate
         self.circuit=circuit
+        self.t=1 #or 1?    
+        self.m = np.zeros(number_params)
+        self.v = np.zeros(number_params)
 
     def cross_entropy_new(self, p_data,p_BM):
         """
@@ -23,6 +26,26 @@ class optimize:
             loss+=p_data[i]*np.log(p_BM[i])
 
         return -loss
+    # gradient descent algorithm with adam
+    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
+        """
+        I guess something like this should work?
+        
+        based on the following article:
+        https://machinelearningmastery.com/adam-optimization-from-scratch/
+        """
+        #Just using formulas from 
+        # https://ruder.io/optimizing-gradient-descent/index.html#adam
+        self.m = beta1 * self.m+ (1.0 - beta1) * g
+        self.v = beta2 * self.v + (1.0 - beta2) * g**2
+        mhat = self.m / (1.0 - beta1**(self.t))
+        vhat = self.v / (1.0 - beta2**(self.t))
+        x -= self.learning_rate*mhat / (np.sqrt(vhat) + eps)
+            
+        #Add 1 to the counter
+        self.t+=1
+
+        return x
     
     def gradient_descent_gradient_done(self, params, lr, gradient):
         """
