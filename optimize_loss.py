@@ -1,7 +1,7 @@
 import numpy as np
 
 class optimize:
-    def __init__(self, learning_rate, circuit):
+    def __init__(self, learning_rate=None, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -14,6 +14,30 @@ class optimize:
         self.learning_rate=learning_rate
         self.circuit=circuit
 
+    def cross_entropy_new(self, p_data,p_BM):
+        """
+        Loss function from article (2)
+        """
+        loss=0
+        for i in range(len(p_data)):
+            loss+=p_data[i]*np.log(p_BM[i])
+
+        return -loss
+    
+    def gradient_descent_gradient_done(self, params, lr, gradient):
+        """
+        Gradient descent function.
+        
+        Args:
+                params:     Variational parameters(list or array)
+                lr:         Learning rate
+                gradint:     True labels of the samples(list or array)
+                samples:    Samples reprenting the true labels and 
+                            predictions. (2D Matrix)
+        """
+        params-=lr*gradient
+        return params
+    
     def gradient_descent(self, params, predicted, target, samples):
         """
         Gradient descent function.

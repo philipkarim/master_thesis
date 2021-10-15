@@ -48,7 +48,7 @@ C_expression=C_first(time_tau, H_1q, psi_0)
 #Define a qc cirquit creating V: U_1=e^(iH(w)) where i think M could be the gates in H? or not?
 #So basicly: define \psi_in and \V each run probably.
 
-###okay lets fucking do this! Here is the plan:
+###okay lets do this! Here is the plan:
 
 """
 Define V and psi_in as psi tau (0). Try using V from figure
@@ -218,8 +218,10 @@ This does not work, if a control qubit is applied to the last qubit and is the o
 should work for most of them tho 
 """
 gates_str=[['rx',0],['ry', 0], ['rz', 0]] #, ['crz', 0, 1]]
-
+V_test=[['rx',0],['ry', 0], ['rz', 0]]
 H_simple=[[0.2, 'x'], [0.4, 'z'], [1-np.sqrt(0.2**2+0.4**2),'y']]
+H_sup=[[0.2252, 'i'], [0.3435, 'z', 0], [-0.4347, 'z', 1], [0.5716, 'z', 0, 'z', 1], [0.0910, 'y', 0, 'y', 1], [0.0910, 'x', 0, 'x', 1]]
+
 
 num_qubits= max([el[1] for el in gates_str])
 n_params=len(gates_str)
@@ -349,7 +351,9 @@ def varQITE_state_preparation(steps_n, H_theta):
         A_temp=expression_A(t)
         C_temp=expression_C(t)
 
-        omega_derivative=np.inv(A_temp)@C_temp
+        A_inv_temp=np.inv(A_temp)
+        
+        omega_derivative=A_inv_temp@C_temp
 
         #Solve A* derivative of \omega=C
         #No idea how to do it
@@ -360,11 +364,10 @@ def varQITE_state_preparation(steps_n, H_theta):
 
             #Now we compute the derivative of omega derivated with respect to
             #hamiltonian parameter
-            A_inv_temp=np.inv(A_temp)
             #dA_mat_inv=np.inv(dA_mat)
             w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
 
-            w_dtheta[i]=w_dtheta[i]+w_dtheta_dt*time_step
+            w_dtheta[i]+=w_dtheta_dt*time_step
 
             #Solve A(d d omega)=d C -(d A)*d omega(t)
             
@@ -374,7 +377,6 @@ def varQITE_state_preparation(steps_n, H_theta):
         #w(t+time_step)=w(t)dw(t)time_step
 
     return w(t), dw(t) 
-
 
 
 """
@@ -387,6 +389,86 @@ way to implement it
 #rotation in the fig, the theta params are equal.
 #Then the omega things are initialized, and then the next can be
 #computed forward.
+
+
+"""
+Okay here is the real next step, assuming we got the VarITE:
+- Generate pw and
+-Then use pw and dw/dtheta to compute pw_QBM and dpw_QBM/dtheta
+-Compute the loss and stuff like that
+-Update the parameters in the Hamiltonian
+"""
+
+w_t=1
+dwt=1
+
+#Find p_w_gibbs by using eq.8.5 for each configuration and tracing over the qubit thing
+#which should be thaaat hard iguess, need to understand the thing
+#with qubit systems
+qubits_in_H=4
+
+test_parameters_H=np.random.randn(5)
+print(test_parameters_H)
+
+p_v_data=abs(np.random.randn(2**qubits_in_H))
+
+p_w_gibbs=np.random.randn(2**qubits_in_H)
+
+#Then compute p_v_QBM by tr(mystic A \cdot p_gibbs 8.75
+p_v_QBM=abs(np.random.randn(2**qubits_in_H))
+
+#Then compute the dp_v_QBM by using eq.10 chain rule or shift?
+dp_v_QBM=1
+
+#Then find dL/d theta by using eq. 10
+gradient_theta=0.5
+
+#Update the classical parameters, this could be done by using a classical optimizer
+"""
+Updating the parameters:
+"""
+optim=optimize()
+loss=optim.cross_entropy_new(p_v_data,p_v_QBM)
+#Update the parameters
+new_parameters=optim.gradient_descent_gradient_done(test_parameters_H, 0.01, gradient_theta)
+new_parameters=optim.adam()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
