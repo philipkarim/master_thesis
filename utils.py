@@ -5,6 +5,7 @@ Expressions utilized throughout the scripts
 from typing import ValuesView
 import numpy as np
 import matplotlib.pyplot as plt
+from qiskit import circuit
 import seaborn as sns
 import os
 import random
@@ -74,7 +75,7 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc, shots=1024, backend="qasm_simulator"):
+def run_circuit(qc, shots=1024, backend="qasm_simulator", histogram=False):
     job = qk.execute(qc,
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,
@@ -82,6 +83,10 @@ def run_circuit(qc, shots=1024, backend="qasm_simulator"):
                     )
     results = job.result()
     results = results.get_counts(qc)
+
+    if histogram==True:
+        qk.visualization.plot_histogram(results)
+        plt.show()
 
     prediction = 0
     for key,value in results.items():
@@ -445,3 +450,41 @@ def get_C(parameters_list, gates_list, hamilton_list):
         C_vec_temp[i]=np.real(c_term)
 
     return C_vec_temp
+
+
+#Just some testing of producing the initialstate
+def create_initialstate(gates_params):
+    #param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 0,1], ['cx', 1, 0], ['cx', 0, 1]]
+
+    #Creating the circuit
+    qr = qk.QuantumRegister(2)
+    #cr = qk.ClassicalRegister(1)
+
+    circ = qk.QuantumCircuit(qr)
+
+    for i in range(len(gates_params)):
+        getattr(circ, gates_params[i][0])(gates_params[i][1], gates_params[i][2])
+    circ.measure_all()
+
+    #print(run_circuit(circ, shots=1024*8, histogram=True))
+
+    return circ
+
+def evaluate_A2():
+    """
+    Just trying to evaluate A with fig2 example
+    """
+    A_mat_temp=np.zeros((len(parameters_list), len(parameters_list)))
+
+    #Loops through the indices of A
+    for i in range(len(parameters_list)):
+        #For each gate 
+        #range(1) if there is no controlled qubits?
+        for j in range(len(parameters_list)):
+            #Get f_i and f_j
+            #Get, the sigma terms
+            
+            #4? dimension of hermitian or n pauliterms? 
+            a_term=run_A(gates_list, parameters_list, i, j)
+            
+            A_mat_temp[i][j]=np.real(a_term)

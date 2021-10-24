@@ -217,6 +217,12 @@ Do the same for C
 This does not work, if a control qubit is applied to the last qubit and is the only one
 should work for most of them tho 
 """
+#Trying to reproduce fig2- Now we know that these params produce a bell state
+param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+"""
+Testing
+"""
+
 gates_str=[['rx',0],['ry', 0], ['rz', 0]] #, ['crz', 0, 1]]
 V_test=[['rx',0],['ry', 0], ['rz', 0]]
 H_simple=[[0.2, 'x'], [0.4, 'z'], [1-np.sqrt(0.2**2+0.4**2),'y']]
@@ -281,13 +287,13 @@ qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 test_par=update_parameter_dict(parameter_dict, [0,3])
 qc_param2=qc_param.bind_parameters(test_par)
 
-print(qc_param2)
+#print(qc_param2)
 
 A_mat=np.copy(get_A(theta_list, gates_str))
 C_vec=np.copy(get_C(theta_list, gates_str, H_simple))
 
-print(A_mat)
-print(C_vec)
+#print(A_mat)
+#print(C_vec)
 """
 I dont see how A and C depends on A or C except maybe from the hamiltonian?
 ...Anyway here it the next step:
@@ -297,7 +303,7 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 -follow the loop in varQITE
 """
 
-
+BS_circ_initial=np.copy(create_initialstate(param_fig2))
 
 
 
@@ -409,7 +415,7 @@ qubits_in_H=4
 
 np.random.seed(222)
 test_parameters=np.random.randn(5)
-print(test_parameters)
+#print(test_parameters)
 
 p_v_data=abs(np.random.randn(2**qubits_in_H))
 
