@@ -218,11 +218,11 @@ This does not work, if a control qubit is applied to the last qubit and is the o
 should work for most of them tho 
 """
 #Trying to reproduce fig2- Now we know that these params produce a bell state
-param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+#param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+
 """
 Testing
 """
-
 gates_str=[['rx',0],['ry', 0], ['rz', 0]] #, ['crz', 0, 1]]
 V_test=[['rx',0],['ry', 0], ['rz', 0]]
 H_simple=[[0.2, 'x'], [0.4, 'z'], [1-np.sqrt(0.2**2+0.4**2),'y']]
@@ -289,8 +289,8 @@ qc_param2=qc_param.bind_parameters(test_par)
 
 #print(qc_param2)
 
-A_mat=np.copy(get_A(theta_list, gates_str))
-C_vec=np.copy(get_C(theta_list, gates_str, H_simple))
+#A_mat=np.copy(get_A(theta_list, gates_str))
+#C_vec=np.copy(get_C(theta_list, gates_str, H_simple))
 
 #print(A_mat)
 #print(C_vec)
@@ -303,17 +303,29 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 -follow the loop in varQITE
 """
 
-BS_circ_initial=np.copy(create_initialstate(param_fig2))
+"""
+New chapter.. recreate fig 2
+"""
+#Trying to reproduce fig2- Now we know that these params produce a bell state
+param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+H_simple=[[1., 'z']]
+V_test2=[['rx',0, 0],['ry', 0, 0], ['rz', 0, 0]]
+
+"""
+Testing
+"""
 
 
+#print(param_fig2)
+#BS_circ_initial=create_initialstate(param_fig2)
 
+#print(BS_circ_initial)
 
+A_mat2=np.copy(get_A2(param_fig2))
+C_vec2=np.copy(get_C2(param_fig2, H_simple))
 
-
-
-
-
-
+print(A_mat2)
+print(C_vec2)
 
 
 
