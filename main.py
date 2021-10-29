@@ -327,6 +327,8 @@ C_vec2=np.copy(get_C2(param_fig2, H_simple))
 print(A_mat2)
 print(C_vec2)
 
+for nan in C_vec2:
+    print(nan)
 
 
 

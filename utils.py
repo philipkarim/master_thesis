@@ -483,6 +483,8 @@ def create_initialstate(gates_params):
     return circ
 
 def get_A2(V_list):
+    
+    #Lets try to remove the controlled gates
     A_mat_temp=np.zeros((len(V_list), len(V_list)))
 
     #Loops through the indices of A
@@ -497,7 +499,7 @@ def get_A2(V_list):
             a_term=run_A2(V_list, i, j)
             
             A_mat_temp[i][j]=np.real(a_term)
-
+        
     return A_mat_temp
 
 
