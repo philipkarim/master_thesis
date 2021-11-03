@@ -324,13 +324,31 @@ Testing
 A_mat2=np.copy(get_A2(param_fig2))
 C_vec2=np.copy(get_C2(param_fig2, H_simple))
 
-print(A_mat2)
-print(C_vec2)
-
-for nan in C_vec2:
-    print(nan)
+#print(A_mat2)
+#print(C_vec2)
 
 
+def remove_Nans(A, C):
+    """
+    Just removing the vectors and nan elements corresponding 
+    to gates not dependent of theta
+    """
+    indexes=[]
+    for nan in range(0,len(C)):
+        if np.isnan(C[nan])==True:
+            indexes.append(nan)
+
+    #Remove nans from C
+    C=np.delete(C, indexes)
+
+    #Remove vectors corresponding to C's nans in A
+    A=np.delete(A, indexes, axis=0)
+    A=np.delete(A, indexes, axis=1)
+
+    return A, C
+
+
+A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
 
 
 
