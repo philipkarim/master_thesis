@@ -481,7 +481,7 @@ def create_initialstate(gates_params):
     #print(run_circuit(circ, shots=1024*8, histogram=True))
 
     return circ
-
+"""
 def get_A2(V_list):
     
     #Lets try to remove the controlled gates
@@ -501,8 +501,8 @@ def get_A2(V_list):
             A_mat_temp[i][j]=np.real(a_term)
         
     return A_mat_temp
-
-
+"""
+"""
 def run_A2(U_list, first, sec):
     #gates_str=[['rx',0],['ry', 0]]
 
@@ -526,9 +526,9 @@ def run_A2(U_list, first, sec):
                 #First lets make the circuit:
                 temp_circ=V_circ.copy()
                 
-                """
-                Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
-                """
+                
+                #Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
+                
                 #Then we loop through the gates in U until we reach the sigma
                 for ii in range(i-1):
                     gate1=U_list[ii][0]
@@ -560,15 +560,15 @@ def run_A2(U_list, first, sec):
                     else:
                         getattr(temp_circ, gate)(U_list[keep_going][1], 1)
 
-                    """
-                    if len(U_list[keep_going])==2:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], 1)
-                    elif len(U_list[keep_going])==3:
-                        getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1], U_list[keep_going][2])
-                    else:
-                        print('Something is wrong, I can feel it')
-                        exit()
-                    """
+                    
+                    #if len(U_list[keep_going])==2:
+                    #    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], 1)
+                    #elif len(U_list[keep_going])==3:
+                    #    getattr(temp_circ, U_list[keep_going][0])(params_circ[keep_going], U_list[keep_going][1], U_list[keep_going][2])
+                    #else:
+                    #    print('Something is wrong, I can feel it')
+                    #    exit()
+                    
                 for jj in range(j-1):
                     gate3=U_list[jj][0]
                     if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
@@ -576,15 +576,15 @@ def run_A2(U_list, first, sec):
                     else:
                         getattr(temp_circ, gate3)(U_list[jj][1], 1)
 
-                    """
-                    if len(U_list[jj])==2:
-                        getattr(temp_circ, U_list[jj][0])(params_circ[jj], 1)
-                    elif len(U_list[jj])==3:
-                        getattr(temp_circ, U_list[jj][0])(params_circ[jj], U_list[jj][1], U_list[jj][2])
-                    else:
-                        print('Something is wrong, I can feel it')
-                        exit()
-                    """
+                    
+                   # if len(U_list[jj])==2:
+                   #     getattr(temp_circ, U_list[jj][0])(params_circ[jj], 1)
+                   # elif len(U_list[jj])==3:
+                   #     getattr(temp_circ, U_list[jj][0])(params_circ[jj], U_list[jj][1], U_list[jj][2])
+                   # else:
+                   #     print('Something is wrong, I can feel it')
+                   #     exit()
+                    
 
                 getattr(temp_circ, 'c'+pauli_names[i])(0,1)
                 temp_circ.h(0)
@@ -592,23 +592,24 @@ def run_A2(U_list, first, sec):
 
                 #print(temp_circ)
 
-                """
-                Measures the circuit
-                """
+                
+                #Measures the circuit
+                
                 #print(temp_circ)
                 prediction=run_circuit(temp_circ)
 
                 sum_A+=f_k_i[i]*f_l_j[j]*prediction
 
     return sum_A
-
+"""
+"""
 def get_C2(V_list, H_list):
-    """
-    counter=0
-    for vec in range(len(V_list)):
-        if V_list[vec][0][0]!='c':
-            counter+=1
-    """
+    
+    #counter=0
+    #for vec in range(len(V_list)):
+    #    if V_list[vec][0][0]!='c':
+    #        counter+=1
+    
     C_vec_temp=np.zeros(len(V_list))
     print(C_vec_temp)
 
@@ -627,18 +628,18 @@ def get_C2(V_list, H_list):
         #C_vec_temp[i]=np.real(c_term)
 
     return C_vec_temp
-
-
+"""
+"""
 def run_C2(U_list, H_list, fir):
     gate_label_i=U_list[fir][0]
 
     f_k_i=np.conjugate(get_f_sigma(gate_label_i))
-    """
-    lambda is actually the coefficirents of the hamiltonian,
-    but I think I should wait untill I actually have the
-    Hamiltonian to implement is xD
-    Also h_l are tensorproducts of the thing, find out how to compute tensor products optimized way
-    """
+    
+    #lambda is actually the coefficirents of the hamiltonian,
+    #but I think I should wait untill I actually have the
+    #Hamiltonian to implement is xD
+    #Also h_l are tensorproducts of the thing, find out how to compute tensor products optimized way
+    
 
     #The length might be longer than this
     #lambda_l=np.random.uniform(0,1,size=len(f_k_i))
@@ -705,7 +706,9 @@ def run_C2(U_list, H_list, fir):
                 sum_C+=f_k_i[i]*lambda_l[l]*prediction
 
                 return sum_C
-    
+"""
+
+
 def remove_Nans(A, C):
     """
     Just removing the vectors and nan elements corresponding 

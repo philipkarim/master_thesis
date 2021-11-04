@@ -7,6 +7,8 @@ from optimize_loss import optimize
 from utils import *
 #from varqbm import *
 
+from varQITE import *
+
 from qiskit.circuit import Parameter, ParameterVector
 
 
@@ -316,8 +318,8 @@ Testing
 """
 
 #make_varQITE object
-varQITE=
-
+varqite=varQITE(H_simple, param_fig2)
+varqite.state_prep()
 
 
 #print(param_fig2)
@@ -325,18 +327,16 @@ varQITE=
 
 #print(BS_circ_initial)
 
-A_mat2=np.copy(get_A2(param_fig2))
-C_vec2=np.copy(get_C2(param_fig2, H_simple))
+#A_mat2=np.copy(get_A2(param_fig2))
+#C_vec2=np.copy(get_C2(param_fig2, H_simple))
 
 #print(A_mat2)
 #print(C_vec2)
 
-A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
+#A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
 
-print(A_mat2)
-print(C_vec2)
-
-
+#print(A_mat2)
+#print(C_vec2)
 
 
 
@@ -346,10 +346,10 @@ print(C_vec2)
 
 
 
+
+"""
 def varQITE_state_preparation(steps_n, H_theta):
-    """
-    Prepares an approximation for the gibbs states using imaginary time evolution 
-    """
+
     #Basicly some input values, and then the returned values are the gibbs states.
     #Probably should make this an own function
     #And find out how to solve the differential equations
@@ -395,7 +395,7 @@ def varQITE_state_preparation(steps_n, H_theta):
         #w(t+time_step)=w(t)dw(t)time_step
 
     return w(t), dw(t) 
-
+"""
 
 """
 Next step:
