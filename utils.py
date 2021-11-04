@@ -706,3 +706,21 @@ def run_C2(U_list, H_list, fir):
 
                 return sum_C
     
+def remove_Nans(A, C):
+    """
+    Just removing the vectors and nan elements corresponding 
+    to gates not dependent of theta
+    """
+    indexes=[]
+    for nan in range(0,len(C)):
+        if np.isnan(C[nan])==True:
+            indexes.append(nan)
+
+    #Remove nans from C
+    C=np.delete(C, indexes)
+
+    #Remove vectors corresponding to C's nans in A
+    A=np.delete(A, indexes, axis=0)
+    A=np.delete(A, indexes, axis=1)
+
+    return A, C
