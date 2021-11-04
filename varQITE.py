@@ -44,6 +44,8 @@ class varQITE:
             print(A_mat2)
             print(C_vec2)
 
+            
+
             A_inv_temp=np.inv(A_temp)
             
             omega_derivative=A_inv_temp@C_temp
