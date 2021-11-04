@@ -42,13 +42,16 @@ class varQITE:
             A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
 
             print(A_mat2)
-            print(C_vec2)
+            print(C_vec2)            
 
-            
+            A_inv_temp=np.linalg.pinv(A_mat2)
 
-            A_inv_temp=np.inv(A_temp)
-            
-            omega_derivative=A_inv_temp@C_temp
+            print(A_inv_temp)
+            """
+            Continue from her
+            """
+
+            omega_derivative=A_inv_temp@C_vec2
 
             #Solve A* derivative of \omega=C
             #No idea how to do it
