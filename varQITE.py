@@ -51,7 +51,7 @@ class varQITE:
             C_vec2=np.copy(self.get_C2())
             #print(A_mat2)
 
-            A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
+            A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
 
             print(A_mat2)
             print(C_vec2)            
@@ -230,10 +230,10 @@ class varQITE:
                 #Get, the sigma terms
                 
                 #4? dimension of hermitian or n pauliterms? 
-            c_term=self.run_C2(i)
+            c_term=np.imag(self.run_C2(i))
             #print(c_term)
             C_vec_temp[i]=c_term    
-
+            #print(C_vec_temp[i])
             #C_vec_temp[i]=np.real(c_term)
 
         return C_vec_temp
@@ -315,5 +315,6 @@ class varQITE:
                     prediction=run_circuit(temp_circ)
                     
                     sum_C+=f_k_i[i]*lambda_l[l]*prediction
+                    #print(sum_C)
 
-                    return sum_C
+        return sum_C

@@ -727,3 +727,24 @@ def remove_Nans(A, C):
     A=np.delete(A, indexes, axis=1)
 
     return A, C
+
+def remove_constant_gates(V_circ, A, C):
+    """
+    Just removing the vectors and nan elements corresponding 
+    to gates not dependent of theta
+    """
+    indexes=[]
+    for i in range(0,len(C)):
+        if V_circ[i][0]=='rx' or V_circ[i][0]=='ry' or V_circ[i][0]=='rz':
+            pass
+        else:
+            indexes.append(i)
+
+    #Remove nans from C
+    C=np.delete(C, indexes)
+
+    #Remove vectors corresponding to C's nans in A
+    A=np.delete(A, indexes, axis=0)
+    A=np.delete(A, indexes, axis=1)
+
+    return A, C
