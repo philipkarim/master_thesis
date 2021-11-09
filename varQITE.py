@@ -18,6 +18,13 @@ class varQITE:
         self.maxTime=maxTime
         self.steps=steps
 
+        n_qubits=0
+        for i in range(len(trial_circ)):
+            if n_qubits<trial_circ[i][2]:
+                n_qubits=trial_circ[i][2]
+
+        self.trial_qubits=n_qubits
+
     
     def state_prep(self):
         """
@@ -36,8 +43,12 @@ class varQITE:
 
         for t in np.arange(time_step, self.maxTime+1):   #+1?
             #Compute A(t) and C(t)
+            #print("--------------------")
+            #self.run_A2(0,1)
+            #print("--------------------")
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
+            print(A_mat2)
 
             A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
 
@@ -100,12 +111,12 @@ class varQITE:
 
         gate_label_i=self.trial_circ[first][0]
         gate_label_j=self.trial_circ[sec][0]
-
+        print(gate_label_i, gate_label_j)
         #print(self.trial_circ)
 
         f_k_i=np.conjugate(get_f_sigma(gate_label_i))
         f_l_j=get_f_sigma(gate_label_j)
-        V_circ=encoding_circ('A')
+        V_circ=encoding_circ('A', self.trial_qubits)
 
         pauli_names=['i', 'x', 'y', 'z']
         
@@ -115,21 +126,22 @@ class varQITE:
                 if f_k_i[i]==0 or f_l_j[j]==0:
                     pass
                 else:
+                    #print(f_k_i[i], f_k_i[j])
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
-                    
                     """
                     Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
                     """
                     #Then we loop through the gates in U until we reach the sigma
-                    for ii in range(i-1):
+                    for ii in range(first):
                         gate1=self.trial_circ[ii][0]
                         #print(gate1)
                         if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], self.trial_circ[ii][2])
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
                         else:
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1)
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
 
+                    #print(temp_circ)
                         #if len(self.trial_circ[ii])==2:
                         #    getattr(temp_circ, self.trial_circ[ii][0])(params_circ[ii], self.trial_circ[ii][1])
                         #elif len(self.trial_circ[ii])==3:
@@ -140,18 +152,21 @@ class varQITE:
                     #Add x gate                
                     temp_circ.x(0)
                     #Then we add the sigma
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1)
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
                     #Add x gate                
                     temp_circ.x(0)
+
+                    #print(temp_circ)
                     #Continue the U_i gate:
-                    for keep_going in range(i-1, len(self.trial_circ)):
+                    for keep_going in range(first, len(self.trial_circ)):
                         gate=self.trial_circ[keep_going][0]
                         #print(gate)
+                        #print(gate)
                         if gate == 'cx' or gate == 'cy' or gate == 'cz':
-                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], self.trial_circ[keep_going][2])
+                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         else:
-                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1)
-
+                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         """
                         if len(self.trial_circ[keep_going])==2:
                             getattr(temp_circ, self.trial_circ[keep_going][0])(params_circ[keep_going], 1)
@@ -161,12 +176,14 @@ class varQITE:
                             print('Something is wrong, I can feel it')
                             exit()
                         """
-                    for jj in range(j-1):
+                        #print(temp_circ)   
+                    for jj in range(sec):
                         gate3=self.trial_circ[jj][0]
+                        #print(gate3)
                         if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
-                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], self.trial_circ[jj][2])
+                            getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
                         else:
-                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1)
+                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
 
                         """
                         if len(self.trial_circ[jj])==2:
@@ -178,10 +195,11 @@ class varQITE:
                             exit()
                         """
 
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1)
+                    getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
                     temp_circ.h(0)
                     temp_circ.measure(0,0)
 
+                    print(temp_circ)
                     #print(temp_circ)
 
                     """
@@ -241,7 +259,7 @@ class varQITE:
 
         #This is just to have something there
         #h_l=['i', 'x', 'y', 'z']
-        V_circ=encoding_circ('C')
+        V_circ=encoding_circ('C', self.trial_qubits)
         pauli_names=['i', 'x', 'y', 'z']
         
         sum_C=0

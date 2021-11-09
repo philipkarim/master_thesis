@@ -243,11 +243,11 @@ def update_parameter_dict(dict, new_parameters):
         i+=1
     return dict
 
-def encoding_circ(circuit):
+def encoding_circ(circuit, input_qubits):
     """
     Just defining the quantum circuit encoder in FidS1. in the supplememnt
     """
-    data_register_enc = qk.QuantumRegister(2)
+    data_register_enc = qk.QuantumRegister(2+input_qubits)
     classical_register_enc = qk.ClassicalRegister(1)
     
     qc_enc = qk.QuantumCircuit(data_register_enc, classical_register_enc)
