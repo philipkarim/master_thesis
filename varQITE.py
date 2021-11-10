@@ -40,6 +40,7 @@ class varQITE:
 
         #initialisation of w for each theta, starting with 0?
         w_dtheta=np.zeros(len(self.hamil))
+        omega_w=np.zeros(len(self.hamil))
 
         for t in np.arange(time_step, self.maxTime+1):   #+1?
             #Compute A(t) and C(t)
@@ -59,26 +60,26 @@ class varQITE:
             A_inv_temp=np.linalg.pinv(A_mat2)
 
             #print(A_inv_temp)
-            """
-            Continue from her
-            """
+
 
             omega_derivative=A_inv_temp@C_vec2
 
             #Solve A* derivative of \omega=C
             #No idea how to do it
-            for i in range(len(H_theta)): 
+            for i in range(len(self.hamil)): 
                 #Compute the expression of the derivative
-                dA_mat=np.copy(get_dA(theta_list, gates_str))
-                dC_vec=np.copy(get_dC(theta_list, gates_str, H_simple))
+                dA_mat=np.copy(self.get_dA())
+                dC_vec=np.copy(self.get_dC())
 
+                print(dA_mat)
                 #Now we compute the derivative of omega derivated with respect to
                 #hamiltonian parameter
                 #dA_mat_inv=np.inv(dA_mat)
                 w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
 
                 w_dtheta[i]+=w_dtheta_dt*time_step
-
+            
+            omega_w[t+1]=omega_w[t]+omega_derivative*time_step
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
@@ -86,7 +87,8 @@ class varQITE:
             #compute dw
             #w(t+time_step)=w(t)dw(t)time_step
 
-        return w(t), dw(t) 
+        return omega_w, w_dtheta
+
 
     def get_A2(self):
         #Lets try to remove the controlled gates
@@ -318,3 +320,7 @@ class varQITE:
                     #print(sum_C)
 
         return sum_C
+
+
+    def get_dA(self):
+        dA=3

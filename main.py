@@ -322,94 +322,8 @@ Testingm
 
 #make_varQITE object
 varqite=varQITE(H_simple, param_fig2)
-varqite.state_prep()
+omega, d_omega=varqite.state_prep()
 
-
-#print(param_fig2)
-#BS_circ_initial=create_initialstate(param_fig2)
-
-#print(BS_circ_initial)
-
-#A_mat2=np.copy(get_A2(param_fig2))
-#C_vec2=np.copy(get_C2(param_fig2, H_simple))
-
-#print(A_mat2)
-#print(C_vec2)
-
-#A_mat2, C_vec2=remove_Nans(A_mat2, C_vec2)
-
-#print(A_mat2)
-#print(C_vec2)
-
-
-
-
-
-
-
-
-
-
-"""
-def varQITE_state_preparation(steps_n, H_theta):
-
-    #Basicly some input values, and then the returned values are the gibbs states.
-    #Probably should make this an own function
-    #And find out how to solve the differential equations
-
-    #Input: page 6 in article algorithm first lines
-    k_b=1
-    temp_T=1
-    tau=0.5*k_b*temp_T
-
-    time_step=tau/steps_n
-
-    #initialisation of w for each theta, starting with 0?
-    w_dtheta=np.zeros(len(H_theta))
-
-    for t in range(time_step, tau+1):   #+1?
-        #Compute A(t) and C(t)
-        A_temp=expression_A(t)
-        C_temp=expression_C(t)
-
-        A_inv_temp=np.inv(A_temp)
-        
-        omega_derivative=A_inv_temp@C_temp
-
-        #Solve A* derivative of \omega=C
-        #No idea how to do it
-        for i in range(len(H_theta)): 
-            #Compute the expression of the derivative
-            dA_mat=np.copy(get_dA(theta_list, gates_str))
-            dC_vec=np.copy(get_dC(theta_list, gates_str, H_simple))
-
-            #Now we compute the derivative of omega derivated with respect to
-            #hamiltonian parameter
-            #dA_mat_inv=np.inv(dA_mat)
-            w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
-
-            w_dtheta[i]+=w_dtheta_dt*time_step
-
-            #Solve A(d d omega)=d C -(d A)*d omega(t)
-            
-            #Compute:
-            #dw(t)=dw(t-time_step)+d d w time_step
-        #compute dw
-        #w(t+time_step)=w(t)dw(t)time_step
-
-    return w(t), dw(t) 
-"""
-
-"""
-Next step:
-Make the ITE handle tensorproducts also, find a smart
-way to implement it
-"""
-
-#Theta parameters are dependent of the hamiltonian so for each
-#rotation in the fig, the theta params are equal.
-#Then the omega things are initialized, and then the next can be
-#computed forward.
 
 
 """
@@ -420,8 +334,6 @@ Okay here is the real next step, assuming we got the VarITE:
 -Update the parameters in the Hamiltonian
 """
 
-w_t=1
-dwt=1
 
 #Find p_w_gibbs by using eq.8.5 for each configuration and tracing over the qubit thing
 #which should be thaaat hard iguess, need to understand the thing
