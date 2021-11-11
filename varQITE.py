@@ -68,8 +68,8 @@ class varQITE:
             #No idea how to do it
             for i in range(len(self.hamil)): 
                 #Compute the expression of the derivative
-                dA_mat=np.copy(self.get_dA())
-                dC_vec=np.copy(self.get_dC())
+                dA_mat=np.copy(self.get_dA(i))
+                dC_vec=np.copy(self.get_dC(i))
 
                 print(dA_mat)
                 #Now we compute the derivative of omega derivated with respect to
@@ -322,5 +322,19 @@ class varQITE:
         return sum_C
 
 
-    def get_dA(self):
-        dA=3
+    def get_dA(self, i_param):
+        #Lets try to remove the controlled gates
+        dA_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
+
+        #Loops through the indices of A
+        for i in range(len(self.trial_circ)):
+            for j in range(len(self.trial_circ)):
+                da_term=self.run_dA(i, j)
+                
+                dA_mat_temp[i][j]=np.real(da_term)
+        
+        return
+    
+    def run_dA(self, fir, sec):
+        
+        
