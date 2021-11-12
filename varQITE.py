@@ -335,6 +335,7 @@ class varQITE:
         
         return
     
+<<<<<<< HEAD
     def run_dA(self, p_index, q_index, i_theta):
 
         sum_A_pq=0
@@ -348,3 +349,111 @@ class varQITE:
             dCircuit_term_2=dA_circ([p_index], [q_index, s])
 
             
+=======
+    def run_dA(self, first, sec):
+        gate_label_i=self.trial_circ[first][0]
+        gate_label_j=self.trial_circ[sec][0]
+        #print(gate_label_i, gate_label_j)
+        #print(self.trial_circ)
+
+        f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+        f_l_j=get_f_sigma(gate_label_j)
+        V_circ=encoding_circ('A', self.trial_qubits)
+
+        pauli_names=['i', 'x', 'y', 'z']
+        
+        sum_A=0
+        for i in range(len(f_k_i)):
+            for j in range(len(f_l_j)):
+                if f_k_i[i]==0 or f_l_j[j]==0:
+                    pass
+                else:
+                    #print(f_k_i[i], f_k_i[j])
+                    #First lets make the circuit:
+                    temp_circ=V_circ.copy()
+                    """
+                    Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
+                    """
+                    #Then we loop through the gates in U until we reach the sigma
+                    for ii in range(first):
+                        gate1=self.trial_circ[ii][0]
+                        #print(gate1)
+                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                        else:
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+
+                    #print(temp_circ)
+                        #if len(self.trial_circ[ii])==2:
+                        #    getattr(temp_circ, self.trial_circ[ii][0])(params_circ[ii], self.trial_circ[ii][1])
+                        #elif len(self.trial_circ[ii])==3:
+                        #    getattr(temp_circ, self.trial_circ[ii][0])(params_circ[ii], self.trial_circ[ii][1], self.trial_circ[ii][2])
+                        #else:
+                        #    print('Something is wrong, I can sense it')
+                        #    exit()
+                    #Add x gate                
+                    temp_circ.x(0)
+                    #Then we add the sigma
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
+                    #Add x gate                
+                    temp_circ.x(0)
+
+                    #print(temp_circ)
+                    #Continue the U_i gate:
+                    for keep_going in range(first, len(self.trial_circ)):
+                        gate=self.trial_circ[keep_going][0]
+                        #print(gate)
+                        #print(gate)
+                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        else:
+                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        """
+                        if len(self.trial_circ[keep_going])==2:
+                            getattr(temp_circ, self.trial_circ[keep_going][0])(params_circ[keep_going], 1)
+                        elif len(self.trial_circ[keep_going])==3:
+                            getattr(temp_circ, self.trial_circ[keep_going][0])(params_circ[keep_going], self.trial_circ[keep_going][1], self.trial_circ[keep_going][2])
+                        else:
+                            print('Something is wrong, I can feel it')
+                            exit()
+                        """
+                        #print(temp_circ)   
+                    for jj in range(sec):
+                        gate3=self.trial_circ[jj][0]
+                        #print(gate3)
+                        if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
+                            getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+                        else:
+                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+
+                        """
+                        if len(self.trial_circ[jj])==2:
+                            getattr(temp_circ, self.trial_circ[jj][0])(params_circ[jj], 1)
+                        elif len(self.trial_circ[jj])==3:
+                            getattr(temp_circ, self.trial_circ[jj][0])(params_circ[jj], self.trial_circ[jj][1], self.trial_circ[jj][2])
+                        else:
+                            print('Something is wrong, I can feel it')
+                            exit()
+                        """
+
+                    getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
+                    temp_circ.h(0)
+                    temp_circ.measure(0,0)
+
+                    #print(temp_circ)
+                    #print(temp_circ)
+
+                    """
+                    Measures the circuit
+                    """
+                    #print(temp_circ)
+                    prediction=run_circuit(temp_circ)
+
+                    sum_A+=f_k_i[i]*f_l_j[j]*prediction
+
+        return sum_dA
+
+        
+        
+>>>>>>> 6164b6928052feabe4566529103a2bca26bd77c4
