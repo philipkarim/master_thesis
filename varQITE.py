@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.fromnumeric import trace
 from utils import *
 
 class varQITE:
@@ -336,15 +337,31 @@ class varQITE:
         return
     
     def run_dA(self, p_index, q_index, i_theta):
-
+        #Compute one term in the dA matrix
         sum_A_pq=0
 
         #A bit unsure about the len of this one
         for s in np.arange(self.time_step, self.maxTime+1): #+1?
             #Okay no idea what the fuck this term even is, compute the formula
-            #in the article by hand to find out
+            #in the article by hand to find out.
+            #the w depends on the timestep
             temp_dw=derivative_w[s][i_theta]
             dCircuit_term_1=dA_circ([p_index, s], [q_index])
             dCircuit_term_2=dA_circ([p_index], [q_index, s])
 
-            
+            #I guess the real and trace part automatically is computed 
+            # in the cirquit.. or is it?
+            sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
+        
+        return sum_A_pq
+
+    def dA_circ(*args):
+        #Looping through the arguments
+        for i in range(len(args)):
+            #first produce first circuit
+
+            #Then produce the next circuit in the next loop. then compose them?
+            #Maybe produce a circuit by sending in parameters in a function
+            #and see if it is the first or second derivated?
+
+
