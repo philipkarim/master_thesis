@@ -345,9 +345,9 @@ class varQITE:
             #Okay no idea what the fuck this term even is, compute the formula
             #in the article by hand to find out.
             #the w depends on the timestep
-            temp_dw=derivative_w[s][i_theta]
             dCircuit_term_1=dA_circ([p_index, s], [q_index])
             dCircuit_term_2=dA_circ([p_index], [q_index, s])
+            temp_dw=derivative_w[s][i_theta]
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
@@ -357,11 +357,22 @@ class varQITE:
 
     def dA_circ(*args):
         #Looping through the arguments
-        for i in range(len(args)):
-            #first produce first circuit
+        for circ in range(len(args)):
+            #Might not need the assembling function but rather do it here
+            temp_circ=assemble_circ(args[circ])
 
-            #Then produce the next circuit in the next loop. then compose them?
-            #Maybe produce a circuit by sending in parameters in a function
-            #and see if it is the first or second derivated?
+            
+        
+        return
 
+    def assemble_circ(derivated):
+        #Produce the whole term in (18.5) [[p_index, s], [q_index]] means the first term in (18.5)
+        
+        #do the same thing as in the regular expression but instead do it twice with the "term"
+            
+        #first produce first circuit
+
+        #Then produce the next circuit in the next loop. then compose them?
+        #Maybe produce a circuit by sending in parameters in a function
+        #and see if it is the first or second derivated?
 
