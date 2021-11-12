@@ -17,6 +17,8 @@ class varQITE:
         self.trial_circ=trial_circ
         self.maxTime=maxTime
         self.steps=steps
+        self.time_step=self.maxTime/self.steps
+
 
         n_qubits=0
         for i in range(len(trial_circ)):
@@ -36,13 +38,11 @@ class varQITE:
 
         #Input: page 6 in article algorithm first lines
 
-        time_step=self.maxTime/self.steps
-
         #initialisation of w for each theta, starting with 0?
         w_dtheta=np.zeros(len(self.hamil))
         omega_w=np.zeros(len(self.hamil))
 
-        for t in np.arange(time_step, self.maxTime+1):   #+1?
+        for t in np.arange(self.time_step, self.maxTime+1):   #+1?
             #Compute A(t) and C(t)
             #print("--------------------")
             #self.run_A2(0,1)
@@ -77,9 +77,9 @@ class varQITE:
                 #dA_mat_inv=np.inv(dA_mat)
                 w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
 
-                w_dtheta[i]+=w_dtheta_dt*time_step
+                w_dtheta[i]+=w_dtheta_dt*self.time_step
             
-            omega_w[t+1]=omega_w[t]+omega_derivative*time_step
+            omega_w[t+1]=omega_w[t]+omega_derivative*self.time_step
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
@@ -324,17 +324,27 @@ class varQITE:
 
     def get_dA(self, i_param):
         #Lets try to remove the controlled gates
-        dA_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
+        dA_mat_temp_i=np.zeros((len(self.trial_circ), len(self.trial_circ)))
 
         #Loops through the indices of A
-        for i in range(len(self.trial_circ)):
-            for j in range(len(self.trial_circ)):
-                da_term=self.run_dA(i, j)
+        for p in range(len(self.trial_circ)):
+            for q in range(len(self.trial_circ)):
+                da_term=self.run_dA(p, q, i_param)
                 
-                dA_mat_temp[i][j]=np.real(da_term)
+                dA_mat_temp_i[p][q]=np.real(da_term)
         
         return
     
-    def run_dA(self, fir, sec):
-        
-        
+    def run_dA(self, p_index, q_index, i_theta):
+
+        sum_A_pq=0
+
+        #A bit unsure about the len of this one
+        for s in np.arange(self.time_step, self.maxTime+1): #+1?
+            #Okay no idea what the fuck this term even is, compute the formula
+            #in the article by hand to find out
+            temp_dw=derivative_w[s][i_theta]
+            dCircuit_term_1=dA_circ([p_index, s], [q_index])
+            dCircuit_term_2=dA_circ([p_index], [q_index, s])
+
+            
