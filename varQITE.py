@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.core.fromnumeric import trace
+from numpy.lib.histograms import _unsigned_subtract
 from utils import *
 
 class varQITE:
@@ -359,21 +360,39 @@ class varQITE:
         return sum_A_pq
 
     def dA_circ(self, circ_1, circ_2):
-        #gates_str=[['rx',0],['ry', 0]]
+        #Defined for 1 double derivative and 1 simple
+
+        #Does this work?      
+        assert len(circ_2)==1 or len(circ_2)==2
 
         if len(circ_1)==1:
-            gate_label_k_i=self.trial_circ[circ_1[0]]
-            f_k_i=np.conjugate(get_f_sigma(gate_label_k_i))
+            gate_label_k_i=self.trial_circ[circ_1[0]][0]
+            gate_label_l_i=self.trial_circ[circ_2[0]][0]
+            gate_label_l_j=self.trial_circ[circ_2[1]][0]
+
+            f_i=np.conjugate(get_f_sigma(gate_label_k_i))
+            f_j=get_f_sigma(gate_label_l_i)
+            f_k=get_f_sigma(gate_label_l_j)
+            
+            first_der=circ_1[0]
+            sec_der=circ_2[0]
+            thr_der=circ_2[1]
+            
+            if sec_der>thr_der:
+                sec_der, thr_der=thr_der, sec_der
 
         elif len(circ_1)==2:
             gate_label_k_i=self.trial_circ[circ_1[0]][0]
             gate_label_k_j=self.trial_circ[circ_1[1]][0]
+            gate_label_l_i=self.trial_circ[circ_2[0]][0]
 
-            f_k_i=np.conjugate(get_f_sigma(gate_label_k_i))
-            f_k_j=np.conjugate(get_f_sigma(gate_label_k_j))
+            f_i=np.conjugate(get_f_sigma(gate_label_k_i))
+            f_j=np.conjugate(get_f_sigma(gate_label_k_j))
+            f_k=get_f_sigma(gate_label_l_i)
 
             first_der=circ_1[0]
             sec_der=circ_1[1]
+            thr_der=circ_2[0]
             
             if first_der>sec_der:
                 first_der, sec_der=sec_der, first_der
@@ -388,86 +407,109 @@ class varQITE:
         
         sum_dA=0
 
-        for i in range(len(f_k_i)):
-            for j in range(len(f_k_j)):
-                if f_k_i[i]==0 or f_k_j[j]==0:
-                    pass
-                else:
-                    #print(f_k_i[i], f_k_i[j])
-                    #First lets make the circuit:
-                    temp_circ=V_circ.copy()
-   
-                    #Then we loop through the gates in U until we reach the sigma
-                    for ii in range(first_der):
-                        gate1=self.trial_circ[ii][0]
-                        #print(gate1)
-                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+        for i in range(len(f_i)):
+            for j in range(len(f_j)):
+                for k in range(len(f_k)):
+                    if f_i[i]==0 or f_j[j]==0 or f_k[k]==0:
+                        pass
+                    else:
+                        #First lets make the circuit:
+                        temp_circ=V_circ.copy()
+
+                        #Then we loop through the gates in U until we reach the sigma
+                        for ii in range(first_der):
+                            gate1=self.trial_circ[ii][0]
+                            #print(gate1)
+                            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                                getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                            else:
+                                getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                
+                        temp_circ.x(0)
+                        #Then we add the sigma
+                        getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first_der][2])
+
+                        if len(circ_1)==1:
+                            temp_circ.x(0)
+                            for keep_going in range(first_der, len(self.trial_circ)):   #+1? i think not
+                                gate=self.trial_circ[keep_going][0]
+
+                                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                                    #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                                    getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                                else:
+                                    getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+
                         else:
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-               
-                    temp_circ.x(0)
-                    #Then we add the sigma
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first_der][2])
+                            for sec in range(first_der, sec_der):
+                                gate_sec=self.trial_circ[sec][0]
+                                #print(gate1)
+                                if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
+                                    getattr(temp_circ, gate_sec)(1+self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+                                else:
+                                    getattr(temp_circ, gate_sec)(self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
 
-                    for sec in range(first_der, sec_der):
-                        gate_sec=self.trial_circ[sec][0]
-                        #print(gate1)
-                        if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
-                            getattr(temp_circ, gate_sec)(1+self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+                            #Add second sigma gate, double check the index j
+                            getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec_der][2])
+
+                            #Add x gate                
+                            temp_circ.x(0)
+
+                            for keep_going in range(sec_der, len(self.trial_circ)):   #+1? i think not
+                                gate=self.trial_circ[keep_going][0]
+
+                                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                                    #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                                    getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                                else:
+                                    getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+
+                        
+                        ###Done with the first "term"
+                        if len(circ_1)==1:
+                            for sec_term in range(sec_der):
+                                gate=self.trial_circ[sec_term][0]
+
+                                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                                    getattr(temp_circ, gate)(1+self.trial_circ[sec_term][1], 1+self.trial_circ[sec_term][2])
+                                else:
+                                    getattr(temp_circ, gate)(self.trial_circ[sec_term][1], 1+self.trial_circ[sec_term][2])
+
+                            getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec_der][2])
+                            
+                            for third_term in range(sec_der, thr_der):
+                                gate_sec=self.trial_circ[third_term][0]
+                                if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
+                                    getattr(temp_circ, gate_sec)(1+self.trial_circ[third_term][1], 1+self.trial_circ[third_term][2])
+                                else:
+                                    getattr(temp_circ, gate_sec)(self.trial_circ[third_term][1], 1+self.trial_circ[third_term][2])
+
+                            #Add second sigma gate, double check the index j
+                            getattr(temp_circ, 'c'+pauli_names[k])(0,1+self.trial_circ[thr_der][2])
+
                         else:
-                            getattr(temp_circ, gate_sec)(self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+                            for third_term in range(thr_der):
+                                gate=self.trial_circ[third_term][0]
 
-                    #Add second sigma gate
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[sec_der][2])
+                                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                                    getattr(temp_circ, gate)(1+self.trial_circ[third_term][1], 1+self.trial_circ[third_term][2])
+                                else:
+                                    getattr(temp_circ, gate)(self.trial_circ[third_term][1], 1+self.trial_circ[third_term][2])
 
-                    #Add x gate                
-                    temp_circ.x(0)
+                            getattr(temp_circ, 'c'+pauli_names[k])(0,1+self.trial_circ[thr_der][2])
 
-                    #Then continue the circuit(remember that this is only the first derivative thing)
+                        #Just have to add the last h gate
+                        temp_circ.h(0)
+                        temp_circ.measure(0,0)
 
-                    for keep_going in range(sec_der, len(self.trial_circ)):
-                        gate=self.trial_circ[keep_going][0]
-                        #print(gate)
-                        #print(gate)
-                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
-                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                        else:
-                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        """
+                        Measures the circuit
+                        """
+                        prediction=run_circuit(temp_circ)
 
+                        sum_dA+=f_k_i[i]*f_l_j[j]*prediction
 
-                    #getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
-                    #temp_circ.h(0)
-                    #temp_circ.measure(0,0)
-
-                    #print(temp_circ)
-                    #print(temp_circ)
-
-                    """
-                    Measures the circuit
-                    """
-                    #print(temp_circ)
-                    #prediction=run_circuit(temp_circ)
-
-                    #sum_A+=f_k_i[i]*f_l_j[j]*prediction
-
-        return 1
+                        print(temp_circ)
 
 
-    def assemble_circ(list):
-        #Produce the whole term in (18.5) [[p_index, s], [q_index]] means the first term in (18.5)
-        #list=[[p_index, s], [q_index]]
-
-        #Hardcode the thing i guess
-        #for i in range(len(list)):
-
-        return
-        #do the same thing as in the regular expression but instead do it twice with the "term"
-            
-        #first produce first circuit
-
-        #Then produce the next circuit in the next loop. then compose them?
-        #Maybe produce a circuit by sending in parameters in a function
-        #and see if it is the first or second derivated?
-
+        return sum_dA
