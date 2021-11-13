@@ -344,9 +344,12 @@ class varQITE:
         for s in np.arange(self.time_step, self.maxTime+1): #+1?
             #Okay no idea what the fuck this term even is, compute the formula
             #in the article by hand to find out.
-            #the w depends on the timestep
-            dCircuit_term_1=dA_circ([p_index, s], [q_index])
-            dCircuit_term_2=dA_circ([p_index], [q_index, s])
+            #the w depends on the timestep I think
+            
+            test=self.dA_circ([p_index, s], [q_index])
+
+            dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
+            dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
             temp_dw=derivative_w[s][i_theta]
 
             #I guess the real and trace part automatically is computed 
@@ -355,19 +358,111 @@ class varQITE:
         
         return sum_A_pq
 
-    def dA_circ(*args):
-        #Looping through the arguments
-        for circ in range(len(args)):
-            #Might not need the assembling function but rather do it here
-            temp_circ=assemble_circ(args[circ])
+    def dA_circ(self, circ_1, circ_2):
+        #gates_str=[['rx',0],['ry', 0]]
 
+        if len(circ_1)==1:
+            gate_label_k_i=self.trial_circ[circ_1[0]]
+            f_k_i=np.conjugate(get_f_sigma(gate_label_k_i))
+
+        elif len(circ_1)==2:
+            gate_label_k_i=self.trial_circ[circ_1[0]][0]
+            gate_label_k_j=self.trial_circ[circ_1[1]][0]
+
+            f_k_i=np.conjugate(get_f_sigma(gate_label_k_i))
+            f_k_j=np.conjugate(get_f_sigma(gate_label_k_j))
+
+            first_der=circ_1[0]
+            sec_der=circ_1[1]
             
-        
-        return
+            if first_der>sec_der:
+                first_der, sec_der=sec_der, first_der
 
-    def assemble_circ(derivated):
-        #Produce the whole term in (18.5) [[p_index, s], [q_index]] means the first term in (18.5)
+        else:
+            print("Only implemented for double diff circs")
+            exit()
+
+        V_circ=encoding_circ('A', self.trial_qubits)
+
+        pauli_names=['i', 'x', 'y', 'z']
         
+        sum_dA=0
+
+        for i in range(len(f_k_i)):
+            for j in range(len(f_k_j)):
+                if f_k_i[i]==0 or f_k_j[j]==0:
+                    pass
+                else:
+                    #print(f_k_i[i], f_k_i[j])
+                    #First lets make the circuit:
+                    temp_circ=V_circ.copy()
+   
+                    #Then we loop through the gates in U until we reach the sigma
+                    for ii in range(first_der):
+                        gate1=self.trial_circ[ii][0]
+                        #print(gate1)
+                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                        else:
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+               
+                    temp_circ.x(0)
+                    #Then we add the sigma
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first_der][2])
+
+                    for sec in range(first_der, sec_der):
+                        gate_sec=self.trial_circ[sec][0]
+                        #print(gate1)
+                        if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
+                            getattr(temp_circ, gate_sec)(1+self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+                        else:
+                            getattr(temp_circ, gate_sec)(self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+
+                    #Add second sigma gate
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[sec_der][2])
+
+                    #Add x gate                
+                    temp_circ.x(0)
+
+                    #Then continue the circuit(remember that this is only the first derivative thing)
+
+                    for keep_going in range(sec_der, len(self.trial_circ)):
+                        gate=self.trial_circ[keep_going][0]
+                        #print(gate)
+                        #print(gate)
+                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        else:
+                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+
+
+                    #getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
+                    #temp_circ.h(0)
+                    #temp_circ.measure(0,0)
+
+                    #print(temp_circ)
+                    #print(temp_circ)
+
+                    """
+                    Measures the circuit
+                    """
+                    #print(temp_circ)
+                    #prediction=run_circuit(temp_circ)
+
+                    #sum_A+=f_k_i[i]*f_l_j[j]*prediction
+
+        return 1
+
+
+    def assemble_circ(list):
+        #Produce the whole term in (18.5) [[p_index, s], [q_index]] means the first term in (18.5)
+        #list=[[p_index, s], [q_index]]
+
+        #Hardcode the thing i guess
+        #for i in range(len(list)):
+
+        return
         #do the same thing as in the regular expression but instead do it twice with the "term"
             
         #first produce first circuit

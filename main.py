@@ -322,8 +322,8 @@ Testingm
 
 #make_varQITE object
 varqite=varQITE(H_simple, param_fig2)
-omega, d_omega=varqite.state_prep()
-
+#omega, d_omega=varqite.state_prep()
+varqite.dA_circ([4, 5], [3])
 
 
 """
