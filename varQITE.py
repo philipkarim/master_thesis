@@ -107,17 +107,13 @@ class varQITE:
                 #4? dimension of hermitian or n pauliterms? 
                 a_term=self.run_A2(i, j)
                 
-                A_mat_temp[i][j]=np.real(a_term)
+                A_mat_temp[i][j]=a_term
             
         return A_mat_temp
 
     def run_A2(self,first, sec):
-        #gates_str=[['rx',0],['ry', 0]]
-
         gate_label_i=self.trial_circ[first][0]
         gate_label_j=self.trial_circ[sec][0]
-        #print(gate_label_i, gate_label_j)
-        #print(self.trial_circ)
 
         f_k_i=np.conjugate(get_f_sigma(gate_label_i))
         f_l_j=get_f_sigma(gate_label_j)
@@ -131,37 +127,23 @@ class varQITE:
                 if f_k_i[i]==0 or f_l_j[j]==0:
                     pass
                 else:
-                    #print(f_k_i[i], f_k_i[j])
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
-                    """
-                    Implements it due to figure S1, is this right? U_i or U_j gates first, dagger?
-                    """
+
                     #Then we loop through the gates in U until we reach the sigma
                     for ii in range(first):
                         gate1=self.trial_circ[ii][0]
-                        #print(gate1)
                         if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
                             getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
                         else:
                             getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-
-                    #print(temp_circ)
-                        #if len(self.trial_circ[ii])==2:
-                        #    getattr(temp_circ, self.trial_circ[ii][0])(params_circ[ii], self.trial_circ[ii][1])
-                        #elif len(self.trial_circ[ii])==3:
-                        #    getattr(temp_circ, self.trial_circ[ii][0])(params_circ[ii], self.trial_circ[ii][1], self.trial_circ[ii][2])
-                        #else:
-                        #    print('Something is wrong, I can sense it')
-                        #    exit()
-                    #Add x gate                
+        
                     temp_circ.x(0)
                     #Then we add the sigma
                     getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
                     #Add x gate                
                     temp_circ.x(0)
 
-                    #print(temp_circ)
                     #Continue the U_i gate:
                     for keep_going in range(first, len(self.trial_circ)):
                         gate=self.trial_circ[keep_going][0]
@@ -172,16 +154,7 @@ class varQITE:
                             getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         else:
                             getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                        """
-                        if len(self.trial_circ[keep_going])==2:
-                            getattr(temp_circ, self.trial_circ[keep_going][0])(params_circ[keep_going], 1)
-                        elif len(self.trial_circ[keep_going])==3:
-                            getattr(temp_circ, self.trial_circ[keep_going][0])(params_circ[keep_going], self.trial_circ[keep_going][1], self.trial_circ[keep_going][2])
-                        else:
-                            print('Something is wrong, I can feel it')
-                            exit()
-                        """
-                        #print(temp_circ)   
+ 
                     for jj in range(sec):
                         gate3=self.trial_circ[jj][0]
                         #print(gate3)
@@ -213,17 +186,11 @@ class varQITE:
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
 
-                    sum_A+=f_k_i[i]*f_l_j[j]*prediction
+                    sum_A+=np.real(f_k_i[i]*f_l_j[j])*prediction
 
         return sum_A
 
     def get_C2(self):
-        """
-        counter=0
-        for vec in range(len(self.trial_circ)):
-            if self.trial_circ[vec][0][0]!='c':
-                counter+=1
-        """
         C_vec_temp=np.zeros(len(self.trial_circ))
         
         #Loops through the indices of A
@@ -234,7 +201,7 @@ class varQITE:
                 #Get, the sigma terms
                 
                 #4? dimension of hermitian or n pauliterms? 
-            c_term=np.imag(self.run_C2(i))
+            c_term=self.run_C2(i)
             #print(c_term)
             C_vec_temp[i]=c_term    
             #print(C_vec_temp[i])
@@ -318,7 +285,7 @@ class varQITE:
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
                     
-                    sum_C+=f_k_i[i]*lambda_l[l]*prediction
+                    sum_C+=np.real(f_k_i[i]*lambda_l[l])*prediction
                     #print(sum_C)
 
         return sum_C
@@ -360,8 +327,10 @@ class varQITE:
         return sum_A_pq
 
     def dA_circ(self, circ_1, circ_2):
-        #Defined for 1 double derivative and 1 simple
-
+        """
+        Might be an error when the same indexes in the double derivative is simulated.
+        Missing an rotational gate between the two sigmas, maybe can remove? Idk test it
+        """
         #Does this work?      
         assert len(circ_2)==1 or len(circ_2)==2
 
@@ -507,9 +476,8 @@ class varQITE:
                         """
                         prediction=run_circuit(temp_circ)
 
-                        sum_dA+=f_k_i[i]*f_l_j[j]*prediction
+                        sum_dA+=f_i[i]*f_j[j]*f_k[k]*prediction
 
                         print(temp_circ)
-
 
         return sum_dA

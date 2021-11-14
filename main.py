@@ -1,20 +1,12 @@
-import numpy as np
 import random
+import numpy as np
 import qiskit as qk
-# Import the other classes and functions
-from PQC import QML
-from optimize_loss import optimize
-from utils import *
-#from varqbm import *
-
-from varQITE import *
-
 from qiskit.circuit import Parameter, ParameterVector
 
-
-"""
-Reproduce example: Trying to mimic a bell state as the article to check if the it works correct
-"""
+# Import the other classes and functions
+from optimize_loss import optimize
+from utils import *
+from varQITE import *
 
 # Seeding the program to ensure reproducibillity
 random.seed(2021)
@@ -26,7 +18,6 @@ learning_rate=0.1  #Learning rate
 Hamiltonian="bell state"    #theta_0 ZZ +theta_1 IZ + theta2 ZI
 epochs=50           #Number of epochs
 batch_size=1        #Batch size, set equal to 1
-
 
 """
 Testing hamiltonian stuff
@@ -155,6 +146,7 @@ Okay lezzgo, plan is as follows:
 Easy return, then fill a matrix A and see what happens
 """
 n_qubits=1
+
 q1_test = qk.QuantumRegister(n_qubits)
 V_series_test = qk.QuantumCircuit(q1_test)
 
@@ -169,14 +161,6 @@ print(V_series_test[0])
 #print(V_series_test.width())
 #print(V_series_test.qbit_argument_conversion(V_series_test))
 #rint(V_series_test.num_ctrl_qubits())
-
-def derivative_U(U_gate):
-    qubits=U_gate.width()
-    for k in range(qubits):
-        #Return gate as matrix, then if size is larger than 4=control, else not?, also check if gates are equal
-        #if U_gate.num_ctrl_qubits()==0:
-            return np.imag(j/2)
-    return         
 
 #Hermitian matrix on stanby
 H_test=np.array([[1,1-1.j], [1+1.j,1]])
@@ -323,7 +307,7 @@ Testingm
 #make_varQITE object
 varqite=varQITE(H_simple, param_fig2)
 #omega, d_omega=varqite.state_prep()
-varqite.dA_circ([4, 5], [3])
+varqite.dA_circ([0,0], [5])
 
 
 """
