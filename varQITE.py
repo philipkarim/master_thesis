@@ -294,22 +294,20 @@ class varQITE:
             for q in range(len(self.trial_circ)):
                 da_term=self.run_dA(p, q, i_param)
                 
-                dA_mat_temp_i[p][q]=np.real(da_term)
+                dA_mat_temp_i[p][q]=da_term
         
-        return
+        return dA_mat_temp_i
     
     def run_dA(self, p_index, q_index, i_theta):
         #Compute one term in the dA matrix
         sum_A_pq=0
 
         #A bit unsure about the len of this one
-        for s in rangel(len(self.omega)): #+1?
+        for s in range(len(self.trial_circ)): #+1?
             #Okay no idea what the fuck this term even is, compute the formula
             #in the article by hand to find out.
             #the w depends on the timestep I think
             
-            test=self.dA_circ([p_index, s], [q_index])
-
             dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
             dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
             """
@@ -473,7 +471,7 @@ class varQITE:
                         """
                         prediction=run_circuit(temp_circ)
 
-                        sum_dA+=f_i[i]*f_j[j]*f_k[k]*prediction
+                        sum_dA+=np.real(f_i[i]*f_j[j]*f_k[k])*prediction
 
                         print(temp_circ)
 
@@ -485,9 +483,9 @@ class varQITE:
         #Loops through the indices of A
         for p in range(len(self.trial_circ)):
             dc_term=self.run_dC(p, i_param)
-            dC_vec_temp_i[p]=np.real(dc_term)
+            dC_vec_temp_i[p]=dc_term
         
-        return
+        return dC_vec_temp_i
     
     def run_dC(self, p_index, i_theta):
         dCircuit_term_0=self.dC_circ0(p_index, i_theta)
@@ -567,7 +565,7 @@ class varQITE:
                 
                 sum_dC+=np.real(f_i[i]*self.hamil[j][0])*prediction
         
-        print(temp_circ)
+        #print(temp_circ)
 
         return sum_dC
 
@@ -640,7 +638,7 @@ class varQITE:
                     prediction=run_circuit(temp_circ)
 
                     sum_dc+=np.real(f_k_i[i]*f_l_j[j])*prediction
-        print(temp_circ)
+        #print(temp_circ)
         
         return sum_dc
 
@@ -717,7 +715,7 @@ class varQITE:
                         
                         sum_dC+=np.real(f_i[i]*f_j[j])*prediction
 
-        print(temp_circ)
+        #print(temp_circ)
 
         return sum_dC
 
