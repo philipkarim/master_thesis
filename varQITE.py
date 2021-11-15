@@ -497,7 +497,7 @@ class varQITE:
                 dCircuit_term_2=self.dC_circ2(p_index, s, i)
                 
                 ## TODO: Fix this, I dont know how dw should be computed
-                temp_dw=derivative_w[s][i_theta]
+                temp_dw=self.hamil[i][0]*derivative_w[s][i_theta]
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
