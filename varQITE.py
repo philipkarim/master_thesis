@@ -40,39 +40,35 @@ class varQITE:
         #Input: page 6 in article algorithm first lines
 
         #initialisation of w for each theta, starting with 0?
-        w_dtheta=np.zeros(len(self.hamil))
-        omega_w=np.zeros(len(self.hamil))
+        omega_w=(np.array(self.hamil)[:, 0]).astype('float')
+        dwdth=(np.array(self.hamil)[:, 0]).astype('float')
+
+        #Computes the initial value
+        for i in range(len(dwdth)):
+            dwdth
+
+        #omega_derivative=np.zeros(len(self.hamil))
 
         for t in np.arange(self.time_step, self.maxTime+1):   #+1?
-            #Compute A(t) and C(t)
-            #print("--------------------")
-            #self.run_A2(0,1)
-            #self.run_C2(5)
-            #print("--------------------")
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
             #print(A_mat2)
 
-            A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
+            #Use this one?
+            #A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
 
-            print(A_mat2)
-            print(C_vec2)            
+            #print(A_mat2)
+            #print(C_vec2)            
 
             A_inv_temp=np.linalg.pinv(A_mat2)
-
-            #print(A_inv_temp)
-
-
             omega_derivative=A_inv_temp@C_vec2
 
-            #Solve A* derivative of \omega=C
-            #No idea how to do it
             for i in range(len(self.hamil)):
                 #Compute the expression of the derivative
                 dA_mat=np.copy(self.get_dA(i))
                 dC_vec=np.copy(self.get_dC(i))
 
-                print(dA_mat)
+                #print(dA_mat)
                 #Now we compute the derivative of omega derivated with respect to
                 #hamiltonian parameter
                 #dA_mat_inv=np.inv(dA_mat)
@@ -307,14 +303,13 @@ class varQITE:
             #Okay no idea what the fuck this term even is, compute the formula
             #in the article by hand to find out.
             #the w depends on the timestep I think
-            
             dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
             dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
             """
             Fix this, I dont know how dw should be computed
             """
-            temp_dw=derivative_w[s][i_theta]
 
+            temp_dw=derivative_w[s][i_theta]
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
             sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
