@@ -718,4 +718,3 @@ class varQITE:
         #print(temp_circ)
 
         return sum_dC
-
