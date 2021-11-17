@@ -2,6 +2,7 @@ import numpy as np
 from numpy.core.fromnumeric import trace
 from numpy.lib.histograms import _unsigned_subtract
 from utils import *
+import random
 
 class varQITE:
     def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10):
@@ -40,16 +41,14 @@ class varQITE:
         #Input: page 6 in article algorithm first lines
 
         #initialisation of w for each theta, starting with 0?
-        omega_w=(np.array(self.hamil)[:, 0]).astype('float')
-        dwdth=(np.array(self.hamil)[:, 0]).astype('float')
+        #omega_w=(np.array(self.hamil)[:, 0]).astype('float')
+        omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
+        self.dwdth=np.random.randn(len(self.hamil), len(self.trial_circ))
+        #self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
-        #Computes the initial value
-        for i in range(len(dwdth)):
-            dwdth
+        print(self.dwdth)
 
-        #omega_derivative=np.zeros(len(self.hamil))
-
-        for t in np.arange(self.time_step, self.maxTime+1):   #+1?
+        for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
             #print(A_mat2)
@@ -68,15 +67,16 @@ class varQITE:
                 dA_mat=np.copy(self.get_dA(i))
                 dC_vec=np.copy(self.get_dC(i))
 
-                #print(dA_mat)
+                print(dA_mat)
+                print(dC_vec)
                 #Now we compute the derivative of omega derivated with respect to
                 #hamiltonian parameter
                 #dA_mat_inv=np.inv(dA_mat)
                 w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
 
-                w_dtheta[i]+=w_dtheta_dt*self.time_step
+                self.dwdth[i]+=w_dtheta_dt*self.time_step
             
-            omega_w[t+1]=omega_w[t]+omega_derivative*self.time_step
+            omega_w+=omega_derivative*self.time_step
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
@@ -84,7 +84,7 @@ class varQITE:
             #compute dw
             #w(t+time_step)=w(t)dw(t)time_step
 
-        return omega_w, w_dtheta
+        return omega_w, self.dwdth
 
     def get_A2(self):
         #Lets try to remove the controlled gates
@@ -309,7 +309,7 @@ class varQITE:
             Fix this, I dont know how dw should be computed
             """
 
-            temp_dw=derivative_w[s][i_theta]
+            temp_dw=self.dwdth[i_theta][s]
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
             sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
@@ -468,7 +468,7 @@ class varQITE:
 
                         sum_dA+=np.real(f_i[i]*f_j[j]*f_k[k])*prediction
 
-                        print(temp_circ)
+                        #print(temp_circ)
 
         return sum_dA
 
@@ -492,7 +492,7 @@ class varQITE:
                 dCircuit_term_2=self.dC_circ2(p_index, s, i)
                 
                 ## TODO: Fix this, I dont know how dw should be computed
-                temp_dw=self.hamil[i][0]*derivative_w[s][i_theta]
+                temp_dw=self.hamil[i][0]*self.dwdth[i_theta][s]
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
