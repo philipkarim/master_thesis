@@ -46,7 +46,7 @@ class varQITE:
         self.dwdth=np.random.randn(len(self.hamil), len(self.trial_circ))
         #self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
-        print(self.dwdth)
+        #print(self.dwdth)
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             A_mat2=np.copy(self.get_A2())
@@ -67,8 +67,8 @@ class varQITE:
                 dA_mat=np.copy(self.get_dA(i))
                 dC_vec=np.copy(self.get_dC(i))
 
-                print(dA_mat)
-                print(dC_vec)
+                #print(dA_mat)
+                #print(dC_vec)
                 #Now we compute the derivative of omega derivated with respect to
                 #hamiltonian parameter
                 #dA_mat_inv=np.inv(dA_mat)
@@ -77,6 +77,7 @@ class varQITE:
                 self.dwdth[i]+=w_dtheta_dt*self.time_step
             
             omega_w+=omega_derivative*self.time_step
+            print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
