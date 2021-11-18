@@ -2,6 +2,7 @@
 Expressions utilized throughout the scripts
 """
 # Common imports
+from qiskit.circuit import gate
 from typing import ValuesView
 import numpy as np
 import matplotlib.pyplot as plt
@@ -272,18 +273,21 @@ def encoding_circ(circuit, input_qubits):
 #Just some testing of producing the initialstate
 def create_initialstate(gates_params):
     #param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 0,1], ['cx', 1, 0], ['cx', 0, 1]]
-
+    #gates_params=np.array(gates_params)
     #Creating the circuit
-    qr = qk.QuantumRegister(2)
+    qubits=np.amax(np.array(gates_params)[:,2].astype('int'))
+    #print(np.max(gates_params[0][1]))
+    qr = qk.QuantumRegister(qubits+1)
     #cr = qk.ClassicalRegister(1)
 
     circ = qk.QuantumCircuit(qr)
 
     for i in range(len(gates_params)):
         getattr(circ, gates_params[i][0])(gates_params[i][1], gates_params[i][2])
-    circ.measure_all()
+    #circ.measure_all()
+    #circ.measure(0, cr)
 
-    #print(run_circuit(circ, shots=1024*8, histogram=True))
+    #print(run_circuit(circ, shots=1024, histogram=True))
 
     return circ
 

@@ -43,7 +43,7 @@ class varQITE:
         #initialisation of w for each theta, starting with 0?
         #omega_w=(np.array(self.hamil)[:, 0]).astype('float')
         omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
-        self.dwdth=np.random.randn(len(self.hamil), len(self.trial_circ))
+        self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         #self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
         #print(self.dwdth)
@@ -73,8 +73,9 @@ class varQITE:
                 #hamiltonian parameter
                 #dA_mat_inv=np.inv(dA_mat)
                 w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
-
+                #print(w_dtheta_dt)
                 self.dwdth[i]+=w_dtheta_dt*self.time_step
+                
             
             omega_w+=omega_derivative*self.time_step
             print(omega_w)

@@ -2,6 +2,7 @@ import random
 import numpy as np
 import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
+from qiskit.quantum_info import DensityMatrix, partial_trace
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -294,7 +295,7 @@ New chapter.. recreate fig 2
 """
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-
+#param_fig2=np.array(param_fig2)
 #[coefficient, gate, qubit]
 H_simple=[[1., 'z', 0]]
 #[gate, value, qubit]
@@ -306,10 +307,39 @@ Testingm
 
 #make_varQITE object
 varqite=varQITE(H_simple, param_fig2)
-omega, d_omega=varqite.state_prep()
+#omega, d_omega=varqite.state_prep()
 #varqite.dC_circ0(4,0)
 #varqite.dC_circ1(5,0,0)
 #varqite.dC_circ2(4,1,0)
+
+"""
+Investigating the tracing of subsystem b
+"""
+#Tracing the subsystem b
+#Setting new parameters:
+omega=np.arange(7)
+#param_fig2=np.array(param_fig2)
+
+for i in range(len(omega)):
+    if param_fig2[i][0]=='rx' or param_fig2[i][0]=='ry' or param_fig2[i][0]=='rz':
+        param_fig2[i][1]==omega[i]
+        #print(param_fig2[i][1])
+        print(omega[i])
+print(param_fig2)
+print(omega)
+#param_fig2=[:,1, 1]
+
+trace_circ=create_initialstate(param_fig2)
+#print(trace_circ)
+
+DM=DensityMatrix.from_instruction(trace_circ)
+#print(DM.data)
+PT=partial_trace(DM,[1])
+#print(PT.data)
+
+
+
+
 
 
 """
