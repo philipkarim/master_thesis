@@ -332,7 +332,12 @@ def remove_constant_gates(V_circ, A, C):
 
     return A, C
 
-def update_parameters(old_params, new_params)
+def update_parameters(old_params, new_params):
+    for i in range(len(new_params)):
+        if old_params[i][0]=='rx' or old_params[i][0]=='ry' or old_params[i][0]=='rz':
+            old_params[i][1]=new_params[i]
+    
+    return old_params
 
 """
 def get_A2(V_list):

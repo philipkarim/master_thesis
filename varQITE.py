@@ -76,13 +76,13 @@ class varQITE:
                 w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
                 #print(w_dtheta_dt)
                 self.dwdth[i]+=w_dtheta_dt*self.time_step
-                
             
             omega_w+=omega_derivative*self.time_step
             #Update parameters
-            self.trial_circ=trial_circ
-
             print(omega_w)
+            self.trial_circ=update_parameters(self.trial_circ, omega_w)
+
+            #print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
