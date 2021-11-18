@@ -331,6 +331,9 @@ def remove_constant_gates(V_circ, A, C):
     A=np.delete(A, indexes, axis=1)
 
     return A, C
+
+def update_parameters(old_params, new_params)
+
 """
 def get_A2(V_list):
     

@@ -59,6 +59,7 @@ class varQITE:
             #print(A_mat2)
             #print(C_vec2)            
 
+            #Kan bruke Ridge regression på den inverterte
             A_inv_temp=np.linalg.pinv(A_mat2)
             omega_derivative=A_inv_temp@C_vec2
 
@@ -78,6 +79,9 @@ class varQITE:
                 
             
             omega_w+=omega_derivative*self.time_step
+            #Update parameters
+            self.trial_circ=trial_circ
+
             print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 

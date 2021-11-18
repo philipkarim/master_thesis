@@ -307,7 +307,7 @@ Testingm
 
 #make_varQITE object
 varqite=varQITE(H_simple, param_fig2)
-#omega, d_omega=varqite.state_prep()
+omega, d_omega=varqite.state_prep()
 #varqite.dC_circ0(4,0)
 #varqite.dC_circ1(5,0,0)
 #varqite.dC_circ2(4,1,0)
@@ -317,25 +317,20 @@ Investigating the tracing of subsystem b
 """
 #Tracing the subsystem b
 #Setting new parameters:
-omega=np.arange(7)
+#omega=np.arange(7)
 #param_fig2=np.array(param_fig2)
 
 for i in range(len(omega)):
     if param_fig2[i][0]=='rx' or param_fig2[i][0]=='ry' or param_fig2[i][0]=='rz':
-        param_fig2[i][1]==omega[i]
-        #print(param_fig2[i][1])
-        print(omega[i])
-print(param_fig2)
-print(omega)
-#param_fig2=[:,1, 1]
+        param_fig2[i][1]=omega[i]
 
 trace_circ=create_initialstate(param_fig2)
-#print(trace_circ)
+print(trace_circ)
 
 DM=DensityMatrix.from_instruction(trace_circ)
-#print(DM.data)
+print(DM.data)
 PT=partial_trace(DM,[1])
-#print(PT.data)
+print(PT.data)
 
 
 
