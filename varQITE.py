@@ -51,7 +51,7 @@ class varQITE:
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
-            #print(A_mat2)
+            #print(C_vec2)
 
             #Use this one?
             #A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
@@ -62,6 +62,7 @@ class varQITE:
             #Kan bruke Ridge regression på den inverterte
             A_inv_temp=np.linalg.pinv(A_mat2)
             omega_derivative=A_inv_temp@C_vec2
+            #print(A_inv_temp)
 
             for i in range(len(self.hamil)):
                 #Compute the expression of the derivative
@@ -78,11 +79,12 @@ class varQITE:
                 self.dwdth[i]+=w_dtheta_dt*self.time_step
             
             omega_w+=omega_derivative*self.time_step
+            #print(omega_derivative)
             #Update parameters
-            print(omega_w)
+            #print(omega_w)
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
-            #print(omega_w)
+            print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:
@@ -281,8 +283,9 @@ class varQITE:
 
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
-                    
-                    sum_C+=np.real(f_k_i[i]*lambda_l[l])*prediction
+
+                    #Imaginary here?
+                    sum_C+=np.imag(f_k_i[i]*lambda_l[l])*prediction
                     #print(sum_C)
 
         return sum_C
