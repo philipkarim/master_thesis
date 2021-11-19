@@ -324,7 +324,7 @@ Testing
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H2, H2_params, steps=10)
+varqite=varQITE(H1, H1_params, steps=10)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
@@ -342,7 +342,7 @@ Investigating the tracing of subsystem b
 #omega=np.arange(7)
 #param_fig2=np.array(param_fig2)
 
-H1_params=update_parameter(H2_params, omega)
+H1_params=update_parameters(H1_params, omega)
 #H1_params=update_parameters(H1_params, omega)
 #print(trace_circ)
 
