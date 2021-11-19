@@ -295,11 +295,13 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 New chapter.. recreate fig 2
 """
 #Trying to reproduce fig2- Now we know that these params produce a bell state
-H1_params=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-H2_params=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-    ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-    ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-    ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+H1_params=  [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+            ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+
+H2_params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
 #param_fig2=np.array(param_fig2)
 
