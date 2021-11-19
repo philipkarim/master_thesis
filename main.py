@@ -359,6 +359,8 @@ Try to use statevector instead of increasing shots. Statevector simulator, backe
 
 
 
+
+
 """
 Okay here is the real next step, assuming we got the VarITE:
 - Generate pw and
@@ -400,3 +402,18 @@ loss=optim.cross_entropy_new(p_v_data,p_v_QBM)
 #new_parameters=optim.gradient_descent_gradient_done(test_parameters, 0.01, gradient_theta)
 
 new_parameters=optim.adam(test_parameters, gradient_theta)
+
+
+
+
+
+"""
+Steps to next week in code:
+
+- Rewrtie code to work for arbitrary amount of qubits
+- Compute the loss and stuff like that
+- Optimize the code to run faster, assign parameters 
+    instead of building the circ? Maybe have the circ
+    as self.circ?
+
+"""
