@@ -11,7 +11,7 @@ from utils import *
 from varQITE import *
 
 # Seeding the program to ensure reproducibillity
-random.seed(2022)
+random.seed(2021)
 
 #Set parameters
 n_params=3         #Number of variational parameters
@@ -295,23 +295,34 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 New chapter.. recreate fig 2
 """
 #Trying to reproduce fig2- Now we know that these params produce a bell state
-param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-H2=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-    ['cx', 3,0], ['cx', 2, 3], ['cx', 2, 3], ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+H1_params=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+H2_params=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+    ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+    ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+    ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
 #param_fig2=np.array(param_fig2)
-#[coefficient, gate, qubit]
-H_simple=[[1., 'z', 0]]
-#[gate, value, qubit]
-V_test2=[['rx',0, 0],['ry', 0, 0], ['rz', 0, 0]]
 
 """
-Testingm
+Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
+because the coefficients must be the same for pairwise hamiltonians
+"""
+#[coefficient, gate, qubit]
+H1=[[1., 'z', 0]]
+H2=[[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+    [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+#[gate, value, qubit]
+
+
+H2_circ=create_initialstate(H2_params)
+
+"""
+Testing
 """
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H_simple, param_fig2, steps=10)
+varqite=varQITE(H1, H1_params, steps=10)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
@@ -330,12 +341,12 @@ Investigating the tracing of subsystem b
 #param_fig2=np.array(param_fig2)
 
 for i in range(len(omega)):
-    if param_fig2[i][0]=='rx' or param_fig2[i][0]=='ry' or param_fig2[i][0]=='rz':
-        param_fig2[i][1]=omega[i]
-
+    if H1_params[i][0]=='rx' or H1_params[i][0]=='ry' or H1_params[i][0]=='rz':
+        H1_params[i][1]=omega[i]
+H1_params=update_parameters(H1_params, omega)
 #print(trace_circ)
 
-trace_circ=create_initialstate(param_fig2)
+trace_circ=create_initialstate(H1_params)
 DM=DensityMatrix.from_instruction(trace_circ)
 #print(DM.data)
 PT=partial_trace(DM,[1])
@@ -375,7 +386,6 @@ Okay here is the real next step, assuming we got the VarITE:
 #with qubit systems
 qubits_in_H=4
 
-np.random.seed(222)
 test_parameters=np.random.randn(5)
 #print(test_parameters)
 
@@ -410,10 +420,16 @@ new_parameters=optim.adam(test_parameters, gradient_theta)
 """
 Steps to next week in code:
 
-- Rewrtie code to work for arbitrary amount of qubits
+- Rewrite code to work for arbitrary amount of qubits
+    - And hamiltonians
+- Find out why the imaginary og c_term works but not the real as the article says
+- Compute the p^QBM and stuff like that 
 - Compute the loss and stuff like that
-- Optimize the code to run faster, assign parameters 
-    instead of building the circ? Maybe have the circ
-    as self.circ?
-
+- Optimize the code to run faster.
+    - Assign parameters instead of building the circ? 
+    - Maybe have the circ as self.circ?
+    - Arrays instead of lists for hamiltonians and arrays
+        - The update parameter function for instance
+    -Search the web for optimization methods
+- Read up on GANs, and see if that could be a cool thing to do
 """

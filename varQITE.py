@@ -27,6 +27,7 @@ class varQITE:
         for i in range(len(trial_circ)):
             if n_qubits<trial_circ[i][2]:
                 n_qubits=trial_circ[i][2]
+                
 
         self.trial_qubits=n_qubits
   
