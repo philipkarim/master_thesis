@@ -342,10 +342,8 @@ Investigating the tracing of subsystem b
 #omega=np.arange(7)
 #param_fig2=np.array(param_fig2)
 
-for i in range(len(omega)):
-    if H1_params[i][0]=='rx' or H1_params[i][0]=='ry' or H1_params[i][0]=='rz':
-        H1_params[i][1]=omega[i]
-H1_params=update_parameters(H1_params, omega)
+H1_params=update_parameter(H2_params, omega)
+#H1_params=update_parameters(H1_params, omega)
 #print(trace_circ)
 
 trace_circ=create_initialstate(H1_params)
