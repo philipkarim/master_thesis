@@ -296,6 +296,9 @@ New chapter.. recreate fig 2
 """
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+H2=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+    ['cx', 3,0], ['cx', 2, 3], ['cx', 2, 3], ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+
 #param_fig2=np.array(param_fig2)
 #[coefficient, gate, qubit]
 H_simple=[[1., 'z', 0]]
