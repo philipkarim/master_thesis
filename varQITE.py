@@ -49,6 +49,7 @@ class varQITE:
         #print(self.dwdth)
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
+            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
             #print(C_vec2)
@@ -84,7 +85,7 @@ class varQITE:
             #print(omega_w)
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
-            print(omega_w)
+            #print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
                 #Compute:

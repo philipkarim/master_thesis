@@ -3,6 +3,7 @@ import numpy as np
 import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace
+import time
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -10,7 +11,7 @@ from utils import *
 from varQITE import *
 
 # Seeding the program to ensure reproducibillity
-random.seed(2021)
+random.seed(2022)
 
 #Set parameters
 n_params=3         #Number of variational parameters
@@ -306,8 +307,13 @@ Testingm
 """
 
 #make_varQITE object
-varqite=varQITE(H_simple, param_fig2)
+start=time.time()
+varqite=varQITE(H_simple, param_fig2, steps=10)
 omega, d_omega=varqite.state_prep()
+end=time.time()
+
+print(f'Time used: {np.around(end-start, decimals=1)} seconds')
+
 #varqite.dC_circ0(4,0)
 #varqite.dC_circ1(5,0,0)
 #varqite.dC_circ2(4,1,0)
@@ -324,15 +330,19 @@ for i in range(len(omega)):
     if param_fig2[i][0]=='rx' or param_fig2[i][0]=='ry' or param_fig2[i][0]=='rz':
         param_fig2[i][1]=omega[i]
 
+#print(trace_circ)
+
 trace_circ=create_initialstate(param_fig2)
-print(trace_circ)
-
 DM=DensityMatrix.from_instruction(trace_circ)
-print(DM.data)
+#print(DM.data)
 PT=partial_trace(DM,[1])
+
+print('---------------------')
+print('Analytical Gibbs state:')
+print(np.array([[0.12, 0],[0, 0.88]]))
+print('Computed Gibbs state:')
 print(PT.data)
-
-
+print('---------------------')
 
 
 
