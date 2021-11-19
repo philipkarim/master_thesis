@@ -294,14 +294,23 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 """
 New chapter.. recreate fig 2
 """
-#Trying to reproduce fig2- Now we know that these params produce a bell state
-H1_params=  [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-            ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
 
-H2_params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+Hamiltonian=1
+
+#Trying to reproduce fig2- Now we know that these params produce a bell state
+if Hamiltonian==1:
+    params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                #[gate, value, qubit]
+    H=        [[1., 'z', 0]]
+elif Hamiltonian==2:
+    params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
             ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+            #[gate, value, qubit]
+    H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+            [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
 #param_fig2=np.array(param_fig2)
 
@@ -310,13 +319,13 @@ Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
 because the coefficients must be the same for pairwise hamiltonians
 """
 #[coefficient, gate, qubit]
-H1=[[1., 'z', 0]]
-H2=[[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-    [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+#H1=[[1., 'z', 0]]
+#H2=[[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+#    [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 #[gate, value, qubit]
 
 
-H2_circ=create_initialstate(H2_params)
+circ=create_initialstate(params)
 
 """
 Testing
@@ -324,7 +333,7 @@ Testing
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H1, H1_params, steps=10)
+varqite=varQITE(H, params, steps=10)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
@@ -337,39 +346,35 @@ print(f'Time used: {np.around(end-start, decimals=1)} seconds')
 """
 Investigating the tracing of subsystem b
 """
-#Tracing the subsystem b
-#Setting new parameters:
-#omega=np.arange(7)
-#param_fig2=np.array(param_fig2)
 
-H1_params=update_parameters(H1_params, omega)
-#H1_params=update_parameters(H1_params, omega)
-#print(trace_circ)
+#params=update_parameters(params, omega)
 
-trace_circ=create_initialstate(H1_params)
+
+trace_circ=create_initialstate(params)
 DM=DensityMatrix.from_instruction(trace_circ)
-#print(DM.data)
-PT=partial_trace(DM,[1])
 
-H1_analytical=np.array([[0.12, 0],[0, 0.88]])
+#Rewrite this to an arbitrary amount of qubits
+if Hamiltonian==1:
+    PT=partial_trace(DM,[1])
+    H_analytical=np.array([[0.12, 0],[0, 0.88]])
+
+elif Hamiltonian==2:
+    PT=partial_trace(DM,[1,3])
+    H_analytical= np.array([0.10, -0.06, -0.06, 0.01], 
+                            [-0.06, 0.43, 0.02, -0.05], 
+                            [-0.06, 0.02, 0.43, -0.05], 
+                            [0.01, -0.05, -0.05, 0.05])
 
 print('---------------------')
 print('Analytical Gibbs state:')
-print(H1_analytical)
+print(H_analytical)
 print('Computed Gibbs state:')
 print(PT.data)
 print('---------------------')
 
-H1_fidelity=state_fidelity(PT.data, H1_analytical)
+H_fidelity=state_fidelity(PT.data, H_analytical)
 
-print(f'Fidelity: {H1_fidelity}')
-
-"""
-Try to use statevector instead of increasing shots. Statevector simulator, backend?
-"""
-
-
-
+print(f'Fidelity: {H_fidelity}')
 
 
 """
