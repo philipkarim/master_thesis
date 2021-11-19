@@ -76,7 +76,7 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc, shots=1024, backend="qasm_simulator", histogram=False):
+def run_circuit(qc, shots=1024, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
     job = qk.execute(qc,
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,

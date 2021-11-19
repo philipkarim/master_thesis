@@ -2,7 +2,7 @@ import random
 import numpy as np
 import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
-from qiskit.quantum_info import DensityMatrix, partial_trace
+from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 
 # Import the other classes and functions
@@ -340,13 +340,22 @@ DM=DensityMatrix.from_instruction(trace_circ)
 #print(DM.data)
 PT=partial_trace(DM,[1])
 
+H1_analytical=np.array([[0.12, 0],[0, 0.88]])
+
 print('---------------------')
 print('Analytical Gibbs state:')
-print(np.array([[0.12, 0],[0, 0.88]]))
+print(H1_analytical)
 print('Computed Gibbs state:')
 print(PT.data)
 print('---------------------')
 
+H1_fidelity=state_fidelity(PT.data, H1_analytical)
+
+print(f'Fidelity: {H1_fidelity}')
+
+"""
+Try to use statevector instead of increasing shots. Statevector simulator, backend?
+"""
 
 
 
