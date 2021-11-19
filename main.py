@@ -324,7 +324,7 @@ Testing
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H1, H1_params, steps=10)
+varqite=varQITE(H2, H2_params, steps=10)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
