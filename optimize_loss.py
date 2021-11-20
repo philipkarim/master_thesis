@@ -1,7 +1,7 @@
 import numpy as np
 
 class optimize:
-    def __init__(self, number_params, learning_rate=0.001, circuit=None):
+    def __init__(self, number_params, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -22,6 +22,7 @@ class optimize:
         Loss function from article (2)
         """
         loss=0
+        
         for i in range(len(p_data)):
             loss+=p_data[i]*np.log(p_BM[i])
 

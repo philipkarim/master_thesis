@@ -294,8 +294,11 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 """
 New chapter.. recreate fig 2
 """
-
+"""
+PARAMETERS
+"""
 Hamiltonian=1
+p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 if Hamiltonian==1:
@@ -347,8 +350,7 @@ print(f'Time used: {np.around(end-start, decimals=1)} seconds')
 Investigating the tracing of subsystem b
 """
 
-#params=update_parameters(params, omega)
-
+params=update_parameters(params, omega)
 
 trace_circ=create_initialstate(params)
 DM=DensityMatrix.from_instruction(trace_circ)
@@ -379,30 +381,50 @@ print(f'Fidelity: {H_fidelity}')
 
 """
 Okay here is the real next step, assuming we got the VarITE:
-- Generate pw and
--Then use pw and dw/dtheta to compute pw_QBM and dpw_QBM/dtheta
--Compute the loss and stuff like that
+- Generate pv QBM and pv^QBM/dw, This last one is computed by using a parameter shift rule?
+-Compute the loss
 -Update the parameters in the Hamiltonian
 """
+
+#Computing the pv_QBM
+
+#This can be done a more productive way I am pretty sure
+"""
+if np.max(np.array(H)[:,2])==0:
+    zero_state=np.array([1,0])
+    one_state=np.array([0,1])
+elif np.max(np.array(H)[:,2])==1:
+    zero_zero_state=np.array([1,0,0,0])
+    zero_one_state=np.array([0,1,0,0])
+    one_zero_state=np.array([0,0,1,0])
+    one_one_state=np.array([0,0,0,1])
+"""
+
+#Is this correct?
+p_QBM=np.diag(PT.data)
+
+optim=optimize(len(params)) ##Do not call this each iteration, it will mess with the momentum
+loss=optim.cross_entropy_new(p_data,p_QBM)
+
+print(f'Loss: {loss}')
+
+#Then find dL/d theta by using eq. 10
+#gradient_theta=np.random.randn(len(H))
+
+gradient_theta
+
+
+new_parameters=optim.adam(params, gradient_theta)
+
+
+#Compute the dp_QBM/dtheta_i
+
 
 
 #Find p_w_gibbs by using eq.8.5 for each configuration and tracing over the qubit thing
 #which should be thaaat hard iguess, need to understand the thing
 #with qubit systems
-qubits_in_H=4
 
-test_parameters=np.random.randn(5)
-#print(test_parameters)
-
-p_v_data=abs(np.random.randn(2**qubits_in_H))
-
-p_w_gibbs=np.random.randn(2**qubits_in_H)
-
-#Then compute p_v_QBM by tr(mystic A \cdot p_gibbs 8.75
-p_v_QBM=abs(np.random.randn(2**qubits_in_H))
-
-#Then compute the dp_v_QBM by using eq.10 chain rule or shift?
-dp_v_QBM=1
 
 #Then find dL/d theta by using eq. 10
 gradient_theta=np.random.randn(5)
@@ -411,12 +433,12 @@ gradient_theta=np.random.randn(5)
 """
 Updating the parameters:
 """
-optim=optimize(len(test_parameters)) ##Do not call this each iteration, it will mess with the momentum
+optim=optimize(len(H)) ##Do not call this each iteration, it will mess with the momentum
 loss=optim.cross_entropy_new(p_v_data,p_v_QBM)
 #Update the parameters
 #new_parameters=optim.gradient_descent_gradient_done(test_parameters, 0.01, gradient_theta)
 
-new_parameters=optim.adam(test_parameters, gradient_theta)
+new_parameters=optim.adam(params, gradient_theta)
 
 
 
