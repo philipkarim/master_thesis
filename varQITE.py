@@ -31,7 +31,7 @@ class varQITE:
 
         self.trial_qubits=n_qubits
   
-    def state_prep(self):
+    def state_prep(self, gradient_stateprep=False):
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
@@ -65,21 +65,21 @@ class varQITE:
             A_inv_temp=np.linalg.pinv(A_mat2)
             omega_derivative=A_inv_temp@C_vec2
             #print(A_inv_temp)
+            if gradient_stateprep==False:
+                for i in range(len(self.hamil)):
+                    #Compute the expression of the derivative
+                    dA_mat=np.copy(self.get_dA(i))
+                    dC_vec=np.copy(self.get_dC(i))
 
-            for i in range(len(self.hamil)):
-                #Compute the expression of the derivative
-                dA_mat=np.copy(self.get_dA(i))
-                dC_vec=np.copy(self.get_dC(i))
-
-                #print(dA_mat)
-                #print(dC_vec)
-                #Now we compute the derivative of omega derivated with respect to
-                #hamiltonian parameter
-                #dA_mat_inv=np.inv(dA_mat)
-                w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
-                #print(w_dtheta_dt)
-                self.dwdth[i]+=w_dtheta_dt*self.time_step
-            
+                    #print(dA_mat)
+                    #print(dC_vec)
+                    #Now we compute the derivative of omega derivated with respect to
+                    #hamiltonian parameter
+                    #dA_mat_inv=np.inv(dA_mat)
+                    w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
+                    #print(w_dtheta_dt)
+                    self.dwdth[i]+=w_dtheta_dt*self.time_step
+                
             omega_w+=omega_derivative*self.time_step
             #print(omega_derivative)
             #Update parameters

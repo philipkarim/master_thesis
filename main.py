@@ -366,14 +366,14 @@ elif Hamiltonian==2:
                             [-0.06, 0.43, 0.02, -0.05], 
                             [-0.06, 0.02, 0.43, -0.05], 
                             [0.01, -0.05, -0.05, 0.05])
-
+"""
 print('---------------------')
 print('Analytical Gibbs state:')
 print(H_analytical)
 print('Computed Gibbs state:')
 print(PT.data)
 print('---------------------')
-
+"""
 H_fidelity=state_fidelity(PT.data, H_analytical)
 
 print(f'Fidelity: {H_fidelity}')
@@ -400,6 +400,8 @@ elif np.max(np.array(H)[:,2])==1:
     one_one_state=np.array([0,0,0,1])
 """
 
+print(f'dw/dø: {d_omega}')
+
 #Is this correct?
 p_QBM=np.diag(PT.data)
 
@@ -409,12 +411,11 @@ loss=optim.cross_entropy_new(p_data,p_QBM)
 print(f'Loss: {loss}')
 
 #Then find dL/d theta by using eq. 10
-#gradient_theta=np.random.randn(len(H))
-
-gradient_theta
+gradient=find_gradient(H, params, d_omega)
 
 
-new_parameters=optim.adam(params, gradient_theta)
+
+new_parameters=optim.adam(params, gradient)
 
 
 #Compute the dp_QBM/dtheta_i

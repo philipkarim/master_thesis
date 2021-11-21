@@ -1,4 +1,8 @@
+from varQITE import *
+from utils import *
+
 import numpy as np
+from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
     def __init__(self, number_params, learning_rate=0.01, circuit=None):
@@ -203,3 +207,44 @@ class optimize:
             gradients[thet]=sum
         
         return gradients
+
+    def find_gradient(self, H, params, d_omega, steps=10):
+
+        for i in range(len(H)):
+            w_k_sum=0
+            for k in range(len(params)):
+                params_left_shift=params.copy()
+                params_right_shift=params.copy()
+                
+                #Since the cirquits are normalised the shift is 0.25 which represents pi/2
+                params_right_shift[k][1]+=0.5*np.pi
+                params_left_shift[k][1]-=0.5*np.pi
+
+                varqite_right=varQITE(H, params_right_shift, steps=steps)
+                varqite_left=varQITE(H, params_left_shift, steps=steps)
+
+                omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
+                omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
+
+                params_right=update_parameters(params, omega_right)
+                params_left=update_parameters(params, omega_left)
+
+                trace_right=create_initialstate(params_right)
+                trace_left=create_initialstate(params_left)
+
+                DM=DensityMatrix.from_instruction(trace_circ)
+
+                #Rewrite this to an arbitrary amount of qubits
+                if Hamiltonian==1:
+                    PT=partial_trace(DM,[1])
+
+                elif Hamiltonian==2:
+                    PT=partial_trace(DM,[1,3])
+
+                #Is this correct?
+                p_QBM=np.diag(PT.data)
+
+
+
+
+
