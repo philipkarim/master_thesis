@@ -77,7 +77,9 @@ class varQITE:
                     #hamiltonian parameter
                     #dA_mat_inv=np.inv(dA_mat)
                     w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
-                    #print(w_dtheta_dt)
+                    #print(dC_vec)
+                    print(dA_mat)
+                    print(w_dtheta_dt)
                     self.dwdth[i]+=w_dtheta_dt*self.time_step
                 
             omega_w+=omega_derivative*self.time_step
@@ -317,13 +319,14 @@ class varQITE:
             dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
             dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
             """
-            Fix this, I dont know how dw should be computed
+            Fix this, dCircuit 1 and 2 are the same absolute value, why?
+            To fix this, I changed the sign of sum_A_pq
             """
 
             temp_dw=self.dwdth[i_theta][s]
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
-            sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
+            sum_A_pq+=temp_dw*(dCircuit_term_1-dCircuit_term_2)
         
         return sum_A_pq
 
@@ -477,7 +480,7 @@ class varQITE:
                         """
                         prediction=run_circuit(temp_circ)
 
-                        sum_dA+=np.real(f_i[i]*f_j[j]*f_k[k])*prediction
+                        sum_dA+=np.imag(f_i[i]*f_j[j]*f_k[k])*prediction
 
                         #print(temp_circ)
 
@@ -569,7 +572,7 @@ class varQITE:
                 #print(temp_circ)
                 prediction=run_circuit(temp_circ)
                 
-                sum_dC+=np.real(f_i[i]*self.hamil[j][0])*prediction
+                sum_dC+=np.imag(f_i[i]*self.hamil[j][0])*prediction
         
         #print(temp_circ)
 
@@ -643,7 +646,7 @@ class varQITE:
                     """
                     prediction=run_circuit(temp_circ)
 
-                    sum_dc+=np.real(f_k_i[i]*f_l_j[j])*prediction
+                    sum_dc+=np.imag(f_k_i[i]*f_l_j[j])*prediction
         #print(temp_circ)
         
         return sum_dc
@@ -719,7 +722,7 @@ class varQITE:
                         #print(temp_circ)
                         prediction=run_circuit(temp_circ)
                         
-                        sum_dC+=np.real(f_i[i]*f_j[j])*prediction
+                        sum_dC+=np.imag(f_i[i]*f_j[j])*prediction
 
         #print(temp_circ)
 

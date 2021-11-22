@@ -6,7 +6,7 @@ import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
-    def __init__(self, hamiltonian_params,H_qubits, learning_rate=0.01, circuit=None):
+    def __init__(self, hamiltonian_params, H_qubits, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -257,9 +257,9 @@ class optimize:
                 print(d_omega[i][k])
                 print(np.diag(PT_right.data))
                 print(np.diag(PT_left.data))
-                print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
+                #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
                 print(w_k_sum)
-                w_k_sum[i]+=((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k]
+                w_k_sum[i]+=((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
                 print(w_k_sum)
 
         self.w_k_sum=w_k_sum

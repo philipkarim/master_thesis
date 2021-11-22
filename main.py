@@ -402,6 +402,7 @@ elif np.max(np.array(H)[:,2])==1:
 
 print(f'dw/dø: {d_omega}')
 
+"""
 #Is this correct?
 p_QBM=np.diag(PT.data)
 
@@ -425,7 +426,7 @@ np.array(H)[:,0]=new_parameters
 print(H)
 
 #Compute the dp_QBM/dtheta_i
-
+"""
 
 
 
