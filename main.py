@@ -315,7 +315,9 @@ elif Hamiltonian==2:
     H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-#param_fig2=np.array(param_fig2)
+#Transforms the parameters into arrays
+params=np.array(params)
+H=np.array(H)
 
 """
 Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..

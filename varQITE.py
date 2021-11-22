@@ -35,19 +35,8 @@ class varQITE:
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
-        #Basicly some input values, and then the returned values are the gibbs states.
-        #Probably should make this an own function
-        #And find out how to solve the differential equations
-
-        #Input: page 6 in article algorithm first lines
-
-        #initialisation of w for each theta, starting with 0?
-        #omega_w=(np.array(self.hamil)[:, 0]).astype('float')
         omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
-        #self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
-
-        #print(self.dwdth)
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
@@ -78,8 +67,8 @@ class varQITE:
                     #dA_mat_inv=np.inv(dA_mat)
                     w_dtheta_dt= A_inv_temp@(dC_vec-dA_mat@omega_derivative)#* or @?
                     #print(dC_vec)
-                    print(dA_mat)
-                    print(w_dtheta_dt)
+                    #print(dA_mat)
+                    #print(w_dtheta_dt)
                     self.dwdth[i]+=w_dtheta_dt*self.time_step
                 
             omega_w+=omega_derivative*self.time_step
@@ -125,7 +114,7 @@ class varQITE:
         f_l_j=get_f_sigma(gate_label_j)
         V_circ=encoding_circ('A', self.trial_qubits)
 
-        pauli_names=['i', 'x', 'y', 'z']
+        pauli_names=np.array(['i', 'x', 'y', 'z'])
         
         sum_A=0
         for i in range(len(f_k_i)):

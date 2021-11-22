@@ -279,14 +279,20 @@ def create_initialstate(gates_params):
     #cr = qk.ClassicalRegister(1)
 
     circ = qk.QuantumCircuit(qr)
+    
+    #print(gates_params)
+    print(circ)
 
+    dict with gate in them, maybe as functions?
+
+    #gates_params=list(gates_params)
     for i in range(len(gates_params)):
-        getattr(circ, gates_params[i][0])(gates_params[i][1], gates_params[i][2])
+        getattr(circ, str(gates_params[i][0]))(gates_params[i][1], gates_params[i][2])
     #circ.measure_all()
     #circ.measure(0, cr)
-
     #print(run_circuit(circ, shots=1024, histogram=True))
 
+    print(circ)
     return circ
 
 
