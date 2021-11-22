@@ -405,42 +405,26 @@ print(f'dw/dø: {d_omega}')
 #Is this correct?
 p_QBM=np.diag(PT.data)
 
-optim=optimize(len(params)) ##Do not call this each iteration, it will mess with the momentum
+#Hamiltonian is the number of hamiltonian params
+optim=optimize(len(H), Hamiltonian) ##Do not call this each iteration, it will mess with the momentum
 loss=optim.cross_entropy_new(p_data,p_QBM)
 
 print(f'Loss: {loss}')
 
 #Then find dL/d theta by using eq. 10
-gradient=find_gradient(H, params, d_omega)
+print('Updating params..')
+gradient_qbm=optim.gradient_ps(H, params, d_omega)
 
+gradient_loss=optim.gradient_loss(p_data, p_QBM)
 
+new_parameters=optim.adam(params, gradient_loss)
+print(new_parameters)
 
-new_parameters=optim.adam(params, gradient)
+np.array(H)[:,0]=new_parameters
 
+print(H)
 
 #Compute the dp_QBM/dtheta_i
-
-
-
-#Find p_w_gibbs by using eq.8.5 for each configuration and tracing over the qubit thing
-#which should be thaaat hard iguess, need to understand the thing
-#with qubit systems
-
-
-#Then find dL/d theta by using eq. 10
-gradient_theta=np.random.randn(5)
-
-#Update the classical parameters, this could be done by using a classical optimizer
-"""
-Updating the parameters:
-"""
-optim=optimize(len(H)) ##Do not call this each iteration, it will mess with the momentum
-loss=optim.cross_entropy_new(p_v_data,p_v_QBM)
-#Update the parameters
-#new_parameters=optim.gradient_descent_gradient_done(test_parameters, 0.01, gradient_theta)
-
-new_parameters=optim.adam(params, gradient_theta)
-
 
 
 

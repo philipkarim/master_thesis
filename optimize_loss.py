@@ -2,10 +2,11 @@ from varQITE import *
 from utils import *
 
 import numpy as np
+import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
-    def __init__(self, number_params, learning_rate=0.01, circuit=None):
+    def __init__(self, hamiltonian_params,H_qubits, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -14,12 +15,14 @@ class optimize:
             learning_rate:  Learning rate used in gradient descent
             circuit:        Quantum circuit that is used
         """
-        self.number_params=number_params
+        self.hamiltonian_params=hamiltonian_params
+        self.H_qubits=H_qubits
+        self.H_qubit_states=2**H_qubits-1
         self.learning_rate=learning_rate
         self.circuit=circuit
         self.t=1 #or 1?    
-        self.m = np.zeros(number_params)
-        self.v = np.zeros(number_params)
+        self.m = np.zeros(hamiltonian_params)
+        self.v = np.zeros(hamiltonian_params)
 
     def cross_entropy_new(self, p_data,p_BM):
         """
@@ -208,10 +211,10 @@ class optimize:
         
         return gradients
 
-    def find_gradient(self, H, params, d_omega, steps=10):
-
+    def gradient_ps(self, H, params, d_omega, steps=10):
+        d_omega=np.array(d_omega)
+        w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
-            w_k_sum=0
             for k in range(len(params)):
                 params_left_shift=params.copy()
                 params_right_shift=params.copy()
@@ -226,24 +229,47 @@ class optimize:
                 omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
                 omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
 
-                params_right=update_parameters(params, omega_right)
-                params_left=update_parameters(params, omega_left)
+                params_right=update_parameters(params_right_shift, omega_right)
+                params_left=update_parameters(params_left_shift, omega_left)
 
                 trace_right=create_initialstate(params_right)
                 trace_left=create_initialstate(params_left)
 
-                DM=DensityMatrix.from_instruction(trace_circ)
+                DM_right=DensityMatrix.from_instruction(trace_right)
+                DM_left=DensityMatrix.from_instruction(trace_left)
 
                 #Rewrite this to an arbitrary amount of qubits
-                if Hamiltonian==1:
-                    PT=partial_trace(DM,[1])
+                if self.H_qubits==1:
+                    PT_right=partial_trace(DM_right,[1])
+                    PT_left=partial_trace(DM_left,[1])
 
-                elif Hamiltonian==2:
-                    PT=partial_trace(DM,[1,3])
+                elif self.H_qubits==2:
+                    PT_right=partial_trace(DM_right,[1,3])
+                    PT_left=partial_trace(DM_left,[1,3])
+                else:
+                    print('Number of subsystems not defined')
+                    sys.exit()
+                
+                print(type(w_k_sum))
+                print(type(w_k_sum[i]))
+                print(w_k_sum[i])
+                print(type(d_omega))
+                print(d_omega[i][k])
+                print(np.diag(PT_right.data))
+                print(np.diag(PT_left.data))
+                print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
+                print(w_k_sum)
+                w_k_sum[i]+=((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k]
+                print(w_k_sum)
 
-                #Is this correct?
-                p_QBM=np.diag(PT.data)
+        self.w_k_sum=w_k_sum
 
+        return w_k_sum
+
+    def gradient_loss(self, data, p_QBM):
+        #dL=np.zeros(self.hamiltonian_params)
+        dL=data*self.w_k_sum/p_QBM
+        return -np.sum(dL, axis=1)
 
 
 
