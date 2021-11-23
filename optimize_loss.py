@@ -17,7 +17,7 @@ class optimize:
         """
         self.hamiltonian_params=hamiltonian_params
         self.H_qubits=H_qubits
-        self.H_qubit_states=2**H_qubits-1
+        self.H_qubit_states=2**H_qubits
         self.learning_rate=learning_rate
         self.circuit=circuit
         self.t=1 #or 1?    
@@ -213,58 +213,60 @@ class optimize:
 
     def gradient_ps(self, H, params, d_omega, steps=10):
         d_omega=np.array(d_omega)
+        print(self.H_qubit_states)
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
-            for k in range(len(params)):
-                params_left_shift=params.copy()
-                params_right_shift=params.copy()
-                
-                #Since the cirquits are normalised the shift is 0.25 which represents pi/2
-                params_right_shift[k][1]+=0.5*np.pi
-                params_left_shift[k][1]-=0.5*np.pi
+            k=0
+            while k<len(params):
+                print(f'param {k}')
+                if params[k][0]=='rx' or params[k][0]=='ry' or params[k][0]=='rz':
+                    params_left_shift=params.copy()
+                    params_right_shift=params.copy()
+                    
+                    #Since the cirquits are normalised the shift is 0.25 which represents pi/2
+                    params_right_shift[k][1]+=0.5*np.pi
+                    params_left_shift[k][1]-=0.5*np.pi
 
-                varqite_right=varQITE(H, params_right_shift, steps=steps)
-                varqite_left=varQITE(H, params_left_shift, steps=steps)
+                    varqite_right=varQITE(H, params_right_shift, steps=steps)
+                    varqite_left=varQITE(H, params_left_shift, steps=steps)
 
-                omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
-                omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
+                    omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
+                    omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
 
-                params_right=update_parameters(params_right_shift, omega_right)
-                params_left=update_parameters(params_left_shift, omega_left)
+                    params_right=update_parameters(params_right_shift, omega_right)
+                    params_left=update_parameters(params_left_shift, omega_left)
 
-                trace_right=create_initialstate(params_right)
-                trace_left=create_initialstate(params_left)
+                    trace_right=create_initialstate(params_right)
+                    trace_left=create_initialstate(params_left)
 
-                DM_right=DensityMatrix.from_instruction(trace_right)
-                DM_left=DensityMatrix.from_instruction(trace_left)
+                    DM_right=DensityMatrix.from_instruction(trace_right)
+                    DM_left=DensityMatrix.from_instruction(trace_left)
 
-                #Rewrite this to an arbitrary amount of qubits
-                if self.H_qubits==1:
-                    PT_right=partial_trace(DM_right,[1])
-                    PT_left=partial_trace(DM_left,[1])
+                    #Rewrite this to an arbitrary amount of qubits
+                    if self.H_qubits==1:
+                        PT_right=partial_trace(DM_right,[1])
+                        PT_left=partial_trace(DM_left,[1])
 
-                elif self.H_qubits==2:
-                    PT_right=partial_trace(DM_right,[1,3])
-                    PT_left=partial_trace(DM_left,[1,3])
+                    elif self.H_qubits==2:
+                        PT_right=partial_trace(DM_right,[1,3])
+                        PT_left=partial_trace(DM_left,[1,3])
+                    else:
+                        print('Number of subsystems not defined')
+                        sys.exit()
+                    
+                    print(np.diag(PT_right.data))
+                    print(np.diag(PT_left.data))
+                    #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
+                    print(w_k_sum)
+                    w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
+                    print(w_k_sum)
+                    k+=1
                 else:
-                    print('Number of subsystems not defined')
-                    sys.exit()
-                
-                print(type(w_k_sum))
-                print(type(w_k_sum[i]))
-                print(w_k_sum[i])
-                print(type(d_omega))
-                print(d_omega[i][k])
-                print(np.diag(PT_right.data))
-                print(np.diag(PT_left.data))
-                #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
-                print(w_k_sum)
-                w_k_sum[i]+=((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
-                print(w_k_sum)
+                    k+=1
 
         self.w_k_sum=w_k_sum
 
-        return w_k_sum
+        return w_k_sum.real.astype(float)
 
     def gradient_loss(self, data, p_QBM):
         #dL=np.zeros(self.hamiltonian_params)

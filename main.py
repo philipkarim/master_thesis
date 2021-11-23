@@ -330,7 +330,7 @@ because the coefficients must be the same for pairwise hamiltonians
 #[gate, value, qubit]
 
 
-circ=create_initialstate(params)
+#circ=create_initialstate(params)
 
 """
 Testing
@@ -338,7 +338,7 @@ Testing
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H, params, steps=10)
+varqite=varQITE(H, params, steps=1)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
@@ -416,10 +416,12 @@ print(f'Loss: {loss}')
 
 #Then find dL/d theta by using eq. 10
 print('Updating params..')
-gradient_qbm=optim.gradient_ps(H, params, d_omega)
+gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
 
 gradient_loss=optim.gradient_loss(p_data, p_QBM)
 
+print(f'gradient_loss: {gradient_loss}')
+print(type(gradient_loss))
 new_parameters=optim.adam(np.array(H)[:,0], gradient_loss)
 print(new_parameters)
 
