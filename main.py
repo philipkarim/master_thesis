@@ -316,8 +316,8 @@ elif Hamiltonian==2:
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
 #Transforms the parameters into arrays
-params=np.array(params)
-H=np.array(H)
+#params=np.array(params)
+#H=np.array(H)
 
 """
 Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
@@ -404,7 +404,7 @@ elif np.max(np.array(H)[:,2])==1:
 
 print(f'dw/dø: {d_omega}')
 
-"""
+
 #Is this correct?
 p_QBM=np.diag(PT.data)
 
@@ -420,7 +420,7 @@ gradient_qbm=optim.gradient_ps(H, params, d_omega)
 
 gradient_loss=optim.gradient_loss(p_data, p_QBM)
 
-new_parameters=optim.adam(params, gradient_loss)
+new_parameters=optim.adam(np.array(H)[:,0], gradient_loss)
 print(new_parameters)
 
 np.array(H)[:,0]=new_parameters
@@ -428,7 +428,7 @@ np.array(H)[:,0]=new_parameters
 print(H)
 
 #Compute the dp_QBM/dtheta_i
-"""
+
 
 
 

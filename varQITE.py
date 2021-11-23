@@ -3,7 +3,10 @@ from numpy.core.fromnumeric import trace
 from numpy.lib.histograms import _unsigned_subtract
 from utils import *
 import random
+#from numba import jit
+#from numba.experimental import jitclass
 
+#@jitclass
 class varQITE:
     def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10):
         """
@@ -30,7 +33,7 @@ class varQITE:
                 
 
         self.trial_qubits=n_qubits
-  
+    
     def state_prep(self, gradient_stateprep=False):
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
@@ -87,6 +90,7 @@ class varQITE:
 
         return omega_w, self.dwdth
 
+    #@jit(nopython=True)
     def get_A2(self):
         #Lets try to remove the controlled gates
         A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))

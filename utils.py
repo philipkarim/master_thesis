@@ -283,7 +283,7 @@ def create_initialstate(gates_params):
     #print(gates_params)
     print(circ)
 
-    dict with gate in them, maybe as functions?
+    #dict with gate in them, maybe as functions?
 
     #gates_params=list(gates_params)
     for i in range(len(gates_params)):
