@@ -95,6 +95,9 @@ class varQITE:
         #Lets try to remove the controlled gates
         A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
 
+        #Parallel here
+        import multiprocessing as mp
+        pool = mp.Pool(mp.cpu_count())
         #Loops through the indices of A
         for i in range(len(self.trial_circ)):
             #For each gate 
@@ -107,7 +110,11 @@ class varQITE:
                 a_term=self.run_A2(i, j)
                 
                 A_mat_temp[i][j]=a_term
-            
+        
+        
+        results = pool.starmap(howmany_within_range, [(row, 4, 8) for row in data])
+        pool.close()
+
         return A_mat_temp
 
     def run_A2(self,first, sec):

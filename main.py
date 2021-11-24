@@ -335,10 +335,13 @@ because the coefficients must be the same for pairwise hamiltonians
 """
 Testing
 """
+import multiprocessing as mp
+print("Number of processors: ", mp.cpu_count())
+
 
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H, params, steps=1)
+varqite=varQITE(H, params, steps=10)
 omega, d_omega=varqite.state_prep()
 end=time.time()
 
@@ -354,6 +357,7 @@ Investigating the tracing of subsystem b
 
 params=update_parameters(params, omega)
 
+#Dansity matrix measure, measure instead of computing whole DM
 trace_circ=create_initialstate(params)
 DM=DensityMatrix.from_instruction(trace_circ)
 
@@ -368,14 +372,14 @@ elif Hamiltonian==2:
                             [-0.06, 0.43, 0.02, -0.05], 
                             [-0.06, 0.02, 0.43, -0.05], 
                             [0.01, -0.05, -0.05, 0.05])
-"""
+
 print('---------------------')
 print('Analytical Gibbs state:')
 print(H_analytical)
 print('Computed Gibbs state:')
 print(PT.data)
 print('---------------------')
-"""
+
 H_fidelity=state_fidelity(PT.data, H_analytical)
 
 print(f'Fidelity: {H_fidelity}')
