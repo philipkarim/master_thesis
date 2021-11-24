@@ -3,6 +3,8 @@ from numpy.core.fromnumeric import trace
 from numpy.lib.histograms import _unsigned_subtract
 from utils import *
 import random
+import multiprocessing as mp
+
 #from numba import jit
 #from numba.experimental import jitclass
 
@@ -96,7 +98,7 @@ class varQITE:
         A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
 
         #Parallel here
-        import multiprocessing as mp
+        print("Init pool")
         pool = mp.Pool(mp.cpu_count())
         #Loops through the indices of A
         for i in range(len(self.trial_circ)):
@@ -106,12 +108,12 @@ class varQITE:
                 #Get f_i and f_j
                 #Get, the sigma terms
                 #4? dimension of hermitian or n pauliterms? 
-                a_term=self.run_A2(i, j)
-                
-                A_mat_temp[i][j]=a_term
+                #a_term=self.run_A2(i, j)
+                print("Running loop..")
+                A_mat_temp[i][j]=pool.apply(self.run_A2, args=(i,j))
         
-        
-        results = pool.starmap(howmany_within_range, [(row, 4, 8) for row in data])
+        #results = pool.starmap(howmany_within_range, [(row, 4, 8) for row in data])
+        print("closing pool")
         pool.close()
 
         return A_mat_temp
