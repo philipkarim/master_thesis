@@ -105,7 +105,6 @@ class varQITE:
             for j in range(len(self.trial_circ)):
                 #Get f_i and f_j
                 #Get, the sigma terms
-                
                 #4? dimension of hermitian or n pauliterms? 
                 a_term=self.run_A2(i, j)
                 
