@@ -301,7 +301,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
+Hamiltonian=2
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -342,7 +342,7 @@ Testing
 #make_varQITE object
 start=time.time()
 varqite=varQITE(H, params, steps=10)
-omega, d_omega=varqite.state_prep()
+omega, d_omega=varqite.state_prep(gradient_stateprep=True)
 end=time.time()
 
 print(f'Time used: {np.around(end-start, decimals=1)} seconds')
@@ -368,10 +368,10 @@ if Hamiltonian==1:
 
 elif Hamiltonian==2:
     PT=partial_trace(DM,[1,3])
-    H_analytical= np.array([0.10, -0.06, -0.06, 0.01], 
+    H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
                             [-0.06, 0.43, 0.02, -0.05], 
                             [-0.06, 0.02, 0.43, -0.05], 
-                            [0.01, -0.05, -0.05, 0.05])
+                            [0.01, -0.05, -0.05, 0.05]])
 
 print('---------------------')
 print('Analytical Gibbs state:')
@@ -380,7 +380,7 @@ print('Computed Gibbs state:')
 print(PT.data)
 print('---------------------')
 
-H_fidelity=state_fidelity(PT.data, H_analytical)
+H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
 
 print(f'Fidelity: {H_fidelity}')
 

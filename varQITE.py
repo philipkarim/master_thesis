@@ -36,10 +36,13 @@ class varQITE:
 
         n_qubits=0
         for i in range(len(trial_circ)):
+            if trial_circ[i][0]=='cx' or trial_circ[i][0]=='cy' or trial_circ[i][0]=='cz':
+                if n_qubits<trial_circ[i][1]:
+                    n_qubits=trial_circ[i][1]    
+
             if n_qubits<trial_circ[i][2]:
                 n_qubits=trial_circ[i][2]
-                
-
+        
         self.trial_qubits=n_qubits
     
     def state_prep(self, gradient_stateprep=False):
@@ -55,6 +58,7 @@ class varQITE:
             C_vec2=np.copy(self.get_C2())
             #print(C_vec2)
 
+            #print(A_mat2)
             #Use this one?
             #A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
 
@@ -66,11 +70,11 @@ class varQITE:
             omega_derivative=A_inv_temp@C_vec2
             #print(A_inv_temp)
             if gradient_stateprep==False:
+                print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
                     #Compute the expression of the derivative
                     dA_mat=np.copy(self.get_dA(i))
                     dC_vec=np.copy(self.get_dC(i))
-
                     #print(dA_mat)
                     #print(dC_vec)
                     #Now we compute the derivative of omega derivated with respect to
@@ -106,21 +110,38 @@ class varQITE:
 
 
         #test_list=[]
-        
-        x_array=range(len(self.trial_circ))
-        matrix_indices=([(x,y) for x in x_array for y in x_array])
+        #start_zip=time.time()
+        #x_array=range(len(self.trial_circ))
+        #matrix_indices=([(x,y) for x in x_array for y in x_array])
+        #results=np.array((it.starmap(self.run_A2, np.array(matrix_indices))))
+        #A_mat_temp_zip=np.reshape(results, (len(self.trial_circ),len(self.trial_circ)))
+        #end_zip=time.time()
 
+        #print(f'zip {end_zip-start_zip}')
         #test_list=([(self.trial_circ, self.trial_qubits,x,y) for x in x_array for y in x_array])
         #print(test_list)
-        #for i in range(len(self.trial_circ)):
+        #start_loop=time.time()
+        A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
+        for i in range(len(self.trial_circ)):
             #For each gate 
             #range(1) if there is no controlled qubits?
-        #    for j in range(len(self.trial_circ)):
-                #A_mat_temp[i][j]=self.run_A2(i,j)
+            for j in range(len(self.trial_circ)):
+                A_mat_temp[i][j]=self.run_A2(i,j)
+        #end_loop=time.time()
+        #print(f'Time loop {end_loop-start_loop}')
+
+        #if (end_zip-start_zip)<(end_loop-start_loop):
+        #    print('zip is faster')
+        #else:
+        #    print('loop is faster')
+
+        #comparison=A_mat_temp==A_mat_temp_zip
+        #print(comparison.all())
+
                 #Get f_i and f_j
                 #Get, the sigma terms
                 #4? dimension of hermitian or n pauliterms? 
-                #a_term=self.run_A2(i, j)
+                #A_mat_temp[i][j]=self.run_A2(i, j)
                 #print("Running loop..")
                 #A_mat_temp[i][j]=pool.apply_async(self.run_A2, args=(i,j))
         #test_list=
@@ -128,7 +149,6 @@ class varQITE:
         
         #print(f' test_list{test_list}')
 
-        results=np.array(list(it.starmap(self.run_A2, np.array(matrix_indices))))
         #print(results)
 
         #Parallel here
@@ -150,7 +170,6 @@ class varQITE:
         #print(f'test_res {test_results}')
         #print(f'The results are {results}')
 
-        A_mat_temp=np.reshape(results, (len(self.trial_circ),len(self.trial_circ)))
         #print(results)
         #print(A_mat_temp)
 
