@@ -3,12 +3,13 @@ from numpy.core.fromnumeric import trace
 from numpy.lib.histograms import _unsigned_subtract
 from utils import *
 import random
-import multiprocessing as mp
+#import multiprocessing as mp
 #import pathos
 import itertools as it
 #mp=pathos.helpers.mp
+import time
 
-from pathos.pools import ProcessPool
+#from pathos.pools import ProcessPool
 
 #from numba import jit
 #from numba.experimental import jitclass
@@ -107,8 +108,9 @@ class varQITE:
         #test_list=[]
         
         x_array=range(len(self.trial_circ))
+        matrix_indices=([(x,y) for x in x_array for y in x_array])
 
-        test_list=([(self.trial_circ, self.trial_qubits,x,y) for x in x_array for y in x_array])
+        #test_list=([(self.trial_circ, self.trial_qubits,x,y) for x in x_array for y in x_array])
         #print(test_list)
         #for i in range(len(self.trial_circ)):
             #For each gate 
@@ -126,7 +128,7 @@ class varQITE:
         
         #print(f' test_list{test_list}')
 
-        results=np.array(list(it.starmap(self.run_A2, np.array(test_list))))
+        results=np.array(list(it.starmap(self.run_A2, np.array(matrix_indices))))
         #print(results)
 
         #Parallel here
@@ -140,24 +142,17 @@ class varQITE:
         #M = pool.starmap(func, zip(a_args, repeat(second_arg)))
         #N = pool.map(partial(func, b=second_arg), a_args)
 
-<<<<<<< Updated upstream
-        pool = mp.Pool(mp.cpu_count())
-        test_results=np.array(pool.starmap(run_A, test_list))
-        pool.close()
-        #pool.join()
-=======
         #pool = mp.Pool(mp.cpu_count())
         #test_results=np.array(pool.starmap(run_A, test_list))
         #pool.close()
-        #   pool.join()
->>>>>>> Stashed changes
+        #pool.join()
 
         #print(f'test_res {test_results}')
         #print(f'The results are {results}')
 
         A_mat_temp=np.reshape(results, (len(self.trial_circ),len(self.trial_circ)))
         #print(results)
-        print(A_mat_temp)
+        #print(A_mat_temp)
 
         #print(f'Same? {A_mat_temp==results}')
 
@@ -243,8 +238,11 @@ class varQITE:
                     Measures the circuit
                     """
                     #print(temp_circ)
+                    #start=time.time()
                     prediction=run_circuit(temp_circ)
+                    #end=time.time()
 
+                    #print(end-start)
                     sum_A+=np.real(f_k_i[i]*f_l_j[j])*prediction
 
         return sum_A

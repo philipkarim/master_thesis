@@ -78,7 +78,8 @@ def run_circuit(qc, shots=1024, backend="statevector_simulator", histogram=False
     job = qk.execute(qc,
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,
-                    seed_simulator=10
+                    seed_simulator=10,
+                    optimization_level=0
                     )
     results = job.result()
     results = results.get_counts(qc)
