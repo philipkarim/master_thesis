@@ -10,6 +10,8 @@ from optimize_loss import optimize
 from utils import *
 from varQITE import *
 
+import multiprocessing as mp
+
 # Seeding the program to ensure reproducibillity
 random.seed(2021)
 

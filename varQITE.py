@@ -140,8 +140,6 @@ class varQITE:
         #M = pool.starmap(func, zip(a_args, repeat(second_arg)))
         #N = pool.map(partial(func, b=second_arg), a_args)
 
-
-
         pool = mp.Pool(mp.cpu_count())
         test_results=np.array(pool.starmap(run_A, test_list))
         pool.close()
