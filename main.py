@@ -342,7 +342,8 @@ Testing
 #make_varQITE object
 start=time.time()
 varqite=varQITE(H, params, steps=10)
-omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+#omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+varqite.run_A2(0,1)
 end=time.time()
 
 print(f'Time used: {np.around(end-start, decimals=1)} seconds')

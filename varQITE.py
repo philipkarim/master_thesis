@@ -256,8 +256,9 @@ class varQITE:
                     """
                     Measures the circuit
                     """
-                    #print(temp_circ)
+                    print(temp_circ)
                     #start=time.time()
+                    
                     prediction=run_circuit(temp_circ)
                     #end=time.time()
 
