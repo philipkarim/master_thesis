@@ -13,6 +13,8 @@ from varQITE import *
 # Seeding the program to ensure reproducibillity
 random.seed(2021)
 
+#Best seed=2021
+
 #Set parameters
 n_params=3         #Number of variational parameters
 init_params=np.random.uniform(-1,1,size=n_params) #Distribution of the initial variational parameters
@@ -335,10 +337,6 @@ because the coefficients must be the same for pairwise hamiltonians
 """
 Testing
 """
-import multiprocessing as mp
-print("Number of processors: ", mp.cpu_count())
-
-
 #make_varQITE object
 start=time.time()
 varqite=varQITE(H, params, steps=10)
@@ -408,7 +406,7 @@ elif np.max(np.array(H)[:,2])==1:
 
 print(f'dw/dø: {d_omega}')
 
-
+"""
 #Is this correct?
 p_QBM=np.diag(PT.data)
 
@@ -435,7 +433,7 @@ print(H)
 
 #Compute the dp_QBM/dtheta_i
 
-
+"""
 
 
 """

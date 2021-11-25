@@ -4,6 +4,11 @@ from numpy.lib.histograms import _unsigned_subtract
 from utils import *
 import random
 import multiprocessing as mp
+#import pathos
+import itertools as it
+#mp=pathos.helpers.mp
+
+from pathos.pools import ProcessPool
 
 #from numba import jit
 #from numba.experimental import jitclass
@@ -95,26 +100,68 @@ class varQITE:
     #@jit(nopython=True)
     def get_A2(self):
         #Lets try to remove the controlled gates
-        A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
+        #A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
 
-        #Parallel here
-        print("Init pool")
-        pool = mp.Pool(mp.cpu_count())
-        #Loops through the indices of A
-        for i in range(len(self.trial_circ)):
+
+
+        #test_list=[]
+        
+        x_array=range(len(self.trial_circ))
+
+        test_list=([(self.trial_circ, self.trial_qubits,x,y) for x in x_array for y in x_array])
+        #print(test_list)
+        #for i in range(len(self.trial_circ)):
             #For each gate 
             #range(1) if there is no controlled qubits?
-            for j in range(len(self.trial_circ)):
+        #    for j in range(len(self.trial_circ)):
+                #A_mat_temp[i][j]=self.run_A2(i,j)
                 #Get f_i and f_j
                 #Get, the sigma terms
                 #4? dimension of hermitian or n pauliterms? 
                 #a_term=self.run_A2(i, j)
-                print("Running loop..")
-                A_mat_temp[i][j]=pool.apply(self.run_A2, args=(i,j))
+                #print("Running loop..")
+                #A_mat_temp[i][j]=pool.apply_async(self.run_A2, args=(i,j))
+        #test_list=
+                #test_list.append((i,j))
         
-        #results = pool.starmap(howmany_within_range, [(row, 4, 8) for row in data])
-        print("closing pool")
+        #print(f' test_list{test_list}')
+
+        #results=np.array(list(it.starmap(self.run_A2, np.array(test_list))))
+        #print(results)
+
+        #Parallel here
+        print("Init pool")
+        #print(mp.cpu_count())
+
+        #with mp.Pool() as pool:
+        #    print("test")
+        #test_results=pool.starmap(self.run_A2, [(1,1),(2,1)])
+        #L = pool.starmap(func, [(1, 1), (2, 1), (3, 1)])
+        #M = pool.starmap(func, zip(a_args, repeat(second_arg)))
+        #N = pool.map(partial(func, b=second_arg), a_args)
+
+
+
+        pool = mp.Pool(mp.cpu_count())
+        test_results=np.array(pool.starmap(run_A, test_list))
         pool.close()
+        #pool.join()
+
+        #print(f'test_res {test_results}')
+        #print(f'The results are {results}')
+
+        A_mat_temp=np.reshape(test_results, (len(self.trial_circ),len(self.trial_circ)))
+        #print(results)
+        print(A_mat_temp)
+
+        #print(f'Same? {A_mat_temp==results}')
+
+        #starmap
+
+
+        #results = pool.starmap(howmany_within_range, [(row, 4, 8) for row in data])
+        #pool.join()
+        #print("closing pool")
 
         return A_mat_temp
 
@@ -728,3 +775,82 @@ class varQITE:
         #print(temp_circ)
 
         return sum_dC
+
+def run_A(trial_circ, trial_qubits, first, sec):
+    gate_label_i=trial_circ[first][0]
+    gate_label_j=trial_circ[sec][0]
+
+    f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+    f_l_j=get_f_sigma(gate_label_j)
+    V_circ=encoding_circ('A', trial_qubits)
+
+    pauli_names=np.array(['i', 'x', 'y', 'z'])
+    
+    sum_A=0
+    for i in range(len(f_k_i)):
+        for j in range(len(f_l_j)):
+            if f_k_i[i]==0 or f_l_j[j]==0:
+                pass
+            else:
+                #First lets make the circuit:
+                temp_circ=V_circ.copy()
+
+                #Then we loop through the gates in U until we reach the sigma
+                for ii in range(first):
+                    gate1=trial_circ[ii][0]
+                    if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                        getattr(temp_circ, gate1)(1+trial_circ[ii][1], 1+trial_circ[ii][2])
+                    else:
+                        getattr(temp_circ, gate1)(trial_circ[ii][1], 1+trial_circ[ii][2])
+    
+                temp_circ.x(0)
+                #Then we add the sigma
+                getattr(temp_circ, 'c'+pauli_names[i])(0,1+trial_circ[first][2])
+                #Add x gate                
+                temp_circ.x(0)
+
+                #Continue the U_i gate:
+                for keep_going in range(first, len(trial_circ)):
+                    gate=trial_circ[keep_going][0]
+                    #print(gate)
+                    #print(gate)
+                    if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                        #print(keep_going, trial_circ[keep_going][1], 1+trial_circ[keep_going][2])
+                        getattr(temp_circ, gate)(1+trial_circ[keep_going][1], 1+trial_circ[keep_going][2])
+                    else:
+                        getattr(temp_circ, gate)(trial_circ[keep_going][1], 1+trial_circ[keep_going][2])
+
+                for jj in range(sec):
+                    gate3=trial_circ[jj][0]
+                    #print(gate3)
+                    if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
+                        getattr(temp_circ, gate3)(1+trial_circ[jj][1], 1+trial_circ[jj][2])
+                    else:
+                        getattr(temp_circ, gate3)(trial_circ[jj][1], 1+trial_circ[jj][2])
+
+                    """
+                    if len(trial_circ[jj])==2:
+                        getattr(temp_circ, trial_circ[jj][0])(params_circ[jj], 1)
+                    elif len(trial_circ[jj])==3:
+                        getattr(temp_circ, trial_circ[jj][0])(params_circ[jj], trial_circ[jj][1], trial_circ[jj][2])
+                    else:
+                        print('Something is wrong, I can feel it')
+                        exit()
+                    """
+
+                getattr(temp_circ, 'c'+pauli_names[j])(0,1+trial_circ[sec][2])
+                temp_circ.h(0)
+                temp_circ.measure(0,0)
+
+                #print(temp_circ)
+                #print(temp_circ)
+
+                """
+                Measures the circuit
+                """
+                #print(temp_circ)
+                prediction=run_circuit(temp_circ)
+
+                sum_A+=np.real(f_k_i[i]*f_l_j[j])*prediction
+
+    return sum_A
