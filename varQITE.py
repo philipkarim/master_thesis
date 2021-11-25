@@ -126,11 +126,11 @@ class varQITE:
         
         #print(f' test_list{test_list}')
 
-        #results=np.array(list(it.starmap(self.run_A2, np.array(test_list))))
+        results=np.array(list(it.starmap(self.run_A2, np.array(test_list))))
         #print(results)
 
         #Parallel here
-        print("Init pool")
+        #print("Init pool")
         #print(mp.cpu_count())
 
         #with mp.Pool() as pool:
@@ -140,15 +140,22 @@ class varQITE:
         #M = pool.starmap(func, zip(a_args, repeat(second_arg)))
         #N = pool.map(partial(func, b=second_arg), a_args)
 
+<<<<<<< Updated upstream
         pool = mp.Pool(mp.cpu_count())
         test_results=np.array(pool.starmap(run_A, test_list))
         pool.close()
         #pool.join()
+=======
+        #pool = mp.Pool(mp.cpu_count())
+        #test_results=np.array(pool.starmap(run_A, test_list))
+        #pool.close()
+        #   pool.join()
+>>>>>>> Stashed changes
 
         #print(f'test_res {test_results}')
         #print(f'The results are {results}')
 
-        A_mat_temp=np.reshape(test_results, (len(self.trial_circ),len(self.trial_circ)))
+        A_mat_temp=np.reshape(results, (len(self.trial_circ),len(self.trial_circ)))
         #print(results)
         print(A_mat_temp)
 
