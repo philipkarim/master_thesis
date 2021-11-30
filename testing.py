@@ -51,7 +51,7 @@ Make a dict, containing gate and parameter
 
 qc_param = qk.QuantumCircuit(num_qubits+1)
 
-print(qc_param)
+
 #Initializing the parameters
 #Make list of parameters:
 #parameters22=[]
@@ -76,16 +76,21 @@ new parameters. Difference between (bind_parameters and assign_parameters?)
 """
 #print('Original circuit:')
 #print(qc_param)
-parameter_dict={param_vec[0]: 1, param_vec[1]: 2}
-qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
+#parameter_dict={param_vec[0]: 1, param_vec[1]: 2}
+#qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
 #print(qc_param2)
 
-test_par=update_parameter_dict(parameter_dict, [0,3])
-qc_param2=qc_param.bind_parameters(test_par)
+#test_par=update_parameter_dict(parameter_dict, [0,3])
+#qc_param2=qc_param.bind_parameters(test_par)
+qc_param2=qc_param.bind_parameters([1,2,3])
+print(qc_param2)
+qc_param2=qc_param.bind_parameters([4,5,6])
 
 
 
-print(qc_param)
+
+#print(qc_param)
+print(qc_param2)
 
 
 
