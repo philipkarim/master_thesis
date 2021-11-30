@@ -138,6 +138,8 @@ print(A_dict["12"])
 A_dict["12"]=A_dict["12"].bind_parameters([1,1,1,1])
 print(A_dict["12"])
 
+#something like this?
+#A_dict["12"]=A_dict["12"].bind_parameters([seld.trial_circ[:,0]])
 
 
 
