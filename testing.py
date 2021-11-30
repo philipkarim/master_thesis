@@ -25,13 +25,13 @@ H_sup=[[0.2252, 'i'], [0.3435, 'z', 0], [-0.4347, 'z', 1], [0.5716, 'z', 0, 'z',
 
 
 num_qubits= max([el[1] for el in gates_str])
+#num_qubits=0
 n_params=len(gates_str)
 
 theta_list=np.random.uniform(0,2*np.pi,size=n_params)
 #Assertion statement
 assert n_params==len(gates_str), "Number of gates and parameters do not match"
 
-parameters=np.random.uniform(0,1,size=n_params)
 
 param_vec = ParameterVector('Init_param', n_params)
 """
@@ -83,24 +83,60 @@ new parameters. Difference between (bind_parameters and assign_parameters?)
 #test_par=update_parameter_dict(parameter_dict, [0,3])
 #qc_param2=qc_param.bind_parameters(test_par)
 qc_param2=qc_param.bind_parameters([1,2,3])
-print(qc_param2)
+#print(qc_param2)
 qc_param2=qc_param.bind_parameters([4,5,6])
 
 
 
 
 #print(qc_param)
-print(qc_param2)
+#print(qc_param2)
 
 
+p= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
 
 
+qse=qk.QuantumCircuit(2)
 
 
+p_vec = ParameterVector('Init_param', len(p))
+
+for i in range(0, len(p)):
+    gate=p[i][0]
+    if gate == 'cx' or gate == 'cy' or gate == 'cz':
+        getattr(qse, p[i][0])(p[i][1], p[i][2])
+    else:
+        getattr(qse, p[i][0])(p_vec[i], p[i][2])
+
+"""
+getattr(qse,p[i][0])(p[i][1],p[i][2])
+getattr(qse,p[1][0])(p[1][1],p[1][2])
+getattr(qse,p[2][0])(p[2][1],p[2][2])
+getattr(qse,p[3][0])(p[3][1],p[2][2])
+"""
+
+qc_par=qse.bind_parameters([1,2,3,4])
+qc_par=qse.bind_parameters([2,2,2,4])
 
 
+print(qse)
+
+print(qc_par)
+
+i=1
+j=2
 
 
+A_dict = {
+    str(j)+str(i): qse,
+    str(i)+str(j): qse}
+
+print(A_dict)
+print(A_dict["21"])
+print(A_dict["12"])
+
+print(A_dict[0])
 
 
 
