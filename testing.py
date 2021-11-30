@@ -133,11 +133,10 @@ A_dict = {
     str(i)+str(j): qse}
 
 print(A_dict)
-print(A_dict["21"])
+#print(A_dict["21"])
 print(A_dict["12"])
-
-print(A_dict[0])
-
+A_dict["12"]=A_dict["12"].bind_parameters([1,1,1,1])
+print(A_dict["12"])
 
 
 
