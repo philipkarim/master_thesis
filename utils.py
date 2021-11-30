@@ -252,6 +252,13 @@ def encoding_circ(circuit, input_qubits):
     
     qc_enc = qk.QuantumCircuit(data_register_enc, classical_register_enc)
 
+    """
+    Note to self: Remember to fix the derivative terms. 0 and pi/2 is given by
+                  H and H-S respectively, both are used in the derivative terms.
+                  so might need to mix depending on the term used.
+                  if statement of H-S
+    """
+
     if circuit=='A':
         qc_enc.h(data_register_enc[0])
 

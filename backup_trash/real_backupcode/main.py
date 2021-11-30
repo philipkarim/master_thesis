@@ -294,6 +294,7 @@ I dont see how A and C depends on A or C except maybe from the hamiltonian?
 -Find derivative of thetaC and theta A
 -follow the loop in varQITE
 """
+
 """
 New chapter.. recreate fig 2
 """
