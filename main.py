@@ -212,72 +212,7 @@ should work for most of them tho
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 #param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
 
-"""
-Testing
-"""
-gates_str=[['rx',0],['ry', 0], ['rz', 0]] #, ['crz', 0, 1]]
-V_test=[['rx',0],['ry', 0], ['rz', 0]]
-H_simple=[[0.2, 'x'], [0.4, 'z'], [1-np.sqrt(0.2**2+0.4**2),'y']]
-H_sup=[[0.2252, 'i'], [0.3435, 'z', 0], [-0.4347, 'z', 1], [0.5716, 'z', 0, 'z', 1], [0.0910, 'y', 0, 'y', 1], [0.0910, 'x', 0, 'x', 1]]
 
-
-num_qubits= max([el[1] for el in gates_str])
-n_params=len(gates_str)
-
-theta_list=np.random.uniform(0,2*np.pi,size=n_params)
-#Assertion statement
-assert n_params==len(gates_str), "Number of gates and parameters do not match"
-
-parameters=np.random.uniform(0,1,size=n_params)
-
-param_vec = ParameterVector('Init_param', n_params)
-"""
-circuit.ry(param_vec[0], 0)
-circuit.crx(param_vec[1], 0, 1)
-
-bound_circuit = circuit.assign_parameters({params[0]: 1, params[1]: 2})
-"""
-#Creates the circuit
-#for i in range(n_params):
-#    gates_str[i]=qk.circuit.Parameter('rx')
-#Fill circuit with gates
-
-"""
-Make a dict, containing gate and parameter
-"""
-
-qc_param = qk.QuantumCircuit(num_qubits+1)
-
-#Initializing the parameters
-#Make list of parameters:
-#parameters22=[]
-#for name in range(len(gates_str)):
-#    parameters22.append(qk.circuit.Parameter(gates_str[name]))
-#params = [qk.circuit.Parameter('rx').bind(4), qk.circuit.Parameter('rz')]
-
-#Creates the circuit
-for i in range(len(gates_str)):
-    if len(gates_str[i])==2:
-        getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1])
-    elif len(gates_str[i])==3:
-        getattr(qc_param, gates_str[i][0])(param_vec[i], gates_str[i][1], gates_str[i][2])
-    else:
-        print("Function not implemented with double controlled gates yet")
-        exit()
-
-"""
-This basicly, creates a new circuit with the existing gates, 
-then the runs the copy, and when completed makes a copy of the main circuit with
-new parameters. Difference between (bind_parameters and assign_parameters?)
-"""
-#print('Original circuit:')
-#print(qc_param)
-parameter_dict={param_vec[0]: 1, param_vec[1]: 2}
-qc_param2=qc_param.assign_parameters(parameter_dict, inplace=False)
-#print(qc_param2)
-
-test_par=update_parameter_dict(parameter_dict, [0,3])
-qc_param2=qc_param.bind_parameters(test_par)
 
 #print(qc_param2)
 
