@@ -256,7 +256,7 @@ class varQITE:
                     """
                     Measures the circuit
                     """
-                    print(temp_circ)
+                    #print(temp_circ)
                     #start=time.time()
                     
                     prediction=run_circuit(temp_circ)
@@ -271,16 +271,16 @@ class varQITE:
         C_vec_temp=np.zeros(len(self.trial_circ))
         
         #Loops through the indices of A
-        for i in range(len(C_vec_temp)):
+        for i in range(len(self.trial_circ)):
             #For each gate 
             #range(1) if there is no controlled qubits?
                 #Get f_i and f_j
                 #Get, the sigma terms
                 
                 #4? dimension of hermitian or n pauliterms? 
-            c_term=self.run_C2(i)
+            C_vec_temp[i]=self.run_C2(i)
             #print(c_term)
-            C_vec_temp[i]=c_term    
+                
             #print(C_vec_temp[i])
             #C_vec_temp[i]=np.real(c_term)
 
@@ -356,7 +356,7 @@ class varQITE:
                     temp_circ.h(0)
                     temp_circ.measure(0, 0)
 
-                    #print(temp_circ)
+                    print(temp_circ)
                     prediction=run_circuit(temp_circ)
 
                     #Imaginary here?

@@ -301,7 +301,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=2
+Hamiltonian=1
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -343,7 +343,7 @@ Testing
 start=time.time()
 varqite=varQITE(H, params, steps=10)
 #omega, d_omega=varqite.state_prep(gradient_stateprep=True)
-varqite.run_A2(0,1)
+varqite.run_C2(0)
 end=time.time()
 
 print(f'Time used: {np.around(end-start, decimals=1)} seconds')
