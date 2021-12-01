@@ -117,17 +117,49 @@ getattr(qse,p[3][0])(p[3][1],p[2][2])
 """
 
 qc_par=qse.bind_parameters([1,2,3,4])
-qc_par=qse.bind_parameters([2,2,2,4])
+qc_par=qse.bind_parameters([1,2,3,4])
 
 
-print(qse)
+#print(qse)
 
-print(qc_par)
+#print(qc_par)
 
 i=1
 j=2
+import time
 
+a = np.empty(shape=(2,2), dtype=object)
+for i in range(2):
+    for j in range(2):
+        a[i,j]=qse.bind_parameters([i,j,i,j])
 
+#a[1,0]=a[1,0].bind_parameters([1,2,2,1])
+#a[1,0]=a[1,0].bind_parameters([1,3,2,1])
+
+#a[1,0]=a[1,0].bind_parameters([1,1,2,1])
+#a[1,0]=a[1,0].bind_parameters([1,1,2,1])
+
+#for i in range(0):
+#    a[1,0]=a[1,0].bind_parameters([1,1,2,1])
+
+"""
+start=time.time()
+for i in range(10000):
+    a[1,0]=a[1,0].bind_parameters([1,1,2,1])
+end=time.time()
+
+print(f'assign time {end-start}')
+
+start2=time.time()
+for i in range(10000):
+    a[1,0]=a[1,0].bind_parameters([1,2,3,4])
+end2=time.time()
+"""
+
+print(a)
+print(a[1,0])
+
+"""
 A_dict = {
     str(j)+str(i): qse,
     str(i)+str(j): qse}
@@ -140,7 +172,7 @@ print(A_dict["12"])
 
 #something like this?
 #A_dict["12"]=A_dict["12"].bind_parameters([seld.trial_circ[:,0]])
-
+"""
 
 
 

@@ -235,7 +235,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=2
+Hamiltonian=1
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -276,7 +276,10 @@ Testing
 #make_varQITE object
 start=time.time()
 varqite=varQITE(H, params, steps=10)
-omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+#A, C, da, dc= varqite.initialize_circuits()
+A= varqite.initialize_circuits()
+print(A[2][2][3][1])
+#omega, d_omega=varqite.state_prep(gradient_stateprep=True)
 #varqite.run_C2(0)
 end=time.time()
 
@@ -303,7 +306,7 @@ if Hamiltonian==1:
 
 elif Hamiltonian==2:
     #What even is this partial trace? thought it was going to be [1,3??]
-    PT=partial_trace(DM,[0,2])
+    PT=partial_trace(DM,[1,3])
     H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
                             [-0.06, 0.43, 0.02, -0.05], 
                             [-0.06, 0.02, 0.43, -0.05], 
