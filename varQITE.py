@@ -114,11 +114,17 @@ class varQITE:
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            
+            start_mat=time.time()
             A_mat2=np.copy(self.get_A2())
+            end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
             A_mat_test=np.copy(self.A_init)
-            
+            C_vec_test=np.copy(self.C_init)
+
+            print(C_vec_test)
+
             #Remember to multiply with (0+0.5j)*(0-0.5j)
             
             circ=[]
@@ -138,14 +144,31 @@ class varQITE:
                         A_mat_test[ii][jj]=0.
             end_loop=time.time()
 
+            print(f'old mat {end_mat-start_mat}')
             print(f'loop {end_loop-start_loop}')
                     #circ_test.bind_parameters([0,0,1,0])
-                    
+                
             #A_mat_test=
-            run_circuit(circ)
+            #run_circuit(circ, parallel=True)
             #print(A_mat2)
             print(np.all(A_mat_test==A_mat2))
             #print(C_vec2)
+            print(self.C_lmb_index)
+            
+            #Continue from here
+            circ_pred=0
+            for ii in range(len(C_vec_test)):
+                circ_test=C_vec_test[ii]
+                
+                if circ_test!=None:
+                    n_rotations=len(circ_test.parameters)
+                    circ_test=circ_test.bind_parameters(labels[:n_rotations])
+                    circ.append(circ_test)
+                    circ_pred+=run_circuit(circ_test)
+                    A_mat_test[ii][jj]=circ_pred*0.5*self.hamil[:0][self.C_lmb_index[ii]]
+                else:
+                    C_vec_test[ii]=0.
+            end_loop=time.time()
 
             #print(A_mat2)
             #Use this one?
@@ -153,6 +176,10 @@ class varQITE:
 
             #print(A_mat2)
             #print(C_vec2)            
+
+
+
+
 
             #Kan bruke Ridge regression på den inverterte
             A_inv_temp=np.linalg.pinv(A_mat2)

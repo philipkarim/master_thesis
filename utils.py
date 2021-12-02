@@ -12,6 +12,8 @@ import os
 import random
 import qiskit as qk
 import cmath
+#from qiskit.compiler import assemble
+#from qiskit.backends.jobstatus import JOB_FINAL_STATES
 
 def accuracy_score(y, y_pred):
     """
@@ -77,7 +79,7 @@ def plotter(*args, x_axis,x_label, y_label):
 def run_circuit(qc_circ, shots=1024, parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
     
     if parallel==True:
-        qobj_list = [compile(qc, backend) for qc in qc_circ]
+        qobj_list = [qk.compile(qc, qk.Aer.get_backend(backend)) for qc in qc_circ]
         job_list = [backend.run(qobj) for qobj in qobj_list]
 
         while job_list:
