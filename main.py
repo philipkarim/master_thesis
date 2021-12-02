@@ -235,7 +235,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
+Hamiltonian=2
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state

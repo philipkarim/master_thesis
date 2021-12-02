@@ -74,26 +74,39 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc, shots=1024, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
-    job = qk.execute(qc,
+def run_circuit(qc_circ, shots=1024, parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
+    
+    if parallel==True:
+        qobj_list = [compile(qc, backend) for qc in qc_circ]
+        job_list = [backend.run(qobj) for qobj in qobj_list]
+
+        while job_list:
+            for job in job_list:
+                if job.status() in JOB_FINAL_STATES:
+                    job_list.remove(job)
+                    print(job.result().get_counts())
+
+
+    else:
+        job = qk.execute(qc_circ,
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,
                     seed_simulator=10,
                     optimization_level=0
                     )
-    results = job.result()
-    results = results.get_counts(qc)
+        results = job.result()
+        results = results.get_counts(qc_circ)
 
-    if histogram==True:
-        qk.visualization.plot_histogram(results)
-        plt.show()
+        if histogram==True:
+            qk.visualization.plot_histogram(results)
+            plt.show()
 
-    prediction = 0
-    for key,value in results.items():
-        #print(key, value)
-        if key == '1':
-            prediction += value
-    prediction/=shots
+        prediction = 0
+        for key,value in results.items():
+            #print(key, value)
+            if key == '1':
+                prediction += value
+        prediction/=shots
 
     return prediction
 

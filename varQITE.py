@@ -36,18 +36,21 @@ class varQITE:
         self.maxTime=maxTime
         self.steps=steps
         self.time_step=self.maxTime/self.steps
-
+        rot_indexes=[]
 
         n_qubits=0
         for i in range(len(trial_circ)):
             if trial_circ[i][0]=='cx' or trial_circ[i][0]=='cy' or trial_circ[i][0]=='cz':
                 if n_qubits<trial_circ[i][1]:
-                    n_qubits=trial_circ[i][1]    
+                    n_qubits=trial_circ[i][1]
+            else:
+                rot_indexes.append(i)
 
             if n_qubits<trial_circ[i][2]:
                 n_qubits=trial_circ[i][2]
         
         self.trial_qubits=n_qubits
+        self.rot_indexes=np.array(rot_indexes, dtype=int)
     
     def initialize_circuits(self):
         """
@@ -63,8 +66,7 @@ class varQITE:
         for i in range(len(self.trial_circ)):
             for j in range(len(self.trial_circ)):
                 #Just the circuits
-                A_circ[i,j]=self.init_A(i,j)
-                
+                A_circ[i][j]=self.init_A(i,j)
         #print(A_circ)
 
 
@@ -106,21 +108,43 @@ class varQITE:
         omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
+        labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
+
+        #print(labels)
+
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
 
             A_mat_test=np.copy(self.A_init)
-
+            
             #Remember to multiply with (0+0.5j)*(0-0.5j)
+            
+            circ=[]
+
+            start_loop=time.time()
             for ii in range(len(A_mat_test)):
                 for jj in range(len(A_mat_test[0])):
-                    A_mat_test[ii][jj]
-            #A_mat_test=
+                    circ_test=A_mat_test[ii][jj]
+                    
+                    if circ_test!=None:
+                        n_rotations=len(circ_test.parameters)
+                        circ_test=circ_test.bind_parameters(labels[:n_rotations])
+                        circ.append(circ_test)
+                        circ_pred=run_circuit(circ_test)
+                        A_mat_test[ii][jj]=circ_pred*0.25
+                    else:
+                        A_mat_test[ii][jj]=0.
+            end_loop=time.time()
 
-            print(A_mat2)
-            print(A_mat_test)
+            print(f'loop {end_loop-start_loop}')
+                    #circ_test.bind_parameters([0,0,1,0])
+                    
+            #A_mat_test=
+            run_circuit(circ)
+            #print(A_mat2)
+            print(np.all(A_mat_test==A_mat2))
             #print(C_vec2)
 
             #print(A_mat2)
