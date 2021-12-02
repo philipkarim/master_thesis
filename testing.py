@@ -109,6 +109,10 @@ for i in range(0, len(p)):
     else:
         getattr(qse, p[i][0])(p_vec[i], p[i][2])
 
+print(qse)
+
+print(len(qse.parameters))
+
 """
 getattr(qse,p[i][0])(p[i][1],p[i][2])
 getattr(qse,p[1][0])(p[1][1],p[1][2])
@@ -156,8 +160,8 @@ for i in range(10000):
 end2=time.time()
 """
 
-print(a)
-print(a[1,0])
+#print(a)
+#print(a[1,0])
 
 """
 A_dict = {

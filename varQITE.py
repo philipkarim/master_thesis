@@ -1,6 +1,10 @@
 import numpy as np
 from numpy.core.fromnumeric import trace
 from numpy.lib.histograms import _unsigned_subtract
+
+
+from qiskit.circuit import ParameterVector
+
 from utils import *
 import random
 #import multiprocessing as mp
@@ -54,15 +58,14 @@ class varQITE:
         Creating circ A
         """
         A_circ= np.empty(shape=(len(self.trial_circ), len(self.trial_circ)), dtype=object)
-
+        
+        #Assuming there is only one circ per i,j, due to r? only having 1 element in f
         for i in range(len(self.trial_circ)):
             for j in range(len(self.trial_circ)):
                 #Just the circuits
                 A_circ[i,j]=self.init_A(i,j)
                 
-        print(A_circ[0,0][2,2])
-
-
+        #print(A_circ)
 
 
         #Remember to multiply with (0+0.5j)*(0-0.5j)
@@ -72,8 +75,13 @@ class varQITE:
         Creating circ C
         """
 
+        C_vec= np.empty(len(self.trial_circ), dtype=object)
+        C_lmb_index= np.empty(len(self.trial_circ), dtype=object)
 
-
+        #Loops through the indices of A
+        for i in range(len(self.trial_circ)):
+            C_vec[i], C_lmb_index[i] =self.init_C(i)
+  
         """
         Creating circ dA
         """
@@ -85,7 +93,11 @@ class varQITE:
         Creating circ dC
         """ 
 
-        return A_circ#, C_circ, dA_circ, dc_circ 
+        self.A_init=A_circ
+        self.C_init=C_vec
+        self.C_lmb_index=C_lmb_index
+
+        #return A_circ, C_vec #, dA_circ, dc_circ 
 
     def state_prep(self, gradient_stateprep=False):
         """
@@ -98,6 +110,17 @@ class varQITE:
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
+
+            A_mat_test=np.copy(self.A_init)
+
+            #Remember to multiply with (0+0.5j)*(0-0.5j)
+            for ii in range(len(A_mat_test)):
+                for jj in range(len(A_mat_test[0])):
+                    A_mat_test[ii][jj]
+            #A_mat_test=
+
+            print(A_mat2)
+            print(A_mat_test)
             #print(C_vec2)
 
             #print(A_mat2)
@@ -144,6 +167,10 @@ class varQITE:
 
         return omega_w, self.dwdth
 
+    def update_H(self, new_H):
+        self.hamil=new_H
+
+        return
     #@jit(nopython=True)
     def get_A2(self):
         #Lets try to remove the controlled gates
@@ -308,7 +335,7 @@ class varQITE:
                     #print(end-start)
                     #print(f_k_i[i],f_l_j[j])
                     #print(np.real(f_k_i[i]*f_l_j[j])*prediction)
-                    print(f_k_i[i],f_l_j[j])
+                    #print(f_k_i[i],f_l_j[j])
                     sum_A+=f_k_i[i]*f_l_j[j]*prediction
 
         return sum_A
@@ -324,13 +351,17 @@ class varQITE:
 
         pauli_names=np.array(['i', 'x', 'y', 'z'])
         
-        save_circ= np.empty(shape=(len(f_k_i),len(f_l_j)), dtype=object)
+        #save_circ= np.empty(shape=(len(f_k_i),len(f_l_j)), dtype=object)
+        
+        p_vec = ParameterVector('Init_param', 2*len(self.trial_circ))
 
+        counter=0
         for i in range(len(f_k_i)):
             for j in range(len(f_l_j)):
                 if f_k_i[i]==0 or f_l_j[j]==0:
                     pass
                 else:
+                    counter+=1
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
 
@@ -340,7 +371,7 @@ class varQITE:
                         if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
                             getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
                         else:
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                            getattr(temp_circ, gate1)(p_vec[ii], 1+self.trial_circ[ii][2])
         
                     temp_circ.x(0)
                     #Then we add the sigma
@@ -357,7 +388,7 @@ class varQITE:
                             #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                             getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         else:
-                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate)(p_vec[keep_going], 1+self.trial_circ[keep_going][2])
  
                     for jj in range(sec):
                         gate3=self.trial_circ[jj][0]
@@ -365,7 +396,7 @@ class varQITE:
                         if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
                             getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
                         else:
-                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+                            getattr(temp_circ, gate3)(p_vec[jj+len(self.trial_circ)], 1+self.trial_circ[jj][2])
 
 
                     getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
@@ -373,9 +404,84 @@ class varQITE:
                     temp_circ.measure(0,0)
 
                     ## Adding the circs:
-                    save_circ[i,j]=temp_circ
+                    #print(first, sec)
+                    #print(len(temp_circ.parameters))
+                    #print(temp_circ)
+                    
+                    if counter>1:
+                        print("Something is wrong, this should maximum be 1")
+                        exit()
 
-        return save_circ
+                    return temp_circ
+
+
+    def init_C(self, fir):
+        gate_label_i=self.trial_circ[fir][0]
+
+        f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+
+        lambda_l=(np.array(self.hamil)[:, 0]).astype('float')
+        
+        p_vec = ParameterVector('Init_param', 2*len(self.trial_circ))
+
+        V_circ=encoding_circ('C', self.trial_qubits)
+        #print(V_circ)
+        pauli_names=['i', 'x', 'y', 'z']
+
+        circs=[]
+        lamba_l=[]
+
+        for i in range(len(f_k_i)):
+            for l in range(len(lambda_l)):
+                #Can a complex number be 0?
+                if f_k_i[i]==0 or lambda_l[l]==0:
+                    pass
+                else:
+                    #First lets make the circuit:
+                    temp_circ=V_circ.copy()
+
+                    #Then we loop through the gates in U untill we reach the sigma
+                    for ii in range(fir):
+                        gate1=self.trial_circ[ii][0]
+                        #print(gate1)
+                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                            pass
+                        else:
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+
+                    #Add x gate                
+                    temp_circ.x(0)
+                    #Then we add the sigma
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[fir][2])
+
+                    #Add x gate                
+                    temp_circ.x(0)
+                    #Continue the U_i gate:
+                    for keep_going in range(fir, len(self.trial_circ)):
+                        gate2=self.trial_circ[keep_going][0]
+                        if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
+                            getattr(temp_circ, gate2)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        else:
+                            getattr(temp_circ, gate2)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+
+                    #Then add the h_l gate
+                    #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
+                    if self.hamil[l][1]!='i':
+                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
+                    
+                    temp_circ.h(0)
+                    temp_circ.measure(0, 0)
+
+                    #print(fir, lambda_l[l])
+                    #print(temp_circ)
+                    circs.append(temp_circ)
+                    lamba_l.append(l)
+        
+        circs=np.empty(len(circs), dtype=object)
+
+
+        return circs, np.array(lamba_l)
 
     def get_C2(self):
         C_vec_temp=np.zeros(len(self.trial_circ))
