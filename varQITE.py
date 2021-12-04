@@ -76,13 +76,23 @@ class varQITE:
         """
         Creating circ C
         """
-
+        #Trying to add everythinh to lists
         C_vec= np.empty(len(self.trial_circ), dtype=object)
         C_lmb_index= np.empty(len(self.trial_circ), dtype=object)
-
+        C_vec_list=[]
+        C_lmb=[]
         #Loops through the indices of A
         for i in range(len(self.trial_circ)):
-            C_vec[i], C_lmb_index[i] =self.init_C(i)
+            temp, temp_index =self.init_C(i)
+            if len(temp)>0:
+                C_vec_list.append(temp)
+                C_lmb.append(temp_index)
+                #print(i,temp)
+                
+            #C_vec[i], C_lmb_index[i] =self.init_C(i)
+            #print(len(C_lmb))
+        #print(C_vec)
+
   
         """
         Creating circ dA
@@ -93,11 +103,13 @@ class varQITE:
 
         """
         Creating circ dC
-        """ 
+        """
+
+        #print(np.where(C_vec==0.075732421875))
 
         self.A_init=A_circ
-        self.C_init=C_vec
-        self.C_lmb_index=C_lmb_index
+        self.C_init=C_vec_list
+        self.C_lmb_index=C_lmb
 
         #return A_circ, C_vec #, dA_circ, dc_circ 
 
@@ -109,7 +121,7 @@ class varQITE:
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
         labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
-
+        lmbs=(np.array(self.hamil)[:, 0]).astype('float')
         #print(labels)
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
@@ -120,10 +132,9 @@ class varQITE:
             end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
-            A_mat_test=np.copy(self.A_init)
-            C_vec_test=np.copy(self.C_init)
+            A_mat_test=(self.A_init)
+            C_vec_test=self.C_init.copy()
 
-            print(C_vec_test)
 
             #Remember to multiply with (0+0.5j)*(0-0.5j)
             
@@ -146,36 +157,45 @@ class varQITE:
 
             print(f'old mat {end_mat-start_mat}')
             print(f'loop {end_loop-start_loop}')
-                    #circ_test.bind_parameters([0,0,1,0])
-                
-            #A_mat_test=
-            #run_circuit(circ, parallel=True)
-            #print(A_mat2)
-            print(np.all(A_mat_test==A_mat2))
-            #print(C_vec2)
-            print(self.C_lmb_index)
-            
-            #Continue from here
+
+
             circ_pred=0
+
             for ii in range(len(C_vec_test)):
                 circ_test=C_vec_test[ii]
-                
-                if circ_test!=None:
-                    n_rotations=len(circ_test.parameters)
-                    circ_test=circ_test.bind_parameters(labels[:n_rotations])
-                    circ.append(circ_test)
-                    circ_pred+=run_circuit(circ_test)
-                    A_mat_test[ii][jj]=circ_pred*0.5*self.hamil[:0][self.C_lmb_index[ii]]
+                gate=self.trial_circ[ii][0]
+                if gate== 'cx' or gate == 'cy' or gate == 'cz':
+                    C_vec_test[ii]=0
                 else:
-                    C_vec_test[ii]=0.
-            end_loop=time.time()
+                    for jj in range(len(C_vec_test[ii])):
+    
+                        temp_list=[]
+
+                        n_rotations=len(circ_test[jj].parameters)
+                        circ_test[jj]=circ_test[jj].bind_parameters(labels[:n_rotations])
+                        #Just appending for option to run paralell circuits
+                        temp_list.append(circ_test[jj])
+                        #print(f'lambda is {self.hamil[:0][self.C_lmb_index[ii]]}')
+                        circ_pred=run_circuit(circ_test[jj])
+
+                        C_vec_test[ii]=circ_pred*0.5*lmbs[self.C_lmb_index[ii][jj]]
+                    #else:
+                            #C_vec_test[ii]=0.
+                        
+                        circ.append(temp_list)
+
+            """
+            Just do it the old way, make it work and optimize later
+            """
 
             #print(A_mat2)
             #Use this one?
             #A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
 
             #print(A_mat2)
-            #print(C_vec2)            
+            print(C_vec2)       
+            print(C_vec_test)
+            print(np.all(C_vec_test==C_vec2))     
 
 
 
@@ -470,17 +490,20 @@ class varQITE:
         gate_label_i=self.trial_circ[fir][0]
 
         f_k_i=np.conjugate(get_f_sigma(gate_label_i))
-
         lambda_l=(np.array(self.hamil)[:, 0]).astype('float')
-        
+
+        #print(f_k_i)
+
         p_vec = ParameterVector('Init_param', 2*len(self.trial_circ))
 
         V_circ=encoding_circ('C', self.trial_qubits)
         #print(V_circ)
         pauli_names=['i', 'x', 'y', 'z']
 
-        circs=[]
+        #Assumes that f_k_i only has one nonzero element
+        circs=np.empty(len(lambda_l), dtype=object)
         lamba_l=[]
+        circ_list=[]
 
         for i in range(len(f_k_i)):
             for l in range(len(lambda_l)):
@@ -488,6 +511,7 @@ class varQITE:
                 if f_k_i[i]==0 or lambda_l[l]==0:
                     pass
                 else:
+
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
 
@@ -497,9 +521,8 @@ class varQITE:
                         #print(gate1)
                         if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
                             getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                            pass
                         else:
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                            getattr(temp_circ, gate1)(p_vec[ii], 1+self.trial_circ[ii][2])
 
                     #Add x gate                
                     temp_circ.x(0)
@@ -514,7 +537,7 @@ class varQITE:
                         if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
                             getattr(temp_circ, gate2)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         else:
-                            getattr(temp_circ, gate2)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate2)(p_vec[keep_going], 1+self.trial_circ[keep_going][2])
 
                     #Then add the h_l gate
                     #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
@@ -526,13 +549,18 @@ class varQITE:
 
                     #print(fir, lambda_l[l])
                     #print(temp_circ)
-                    circs.append(temp_circ)
+                    #print(temp_circ)
+                    #circs[i]=temp_circ
+                    circ_list.append(temp_circ)
+                    #circs.append(np.array(temp_circ, dtype=object))
                     lamba_l.append(l)
         
-        circs=np.empty(len(circs), dtype=object)
-
-
-        return circs, np.array(lamba_l)
+        #circs=np.empty(len(circs), dtype=object)
+            #print(circ_list)
+            #circ_array=np.array(circ_list, dtype=object)
+            #print(np.array(circs))
+            #print(len(circ_list))
+        return circ_list, lamba_l
 
     def get_C2(self):
         C_vec_temp=np.zeros(len(self.trial_circ))

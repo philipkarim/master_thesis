@@ -280,7 +280,7 @@ varqite=varQITE(H, params, steps=1)
 varqite.initialize_circuits()
 #print(A[2][2][3][1])
 omega, d_omega=varqite.state_prep(gradient_stateprep=True)
-varqite.update_H(H_new)
+#varqite.update_H(H_new)
 #varqite.run_C2(0)
 end=time.time()
 
