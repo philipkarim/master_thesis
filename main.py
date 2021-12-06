@@ -235,7 +235,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=2
+Hamiltonian=1
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -279,7 +279,8 @@ varqite=varQITE(H, params, steps=10)
 #A, C, da, dc= varqite.initialize_circuits()
 #varqite.initialize_circuits()
 #varqite.run_A2(7,3)
-omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+omega, d_omega=varqite.state_prep(gradient_stateprep=False)
+print(d_omega)
 #varqite.update_H(H_new)
 #varqite.run_C2(0)
 end=time.time()

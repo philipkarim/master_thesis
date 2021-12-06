@@ -751,12 +751,11 @@ class varQITE:
     def run_dA(self, p_index, q_index, i_theta):
         #Compute one term in the dA matrix
         sum_A_pq=0
-
         #A bit unsure about the len of this one
         for s in range(len(self.trial_circ)): #+1?
             #Okay no idea what the fuck this term even is, compute the formula
             #in the article by hand to find out.
-            #the w depends on the timestep I think
+            #the w depends on the timestep I guess
             dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
             dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
             """
@@ -767,7 +766,7 @@ class varQITE:
             temp_dw=self.dwdth[i_theta][s]
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
-            sum_A_pq+=temp_dw*(dCircuit_term_1-dCircuit_term_2)
+            sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
         return sum_A_pq
 
@@ -880,8 +879,11 @@ class varQITE:
 
                         
                         ###Done with the first "term"
+
+                        #TODO: Make an if statement removing the extra gates when i<j
                         if len(circ_1)==1:
-                            for sec_term in range(sec_der):
+                            for sec_term in range(len(self.trial_circ)-1, sec_der-1, -1):
+                            #for sec_term in range(sec_der):
                                 gate=self.trial_circ[sec_term][0]
 
                                 if gate == 'cx' or gate == 'cy' or gate == 'cz':
@@ -891,7 +893,8 @@ class varQITE:
 
                             getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec_der][2])
                             
-                            for third_term in range(sec_der, thr_der):
+                            for third_term in range(sec_der-1, thr_der-1, -1):
+                            #for third_term in range(sec_der, thr_der):
                                 gate_sec=self.trial_circ[third_term][0]
                                 if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
                                     getattr(temp_circ, gate_sec)(1+self.trial_circ[third_term][1], 1+self.trial_circ[third_term][2])
@@ -902,7 +905,8 @@ class varQITE:
                             getattr(temp_circ, 'c'+pauli_names[k])(0,1+self.trial_circ[thr_der][2])
 
                         else:
-                            for third_term in range(thr_der):
+                            for third_term in range(len(self.trial_circ)-1, thr_der-1, -1):
+                            #for third_term in range(thr_der):
                                 gate=self.trial_circ[third_term][0]
 
                                 if gate == 'cx' or gate == 'cy' or gate == 'cz':
@@ -939,7 +943,7 @@ class varQITE:
     
     def run_dC(self, p_index, i_theta):
         dCircuit_term_0=self.dC_circ0(p_index, i_theta)
-        
+        #TODO: Check if dc is right 
         sum_C_p=0
         for s in range(len(self.trial_circ)): #+1?
             for i in range(len(self.hamil)):
