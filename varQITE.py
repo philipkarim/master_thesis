@@ -340,6 +340,7 @@ class varQITE:
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
                     
+                    """
                     #BEST UNTILL NOW I GUESS
                     #Then we loop through the gates in U until we reach the sigma
                     for ii in range(first):
@@ -411,15 +412,20 @@ class varQITE:
                     
                     #I gotta reverse it here, going from opposite side
                     ##New loop: all the way to sec from N
-
-                    for jj in range(len(self.trial_circ)-1, sec+1,-1):                       
+                    for jj in range(len(self.trial_circ)-1, sec-1, -1):
+                        #print(jj)                       
                         gate3=self.trial_circ[jj][0]
                         if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
                             getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
                         else:
                             getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
-                    """
                     
+                    #print(temp_circ)
+                    #Forgott to add a controll gate how could I?
+                    #getattr(temp_circ, 'c'+self.trial_circ[sec][0])(0,1+self.trial_circ[sec][2])
+                    getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
+                    temp_circ.h(0)
+                    temp_circ.measure(0,0)
                     """
                     Measures the circuit
                     """
