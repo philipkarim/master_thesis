@@ -273,7 +273,7 @@ def encoding_circ(circuit, input_qubits):
                   so might need to mix depending on the term used.
                   if statement of H-S
     """
-
+    
     if circuit=='A':
         qc_enc.h(data_register_enc[0])
 

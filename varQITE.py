@@ -118,6 +118,7 @@ class varQITE:
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
         omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
+        print(f'init omega{omega_w}')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
         labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
@@ -127,79 +128,72 @@ class varQITE:
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
-            start_mat=time.time()
+            #start_mat=time.time()
             A_mat2=np.copy(self.get_A2())
-            end_mat=time.time()
+            #end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
-            A_mat_test=(self.A_init)
-            C_vec_test=self.C_init.copy()
-
-
-            #Remember to multiply with (0+0.5j)*(0-0.5j)
-            
-            circ=[]
-
-            start_loop=time.time()
-            for ii in range(len(A_mat_test)):
-                for jj in range(len(A_mat_test[0])):
-                    circ_test=A_mat_test[ii][jj]
-                    
-                    if circ_test!=None:
-                        n_rotations=len(circ_test.parameters)
-                        circ_test=circ_test.bind_parameters(labels[:n_rotations])
-                        circ.append(circ_test)
-                        circ_pred=run_circuit(circ_test)
-                        A_mat_test[ii][jj]=circ_pred*0.25
-                    else:
-                        A_mat_test[ii][jj]=0.
-            end_loop=time.time()
-
-            print(f'old mat {end_mat-start_mat}')
-            print(f'loop {end_loop-start_loop}')
-
-
-            circ_pred=0
-
-            for ii in range(len(C_vec_test)):
-                circ_test=C_vec_test[ii]
-                gate=self.trial_circ[ii][0]
-                if gate== 'cx' or gate == 'cy' or gate == 'cz':
-                    C_vec_test[ii]=0
-                else:
-                    for jj in range(len(C_vec_test[ii])):
-    
-                        temp_list=[]
-
-                        n_rotations=len(circ_test[jj].parameters)
-                        circ_test[jj]=circ_test[jj].bind_parameters(labels[:n_rotations])
-                        #Just appending for option to run paralell circuits
-                        temp_list.append(circ_test[jj])
-                        #print(f'lambda is {self.hamil[:0][self.C_lmb_index[ii]]}')
-                        circ_pred=run_circuit(circ_test[jj])
-
-                        C_vec_test[ii]=circ_pred*0.5*lmbs[self.C_lmb_index[ii][jj]]
-                    #else:
-                            #C_vec_test[ii]=0.
+            """
+            if i want to use this:   
+                #A_mat_test=(self.A_init)
+                #C_vec_test=self.C_init.copy()
+                #Remember to multiply with (0+0.5j)*(0-0.5j)
+                circ=[]
+                start_loop=time.time()
+                for ii in range(len(A_mat_test)):
+                    for jj in range(len(A_mat_test[0])):
+                        circ_test=A_mat_test[ii][jj]
                         
-                        circ.append(temp_list)
+                        if circ_test!=None:
+                            n_rotations=len(circ_test.parameters)
+                            circ_test=circ_test.bind_parameters(labels[:n_rotations])
+                            circ.append(circ_test)
+                            circ_pred=run_circuit(circ_test)
+                            A_mat_test[ii][jj]=circ_pred*0.25
+                        else:
+                            A_mat_test[ii][jj]=0.
+                end_loop=time.time()
+                #print(f'old mat {end_mat-start_mat}')
+                #print(f'loop {end_loop-start_loop}')
 
+
+                circ_pred=0
+
+                for ii in range(len(C_vec_test)):
+                    circ_test=C_vec_test[ii]
+                    gate=self.trial_circ[ii][0]
+                    if gate== 'cx' or gate == 'cy' or gate == 'cz':
+                        C_vec_test[ii]=0
+                    else:
+                        for jj in range(len(C_vec_test[ii])):
+        
+                            temp_list=[]
+
+                            n_rotations=len(circ_test[jj].parameters)
+                            circ_test[jj]=circ_test[jj].bind_parameters(labels[:n_rotations])
+                            #Just appending for option to run paralell circuits
+                            temp_list.append(circ_test[jj])
+                            #print(f'lambda is {self.hamil[:0][self.C_lmb_index[ii]]}')
+                            circ_pred=run_circuit(circ_test[jj])
+
+                            C_vec_test[ii]=circ_pred*0.5*lmbs[self.C_lmb_index[ii][jj]]
+                        #else:
+                                #C_vec_test[ii]=0.
+                            
+                            circ.append(temp_list)
+
+                Just do it the old way, make it work and optimize later
+                #print(A_mat2)
+                print(C_vec2)
+                C_vec2_2=np.zeros(len(self.trial_circ))
+                C_vec2_2[self.rot_indexes]=C_vec_test
+                print(C_vec2)
+                print(C_vec2_2)
+                print(np.all(C_vec2==C_vec2_2))     
+
+                C_vec2=C_vec2_2
             """
-            Just do it the old way, make it work and optimize later
-            """
-
-            #print(A_mat2)
-            #Use this one?
-            #A_mat2, C_vec2=remove_constant_gates(self.trial_circ, A_mat2, C_vec2)
-
-            #print(A_mat2)
-            print(C_vec2)       
-            print(C_vec_test)
-            print(np.all(C_vec_test==C_vec2))     
-
-
-
-
+            
 
             #Kan bruke Ridge regression på den inverterte
             A_inv_temp=np.linalg.pinv(A_mat2)
@@ -223,6 +217,8 @@ class varQITE:
                     self.dwdth[i]+=w_dtheta_dt*self.time_step
                 
             omega_w+=omega_derivative*self.time_step
+            #print(f'omega after step {omega_w}')
+
             #print(omega_derivative)
             #Update parameters
             #print(omega_w)
@@ -343,7 +339,8 @@ class varQITE:
                 else:
                     #First lets make the circuit:
                     temp_circ=V_circ.copy()
-
+                    
+                    #BEST UNTILL NOW I GUESS
                     #Then we loop through the gates in U until we reach the sigma
                     for ii in range(first):
                         gate1=self.trial_circ[ii][0]
@@ -368,7 +365,10 @@ class varQITE:
                             getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
                         else:
                             getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
- 
+                    
+                    #I gotta reverse it here, going from opposite side
+                    ##New loop: all the way to sec from N
+                    
                     for jj in range(sec):
                         gate3=self.trial_circ[jj][0]
                         #print(gate3)
@@ -376,24 +376,50 @@ class varQITE:
                             getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
                         else:
                             getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
-
-                        """
-                        if len(self.trial_circ[jj])==2:
-                            getattr(temp_circ, self.trial_circ[jj][0])(params_circ[jj], 1)
-                        elif len(self.trial_circ[jj])==3:
-                            getattr(temp_circ, self.trial_circ[jj][0])(params_circ[jj], self.trial_circ[jj][1], self.trial_circ[jj][2])
-                        else:
-                            print('Something is wrong, I can feel it')
-                            exit()
-                        """
+                    
 
                     getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
                     temp_circ.h(0)
                     temp_circ.measure(0,0)
 
                     #print(temp_circ)
-                    #print(temp_circ)
+                    
+                    """
+                    for ii in range(first):
+                        gate1=self.trial_circ[ii][0]
+                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                        else:
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+        
+                    temp_circ.x(0)
+                    #Then we add the sigma
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
+                    #Add x gate                
+                    temp_circ.x(0)
 
+                    #Continue the U_i gate:
+                    for keep_going in range(first, len(self.trial_circ)):
+                        gate=self.trial_circ[keep_going][0]
+                        #print(gate)
+                        #print(gate)
+                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                        else:
+                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                    
+                    #I gotta reverse it here, going from opposite side
+                    ##New loop: all the way to sec from N
+
+                    for jj in range(len(self.trial_circ)-1, sec+1,-1):                       
+                        gate3=self.trial_circ[jj][0]
+                        if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
+                            getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+                        else:
+                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+                    """
+                    
                     """
                     Measures the circuit
                     """
@@ -646,8 +672,9 @@ class varQITE:
                     #Then add the h_l gate
                     #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
                     if self.hamil[l][1]!='i':
-                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
-                    
+                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
+                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)
+
                     temp_circ.h(0)
                     temp_circ.measure(0, 0)
 
