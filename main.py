@@ -235,7 +235,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
+Hamiltonian=2
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -268,6 +268,7 @@ because the coefficients must be the same for pairwise hamiltonians
 #[gate, value, qubit]
 
 
+
 #circ=create_initialstate(params)
 
 """
@@ -279,7 +280,8 @@ varqite=varQITE(H, params, steps=10)
 #A, C, da, dc= varqite.initialize_circuits()
 #varqite.initialize_circuits()
 #varqite.run_A2(7,3)
-omega, d_omega=varqite.state_prep(gradient_stateprep=False)
+#Testing
+omega, d_omega=varqite.state_prep(gradient_stateprep=True)
 print(d_omega)
 #varqite.update_H(H_new)
 #varqite.run_C2(0)
@@ -348,34 +350,66 @@ elif np.max(np.array(H)[:,2])==1:
 
 #print(f'dw/dø: {d_omega}')
 
-"""
-#Is this correct?
-p_QBM=np.diag(PT.data)
+def train(H, ansatz, n_epochs):
+    #Hamiltonian is the number of hamiltonian params, either 1 or 2, but should be done the same way as the alternating thing
+    optim=optimize(len(H), Hamiltonian) ##Do not call this each iteration, it will mess with the momentum
+    
+    # How many elements to trace over
+    print(np.array(H)[:,2])
+    max_qubit=np.max(np.array(H)[:,2].astype(int))
+    print(max_qubit)
+    tracing_q=list(range(1, 2*max_qubit, 2))
 
-#Hamiltonian is the number of hamiltonian params
-optim=optimize(len(H), Hamiltonian) ##Do not call this each iteration, it will mess with the momentum
-loss=optim.cross_entropy_new(p_data,p_QBM)
+    varqite_train=varQITE(H, ansatz, steps=10)
 
-print(f'Loss: {loss}')
+    for epoch in range(n_epochs):
 
-#Then find dL/d theta by using eq. 10
-print('Updating params..')
-gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
+        #Stops, memory allocation??? How to check
+        omega, d_omega=varqite.state_prep(gradient_stateprep=False)
+        ansatz=update_parameters(ansatz, omega)
 
-gradient_loss=optim.gradient_loss(p_data, p_QBM)
+        #Dansity matrix measure, measure instead of computing whole DM
+        trace_circ=create_initialstate(ansatz)
+        DM=DensityMatrix.from_instruction(trace_circ)
 
-print(f'gradient_loss: {gradient_loss}')
-print(type(gradient_loss))
-new_parameters=optim.adam(np.array(H)[:,0], gradient_loss)
-print(new_parameters)
 
-np.array(H)[:,0]=new_parameters
+        PT=partial_trace(DM,tracing_q)
 
-print(H)
+        #Is this correct?
+        p_QBM=np.diag(PT.data)
+        #Hamiltonian is the number of hamiltonian params
+        
+        loss=optim.cross_entropy_new(p_data,p_QBM)
+        print(f'Loss: {loss}')
 
-#Compute the dp_QBM/dtheta_i
+        #Then find dL/d theta by using eq. 10
+        print('Updating params..')
+        gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
 
-"""
+        gradient_loss=optim.gradient_loss(p_data, p_QBM)
+
+        print(f'gradient_loss: {gradient_loss}')
+        print(type(gradient_loss))
+        new_parameters=optim.adam(np.array(H)[:,0], gradient_loss)
+        print(new_parameters)
+
+        #Is this only params or the whole list? Then i think i should insert params and the
+        #function replace the coefficients itself
+        varqite.update_H(new_parameters)
+        np.array(H)[:,0]=new_parameters
+
+        print(H)
+
+        #Compute the dp_QBM/dtheta_i
+    
+    return
+
+train(H, params, 2)
+
+
+
+
+
 
 
 """
