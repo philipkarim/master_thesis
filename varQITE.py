@@ -554,7 +554,6 @@ class varQITE:
 
                     return temp_circ
 
-
     def init_C(self, fir):
         gate_label_i=self.trial_circ[fir][0]
 
@@ -769,7 +768,8 @@ class varQITE:
             sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
         return sum_A_pq
-
+    
+    #TODO: add a if j<i statement to make circs mindre
     def dA_circ(self, circ_1, circ_2):
         """
         Might be an error when the same indexes in the double derivative is simulated.
@@ -925,16 +925,18 @@ class varQITE:
                         """
                         prediction=run_circuit(temp_circ)
 
+                        #TODO: - or +?
                         sum_dA+=np.imag(f_i[i]*f_j[j]*f_k[k])*prediction
 
                         #print(temp_circ)
 
         return sum_dA
 
+    #TODO: #Start here and see if these are alright
     def get_dC(self, i_param):
         #Lets try to remove the controlled gates
         dC_vec_temp_i=np.zeros((len(self.trial_circ)))
-        #Loops through the indices of A
+        #Loops through the indices of C
         for p in range(len(self.trial_circ)):
             dc_term=self.run_dC(p, i_param)
             dC_vec_temp_i[p]=dc_term
@@ -955,6 +957,7 @@ class varQITE:
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
+                #+ or - is this what is wrong?
                 sum_C_p+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
         return -dCircuit_term_0-sum_C_p
@@ -983,7 +986,6 @@ class varQITE:
                 #Then we loop through the gates in U untill we reach the sigma
                 for ii in range(first_der):
                     gate1=self.trial_circ[ii][0]
-                    #print(gate1)
                     if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
                         getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
                         pass
@@ -1017,10 +1019,9 @@ class varQITE:
                 #print(temp_circ)
                 prediction=run_circuit(temp_circ)
                 
+                #TODO: - or +?
                 sum_dC+=np.imag(f_i[i]*self.hamil[j][0])*prediction
         
-        #print(temp_circ)
-
         return sum_dC
 
     def dC_circ1(self, p, i_index, s):
@@ -1074,7 +1075,8 @@ class varQITE:
                     if self.hamil[i_index][1]!='i':
                         getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,1+self.hamil[i_index][2])
                 
-                    for jj in range(sec):
+
+                    for jj in range(len(self.trial_circ)-1, sec-1, -1):
                         gate3=self.trial_circ[jj][0]
                         #print(gate3)
                         if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
@@ -1091,6 +1093,7 @@ class varQITE:
                     """
                     prediction=run_circuit(temp_circ)
 
+                    #TODO: + or -?
                     sum_dc+=np.imag(f_k_i[i]*f_l_j[j])*prediction
         #print(temp_circ)
         
@@ -1167,8 +1170,7 @@ class varQITE:
                         #print(temp_circ)
                         prediction=run_circuit(temp_circ)
                         
+                        #TODO: + or minus?
                         sum_dC+=np.imag(f_i[i]*f_j[j])*prediction
-
-        #print(temp_circ)
 
         return sum_dC

@@ -1,3 +1,13 @@
+"""
+alt+z to fix word wrap
+
+Rotating the monitor:
+xrandr --output DP-1 --rotate right
+xrandr --output DP-1 --rotate normal
+
+xrandr --query to find the name of the monitors
+
+"""
 import random
 import numpy as np
 import qiskit as qk
@@ -235,7 +245,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=2
+Hamiltonian=1
 p_data=np.array([0.5, 0.5])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -250,6 +260,8 @@ elif Hamiltonian==2:
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
             #[gate, value, qubit]
+
+    #Write qk.z instead of str? then there is no need to use get.atr?
     H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
@@ -261,15 +273,7 @@ elif Hamiltonian==2:
 Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
 because the coefficients must be the same for pairwise hamiltonians
 """
-#[coefficient, gate, qubit]
-#H1=[[1., 'z', 0]]
-#H2=[[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-#    [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
-#[gate, value, qubit]
 
-
-
-#circ=create_initialstate(params)
 
 """
 Testing
@@ -277,14 +281,11 @@ Testing
 #make_varQITE object
 start=time.time()
 varqite=varQITE(H, params, steps=10)
-#A, C, da, dc= varqite.initialize_circuits()
 #varqite.initialize_circuits()
 #varqite.run_A2(7,3)
 #Testing
-omega, d_omega=varqite.state_prep(gradient_stateprep=True)
-print(d_omega)
-#varqite.update_H(H_new)
-#varqite.run_C2(0)
+#omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+#print(d_omega)
 end=time.time()
 
 print(f'Time used: {np.around(end-start, decimals=1)} seconds')
@@ -296,11 +297,12 @@ print(f'Time used: {np.around(end-start, decimals=1)} seconds')
 """
 Investigating the tracing of subsystem b
 """
-params=update_parameters(params, omega)
+#params=update_parameters(params, omega)
 
 #Dansity matrix measure, measure instead of computing whole DM
 trace_circ=create_initialstate(params)
 DM=DensityMatrix.from_instruction(trace_circ)
+
 
 #Rewrite this to an arbitrary amount of qubits
 if Hamiltonian==1:
@@ -336,18 +338,6 @@ Okay here is the real next step, assuming we got the VarITE:
 
 #Computing the pv_QBM
 
-#This can be done a more productive way I am pretty sure
-"""
-if np.max(np.array(H)[:,2])==0:
-    zero_state=np.array([1,0])
-    one_state=np.array([0,1])
-elif np.max(np.array(H)[:,2])==1:
-    zero_zero_state=np.array([1,0,0,0])
-    zero_one_state=np.array([0,1,0,0])
-    one_zero_state=np.array([0,0,1,0])
-    one_one_state=np.array([0,0,0,1])
-"""
-
 #print(f'dw/dø: {d_omega}')
 
 def train(H, ansatz, n_epochs):
@@ -358,9 +348,9 @@ def train(H, ansatz, n_epochs):
     print(np.array(H)[:,2])
     max_qubit=np.max(np.array(H)[:,2].astype(int))
     print(max_qubit)
-    tracing_q=list(range(1, 2*max_qubit, 2))
+    tracing_q=range(1, 2*max_qubit+2, 2)
 
-    varqite_train=varQITE(H, ansatz, steps=10)
+    varqite_train=varQITE(H, ansatz, steps=2)
 
     for epoch in range(n_epochs):
 
@@ -371,7 +361,6 @@ def train(H, ansatz, n_epochs):
         #Dansity matrix measure, measure instead of computing whole DM
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
-
 
         PT=partial_trace(DM,tracing_q)
 
