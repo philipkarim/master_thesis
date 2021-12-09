@@ -341,11 +341,12 @@ Okay here is the real next step, assuming we got the VarITE:
 #print(f'dw/dø: {d_omega}')
 
 def train(H, ansatz, n_epochs):
+    print('------------------------------------------------------')
     #Hamiltonian is the number of hamiltonian params, either 1 or 2, but should be done the same way as the alternating thing
+    #TODO: Fix the Hamiltonian thing, why is there even a number??
     optim=optimize(len(H), Hamiltonian) ##Do not call this each iteration, it will mess with the momentum
     
     # How many elements to trace over
-    print(np.array(H)[:,2])
     max_qubit=np.max(np.array(H)[:,2].astype(int))
     print(max_qubit)
     tracing_q=range(1, 2*max_qubit+2, 2)
@@ -353,6 +354,7 @@ def train(H, ansatz, n_epochs):
     varqite_train=varQITE(H, ansatz, steps=2)
 
     for epoch in range(n_epochs):
+        print(f'epoch: {epoch}')
 
         #Stops, memory allocation??? How to check
         omega, d_omega=varqite.state_prep(gradient_stateprep=False)
@@ -367,14 +369,17 @@ def train(H, ansatz, n_epochs):
         #Is this correct?
         p_QBM=np.diag(PT.data)
         #Hamiltonian is the number of hamiltonian params
-        
+        print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(p_data,p_QBM)
         print(f'Loss: {loss}')
 
         #Then find dL/d theta by using eq. 10
         print('Updating params..')
-        gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
 
+        #TODO: Check if this is right
+        gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
+        print(f'gradient of qbm: {gradient_qbm}')
+        #TODO: Why aint I using the variable over? I think this is used in the class
         gradient_loss=optim.gradient_loss(p_data, p_QBM)
 
         print(f'gradient_loss: {gradient_loss}')
