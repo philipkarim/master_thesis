@@ -6,7 +6,7 @@ import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
-    def __init__(self, hamiltonian_params, H_qubits, learning_rate=0.01, circuit=None):
+    def __init__(self, hamiltonian_params, H_qubits, rot_in,n_qubit_H, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -15,6 +15,10 @@ class optimize:
             learning_rate:  Learning rate used in gradient descent
             circuit:        Quantum circuit that is used
         """
+        self.rot_in=rot_in
+        self.n_qubit_H=n_qubit_H
+        #TODO: Check on this, this is just a length not the actual
+        #params, do I even use the H params?
         self.hamiltonian_params=hamiltonian_params
         self.H_qubits=H_qubits
         self.H_qubit_states=2**H_qubits
@@ -48,8 +52,19 @@ class optimize:
         self.v = beta2 * self.v + (1.0 - beta2) * g**2
         mhat = self.m / (1.0 - beta1**(self.t))
         vhat = self.v / (1.0 - beta2**(self.t))
-        x -= self.learning_rate*mhat / (np.sqrt(vhat) + eps)
-            
+        print('____________ADAM optimizer___________')
+        print(f'lr: {self.learning_rate}')
+        print(f'm_hat: {mhat}')
+        print(f'v_hat: {vhat}')
+        print(f'sqrt-v_hat: {np.sqrt(mhat)}')
+
+        print(f'type of m_hat: {type(mhat)} and vhat: {type(vhat)}')
+        print(x)
+
+        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+        
+        print(x)
+
         #Add 1 to the counter
         self.t+=1
 
@@ -216,9 +231,7 @@ class optimize:
         print(self.H_qubit_states)
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
-            k=0
-            while k<len(params):
-                print(f'param {k}')
+            for k in self.rot_in:
                 if params[k][0]=='rx' or params[k][0]=='ry' or params[k][0]=='rz':
                     params_left_shift=params.copy()
                     params_right_shift=params.copy()
@@ -227,8 +240,8 @@ class optimize:
                     params_right_shift[k][1]+=0.5*np.pi
                     params_left_shift[k][1]-=0.5*np.pi
 
-                    varqite_right=varQITE(H, params_right_shift, steps=steps)
-                    varqite_left=varQITE(H, params_left_shift, steps=steps)
+                    varqite_right=varQITE(H, params_right_shift, self.rot_in, self. n_qubit_H, steps=steps)
+                    varqite_left=varQITE(H, params_left_shift, self.rot_in, self. n_qubit_H, steps=steps)
 
                     omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
                     omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
@@ -258,11 +271,9 @@ class optimize:
                     print(np.diag(PT_left.data))
                     #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
                     print(w_k_sum)
-                    w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
+                    #TODO: I dont actually think this should be positive, but  negative is 0
+                    w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)+np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
                     print(w_k_sum)
-                    k+=1
-                else:
-                    k+=1
 
         self.w_k_sum=w_k_sum
 

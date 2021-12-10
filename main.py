@@ -246,7 +246,7 @@ New chapter.. recreate fig 2
 PARAMETERS
 """
 Hamiltonian=1
-p_data=np.array([0.5, 0.5])
+p_data=np.array([0.8, 0.2])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 if Hamiltonian==1:
@@ -265,6 +265,28 @@ elif Hamiltonian==2:
     H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
+
+#TODO: Rewrite every if 'rx'' condition to for i in indices:
+
+##Computing
+rotational_indices=[]
+n_qubits_params=0
+for i in range(len(params)):
+    if params[i][0]=='cx' or params[i][0]=='cy' or params[i][0]=='cz':
+        if n_qubits_params<params[i][1]:
+            n_qubits_params=params[i][1]
+    else:
+        rotational_indices.append(i)
+
+    if n_qubits<params[i][2]:
+        n_qubits=params[i][2]
+
+n_qubits_H=0
+for j in range(len(H)):
+    if n_qubits_H<H[j][2]:
+            n_qubits_H=H[j][2]
+
+print(f'qubit H: {n_qubits_H}')
 #Transforms the parameters into arrays
 #params=np.array(params)
 #H=np.array(H)
@@ -280,7 +302,7 @@ Testing
 """
 #make_varQITE object
 start=time.time()
-varqite=varQITE(H, params, steps=10)
+varqite=varQITE(H, params, rotational_indices, n_qubits_params, steps=10)
 #varqite.initialize_circuits()
 #varqite.run_A2(7,3)
 #Testing
@@ -344,20 +366,19 @@ def train(H, ansatz, n_epochs):
     print('------------------------------------------------------')
     #Hamiltonian is the number of hamiltonian params, either 1 or 2, but should be done the same way as the alternating thing
     #TODO: Fix the Hamiltonian thing, why is there even a number??
-    optim=optimize(len(H), Hamiltonian) ##Do not call this each iteration, it will mess with the momentum
+    optim=optimize(len(H), Hamiltonian, rotational_indices, n_qubits_params) ##Do not call this each iteration, it will mess with the momentum
     
     # How many elements to trace over
-    max_qubit=np.max(np.array(H)[:,2].astype(int))
-    print(max_qubit)
-    tracing_q=range(1, 2*max_qubit+2, 2)
 
-    varqite_train=varQITE(H, ansatz, steps=2)
+    tracing_q=range(1, 2*n_qubits_H+2, 2)
+
+    varqite_train=varQITE(H, ansatz, rotational_indices, n_qubits_params, steps=10)
 
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
         #Stops, memory allocation??? How to check
-        omega, d_omega=varqite.state_prep(gradient_stateprep=False)
+        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
         ansatz=update_parameters(ansatz, omega)
 
         #Dansity matrix measure, measure instead of computing whole DM
@@ -377,14 +398,16 @@ def train(H, ansatz, n_epochs):
         print('Updating params..')
 
         #TODO: Check if this is right
-        gradient_qbm=optim.gradient_ps(H, params, d_omega, steps=2)
+        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=10)
         print(f'gradient of qbm: {gradient_qbm}')
         #TODO: Why aint I using the variable over? I think this is used in the class
         gradient_loss=optim.gradient_loss(p_data, p_QBM)
 
         print(f'gradient_loss: {gradient_loss}')
         print(type(gradient_loss))
-        new_parameters=optim.adam(np.array(H)[:,0], gradient_loss)
+        #TODO: Fix the thing to handle gates with same coefficient
+        #TODO: Should be float not complex but then i have to fix vhat and mhat too
+        new_parameters=optim.adam(np.array(H)[:,0].astype(complex), gradient_loss)
         print(new_parameters)
 
         #Is this only params or the whole list? Then i think i should insert params and the
@@ -392,13 +415,13 @@ def train(H, ansatz, n_epochs):
         varqite.update_H(new_parameters)
         np.array(H)[:,0]=new_parameters
 
-        print(H)
+        print(f'Final H, lets go!!!!: {H}')
 
         #Compute the dp_QBM/dtheta_i
     
     return
 
-train(H, params, 2)
+train(H, params, 20)
 
 
 

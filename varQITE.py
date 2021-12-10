@@ -19,7 +19,7 @@ import time
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10):
+    def __init__(self, hamil, trial_circ, rot_indices, n_qubit_param, maxTime=0.5, steps=10):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -34,22 +34,11 @@ class varQITE:
         self.trial_circ=trial_circ
         self.maxTime=maxTime
         self.steps=steps
-        self.time_step=self.maxTime/self.steps
-        rot_indexes=[]
-
-        n_qubits=0
-        for i in range(len(trial_circ)):
-            if trial_circ[i][0]=='cx' or trial_circ[i][0]=='cy' or trial_circ[i][0]=='cz':
-                if n_qubits<trial_circ[i][1]:
-                    n_qubits=trial_circ[i][1]
-            else:
-                rot_indexes.append(i)
-
-            if n_qubits<trial_circ[i][2]:
-                n_qubits=trial_circ[i][2]
+        self.time_step=self.maxTime/self.steps        
+        self.trial_qubits=n_qubit_param
         
-        self.trial_qubits=n_qubits
-        self.rot_indexes=np.array(rot_indexes, dtype=int)
+        #TODO: It is called indices not indexes
+        self.rot_indexes=np.array(rot_indices, dtype=int)
     
     def initialize_circuits(self):
         """
