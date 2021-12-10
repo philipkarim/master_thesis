@@ -6,7 +6,7 @@ import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
-    def __init__(self, hamiltonian_params, H_qubits, rot_in,n_qubit_H, learning_rate=0.01, circuit=None):
+    def __init__(self, Hamil, rot_in,n_qubit_H, trace_list, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -17,16 +17,14 @@ class optimize:
         """
         self.rot_in=rot_in
         self.n_qubit_H=n_qubit_H
-        #TODO: Check on this, this is just a length not the actual
-        #params, do I even use the H params?
-        self.hamiltonian_params=hamiltonian_params
-        self.H_qubits=H_qubits
-        self.H_qubit_states=2**H_qubits
+        self.n_hamil_params=len(Hamil)
+        self.trace_list=trace_list
+        self.H_qubit_states=2**len(self.trace_list)
         self.learning_rate=learning_rate
         self.circuit=circuit
         self.t=1 #or 1?    
-        self.m = np.zeros(hamiltonian_params)
-        self.v = np.zeros(hamiltonian_params)
+        self.m = np.zeros(self.n_hamil_params).astype(float)
+        self.v = np.zeros(self.n_hamil_params).astype(float)
 
     def cross_entropy_new(self, p_data,p_BM):
         """
@@ -53,18 +51,9 @@ class optimize:
         mhat = self.m / (1.0 - beta1**(self.t))
         vhat = self.v / (1.0 - beta2**(self.t))
         print('____________ADAM optimizer___________')
-        print(f'lr: {self.learning_rate}')
-        print(f'm_hat: {mhat}')
-        print(f'v_hat: {vhat}')
-        print(f'sqrt-v_hat: {np.sqrt(mhat)}')
-
-        print(f'type of m_hat: {type(mhat)} and vhat: {type(vhat)}')
-        print(x)
 
         x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
         
-        print(x)
-
         #Add 1 to the counter
         self.t+=1
 
@@ -228,7 +217,7 @@ class optimize:
 
     def gradient_ps(self, H, params, d_omega, steps=10):
         d_omega=np.array(d_omega)
-        print(self.H_qubit_states)
+        #print(self.H_qubit_states)
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
             for k in self.rot_in:
@@ -255,34 +244,22 @@ class optimize:
                     DM_right=DensityMatrix.from_instruction(trace_right)
                     DM_left=DensityMatrix.from_instruction(trace_left)
 
-                    #Rewrite this to an arbitrary amount of qubits
-                    if self.H_qubits==1:
-                        PT_right=partial_trace(DM_right,[1])
-                        PT_left=partial_trace(DM_left,[1])
-
-                    elif self.H_qubits==2:
-                        PT_right=partial_trace(DM_right,[1,3])
-                        PT_left=partial_trace(DM_left,[1,3])
-                    else:
-                        print('Number of subsystems not defined')
-                        sys.exit()
+                    PT_right=partial_trace(DM_right,self.trace_list)
+                    PT_left=partial_trace(DM_left,self.trace_list)
                     
-                    print(np.diag(PT_right.data))
-                    print(np.diag(PT_left.data))
+                    
+                    print(f'Shift_right: {np.diag(PT_right.data)}')
+                    print(f'Shift_right: {np.diag(PT_left.data)}')
                     #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
-                    print(w_k_sum)
+
                     #TODO: I dont actually think this should be positive, but  negative is 0
                     w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)+np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
-                    print(w_k_sum)
-
-        self.w_k_sum=w_k_sum
 
         return w_k_sum.real.astype(float)
 
-    def gradient_loss(self, data, p_QBM):
-        #dL=np.zeros(self.hamiltonian_params)
-        dL=data*self.w_k_sum/p_QBM
-        return -np.sum(dL, axis=1)
+    def gradient_loss(self, data, p_QBM, w_k_sum2):
+        dL=data*w_k_sum2/p_QBM
+        return -np.sum(dL, axis=1).astype(float)
 
 
 

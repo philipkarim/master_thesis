@@ -245,7 +245,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
+Hamiltonian=2
 p_data=np.array([0.8, 0.2])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -366,11 +366,11 @@ def train(H, ansatz, n_epochs):
     print('------------------------------------------------------')
     #Hamiltonian is the number of hamiltonian params, either 1 or 2, but should be done the same way as the alternating thing
     #TODO: Fix the Hamiltonian thing, why is there even a number??
-    optim=optimize(len(H), Hamiltonian, rotational_indices, n_qubits_params) ##Do not call this each iteration, it will mess with the momentum
+    tracing_q=range(1, 2*n_qubits_H+2, 2)
+    optim=optimize(H, rotational_indices, n_qubits_params, tracing_q) ##Do not call this each iteration, it will mess with the momentum
     
     # How many elements to trace over
 
-    tracing_q=range(1, 2*n_qubits_H+2, 2)
 
     varqite_train=varQITE(H, ansatz, rotational_indices, n_qubits_params, steps=10)
 
@@ -400,14 +400,12 @@ def train(H, ansatz, n_epochs):
         #TODO: Check if this is right
         gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=10)
         print(f'gradient of qbm: {gradient_qbm}')
-        #TODO: Why aint I using the variable over? I think this is used in the class
-        gradient_loss=optim.gradient_loss(p_data, p_QBM)
+        gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
 
         print(f'gradient_loss: {gradient_loss}')
         print(type(gradient_loss))
         #TODO: Fix the thing to handle gates with same coefficient
-        #TODO: Should be float not complex but then i have to fix vhat and mhat too
-        new_parameters=optim.adam(np.array(H)[:,0].astype(complex), gradient_loss)
+        new_parameters=optim.adam(np.array(H)[:,0].astype(float), gradient_loss)
         print(new_parameters)
 
         #Is this only params or the whole list? Then i think i should insert params and the
