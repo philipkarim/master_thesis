@@ -454,9 +454,16 @@ def train(H, ansatz, n_epochs):
     
     return
 
-train(H, params, 5)
+train(H, params, 50)
 
+"""
+Try and fail method:
 
+- Try to add i<j in C and dCA
+- Check if the gradients are good
+- Why are the2 qubit case so bad?
+- Check the derivative cases of the things
+"""
 
 
 
