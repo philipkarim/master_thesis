@@ -247,9 +247,9 @@ class optimize:
                     PT_right=partial_trace(DM_right,self.trace_list)
                     PT_left=partial_trace(DM_left,self.trace_list)
                     
-                    
-                    print(f'Shift_right: {np.diag(PT_right.data)}')
-                    print(f'Shift_right: {np.diag(PT_left.data)}')
+                    #TODO: Why does shifting right and left the same value? Should I switch another way?
+                    #print(f'Shift_right: {np.diag(PT_right.data)}')
+                    #print(f'Shift_right: {np.diag(PT_left.data)}')
                     #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
 
                     #TODO: I dont actually think this should be positive, but  negative is 0
@@ -259,7 +259,7 @@ class optimize:
 
     def gradient_loss(self, data, p_QBM, w_k_sum2):
         dL=data*w_k_sum2/p_QBM
-        return -np.sum(dL, axis=1).astype(float)
+        return -np.sum(dL, axis=1).real.astype(float)
 
 
 

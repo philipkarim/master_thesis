@@ -245,8 +245,8 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=2
-p_data=np.array([0.8, 0.2])
+Hamiltonian=4
+p_data=np.array([0.12, 0.88])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
 if Hamiltonian==1:
@@ -264,6 +264,24 @@ elif Hamiltonian==2:
     #Write qk.z instead of str? then there is no need to use get.atr?
     H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+
+elif Hamiltonian==3:
+    params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                #[gate, value, qubit]
+    H_init=np.random.uniform(low=-1.0, high=1.0, size=1)
+    H=        [[H_init[0], 'z', 0]]
+
+elif Hamiltonian==4:
+    params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+    
+    p_data=np.array([0.5,0, 0, 0.5])
+    H_init=np.random.uniform(low=-1.0, high=1.0, size=3)
+    print(H_init)
+    H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
 
 
 #TODO: Rewrite every if 'rx'' condition to for i in indices:
@@ -327,28 +345,29 @@ DM=DensityMatrix.from_instruction(trace_circ)
 
 
 #Rewrite this to an arbitrary amount of qubits
-if Hamiltonian==1:
-    PT=partial_trace(DM,[1])
-    H_analytical=np.array([[0.12, 0],[0, 0.88]])
+if Hamiltonian==1 or Hamiltonian==2:
+    if Hamiltonian==1:
+        PT=partial_trace(DM,[1])
+        H_analytical=np.array([[0.12, 0],[0, 0.88]])
 
-elif Hamiltonian==2:
-    #What even is this partial trace? thought it was going to be [1,3??]
-    PT=partial_trace(DM,[1,3])
-    H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                            [-0.06, 0.43, 0.02, -0.05], 
-                            [-0.06, 0.02, 0.43, -0.05], 
-                            [0.01, -0.05, -0.05, 0.05]])
+    elif Hamiltonian==2:
+        #What even is this partial trace? thought it was going to be [1,3??]
+        PT=partial_trace(DM,[1,3])
+        H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
+                                [-0.06, 0.43, 0.02, -0.05], 
+                                [-0.06, 0.02, 0.43, -0.05], 
+                                [0.01, -0.05, -0.05, 0.05]])
 
-print('---------------------')
-print('Analytical Gibbs state:')
-print(H_analytical)
-print('Computed Gibbs state:')
-print(PT.data)
-print('---------------------')
+    print('---------------------')
+    print('Analytical Gibbs state:')
+    print(H_analytical)
+    print('Computed Gibbs state:')
+    print(PT.data)
+    print('---------------------')
 
-H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
+    H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
 
-print(f'Fidelity: {H_fidelity}')
+    print(f'Fidelity: {H_fidelity}')
 
 
 """
@@ -364,13 +383,12 @@ Okay here is the real next step, assuming we got the VarITE:
 
 def train(H, ansatz, n_epochs):
     print('------------------------------------------------------')
-    #Hamiltonian is the number of hamiltonian params, either 1 or 2, but should be done the same way as the alternating thing
-    #TODO: Fix the Hamiltonian thing, why is there even a number??
+
+    loss_list=[]
+    epoch_list=[]
+
     tracing_q=range(1, 2*n_qubits_H+2, 2)
     optim=optimize(H, rotational_indices, n_qubits_params, tracing_q) ##Do not call this each iteration, it will mess with the momentum
-    
-    # How many elements to trace over
-
 
     varqite_train=varQITE(H, ansatz, rotational_indices, n_qubits_params, steps=10)
 
@@ -382,18 +400,22 @@ def train(H, ansatz, n_epochs):
         ansatz=update_parameters(ansatz, omega)
 
         #Dansity matrix measure, measure instead of computing whole DM
+        
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
 
         PT=partial_trace(DM,tracing_q)
 
         #Is this correct?
-        p_QBM=np.diag(PT.data)
+        p_QBM=np.diag(PT.data).real.astype(float)
         #Hamiltonian is the number of hamiltonian params
         print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(p_data,p_QBM)
         print(f'Loss: {loss}')
-
+        
+        #Appending loss and epochs
+        loss_list.append(loss)
+        epoch_list.append(epoch)
         #Then find dL/d theta by using eq. 10
         print('Updating params..')
 
@@ -402,24 +424,37 @@ def train(H, ansatz, n_epochs):
         print(f'gradient of qbm: {gradient_qbm}')
         gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
 
-        print(f'gradient_loss: {gradient_loss}')
-        print(type(gradient_loss))
+        #print(f'gradient_loss: {gradient_loss}')
+        #print(type(gradient_loss))
         #TODO: Fix the thing to handle gates with same coefficient
+
+        #TODO: Make the coefficients an own list, and the parameters another. 
+        # That way I can use array for the cefficients. this might actually be the
+        #reason for the error
+
         new_parameters=optim.adam(np.array(H)[:,0].astype(float), gradient_loss)
-        print(new_parameters)
+        print(f'new coefficients: {new_parameters}')
 
         #Is this only params or the whole list? Then i think i should insert params and the
         #function replace the coefficients itself
-        varqite.update_H(new_parameters)
-        np.array(H)[:,0]=new_parameters
+
+        for i in range(len(H)):
+            H[i][0]=new_parameters[i]
+        
+        varqite.update_H(H)
 
         print(f'Final H, lets go!!!!: {H}')
 
         #Compute the dp_QBM/dtheta_i
+
+    plt.plot(epoch_list, loss_list)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.show()
     
     return
 
-train(H, params, 20)
+train(H, params, 5)
 
 
 

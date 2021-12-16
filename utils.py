@@ -315,7 +315,7 @@ def create_initialstate(gates_params):
     #circ.measure(0, cr)
     #print(run_circuit(circ, shots=1024, histogram=True))
 
-    print(circ)
+    #print(circ)
     return circ
 
 

@@ -247,3 +247,37 @@ class test():
 xx=test(3)
 xx.func2()
 """
+
+
+
+
+def cross_entropy_new(p_data,p_BM):
+    """
+    Loss function from article (2)
+    """
+    loss=0
+    if len(p_data)==2:
+        #binary cross entropy?
+        n_samples=len(p_data)
+        for index in range(n_samples):
+            loss+=p_data[index]*np.log(p_data[index])+(1-p_data[index])*np.log(1-p_data[index])
+        
+        loss=-loss/n_samples
+
+    else:
+        for i in range(len(p_data)):
+            loss-=p_data[i]*np.log(p_BM[i])
+
+    return loss
+
+
+pd=[0.5, 0.5]
+pbm1=[0.39, 0.61]
+pbm2=[0.51, 0.49]
+pbm3=[0.12, 0.49]
+
+loss1=cross_entropy_new(pd, pbm3)
+loss2=cross_entropy_new(pd, pbm2)
+
+print(loss1)
+print(loss2)

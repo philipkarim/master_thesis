@@ -114,7 +114,7 @@ class varQITE:
         #print(labels)
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
             #start_mat=time.time()
             A_mat2=np.copy(self.get_A2())
@@ -197,7 +197,7 @@ class varQITE:
             omega_derivative=A_inv_temp@C_vec2
             #print(A_inv_temp)
             if gradient_stateprep==False:
-                print("This loop takes some time to complete")
+                #print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
                     #Compute the expression of the derivative
                     dA_mat=np.copy(self.get_dA(i))
@@ -706,7 +706,9 @@ class varQITE:
                     #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
                     
                     #The h gate doesn't change the answer??
+                    #TODO: Do I need this if statement?
                     if self.hamil[l][1]!='i':
+                        #print(self.hamil[l][1])
                         getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
 
