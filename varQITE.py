@@ -221,9 +221,7 @@ class varQITE:
 
             #print(omega_derivative)
             #Update parameters
-            #print(omega_w)
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
-
             #print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
@@ -464,7 +462,8 @@ class varQITE:
                     #print(end-start)
                     #print(f_k_i[i],f_l_j[j])
                     #print(np.real(f_k_i[i]*f_l_j[j])*prediction)
-                    #print(f_k_i[i],f_l_j[j])
+                    #print(f_k_i[i]*f_l_j[j])
+
                     sum_A+=prediction*f_k_i[i]*f_l_j[j]
 
         return sum_A
@@ -709,8 +708,10 @@ class varQITE:
                     #TODO: Do I need this if statement?
                     if self.hamil[l][1]!='i':
                         #print(self.hamil[l][1])
-                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
-                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
+                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
+                        #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
+                        # also, important that they match
+                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
 
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)
 
@@ -720,6 +721,7 @@ class varQITE:
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
                     #Imaginary here?
+                    print(f_k_i[i], lambda_l[l])
                     sum_C+=prediction*f_k_i[i]*lambda_l[l]
                     #print(sum_C)
 

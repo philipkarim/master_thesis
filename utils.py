@@ -273,6 +273,7 @@ def encoding_circ(circuit, input_qubits):
                   if statement of H-S
     """
     #return qc_enc
+
     if circuit=='A':
         qc_enc.h(data_register_enc[0])
 
@@ -312,7 +313,7 @@ def create_initialstate(gates_params):
         getattr(circ, str(gates_params[i][0]))(gates_params[i][1], gates_params[i][2])
     #circ.measure_all()
     #circ.measure(0, cr)
-    print(run_circuit(circ, shots=1024, histogram=True))
+    #print(run_circuit(circ, shots=1024, histogram=True))
 
     print(circ)
     return circ
