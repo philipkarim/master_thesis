@@ -261,6 +261,8 @@ class varQITE:
             #range(1) if there is no controlled qubits?
             for j in range(len(self.trial_circ)):
                 A_term=self.run_A2(i,j)
+                #TODO: Changed the real part
+                #print(A_term)
                 A_mat_temp[i][j]=np.real(A_term)
 
         #end_loop=time.time()
@@ -629,7 +631,10 @@ class varQITE:
                 #Get, the sigma terms
                 
                 #4? dimension of hermitian or n pauliterms? 
-            C_vec_temp[i]=np.imag(self.run_C2(i))
+            #TODO: Changed this one too, the imag part
+            c_term=self.run_C2(i)
+            #print(c_term)
+            C_vec_temp[i]=np.imag(c_term)
             #print(c_term)
                 
             #print(C_vec_temp[i])
@@ -721,7 +726,7 @@ class varQITE:
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
                     #Imaginary here?
-                    print(f_k_i[i], lambda_l[l])
+                    #print(f_k_i[i], lambda_l[l])
                     sum_C+=prediction*f_k_i[i]*lambda_l[l]
                     #print(sum_C)
 
