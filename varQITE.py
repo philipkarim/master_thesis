@@ -221,9 +221,7 @@ class varQITE:
 
             #print(omega_derivative)
             #Update parameters
-            #print(omega_w)
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
-
             #print(omega_w)
                 #Solve A(d d omega)=d C -(d A)*d omega(t)
                 
@@ -263,6 +261,8 @@ class varQITE:
             #range(1) if there is no controlled qubits?
             for j in range(len(self.trial_circ)):
                 A_term=self.run_A2(i,j)
+                #TODO: Changed the real part
+                #print(A_term)
                 A_mat_temp[i][j]=np.real(A_term)
 
         #end_loop=time.time()
@@ -464,7 +464,8 @@ class varQITE:
                     #print(end-start)
                     #print(f_k_i[i],f_l_j[j])
                     #print(np.real(f_k_i[i]*f_l_j[j])*prediction)
-                    #print(f_k_i[i],f_l_j[j])
+                    #print(f_k_i[i]*f_l_j[j])
+
                     sum_A+=prediction*f_k_i[i]*f_l_j[j]
 
         return sum_A
@@ -630,7 +631,10 @@ class varQITE:
                 #Get, the sigma terms
                 
                 #4? dimension of hermitian or n pauliterms? 
-            C_vec_temp[i]=np.imag(self.run_C2(i))
+            #TODO: Changed this one too, the imag part
+            c_term=self.run_C2(i)
+            #print(c_term)
+            C_vec_temp[i]=np.imag(c_term)
             #print(c_term)
                 
             #print(C_vec_temp[i])
@@ -709,8 +713,10 @@ class varQITE:
                     #TODO: Do I need this if statement?
                     if self.hamil[l][1]!='i':
                         #print(self.hamil[l][1])
-                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
-                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
+                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
+                        #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
+                        # also, important that they match
+                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
 
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)
 
@@ -720,6 +726,7 @@ class varQITE:
                     #print(temp_circ)
                     prediction=run_circuit(temp_circ)
                     #Imaginary here?
+                    #print(f_k_i[i], lambda_l[l])
                     sum_C+=prediction*f_k_i[i]*lambda_l[l]
                     #print(sum_C)
 

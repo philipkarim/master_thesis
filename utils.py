@@ -50,7 +50,6 @@ def getDistribution(type, stop, n):
 def data_path(DATA_ID, dat_id):
     return os.path.join(DATA_ID, dat_id)
 
-
 def plotter(*args, x_axis,x_label, y_label):
     """
     Just a function to plot functions.
@@ -273,7 +272,8 @@ def encoding_circ(circuit, input_qubits):
                   so might need to mix depending on the term used.
                   if statement of H-S
     """
-    return qc_enc
+    #return qc_enc
+
     if circuit=='A':
         qc_enc.h(data_register_enc[0])
 
@@ -315,7 +315,7 @@ def create_initialstate(gates_params):
     #circ.measure(0, cr)
     #print(run_circuit(circ, shots=1024, histogram=True))
 
-    #print(circ)
+    print(circ)
     return circ
 
 

@@ -245,7 +245,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=4
+Hamiltonian=1
 p_data=np.array([0.12, 0.88])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -324,7 +324,7 @@ varqite=varQITE(H, params, rotational_indices, n_qubits_params, steps=10)
 #varqite.initialize_circuits()
 #varqite.run_A2(7,3)
 #Testing
-#omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+omega, d_omega=varqite.state_prep(gradient_stateprep=True)
 #print(d_omega)
 end=time.time()
 
@@ -337,7 +337,7 @@ print(f'Time used: {np.around(end-start, decimals=1)} seconds')
 """
 Investigating the tracing of subsystem b
 """
-#params=update_parameters(params, omega)
+params=update_parameters(params, omega)
 
 #Dansity matrix measure, measure instead of computing whole DM
 trace_circ=create_initialstate(params)
@@ -454,7 +454,7 @@ def train(H, ansatz, n_epochs):
     
     return
 
-train(H, params, 50)
+#train(H, params, 2)
 
 """
 Try and fail method:
