@@ -245,7 +245,7 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
+Hamiltonian=2
 p_data=np.array([0.12, 0.88])
 
 #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -352,7 +352,9 @@ if Hamiltonian==1 or Hamiltonian==2:
 
     elif Hamiltonian==2:
         #What even is this partial trace? thought it was going to be [1,3??]
+        #PT=partial_trace(DM,[0,3])=80%
         PT=partial_trace(DM,[1,3])
+        
         H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
                                 [-0.06, 0.43, 0.02, -0.05], 
                                 [-0.06, 0.02, 0.43, -0.05], 
