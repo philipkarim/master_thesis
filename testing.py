@@ -3,6 +3,8 @@ import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
 #import random
 
+from utils import *
+
 """
 Testing the update thing of params.
 """
@@ -281,3 +283,28 @@ loss2=cross_entropy_new(pd, pbm2)
 
 print(loss1)
 print(loss2)
+
+
+qc=qk.QuantumCircuit(2)
+qc.h(0)
+qc.x(0)
+qc.cy(0,1)
+qc.x(0)
+cr = qk.ClassicalRegister(2)
+qc.add_register(cr)
+
+qc.measure(0,0)
+qc.measure(1,1)
+
+print(qc)
+
+aer_sim = qk.Aer.get_backend('aer_simulator')
+qobj = qk.assemble(qc, shots=8192)
+job = aer_sim.run(qobj)
+hist = job.result().get_counts()
+print(hist)
+from qiskit.visualization import plot_histogram
+
+plot_histogram(hist)
+plt.show()
+#print(run_circuit(qc, histogram=True))

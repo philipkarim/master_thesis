@@ -396,11 +396,11 @@ class varQITE:
                             else:
                                 getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
             
-                        temp_circ.x(0)
+                        #temp_circ.x(0)
                         #Then we add the sigma
                         getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
-                        #Add x gate                
-                        temp_circ.x(0)
+                        #Add x gate
+                        #temp_circ.x(0)
 
                         #Continue the U_i gate:
                         for keep_going in range(first, sec):
@@ -418,11 +418,11 @@ class varQITE:
                             else:
                                 getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
             
-                        temp_circ.x(0)
+                        #temp_circ.x(0)
                         #Then we add the sigma
                         getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
                         #Add x gate                
-                        temp_circ.x(0)
+                        #temp_circ.x(0)
 
                         #Continue the U_i gate:
                         for keep_going in range(first, len(self.trial_circ)):
@@ -437,6 +437,7 @@ class varQITE:
                         
                         #I gotta reverse it here, going from opposite side
                         ##New loop: all the way to sec from N
+                        #TODO: Only thing to check up is this range, shuld it be reversed?
                         for jj in range(len(self.trial_circ)-1, sec-1, -1):
                             #print(jj)                       
                             gate3=self.trial_circ[jj][0]
@@ -695,9 +696,9 @@ class varQITE:
                     #temp_circ.x(0)
                     #Then we add the sigma
                     getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[fir][2])
-
                     #Add x gate                
                     #temp_circ.x(0)
+
                     #Continue the U_i gate:
                     for keep_going in range(fir, len(self.trial_circ)):
                         gate2=self.trial_circ[keep_going][0]
@@ -713,12 +714,20 @@ class varQITE:
                     #TODO: Do I need this if statement?
                     if self.hamil[l][1]!='i':
                         #print(self.hamil[l][1])
-                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
                         #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
                         # also, important that they match
-                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
+                        
+                        #Think this is right, remember to extend it for an arbitrary amount of qubits
+                        if self.hamil[l][2]==0:
+                            temp=self.hamil[l][2]+1
+                        else: 
+                            temp=self.hamil[l][2]+1+1
+                        
+                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,temp)
 
+                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)
+                        #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[fir][2])
 
                     temp_circ.h(0)
                     temp_circ.measure(0, 0)
