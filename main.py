@@ -245,143 +245,240 @@ New chapter.. recreate fig 2
 """
 PARAMETERS
 """
-Hamiltonian=1
-p_data=np.array([0.12, 0.88])
+both=True
 
-#Trying to reproduce fig2- Now we know that these params produce a bell state
-if Hamiltonian==1:
-    params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+if both==False:
+    Hamiltonian=1
+    p_data=np.array([0.12, 0.88])
+
+    #Trying to reproduce fig2- Now we know that these params produce a bell state
+    if Hamiltonian==1:
+        params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                    #[gate, value, qubit]
+        H=        [[1., 'z', 0]]
+    elif Hamiltonian==2:
+        params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+                #[gate, value, qubit]
+
+        #Write qk.z instead of str? then there is no need to use get.atr?
+        H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+                [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+
+    elif Hamiltonian==3:
+        params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                    #[gate, value, qubit]
+        H_init=np.random.uniform(low=-1.0, high=1.0, size=1)
+        H=        [[H_init[0], 'z', 0]]
+
+    elif Hamiltonian==4:
+        params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+        
+        p_data=np.array([0.5,0, 0, 0.5])
+        H_init=np.random.uniform(low=-1.0, high=1.0, size=3)
+        print(H_init)
+        H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
+
+
+    #TODO: Rewrite every if 'rx'' condition to for i in indices:
+
+    ##Computing
+    rotational_indices=[]
+    n_qubits_params=0
+    for i in range(len(params)):
+        if params[i][0]=='cx' or params[i][0]=='cy' or params[i][0]=='cz':
+            if n_qubits_params<params[i][1]:
+                n_qubits_params=params[i][1]
+        else:
+            rotational_indices.append(i)
+
+        if n_qubits<params[i][2]:
+            n_qubits=params[i][2]
+
+    n_qubits_H=0
+    for j in range(len(H)):
+        if n_qubits_H<H[j][2]:
+                n_qubits_H=H[j][2]
+
+    print(f'qubit H: {n_qubits_H}')
+    #Transforms the parameters into arrays
+    #params=np.array(params)
+    #H=np.array(H)
+
+    """
+    Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
+    because the coefficients must be the same for pairwise hamiltonians
+    """
+
+
+    """
+    Testing
+    """
+    #make_varQITE object
+    start=time.time()
+    varqite=varQITE(H, params, rotational_indices, n_qubits_params, steps=10)
+    #varqite.initialize_circuits()
+    #varqite.run_A2(7,3)
+    #Testing
+    omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+    #print(d_omega)
+    end=time.time()
+
+    print(f'Time used: {np.around(end-start, decimals=1)} seconds')
+
+    #varqite.dC_circ0(4,0)
+    #varqite.dC_circ1(5,0,0)
+    #varqite.dC_circ2(4,1,0)
+
+    """
+    Investigating the tracing of subsystem b
+    """
+    params=update_parameters(params, omega)
+
+    #Dansity matrix measure, measure instead of computing whole DM
+    trace_circ=create_initialstate(params)
+    DM=DensityMatrix.from_instruction(trace_circ)
+
+
+    #Rewrite this to an arbitrary amount of qubits
+    if Hamiltonian==1 or Hamiltonian==2:
+        if Hamiltonian==1:
+            PT=partial_trace(DM,[1])
+            H_analytical=np.array([[0.12, 0],[0, 0.88]])
+
+        elif Hamiltonian==2:
+            #What even is this partial trace? thought it was going to be [1,3??]
+            #PT=partial_trace(DM,[0,3])=80%
+            PT=partial_trace(DM,[1,3])
+            
+            H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
+                                    [-0.06, 0.43, 0.02, -0.05], 
+                                    [-0.06, 0.02, 0.43, -0.05], 
+                                    [0.01, -0.05, -0.05, 0.05]])
+
+        print('---------------------')
+        print('Analytical Gibbs state:')
+        print(H_analytical)
+        print('Computed Gibbs state:')
+        print(PT.data)
+        print('---------------------')
+
+        H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
+
+        print(f'Fidelity: {H_fidelity}')
+
+else:
+    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                 ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
                 #[gate, value, qubit]
-    H=        [[1., 'z', 0]]
-elif Hamiltonian==2:
-    params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+    H1=        [[1., 'z', 0]]
+    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
             ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
             #[gate, value, qubit]
 
     #Write qk.z instead of str? then there is no need to use get.atr?
-    H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+    H2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-elif Hamiltonian==3:
-    params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                #[gate, value, qubit]
-    H_init=np.random.uniform(low=-1.0, high=1.0, size=1)
-    H=        [[H_init[0], 'z', 0]]
+    ##Computing
+    rotational_indices1=[]
+    n_qubits_params1=0
+    for i in range(len(params1)):
+        if params1[i][0]=='cx' or params1[i][0]=='cy' or params1[i][0]=='cz':
+            if n_qubits_params1<params1[i][1]:
+                n_qubits_params1=params1[i][1]
+        else:
+            rotational_indices1.append(i)
 
-elif Hamiltonian==4:
-    params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+        if n_qubits<params1[i][2]:
+            n_qubits=params1[i][2]
+
+    rotational_indices2=[]
+    n_qubits_params2=0
+    for i in range(len(params2)):
+        if params2[i][0]=='cx' or params2[i][0]=='cy' or params2[i][0]=='cz':
+            if n_qubits_params2<params2[i][1]:
+                n_qubits_params2=params2[i][1]
+        else:
+            rotational_indices2.append(i)
+
+        if n_qubits<params2[i][2]:
+            n_qubits=params2[i][2]
+
+
+    """
+    Testing
+    """
+    start1=time.time()
+    varqite1=varQITE(H1, params1, rotational_indices1, n_qubits_params1, steps=10)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    #print(d_omega)
+    end1=time.time()
+
+    start2=time.time()
+    varqite2=varQITE(H2, params2, rotational_indices2, n_qubits_params2, steps=10)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    #print(d_omega)
+    end2=time.time()
+
+    print(f'Time used H1: {np.around(end1-start1, decimals=1)} seconds')
+    print(f'Time used H2: {np.around(end2-start2, decimals=1)} seconds')
+
+
+    """
+    Investigating the tracing of subsystem b
+    """
+    params1=update_parameters(params1, omega1)
+    params2=update_parameters(params2, omega2)
+
+    #Dansity matrix measure, measure instead of computing whole DM
+    trace_circ1=create_initialstate(params1)
+    trace_circ2=create_initialstate(params2)
+
+    DM1=DensityMatrix.from_instruction(trace_circ1)
+    DM2=DensityMatrix.from_instruction(trace_circ2)
+
+    PT1 =partial_trace(DM1,[1])
+    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
+
+    PT2=partial_trace(DM2,[1,3])
     
-    p_data=np.array([0.5,0, 0, 0.5])
-    H_init=np.random.uniform(low=-1.0, high=1.0, size=3)
-    print(H_init)
-    H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
-
-
-#TODO: Rewrite every if 'rx'' condition to for i in indices:
-
-##Computing
-rotational_indices=[]
-n_qubits_params=0
-for i in range(len(params)):
-    if params[i][0]=='cx' or params[i][0]=='cy' or params[i][0]=='cz':
-        if n_qubits_params<params[i][1]:
-            n_qubits_params=params[i][1]
-    else:
-        rotational_indices.append(i)
-
-    if n_qubits<params[i][2]:
-        n_qubits=params[i][2]
-
-n_qubits_H=0
-for j in range(len(H)):
-    if n_qubits_H<H[j][2]:
-            n_qubits_H=H[j][2]
-
-print(f'qubit H: {n_qubits_H}')
-#Transforms the parameters into arrays
-#params=np.array(params)
-#H=np.array(H)
-
-"""
-Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
-because the coefficients must be the same for pairwise hamiltonians
-"""
-
-
-"""
-Testing
-"""
-#make_varQITE object
-start=time.time()
-varqite=varQITE(H, params, rotational_indices, n_qubits_params, steps=10)
-#varqite.initialize_circuits()
-#varqite.run_A2(7,3)
-#Testing
-omega, d_omega=varqite.state_prep(gradient_stateprep=True)
-#print(d_omega)
-end=time.time()
-
-print(f'Time used: {np.around(end-start, decimals=1)} seconds')
-
-#varqite.dC_circ0(4,0)
-#varqite.dC_circ1(5,0,0)
-#varqite.dC_circ2(4,1,0)
-
-"""
-Investigating the tracing of subsystem b
-"""
-params=update_parameters(params, omega)
-
-#Dansity matrix measure, measure instead of computing whole DM
-trace_circ=create_initialstate(params)
-DM=DensityMatrix.from_instruction(trace_circ)
-
-
-#Rewrite this to an arbitrary amount of qubits
-if Hamiltonian==1 or Hamiltonian==2:
-    if Hamiltonian==1:
-        PT=partial_trace(DM,[1])
-        H_analytical=np.array([[0.12, 0],[0, 0.88]])
-
-    elif Hamiltonian==2:
-        #What even is this partial trace? thought it was going to be [1,3??]
-        #PT=partial_trace(DM,[0,3])=80%
-        PT=partial_trace(DM,[1,3])
-        
-        H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                                [-0.06, 0.43, 0.02, -0.05], 
-                                [-0.06, 0.02, 0.43, -0.05], 
-                                [0.01, -0.05, -0.05, 0.05]])
+    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
+                            [-0.06, 0.43, 0.02, -0.05], 
+                            [-0.06, 0.02, 0.43, -0.05], 
+                            [0.01, -0.05, -0.05, 0.05]])
 
     print('---------------------')
     print('Analytical Gibbs state:')
-    print(H_analytical)
+    print(H1_analytical)
     print('Computed Gibbs state:')
-    print(PT.data)
+    print(PT1.data)
     print('---------------------')
 
-    H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
+    
+    print('---------------------')
+    print('Analytical Gibbs state:')
+    print(H2_analytical)
+    print('Computed Gibbs state:')
+    print(PT2.data)
+    print('---------------------')
 
-    print(f'Fidelity: {H_fidelity}')
+    H_fidelity1=state_fidelity(PT1.data, H1_analytical, validate=False)
+    H_fidelity2=state_fidelity(PT2.data, H2_analytical, validate=False)
+
+    print(f'Fidelity: H1: {np.around(H_fidelity1, decimals=2)}, H2: {np.around(H_fidelity2, decimals=2)}')
 
 
-"""
-Okay here is the real next step, assuming we got the VarITE:
-- Generate pv QBM and pv^QBM/dw, This last one is computed by using a parameter shift rule?
--Compute the loss
--Update the parameters in the Hamiltonian
-"""
 
-#Computing the pv_QBM
-
-#print(f'dw/dø: {d_omega}')
 
 def train(H, ansatz, n_epochs):
     print('------------------------------------------------------')
@@ -486,4 +583,11 @@ Steps to next week in code:
         - The update parameter function for instance
     -Search the web for optimization methods
 - Read up on GANs, and see if that could be a cool thing to do
+"""
+
+
+"""
+Thoughts:
+- Test encoding thing, do some math?
+- I dont even know
 """
