@@ -589,5 +589,6 @@ Steps to next week in code:
 """
 Thoughts:
 - Test encoding thing, do some math?
-- I dont even know
+- Okay I might know something, well basicly the code doesnt update all the params,
+only half of them actually. But how does it know if it is a controlled gate or not?
 """

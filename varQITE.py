@@ -105,7 +105,8 @@ class varQITE:
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
-        omega_w=(np.array(self.trial_circ)[:, 1]).astype('float')
+        omega_w=np.copy((np.array(self.trial_circ)[:, 1]).astype('float'))
+
         #print(f'init omega{omega_w}')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
@@ -213,7 +214,7 @@ class varQITE:
                     #print(w_dtheta_dt)
                     self.dwdth[i]+=w_dtheta_dt*self.time_step
 
-            #print(omega_w)    
+            #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
             #print(omega_w)
 
