@@ -122,6 +122,7 @@ class varQITE:
             #end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
+            #print(C_vec2)
             """
             if i want to use this:   
                 #A_mat_test=(self.A_init)
@@ -182,21 +183,66 @@ class varQITE:
 
                 C_vec2=C_vec2_2
             """
-            
+            C_small=np.zeros(len(self.rot_indexes))
+            C_small=C_vec2[self.rot_indexes]
+            #print(C_small)
+
+            A_small=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
+            #for i in range(len(self.rot_indexes)):
+            #print(A_mat2[self.rot_indexes][self.rot_indexes])
+
+            #A_small=A_mat2[self.rot_indexes][self.rot_indexes]
+
+            for i in range(len(self.rot_indexes)):
+                for j in range(len(self.rot_indexes)):
+                    A_small[i][j]=A_mat2[self.rot_indexes[i]][self.rot_indexes[j]]
+
+            #print(A_small)
+
+
+
+            #print(self.rot_indexes)
+            #exit()
             #print(A_mat2)
             #print(C_vec2)
             #Kan bruke Ridge regression på den inverterte
             #print(C_vec2)
             #print(A_mat2)
-            A_inv_temp=np.linalg.pinv(A_mat2)
-            #print(A_inv_temp)
-            #ridge = Ridge(alpha=1.0)
-            #A_inv_ridge=ridge.fit(A_mat2, C_vec2)
+            
+            """Full matrix"""
+            #A_inv_temp=np.linalg.pinv(A_mat2, hermitian=False)
+            #omega_derivative=A_inv_temp@C_vec2
+
+            """Small matrix"""
+            A_inv_small=np.linalg.pinv(A_small, hermitian=False)
+            omega_derivative_small=A_inv_small@C_small
+
+            #print(omega_derivative_small)
+
+            omega_derivative=np.zeros(len(self.trial_circ))
+
+            omega_derivative[self.rot_indexes]=omega_derivative_small
+
+            #print(omega_derivative)
+            
+            #beta=np.linalg.pinv(A_small.T@A_small)@A_small.T@C_small
+            #rr = Ridge(alpha=0.1, fit_intercept=True)
+            #rr.fit(A_small, C_small) 
+            #pred_train_rr= rr.predict(A_small)
+            #coeff=rr.coef_
+            #omega_derivative[self.rot_indexes]=coeff
+
+            #print('___start____')
+            #print(omega_derivative[self.rot_indexes])
+            #print('___mid____')
+            #print(np.linalg.pinv(A_small)@C_small)
+            #print('___end____')
 
 
-            #print(np.all(A_inv_temp=A_inv_ridge))
-            omega_derivative=A_inv_temp@C_vec2
+            #exit()
             #print(A_inv_temp)
+            #print(omega_derivative)
+            #print(omega_w)
             if gradient_stateprep==False:
                 #print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
@@ -263,7 +309,6 @@ class varQITE:
             for j in range(len(self.trial_circ)):
                 A_term=self.run_A2(i,j)
                 #TODO: Changed the real part
-                #print(A_term)
                 A_mat_temp[i][j]=np.real(A_term)
 
         #end_loop=time.time()
@@ -389,20 +434,21 @@ class varQITE:
                     #print(temp_circ)
                     
                     """
-                    if first<sec:
-                        for ii in range(first):
-                            gate1=self.trial_circ[ii][0]
-                            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                                getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                            else:
-                                getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-            
-                        #temp_circ.x(0)
-                        #Then we add the sigma
-                        getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
-                        #Add x gate
-                        #temp_circ.x(0)
+                    
+                    for ii in range(first):
+                        gate1=self.trial_circ[ii][0]
+                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                        else:
+                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+        
+                    #temp_circ.x(0)
+                    #Then we add the sigma
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
+                    #Add x gate
+                    #temp_circ.x(0)
 
+                    if first<sec:
                         #Continue the U_i gate:
                         for keep_going in range(first, sec):
                             gate=self.trial_circ[keep_going][0]
@@ -412,19 +458,6 @@ class varQITE:
                                 getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
 
                     else:
-                        for ii in range(first):
-                            gate1=self.trial_circ[ii][0]
-                            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                                getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                            else:
-                                getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-            
-                        #temp_circ.x(0)
-                        #Then we add the sigma
-                        getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
-                        #Add x gate                
-                        #temp_circ.x(0)
-
                         #Continue the U_i gate:
                         for keep_going in range(first, len(self.trial_circ)):
                             gate=self.trial_circ[keep_going][0]
@@ -468,6 +501,8 @@ class varQITE:
                     #print(np.real(f_k_i[i]*f_l_j[j])*prediction)
                     #print(f_k_i[i]*f_l_j[j])
 
+                    #print(prediction, f_k_i[i]*f_l_j[j])
+                    #print(temp_circ)
                     sum_A+=prediction*f_k_i[i]*f_l_j[j]
 
         return sum_A
@@ -644,8 +679,8 @@ class varQITE:
 
         return C_vec_temp
 
-    def run_C2(self, fir):
-        gate_label_i=self.trial_circ[fir][0]
+    def run_C2(self, ind):
+        gate_label_i=self.trial_circ[ind][0]
 
         f_k_i=np.conjugate(get_f_sigma(gate_label_i))
         #print(f_k_i)
@@ -683,7 +718,7 @@ class varQITE:
                     temp_circ=V_circ.copy()
 
                     #Then we loop through the gates in U untill we reach the sigma
-                    for ii in range(fir):
+                    for ii in range(ind):
                         gate1=self.trial_circ[ii][0]
                         #print(gate1)
                         #TODO: Kan bruke if ii in self.rotgate indexes, (slipper 2 'or' statements)
@@ -696,12 +731,12 @@ class varQITE:
                     #Add x gate                
                     #temp_circ.x(0)
                     #Then we add the sigma
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[fir][2])
+                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[ind][2])
                     #Add x gate                
                     #temp_circ.x(0)
 
                     #Continue the U_i gate:
-                    for keep_going in range(fir, len(self.trial_circ)):
+                    for keep_going in range(ind, len(self.trial_circ)):
                         gate2=self.trial_circ[keep_going][0]
                         if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
                             getattr(temp_circ, gate2)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
@@ -712,19 +747,27 @@ class varQITE:
                     #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
                     
                     #The h gate doesn't change the answer??
-                    #TODO: Do I need this if statement?
-                    if self.hamil[l][1]!='i':
                         #print(self.hamil[l][1])
-                        #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
-                        # also, important that they match
-                        
-                        #Think this is right, remember to extend it for an arbitrary amount of qubits
-                        if self.hamil[l][2]==0:
-                            temp=self.hamil[l][2]+1
-                        else: 
-                            temp=self.hamil[l][2]+1+1
-                        
-                        getattr(temp_circ, 'c'+self.hamil[l][1])(0,temp)
+                    #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
+                    # also, important that they match
+                    
+                    #Think this is right, remember to extend it for an arbitrary amount of qubits
+                    #if self.hamil[l][2]==0:
+                    #    temp=self.hamil[l][2]+1
+                    #else: 
+                    #    temp=self.hamil[l][2]+1+1
+
+
+                    max= np.max((np.array(self.hamil)[:, 2]).astype('int'))
+
+                    #TODO: Not sure if this is right
+                    if max==1:
+                        temp=self.hamil[l][2]+1
+                    else:
+                        temp=self.hamil[l][2]+1
+
+                    
+                    getattr(temp_circ, 'c'+self.hamil[l][1])(0,temp)
 
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
                         #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)

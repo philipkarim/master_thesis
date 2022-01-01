@@ -23,7 +23,7 @@ from varQITE import *
 import multiprocessing as mp
 
 # Seeding the program to ensure reproducibillity
-#random.seed(2021)
+random.seed(2021)
 
 #Best seed=2021
 
@@ -248,7 +248,7 @@ PARAMETERS
 both=True
 
 if both==False:
-    Hamiltonian=1
+    Hamiltonian=2
     p_data=np.array([0.12, 0.88])
 
     #Trying to reproduce fig2- Now we know that these params produce a bell state
@@ -325,12 +325,14 @@ if both==False:
     start=time.time()
     varqite=varQITE(H, params, rotational_indices, n_qubits_params, steps=10)
     #varqite.initialize_circuits()
-    #varqite.run_A2(7,3)
+    varqite.run_A2(3,3)
+    varqite.run_A2(1,1)
+
     #Testing
-    omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+    #omega, d_omega=varqite.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end=time.time()
-
+    exit()
     print(f'Time used: {np.around(end-start, decimals=1)} seconds')
 
     #varqite.dC_circ0(4,0)
@@ -452,6 +454,10 @@ else:
 
     PT2=partial_trace(DM2,[1,3])
     
+    PT2_2=partial_trace(DM2,[2,3])
+    PT2_3=partial_trace(DM2,[0,1])
+    PT2_4=partial_trace(DM2,[0,2])
+
     H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
                             [-0.06, 0.43, 0.02, -0.05], 
                             [-0.06, 0.02, 0.43, -0.05], 
@@ -461,7 +467,7 @@ else:
     print('Analytical Gibbs state:')
     print(H1_analytical)
     print('Computed Gibbs state:')
-    print(PT1.data)
+    print(np.real(PT1.data))
     print('---------------------')
 
     
@@ -469,13 +475,20 @@ else:
     print('Analytical Gibbs state:')
     print(H2_analytical)
     print('Computed Gibbs state:')
-    print(PT2.data)
+    print(np.real(PT2.data))
     print('---------------------')
 
     H_fidelity1=state_fidelity(PT1.data, H1_analytical, validate=False)
     H_fidelity2=state_fidelity(PT2.data, H2_analytical, validate=False)
+    H_fidelity2_2=state_fidelity(PT2_2.data, H2_analytical, validate=False)
+    H_fidelity2_3=state_fidelity(PT2_3.data, H2_analytical, validate=False)
+    H_fidelity2_4=state_fidelity(PT2_4.data, H2_analytical, validate=False)
 
-    print(f'Fidelity: H1: {np.around(H_fidelity1, decimals=2)}, H2: {np.around(H_fidelity2, decimals=2)}')
+    print(f'Fidelity: H1: {np.around(H_fidelity1, decimals=2)}, H2: '
+                        f'{np.around(H_fidelity2, decimals=2)}, '
+                        f'{np.around(H_fidelity2_2, decimals=2)}, '
+                        f'{np.around(H_fidelity2_3, decimals=2)}, '
+                        f'{np.around(H_fidelity2_4, decimals=2)}')
 
 
 
