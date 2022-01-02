@@ -1,6 +1,6 @@
 import numpy as np
 
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, RidgeCV
 
 from qiskit.circuit import ParameterVector
 
@@ -219,10 +219,14 @@ class varQITE:
                 omega_derivative_temp=A_inv_latest@C_vec2
             else:
                 #beta=np.linalg.pinv(A_small.T@A_small)@A_small.T@C_small
-                rr = Ridge(alpha=0.0001, fit_intercept=True)
-                rr.fit(A_mat2, C_vec2) 
+                #rr = Ridge(alpha=0.0001, fit_intercept=True)
+                #Can we use CV with inverting matrix?
+                regr_cv = RidgeCV(alphas= np.logspace(-4, 4, 100))
+                model_cv = regr_cv.fit(A_mat2, C_vec2)
+                print(f'best alpha: {model_cv.alpha_}')
+                #rr.fit(A_mat2, C_vec2) 
                 #pred_train_rr= rr.predict(A_mat2)
-                omega_derivative_temp=rr.coef_
+                omega_derivative_temp=regr_cv.coef_
 
             #print(omega_derivative_temp)
             #print(omega_derivative)
@@ -408,15 +412,6 @@ class varQITE:
 
         V_circ=encoding_circ('A', self.trial_qubits)
 
-        #pauli_names=np.array(['x', 'y', 'z'])
-        
-        sum_A=0
-        #for i in range(len(f_k_i)):
-        #    for j in range(len(f_l_j)):
-        #        if f_k_i[i]==0 or f_l_j[j]==0:
-        #            pass
-        #        else:
-        #First lets make the circuit:
         temp_circ=V_circ.copy()
         
         """
@@ -537,7 +532,7 @@ class varQITE:
 
         #print(prediction, f_k_i[i]*f_l_j[j])
         #print(temp_circ)
-        sum_A+=prediction#*f_k_i[i]*f_l_j[j]
+        sum_A=prediction#*f_k_i[i]*f_l_j[j]
 
         return sum_A
 
@@ -747,7 +742,6 @@ class varQITE:
             #Then we loop through the gates in U until we reach sigma-gate
             #for ii in range(ind):
             for ii in range(len(self.trial_circ)-1, ind-1, -1):
-
                 gate1=self.trial_circ[ii][0]
                 #TODO: Kan bruke if ii in self.rotgate indexes, (slipper 2 'or' statements)
                 if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
@@ -772,6 +766,18 @@ class varQITE:
                 else:
                     getattr(temp_circ, gate2)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
 
+            #for k in range(ind, len(self.trial_circ)):
+            """
+            for k in range(len(self.trial_circ)-1, -1, -1):
+
+            #for keep_going in range(ind-1, -1, -1):
+
+                gate2=self.trial_circ[k][0]
+                if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
+                    getattr(temp_circ, gate2)(1+self.trial_circ[k][1], 1+self.trial_circ[k][2])
+                else:
+                    getattr(temp_circ, gate2)(self.trial_circ[k][1], 1+self.trial_circ[k][2])
+            """
             #Then add the h_l gate
             #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
             
@@ -789,7 +795,7 @@ class varQITE:
 
             max= np.max((np.array(self.hamil)[:, 2]).astype('int'))
 
-            #TODO: Not sure if this is right
+            #TODO: Not sure if this is right, atleast make it nicer
             if max==1:
                 temp=self.hamil[l][2]+1
             else:

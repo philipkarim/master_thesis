@@ -396,10 +396,31 @@ Todays list:
     - where to put H gate
 
     -Something wrong with C since it is not arbitrary to the X gates hmmmm
+
+
 """
 
 
 """
 H2 best: Non ridge, C:-=, temp.x
 H1 best: Non ridge, C:+=, without temp.x
+"""
+
+
+"""
+Tips and tricks:
+
+kan lage en liste med tuples og plusse på det ene elementet mens den andre er de med rot index for å slippe if cx
+slik:
+if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
+    getattr(temp_circ, gate2)(1+self.trial_circ[test][1], 1+self.trial_circ[test][2])
+else:
+    getattr(temp_circ, gate2)(self.trial_circ[test][1], 1+self.trial_circ[test][2])
+
+til
+
+for i in [(0,1), (1,2), (0,3)...]
+    getattr(temp_circ, gate2)(self.trial_circ[i[1]][1]+i[0], 1+self.trial_circ[i[1]][2])
+
+This looks neat!
 """
