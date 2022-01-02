@@ -27,6 +27,224 @@ random.seed(2021)
 
 #Best seed=2021
 
+#Set parameters
+n_params=3         #Number of variational parameters
+init_params=np.random.uniform(-1,1,size=n_params) #Distribution of the initial variational parameters
+learning_rate=0.1  #Learning rate
+Hamiltonian="bell state"    #theta_0 ZZ +theta_1 IZ + theta2 ZI
+epochs=50           #Number of epochs
+batch_size=1        #Batch size, set equal to 1
+
+"""
+Testing hamiltonian stuff
+"""
+#1 qubit hamiltonian
+H_1q=1*np.array(([1, 0],[0, -1]))
+time_tau=0.5
+psi_0=np.array([1,0])
+
+
+def C_first(time, Ham, psi_0):
+    deno=np.exp(-2*Ham*time)*psi_0*psi_0.T
+    C_start= 1/np.sqrt(np.trace(deno))
+    return C_start
+
+C_expression=C_first(time_tau, H_1q, psi_0)
+
+#Create psi_w=V(w)|psi_in
+
+
+#Define a qc cirquit creating V: U_1=e^(iH(w)) where i think M could be the gates in H? or not?
+#So basicly: define \psi_in and \V each run probably.
+
+###okay lets do this! Here is the plan:
+
+"""
+Define V and psi_in as psi tau (0). Try using V from figure
+
+Need one gate to compute A and C, and one gate as encoder/ansatz
+"""
+n_qubits=4
+n_cbits=1
+
+data_register = qk.QuantumRegister(n_qubits)
+classical_register = qk.ClassicalRegister(n_cbits)
+
+#Define encoder, maybe use the same as usual?
+qc_fig_4 = qk.QuantumCircuit(data_register, classical_register)
+
+
+#Making figure 4+ Hademard gate at the start
+for qubit in range(n_qubits):
+    qc_fig_4.h(data_register[qubit])
+    qc_fig_4.ry(2*np.pi*0,data_register[qubit])
+    qc_fig_4.rz(2*np.pi*0,data_register[qubit])
+    
+#Adding a couple of controleld gates
+for j in range(0,n_qubits-1):
+    qc_fig_4.cx(data_register[j+1], data_register[j])
+
+qc_fig_4.ry(np.pi/2, data_register[0])
+qc_fig_4.ry(np.pi/2, data_register[1])
+qc_fig_4.ry(0, data_register[2])
+qc_fig_4.ry(0, data_register[3])
+
+for z_gate in range(n_qubits):
+    qc_fig_4.rz(2*np.pi*0,data_register[z_gate])
+
+def evaluation_circuit(psi_in, A_or_C, V_circuit, U_gate):
+    data_register = qk.QuantumRegister(2)
+    classical_register = qk.ClassicalRegister(1)
+
+    """
+    Input states
+    """
+    #Input for the first qubit in figure 8
+    qc_AC= qk.QuantumCircuit(data_register, classical_register)
+    qc_AC.h(data_register[0])
+
+    if A_or_C == 'C':
+        qc_AC.s(data_register[0])
+
+    #Input for the second qubit in  figure 8
+    qc_AC.append(psi_in, [1])
+
+    """
+    Then create circuit in fig 8
+    """
+    #Define the V_circuit as a controlled gate
+    V_gate=V_circuit.to_gate(label="V").control(1)
+    #print(V_gate)
+    #V_gate=V_gate.control(1)
+
+    qc_AC.append(V_gate, [0,1])
+    qc_AC.x(data_register[0])
+
+    U_gate=U_gate.to_gate(label="U").control(1)
+    #U_gate=U_gate.control(1)
+    qc_AC.append(U_gate, [0,1])
+
+    qc_AC.x(data_register[0])
+    qc_AC.h(data_register[0])
+
+    """
+    Measuring the first qubit
+    """
+    qc_AC.measure(data_register[0],classical_register[0])
+    print(qc_AC)
+    expectation_val=run_circuit(qc_AC)
+
+    return expectation_val
+
+
+"""
+Just testing the function computing the A and C expressions
+"""
+data_register_1q = qk.QuantumRegister(1)
+classical_register_1 = qk.ClassicalRegister(1)
+
+V_test = qk.QuantumCircuit(data_register_1q)
+V_test.x(0)
+V_test.h(0)
+
+U_test= qk.QuantumCircuit(data_register_1q)
+U_test.y(0)
+
+psi_in_test = qk.QuantumCircuit(1, name='|psi_in>')  # Create a quantum circuit with one qubit
+initial_state = [0,1]   # Define initial_state as |1>
+psi_in_test.initialize(initial_state, 0)
+
+#expectation=evaluation_circuit(psi_in_test, 'C', V_test, U_test)
+
+"""
+Okay lezzgo, plan is as follows:
+-Write a function to return the derivative for 1 qubit without controlled gates
+Easy return, then fill a matrix A and see what happens
+"""
+n_qubits=1
+
+q1_test = qk.QuantumRegister(n_qubits)
+V_series_test = qk.QuantumCircuit(q1_test)
+
+theta_test=np.random.uniform(-1,1, size=1)
+
+V_series_test.rx(2*np.pi*theta_test[0],0, label='rx')
+
+print(V_series_test[0])
+
+#V_series_test.ry(2*np.pi*theta_test[0],0)
+#print(V_series_test.num_unitary_factors())
+#print(V_series_test.width())
+#print(V_series_test.qbit_argument_conversion(V_series_test))
+#rint(V_series_test.num_ctrl_qubits())
+
+#Hermitian matrix on stanby
+H_test=np.array([[1,1-1.j], [1+1.j,1]])
+
+"""
+Next step: Make a gate, then decompose it to a matrix and 
+send it into the thing and see if we get the correct result.
+The main goal is to extract the f_i,k and the term
+"""
+
+V_series_gate=V_series_test.to_gate(label='ry')
+
+#pauli_matrix=pauli_terms(0.5, V_series_gate.label)
+pauli_matrix=pauli_terms(np.pi, 'rz')
+rx_as_matrix=pauli_matrix.gate_to_matrix()
+mat_M=get_M(rx_as_matrix)
+decomp_pauli_terms=decomposing_to_pauli(mat_M)
+
+#print(mat_M)
+#print(decomp_pauli_terms)
+test_mat=np.zeros_like(pauli_matrix.get_Y())
+test_mat+=decomp_pauli_terms[0]*pauli_matrix.get_I()
+test_mat+=decomp_pauli_terms[1]*pauli_matrix.get_X()
+test_mat+=decomp_pauli_terms[2]*pauli_matrix.get_Y()
+test_mat+=decomp_pauli_terms[3]*pauli_matrix.get_Z()
+
+#print(test_mat)
+
+"""
+Okay now the pauli terms are good, and also f=-i/2 if it is a rotational Gate
+
+Next task:
+Make the circuit and loop over it computing A for simple rotational gates
+Maybe insert the gate parameters by using a dict? bound parameters to gates?
+Do the same for C
+"""
+
+#Number of parameters and gates
+"""
+This does not work, if a control qubit is applied to the last qubit and is the only one
+should work for most of them tho 
+"""
+#Trying to reproduce fig2- Now we know that these params produce a bell state
+#param_fig2=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+
+
+
+#print(qc_param2)
+
+#A_mat=np.copy(get_A(theta_list, gates_str))
+#C_vec=np.copy(get_C(theta_list, gates_str, H_simple))
+
+#print(A_mat)
+#print(C_vec)
+"""
+I dont see how A and C depends on A or C except maybe from the hamiltonian?
+...Anyway here it the next step:
+-Implement tensor product
+-Find omega cdot{w}, by inverting A.
+-Find derivative of thetaC and theta A
+-follow the loop in varQITE
+"""
+"""
+New chapter.. recreate fig 2
+"""
+"""
+PARAMETERS
+"""
 both=True
 
 if both==False:
@@ -183,8 +401,8 @@ else:
         else:
             rotational_indices1.append(i)
 
-        if n_qubits_params1<params1[i][2]:
-            n_qubits_params1=params1[i][2]
+        if n_qubits<params1[i][2]:
+            n_qubits=params1[i][2]
 
     rotational_indices2=[]
     n_qubits_params2=0
@@ -195,8 +413,9 @@ else:
         else:
             rotational_indices2.append(i)
 
-        if n_qubits_params2<params2[i][2]:
-            n_qubits_params2=params2[i][2]
+        if n_qubits<params2[i][2]:
+            n_qubits=params2[i][2]
+
 
     """
     Testing
@@ -233,9 +452,9 @@ else:
     PT1 =partial_trace(DM1,[1])
     H1_analytical=np.array([[0.12, 0],[0, 0.88]])
 
-    PT2=partial_trace(DM2,[2,3])
+    PT2=partial_trace(DM2,[1,3])
     
-    PT2_2=partial_trace(DM2,[1,3])
+    PT2_2=partial_trace(DM2,[2,3])
     PT2_3=partial_trace(DM2,[0,1])
     PT2_4=partial_trace(DM2,[0,2])
 
@@ -385,21 +604,4 @@ Thoughts:
 - Test encoding thing, do some math?
 - Okay I might know something, well basicly the code doesnt update all the params,
 only half of them actually. But how does it know if it is a controlled gate or not?
-"""
-"""
-Todays list:
-    - Fix rot indices loops
-    - times -0.5j standard
-    - + or - in sums
-    - might be due to ridge?
-
-    - where to put H gate
-
-    -Something wrong with C since it is not arbitrary to the X gates hmmmm
-"""
-
-
-"""
-H2 best: Non ridge, C:-=, temp.x
-H1 best: Non ridge, C:+=, without temp.x
 """

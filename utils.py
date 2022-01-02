@@ -223,12 +223,14 @@ def get_f_sigma(label):
     returns:f, sigma(2 lists)
     """
     if label=='rx':
-        return np.array([0,-0.5j,0,0])
+        return np.array([-0.5j,0,0])
     elif label=='ry':
-        return np.array([0,0,-0.5j,0])
+        return np.array([0,-0.5j,0])
     elif label=='rz':
-        return np.array([0,0,0,-0.5j])
+        return np.array([0,0,-0.5j])
     else:
+        print("Something is wrong.. exiting")
+        exit()
         return np.array([0,0,0,0])
 
         #print("Only rx,ry and rz gates are implemented")
