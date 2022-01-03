@@ -174,6 +174,7 @@ else:
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
     ##Computing
+    """
     rotational_indices1=[]
     n_qubits_params1=0
     for i in range(len(params1)):
@@ -197,18 +198,19 @@ else:
 
         if n_qubits_params2<params2[i][2]:
             n_qubits_params2=params2[i][2]
+    """
 
     """
     Testing
     """
     start1=time.time()
-    varqite1=varQITE(H1, params1, rotational_indices1, n_qubits_params1, steps=10)
+    varqite1=varQITE(H1, params1, steps=10)
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end1=time.time()
 
     start2=time.time()
-    varqite2=varQITE(H2, params2, rotational_indices2, n_qubits_params2, steps=10)
+    varqite2=varQITE(H2, params2, steps=10)
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end2=time.time()
@@ -423,4 +425,10 @@ for i in [(0,1), (1,2), (0,3)...]
     getattr(temp_circ, gate2)(self.trial_circ[i[1]][1]+i[0], 1+self.trial_circ[i[1]][2])
 
 This looks neat!
+"""
+
+"""
+Next list:
+    - Complete tips and tricks above
+    - Complete initialisation of the thingn
 """
