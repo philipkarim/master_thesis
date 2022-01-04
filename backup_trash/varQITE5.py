@@ -419,13 +419,79 @@ class varQITE:
         return A_mat_temp
 
     def run_A2(self,first, sec):
+        #gate_label_i=self.trial_circ[first][0]
+        #gate_label_j=self.trial_circ[sec][0]
+
+        #print(self.trial_circ[first][0][-1])
+
+        #f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+        #f_l_j=get_f_sigma(gate_label_j)
+
         V_circ=encoding_circ('A', self.trial_qubits)
+
         temp_circ=V_circ.copy()
+        #temp_circ2=temp_circ1.copy()
+
+        """
+        #BEST UNTILL NOW I GUESS
+        #Then we loop through the gates in U until we reach the sigma
+        for ii in range(first):
+            gate1=self.trial_circ[ii][0]
+            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+            else:
+                getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+
+        temp_circ.x(0)
+        #Then we add the sigma
+        getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
+        #Add x gate                
+        temp_circ.x(0)
+
+        #Continue the U_i gate:
+        for keep_going in range(first, len(self.trial_circ)):
+            gate=self.trial_circ[keep_going][0]
+            #print(gate)
+            #print(gate)
+            if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+            else:
+                getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+        
+        #I gotta reverse it here, going from opposite side
+        ##New loop: all the way to sec from N
+        
+        for jj in range(sec):
+            gate3=self.trial_circ[jj][0]
+            #print(gate3)
+            if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
+                getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+            else:
+                getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+        
+
+        getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
+        temp_circ.h(0)
+        temp_circ.measure(0,0)
+
+        #print(temp_circ)
+        """
+        """
+        for ii in range(first):
+            print('test')
+            gate1=self.trial_circ[ii][0]
+            print(gate1)
+            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                getattr(temp_circ2, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+            else:
+                getattr(temp_circ2, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+        """
 
         for i, j in enumerate(self.rot_loop[:first]):
             getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+j, 1+self.trial_circ[i][2])
         
-        #TODO: Then we add the sigma and x gate(?)
+        #Then we add the sigma and x gate(?)
         #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
         #temp_circ.x(0)
@@ -434,16 +500,56 @@ class varQITE:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec]):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
+            
+            """
+            for keep_going in range(first, sec):
+                gate=self.trial_circ[keep_going][0]
+                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                    getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                else:
+                    getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+            """
 
         else:
             #Continue the U_i gate:
+            
             for ii, jj in enumerate(self.rot_loop[first:], start=first):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
+
+            """
+            for keep_going in range(first, len(self.trial_circ)):
+                gate=self.trial_circ[keep_going][0]
+                #print(gate)
+                #print(gate)
+                if gate == 'cx' or gate == 'cy' or gate == 'cz':
+                    #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                    getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                else:
+                    getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+            """
             
+            #I gotta reverse it here, going from opposite side
+            ##New loop: all the way to sec from N
             #TODO: Only thing to check up is this range, shuld it be reversed?
+
             for jj in range(len(self.trial_circ)-1, sec-1, -1):
                 getattr(temp_circ, self.trial_circ[jj][0])(self.trial_circ[jj][1]+self.rot_loop[jj], 1+self.trial_circ[jj][2])
 
+            """
+            for jj in range(len(self.trial_circ)-1, sec-1, -1):
+                #print(jj)                       
+                gate3=self.trial_circ[jj][0]
+                if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
+                    getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+                else:
+                    getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
+            """
+        
+            
+            #print(temp_circ)
+            #Forgott to add a controll gate how could I?
+            #getattr(temp_circ, 'c'+self.trial_circ[sec][0])(0,1+self.trial_circ[sec][2])
+        
         #TODO: add x?
         #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
@@ -454,7 +560,8 @@ class varQITE:
         
         prediction=run_circuit(temp_circ)
  
-        sum_A=prediction
+
+        sum_A=prediction#*f_k_i[i]*f_l_j[j]
 
         return sum_A
 
@@ -613,26 +720,68 @@ class varQITE:
         
         #Loops through the indices of A
         for i in range(len(self.rot_indexes)):
+            #For each gate 
+            #range(1) if there is no controlled qubits?
+                #Get f_i and f_j
+                #Get, the sigma terms
+                
+                #4? dimension of hermitian or n pauliterms? 
+            #TODO: Changed this one too, the imag part
             c_term=self.run_C2(self.rot_indexes[i])
-            
-            #Multiplying with 0.5 due to the derivative factor
-            C_vec_temp[i]=c_term*0.5
- 
+            #print(c_term)
+            derivative_const=0.5
+            C_vec_temp[i]=c_term*derivative_const
+            #print(c_term)
+                
+            #print(C_vec_temp[i])
+            #C_vec_temp[i]=np.real(c_term)
+
         return C_vec_temp
 
-    def run_C2(self, ind):  
+    def run_C2(self, ind):
+
+        """
+        Start here! Go through each and every piece of shit of line in this function. 
+        Maybe not run out the circ? Or how to deal with V thing? I have no clue
+        """
+        #gate_label_i=self.trial_circ[ind][0]
+
+        #f_k_i=np.conjugate(get_f_sigma(gate_label_i))
+        #print(f_k_i)
+        """
+        lambda is actually the coefficirents of the hamiltonian,
+        but I think I should wait untill I actually have the
+        Hamiltonian to implement is xD
+        Also h_l are tensorproducts of the thing, find out how to compute tensor products optimized way
+        """
+
+        #The length might be longer than this
+        #lambda_l=np.random.uniform(0,1,size=len(f_k_i))
+
         #TODO: Put the params of H in a self.variable
         lambda_l=(np.array(self.hamil)[:, 0]).astype('float')
         V_circ=encoding_circ('C', self.trial_qubits)
+        #pauli_names=['x', 'y', 'z']
         
         sum_C=0
+        #for i in range(len(f_k_i)):
         for l in range(len(lambda_l)):
             temp_circ=V_circ.copy()
 
             #Then we loop through the gates in U until we reach sigma-gate
-            for i in range(len(self.trial_circ)-1, ind-1, -1):
-                getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
+            #for ii in range(ind):
+            for jj in range(len(self.trial_circ)-1, ind-1, -1):
+                getattr(temp_circ, self.trial_circ[jj][0])(self.trial_circ[jj][1]+self.rot_loop[jj], 1+self.trial_circ[jj][2])
 
+            """
+            for ii in range(len(self.trial_circ)-1, ind-1, -1):
+                gate1=self.trial_circ[ii][0]
+                #TODO: Kan bruke if ii in self.rotgate indexes, (slipper 2 'or' statements)
+                if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
+                    getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+                else:
+                    getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
+            """
             #Add x gate                
             temp_circ.x(0)
             #Then we add the sigma
@@ -642,20 +791,71 @@ class varQITE:
 
             #Continue the U_i gate:
             #for keep_going in range(ind, len(self.trial_circ)):
-            for ii in range(ind-1, -1, -1):
-                getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
+            for jj in range(ind-1, -1, -1):
+                getattr(temp_circ, self.trial_circ[jj][0])(self.trial_circ[jj][1]+self.rot_loop[jj], 1+self.trial_circ[jj][2])
 
-            #TODO: x gates?
+            """
+            for keep_going in range(ind-1, -1, -1):
+
+                gate2=self.trial_circ[keep_going][0]
+                if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
+                    getattr(temp_circ, gate2)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+                else:
+                    getattr(temp_circ, gate2)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
+
+            #for k in range(ind, len(self.trial_circ)):
+            """
+            """
+            for k in range(len(self.trial_circ)-1, -1, -1):
+
+            #for keep_going in range(ind-1, -1, -1):
+
+                gate2=self.trial_circ[k][0]
+                if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
+                    getattr(temp_circ, gate2)(1+self.trial_circ[k][1], 1+self.trial_circ[k][2])
+                else:
+                    getattr(temp_circ, gate2)(self.trial_circ[k][1], 1+self.trial_circ[k][2])
+            """
+            #Then add the h_l gate
+            #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
+            
+            #The h gate doesn't change the answer??
+                #print(self.hamil[l][1])
+            #TODO: Rememeber to make the hamiltonian be used in the gradient circs 
+            # also, important that they match
+            
+            #Think this is right, remember to extend it for an arbitrary amount of qubits
+            #if self.hamil[l][2]==0:
+            #    temp=self.hamil[l][2]+1
+            #else: 
+            #    temp=self.hamil[l][2]+1+1
+
+
+            max= np.max((np.array(self.hamil)[:, 2]).astype('int'))
+
+            #TODO: Not sure if this is right, atleast make it nicer
+            if max==1:
+                temp=self.hamil[l][2]+1
+            else:
+                temp=self.hamil[l][2]+1
+
             #temp_circ.x(0)
-            getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
+            getattr(temp_circ, 'c'+self.hamil[l][1])(0,temp)
             #temp_circ.x(0)
+            
+            #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.hamil[l][2])
+            #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1)
+            #getattr(temp_circ, 'c'+self.hamil[l][1])(0,1+self.trial_circ[ind][2])
 
             temp_circ.h(0)
             temp_circ.measure(0, 0)
 
+            #print(temp_circ)
             prediction=run_circuit(temp_circ)
- 
+            #Imaginary here?
+            #print(f_k_i[i], lambda_l[l])
             sum_C-=prediction*lambda_l[l]
+            #print(sum_C)
 
         return sum_C
 
