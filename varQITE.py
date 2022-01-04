@@ -65,21 +65,30 @@ class varQITE:
         """
         Creating circ A
         """
-        A_circ= np.empty(shape=(len(self.trial_circ), len(self.trial_circ)), dtype=object)
+        A_circ= np.empty(shape=(len(self.rot_indexes), len(self.rot_indexes)), dtype=object)
         
         #Assuming there is only one circ per i,j, due to r? only having 1 element in f
-        for i in range(len(self.trial_circ)):
-            for j in range(len(self.trial_circ)):
+        for i in range(len(self.rot_indexes)):
+            for j in range(len(self.rot_indexes)):
                 #Just the circuits
-                A_circ[i][j]=self.init_A(i,j)
+                A_circ[i][j]=self.init_A(self.rot_indexes[i],self.rot_indexes[j])
         #print(A_circ)
-
-
+        """
+        A_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
+        for i in range(len(self.rot_indexes)):
+            #For each gate 
+            for j in range(len(self.rot_indexes)):
+                A_term=self.run_A2(self.rot_indexes[i],self.rot_indexes[j])
+                #TODO: Changed the real part
+                derivative_const=0.25
+                A_mat_temp[i][j]=A_term*derivative_const
         #Remember to multiply with (0+0.5j)*(0-0.5j)
+        """
 
 
         """
         Creating circ C
+        """
         """
         #Trying to add everythinh to lists
         C_vec= np.empty(len(self.trial_circ), dtype=object)
@@ -97,7 +106,7 @@ class varQITE:
             #C_vec[i], C_lmb_index[i] =self.init_C(i)
             #print(len(C_lmb))
         #print(C_vec)
-
+        """
   
         """
         Creating circ dA
@@ -113,10 +122,11 @@ class varQITE:
         #print(np.where(C_vec==0.075732421875))
 
         self.A_init=A_circ
-        self.C_init=C_vec_list
-        self.C_lmb_index=C_lmb
+        #self.C_init=C_vec_list
+        #self.C_lmb_index=C_lmb
 
-        #return A_circ, C_vec #, dA_circ, dc_circ 
+        #return A_circ, C_vec #, dA_circ, dc_circ
+        return
 
     def state_prep(self, gradient_stateprep=False):
         """
@@ -135,7 +145,19 @@ class varQITE:
             #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
             #start_mat=time.time()
-            A_mat2=np.copy(self.get_A2())
+            print(self.A_init[0][3])
+            print(len(self.A_init[0][3].parameters))
+            """
+            Something like this?
+            """
+            #circ_test=circ_test.bind_parameters(labels[:n_rotations])
+            #circ_pred=run_circuit(circ_test)
+            #A_mat_test[ii][jj]=circ_pred*0.25
+            exit()
+
+            A_mat2=np.copy(self.get_A_from_init())
+            #A_mat2=np.copy(self.get_A2())
+
             #end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
@@ -322,6 +344,20 @@ class varQITE:
 
         return
     #@jit(nopython=True)
+    def get_A_from_init(self):
+
+        A_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
+        for i in range(len(self.rot_indexes)):
+            #For each gate 
+            for j in range(len(self.rot_indexes)):
+
+                A_term=self.run_A2(self.rot_indexes[i],self.rot_indexes[j])
+                #TODO: Changed the real part
+                derivative_const=0.25
+                A_mat_temp[i][j]=A_term*derivative_const
+
+        return A_mat_temp
+        
     def get_A2(self):
         #Lets try to remove the controlled gates
         #A_mat_temp=np.zeros((len(self.trial_circ), len(self.trial_circ)))
@@ -459,78 +495,57 @@ class varQITE:
         return sum_A
 
     def init_A(self,first, sec):
-        gate_label_i=self.trial_circ[first][0]
-        gate_label_j=self.trial_circ[sec][0]
-
-        f_k_i=np.conjugate(get_f_sigma(gate_label_i))
-        f_l_j=get_f_sigma(gate_label_j)
-
+        #TODO: Remember to switch everything I switch here, elsewhere
         V_circ=encoding_circ('A', self.trial_qubits)
-
-        pauli_names=np.array(['i', 'x', 'y', 'z'])
+        temp_circ=V_circ.copy()
         
-        #save_circ= np.empty(shape=(len(f_k_i),len(f_l_j)), dtype=object)
-        
-        p_vec = ParameterVector('Init_param', 2*len(self.trial_circ))
+        p_vec = ParameterVector('Init_param', 2*len(self.rot_indexes))
 
-        counter=0
-        for i in range(len(f_k_i)):
-            for j in range(len(f_l_j)):
-                if f_k_i[i]==0 or f_l_j[j]==0:
-                    pass
+        for i, j in enumerate(self.rot_loop[:first]):
+            if i in self.rot_indexes:
+                name=p_vec[i]
+            else:
+                name=self.trial_circ[i][1]+j
+            getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+        
+        getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
+
+        if first<sec:
+            #Continue the U_i gate:
+            for ii, jj in enumerate(self.rot_loop[first:sec]):
+                if ii in self.rot_indexes:
+                    name=p_vec[ii]
                 else:
-                    counter+=1
-                    #First lets make the circuit:
-                    temp_circ=V_circ.copy()
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
 
-                    #Then we loop through the gates in U until we reach the sigma
-                    for ii in range(first):
-                        gate1=self.trial_circ[ii][0]
-                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                        else:
-                            getattr(temp_circ, gate1)(p_vec[ii], 1+self.trial_circ[ii][2])
-        
-                    temp_circ.x(0)
-                    #Then we add the sigma
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
-                    #Add x gate                
-                    temp_circ.x(0)
+        else:
+            #Continue the U_i gate:
+            for ii, jj in enumerate(self.rot_loop[first:], start=first):
+                if ii in self.rot_indexes:
+                    name=p_vec[ii]
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
 
-                    #Continue the U_i gate:
-                    for keep_going in range(first, len(self.trial_circ)):
-                        gate=self.trial_circ[keep_going][0]
-                        #print(gate)
-                        #print(gate)
-                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
-                            #print(keep_going, self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                        else:
-                            getattr(temp_circ, gate)(p_vec[keep_going], 1+self.trial_circ[keep_going][2])
- 
-                    for jj in range(sec):
-                        gate3=self.trial_circ[jj][0]
-                        #print(gate3)
-                        if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
-                            getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
-                        else:
-                            getattr(temp_circ, gate3)(p_vec[jj+len(self.trial_circ)], 1+self.trial_circ[jj][2])
+            #TODO: Only thing to check up is this range, shuld it be reversed?
+            for jjj in range(len(self.trial_circ)-1, sec-1, -1):
+                if jjj in self.rot_indexes:
+                    name=p_vec[jjj]
+                else:
+                    name=self.trial_circ[jjj][1]+self.rot_loop[jjj]
 
+                getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
 
-                    getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
-                    temp_circ.h(0)
-                    temp_circ.measure(0,0)
+        #TODO: add x?
+        #temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
+        #temp_circ.x(0)
 
-                    ## Adding the circs:
-                    #print(first, sec)
-                    #print(len(temp_circ.parameters))
-                    #print(temp_circ)
-                    
-                    if counter>1:
-                        print("Something is wrong, this should maximum be 1")
-                        exit()
-
-                    return temp_circ
+        temp_circ.h(0)
+        temp_circ.measure(0,0)
+  
+        return temp_circ
 
     def init_C(self, fir):
         gate_label_i=self.trial_circ[fir][0]

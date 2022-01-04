@@ -203,12 +203,14 @@ else:
     """
     start1=time.time()
     varqite1=varQITE(H1, params1, steps=10)
+    varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end1=time.time()
 
     start2=time.time()
     varqite2=varQITE(H2, params2, steps=10)
+    varqite2.initialize_circuits()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end2=time.time()
