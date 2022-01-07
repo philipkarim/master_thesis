@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.numeric import zeros_like
 
 from sklearn.linear_model import Ridge, RidgeCV
 
@@ -54,6 +55,7 @@ class varQITE:
                 n_qubits_params1=trial_circ[i][2]
 
         self.rot_indexes=np.array(rotational_indices1, dtype=int)
+        print(f'rot_indexes: {self.rot_indexes}')
         self.trial_qubits=n_qubits_params1
 
     
@@ -136,42 +138,92 @@ class varQITE:
 
         #print(f'init omega{omega_w}')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
-
-        labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
-        print(labels)
+        
         lmbs=(np.array(self.hamil)[:, 0]).astype('float')
         #print(labels)
+
+        A_mat=zeros_like(self.A_init)
+
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
             #start_mat=time.time()
-            print(self.A_init[0][3])
-            print(len(self.A_init[0][3].parameters))
-            n_rotations=len(self.A_init[0][3].parameters)
-            circ_test=self.A_init.tolist()
-            print(type(circ_test))
+            #print(self.A_init[0][3])
+            #print(len(self.A_init[0][3].parameters))
+            #n_rotations=len(self.A_init[0][3].parameters)
+            #circ_test=self.A_init.tolist()
+            #print(type(circ_test))
             #print(type(circ_test.tolist()))
-            circ_test=self.A_init[0][3].bind_parameters([1,1,1])
+            #circ_test=self.A_init[0][3].bind_parameters([1,1,1])
 
             #circ_test=circ_test.bind_parameters(labels[:n_rotations])
-            print(circ_test)
-            print(self.A_init[0][3])
+            #print(circ_test)
+            #print(self.A_init[0][3])
             """
             Something like this?
             """
             #circ_pred=run_circuit(circ_test)
             #A_mat_test[ii][jj]=circ_pred*0.25
             
-            for i in range(self.rot_indexes):
-                for j in range(self.rot_indexes):
-                    
+            #Fills a list of quantum circuits and binds values to them while at it 
+            qc_list=[]
+            labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
+            #print(labels)
             
+            from qiskit.quantum_info import Statevector
+
+
+            for i in range(len(self.rot_indexes)):
+                for j in range(len(self.rot_indexes)):
+                    #Just the circuits
+                    #n_rotations=len(self.A_init[i][j].parameters)
+                    #print('-------------')
+                    #print(self.A_init[i][j])
+                    #print(len(self.A_init[i][j].parameters), i, j)
+
+                    qc_list.append(self.A_init[i][j].bind_parameters(labels[:len(self.A_init[i][j].parameters)]))
+            
+                    trash, circ=self.run_A2(self.rot_indexes[i],self.rot_indexes[j])
+                    print(i,j,Statevector.from_instruction(self.A_init[i][j].bind_parameters(\
+                    labels[:len(self.A_init[i][j].parameters)])).equiv(Statevector.from_instruction(circ)))
+
+                    #print(qc_list[0]==circ)
+                    #print(labels[:len(self.A_init[i][j].parameters)])
+
+            #print(qc_list[0])
+            #print(circ)
+
+            print(qc_list[6])
+            """ Why does 1,2 rot index look like this?"""
+            x,y=self.run_A2(self.rot_indexes[1],self.rot_indexes[2])
+            print(y)
+
+
+
+            #print(qc_list[0])
             exit()
+            #print(f'qc_list length {len(qc_list)}')
+            #print(run_circuit(qc_list[0]))
 
-            A_mat2=np.copy(self.get_A_from_init())
+            matrix_values=run_circuit(qc_list, multiple_circuits=True)
+            #print(f' Values from the matrix{matrix_values}')
+            
+            counter=0
+            for i in range(len(self.rot_indexes)):
+                for j in range(len(self.rot_indexes)):
+                    A_mat[i][j]=matrix_values[counter]*0.25
+                    counter+=1            
+
+            #A_mat2=np.copy(self.get_A_from_init())
             #A_mat2=np.copy(self.get_A2())
+            A_mat2=A_mat
+            #print(A_mat2)
+            #print('----')
+            #print(A_mat)
 
+
+            #exit()
             #end_mat=time.time()
             C_vec2=np.copy(self.get_C2())
 
@@ -484,6 +536,7 @@ class varQITE:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec]):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
+                #print(self.trial_circ[ii][1]+jj)
 
         else:
             #Continue the U_i gate:
@@ -500,13 +553,14 @@ class varQITE:
         #temp_circ.x(0)
 
         temp_circ.h(0)
-        temp_circ.measure(0,0)
-        
+        #TODO Add this back
+        #temp_circ.measure(0,0)
+        #print(temp_circ)
         prediction=run_circuit(temp_circ)
  
         sum_A=prediction
 
-        return sum_A
+        return sum_A, temp_circ
 
     def init_A(self,first, sec):
         #TODO: Remember to switch everything I switch here, elsewhere
@@ -554,10 +608,13 @@ class varQITE:
         #TODO: add x?
         #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
+        
         #temp_circ.x(0)
 
         temp_circ.h(0)
-        temp_circ.measure(0,0)
+        #TODO add this
+        #temp_circ.measure(0,0)
+        #print(temp_circ)
   
         return temp_circ
 

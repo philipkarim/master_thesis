@@ -201,14 +201,21 @@ else:
     """
     Testing
     """
+    print('VarQite 1')
     start1=time.time()
     varqite1=varQITE(H1, params1, steps=10)
+
+
+    #varqite1.run_A2(0,2)
+    #varqite1.init_A(0,2)
+    
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     #print(d_omega)
     end1=time.time()
 
     start2=time.time()
+    print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=10)
     varqite2.initialize_circuits()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
@@ -429,6 +436,15 @@ This looks neat!
 
 """
 Next list:
-    - Complete tips and tricks above
     - Complete initialisation of the thing med labels and such
+        - Complete A
+            - Run each circuit instead of all and see if it is the same
+        - Complete C
+    - Add measure part back to the circuits
+    - Go through the TODO's
+    - Numba/paralellization
+    - Gradietn complete
+    - Reproduce results
+    - Find bug
+    - Do classical BM
 """
