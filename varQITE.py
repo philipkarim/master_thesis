@@ -138,6 +138,7 @@ class varQITE:
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
 
         labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
+        print(labels)
         lmbs=(np.array(self.hamil)[:, 0]).astype('float')
         #print(labels)
 
@@ -147,12 +148,25 @@ class varQITE:
             #start_mat=time.time()
             print(self.A_init[0][3])
             print(len(self.A_init[0][3].parameters))
+            n_rotations=len(self.A_init[0][3].parameters)
+            circ_test=self.A_init.tolist()
+            print(type(circ_test))
+            #print(type(circ_test.tolist()))
+            circ_test=self.A_init[0][3].bind_parameters([1,1,1])
+
+            #circ_test=circ_test.bind_parameters(labels[:n_rotations])
+            print(circ_test)
+            print(self.A_init[0][3])
             """
             Something like this?
             """
-            #circ_test=circ_test.bind_parameters(labels[:n_rotations])
             #circ_pred=run_circuit(circ_test)
             #A_mat_test[ii][jj]=circ_pred*0.25
+            
+            for i in range(self.rot_indexes):
+                for j in range(self.rot_indexes):
+                    
+            
             exit()
 
             A_mat2=np.copy(self.get_A_from_init())
