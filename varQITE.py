@@ -55,7 +55,7 @@ class varQITE:
                 n_qubits_params1=trial_circ[i][2]
 
         self.rot_indexes=np.array(rotational_indices1, dtype=int)
-        print(f'rot_indexes: {self.rot_indexes}')
+        #print(f'rot_indexes: {self.rot_indexes}')
         self.trial_qubits=n_qubits_params1
 
     
@@ -144,7 +144,6 @@ class varQITE:
 
         A_mat=zeros_like(self.A_init)
 
-
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
@@ -173,7 +172,7 @@ class varQITE:
             
             from qiskit.quantum_info import Statevector
 
-
+            counter2=0
             for i in range(len(self.rot_indexes)):
                 for j in range(len(self.rot_indexes)):
                     #Just the circuits
@@ -184,47 +183,69 @@ class varQITE:
 
                     qc_list.append(self.A_init[i][j].bind_parameters(labels[:len(self.A_init[i][j].parameters)]))
             
+                    """They produces the same circuits
                     trash, circ=self.run_A2(self.rot_indexes[i],self.rot_indexes[j])
                     print(i,j,Statevector.from_instruction(self.A_init[i][j].bind_parameters(\
                     labels[:len(self.A_init[i][j].parameters)])).equiv(Statevector.from_instruction(circ)))
+                    """
 
+                    #print(i,j, counter2)
+                    counter2+=1
                     #print(qc_list[0]==circ)
                     #print(labels[:len(self.A_init[i][j].parameters)])
 
             #print(qc_list[0])
             #print(circ)
 
-            print(qc_list[6])
-            """ Why does 1,2 rot index look like this?"""
-            x,y=self.run_A2(self.rot_indexes[1],self.rot_indexes[2])
-            print(y)
-
-
 
             #print(qc_list[0])
-            exit()
+            #exit()
             #print(f'qc_list length {len(qc_list)}')
             #print(run_circuit(qc_list[0]))
 
             matrix_values=run_circuit(qc_list, multiple_circuits=True)
             #print(f' Values from the matrix{matrix_values}')
             
+            
             counter=0
             for i in range(len(self.rot_indexes)):
                 for j in range(len(self.rot_indexes)):
-                    A_mat[i][j]=matrix_values[counter]*0.25
-                    counter+=1            
+                    #A_mat[i][j]=matrix_values[counter]*0.25
+                    A_mat[i][j]=run_circuit(qc_list[counter])
+                    counter+=1
+            A_mat*=0.25
 
-            #A_mat2=np.copy(self.get_A_from_init())
-            #A_mat2=np.copy(self.get_A2())
-            A_mat2=A_mat
+
+            A_mat2=np.copy(self.get_A2())
+            
+            #testing=self.run_A2(11, 11)
+
+            #exit()
+            #print(A_mat)        
+            
+
+            #A_mat2=A_mat
             #print(A_mat2)
             #print('----')
             #print(A_mat)
 
+            #A_mat2=A_mat
+            """Basicly the same matrices"""
+            #print(np.all(A_mat2==A_mat))
+
+            #exit()
+            """
+            #TODO fix this, always same values, does not get updated
+            if len(omega_w)>8:
+                print(omega_w[2],omega_w[3], omega_w[7])
+            """
 
             #exit()
             #end_mat=time.time()
+            #A_mat2=np.copy(self.get_A_from_init())
+            
+            #print(A_mat2)
+            
             C_vec2=np.copy(self.get_C2())
 
             #print(A_mat2)
@@ -341,8 +362,6 @@ class varQITE:
             #omega_derivative_small=A_inv_small@C_small
 
             #print(omega_derivative_small)
-
-            
 
             #print(omega_derivative)
             #print(self.rot_indexes)
@@ -526,6 +545,7 @@ class varQITE:
 
         for i, j in enumerate(self.rot_loop[:first]):
             getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+j, 1+self.trial_circ[i][2])
+            #print(i)
         
         #TODO: Then we add the sigma and x gate(?)
         #temp_circ.x(0)
@@ -534,18 +554,25 @@ class varQITE:
 
         if first<sec:
             #Continue the U_i gate:
-            for ii, jj in enumerate(self.rot_loop[first:sec]):
+
+            #list_to_fix_indexes=np.concatenate(self.rot_loop[:first], first)
+            for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
-                #print(self.trial_circ[ii][1]+jj)
+                #print(first, sec, self.trial_circ[ii][0], self.trial_circ[ii][1]+jj)
+                #print(self.rot_loop)
 
         else:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:], start=first):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
-            
+                #print(ii, self.trial_circ[ii][0], self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
             #TODO: Only thing to check up is this range, shuld it be reversed?
-            for jj in range(len(self.trial_circ)-1, sec-1, -1):
-                getattr(temp_circ, self.trial_circ[jj][0])(self.trial_circ[jj][1]+self.rot_loop[jj], 1+self.trial_circ[jj][2])
+            #Something wrong here, I can feel it
+            for kk in range(len(self.trial_circ)-1, sec-1, -1):
+                #print(kk, self.trial_circ[kk][0], self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
+                #print(kk, self.trial_circ[kk][1], self.rot_loop[kk], 1+self.trial_circ[kk][2])
+                #print(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
+                getattr(temp_circ, self.trial_circ[kk][0])(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
 
         #TODO: add x?
         #temp_circ.x(0)
@@ -554,13 +581,17 @@ class varQITE:
 
         temp_circ.h(0)
         #TODO Add this back
-        #temp_circ.measure(0,0)
+        temp_circ.measure(0,0)
+        print(temp_circ)
+        #print(f'---------{first}{sec}-------')
         #print(temp_circ)
+        #print('_-----------------------')
         prediction=run_circuit(temp_circ)
  
         sum_A=prediction
+        #print(f'prediction {prediction}')
 
-        return sum_A, temp_circ
+        return sum_A
 
     def init_A(self,first, sec):
         #TODO: Remember to switch everything I switch here, elsewhere
@@ -580,7 +611,7 @@ class varQITE:
 
         if first<sec:
             #Continue the U_i gate:
-            for ii, jj in enumerate(self.rot_loop[first:sec]):
+            for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 if ii in self.rot_indexes:
                     name=p_vec[ii]
                 else:
@@ -613,8 +644,7 @@ class varQITE:
 
         temp_circ.h(0)
         #TODO add this
-        #temp_circ.measure(0,0)
-        #print(temp_circ)
+        temp_circ.measure(0,0)
   
         return temp_circ
 
