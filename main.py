@@ -442,10 +442,8 @@ Next list:
         - Complete C
     - Go through the TODO's
     - Gradietn complete
-    - Reproduce results
-    - Find bug
-    - Try to place the H qubits on the last qubits
-    - print A2, why is there some weird cx(1,3)cx(2,4)cx(1,3)cx(2,4)
+        - With initialisation
+    - Reproduce results/write code to produce it
     - Numba/paralellization
     - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
       maybe connection with the cx-thing over?
