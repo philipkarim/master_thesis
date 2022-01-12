@@ -441,14 +441,16 @@ Next list:
     - Complete initialisation of the thing med labels and such
         - Complete C
     - Go through the TODO's
-    - Numba/paralellization
     - Gradietn complete
     - Reproduce results
     - Find bug
-    - Do classical BM
     - Try to place the H qubits on the last qubits
     - print A2, why is there some weird cx(1,3)cx(2,4)cx(1,3)cx(2,4)
+    - Numba/paralellization
     - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
       maybe connection with the cx-thing over?
+        - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
+        that means U_1 is applied first which makes sense for why C is reversed?
     - Run multiple circuits in paralell instead of separate
+    - Do classical BM
 """

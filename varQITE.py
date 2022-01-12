@@ -86,7 +86,12 @@ class varQITE:
                 A_mat_temp[i][j]=A_term*derivative_const
         #Remember to multiply with (0+0.5j)*(0-0.5j)
         """
-
+        C_circ= np.empty(shape=(len(self.rot_indexes)), dtype=object)
+        
+        #Assuming there is only one circ per i,j, due to r? only having 1 element in f
+        for i in range(len(self.rot_indexes)):
+                #Just the circuits
+                C_circ[i]=self.init_C(self.rot_indexes[i])
 
         """
         Creating circ C
@@ -754,6 +759,42 @@ class varQITE:
         
         sum_C=0
         for l in range(len(lambda_l)):
+            """Does not work
+            temp_circ=V_circ.copy()
+            #Then we loop through the gates in U until we reach sigma-gate
+            for i in range(len(self.trial_circ)):
+                getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
+            
+            getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
+            
+            for ii in range(ind):
+                getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
+            
+            #Add x gate                
+            temp_circ.x(0)
+            #Then we add the sigma
+            getattr(temp_circ, 'c'+self.trial_circ[ind][0][-1])(0,1+self.trial_circ[ind][2])
+            #Add x gate                
+            temp_circ.x(0)
+
+            #Continue the U_i gate:
+            #for keep_going in range(ind, len(self.trial_circ)):
+            #for ii in range(ind-1, -1, -1):
+            #    getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
+
+            #TODO: x gates?
+            #temp_circ.x(0)
+            #getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
+            #temp_circ.x(0)
+
+            temp_circ.h(0)
+            temp_circ.measure(0, 0)
+
+            prediction=run_circuit(temp_circ)
+ 
+            sum_C-=prediction*lambda_l[l]
+            """
+        
             temp_circ=V_circ.copy()
 
             #Then we loop through the gates in U until we reach sigma-gate
