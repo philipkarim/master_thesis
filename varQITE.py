@@ -203,7 +203,7 @@ class varQITE:
             #print(f'qc_list length {len(qc_list)}')
             #print(run_circuit(qc_list[0]))
 
-            matrix_values=run_circuit(qc_list, multiple_circuits=True)
+            #matrix_values=run_circuit(qc_list, multiple_circuits=True)
             #print(f' Values from the matrix{matrix_values}')
             
             
@@ -256,6 +256,7 @@ class varQITE:
             
             #print(A_mat2)
             A_mat2=A_mat
+            #A_mat2=np.copy(self.get_A2())
             C_vec2=np.copy(self.get_C2())
 
             #print(A_mat2)

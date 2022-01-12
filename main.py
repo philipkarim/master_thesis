@@ -202,27 +202,27 @@ else:
     Testing
     """
     print('VarQite 1')
-    start1=time.time()
     
     
     varqite1=varQITE(H1, params1, steps=10)
     varqite1.initialize_circuits()
+    start1=time.time()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    end1=time.time()
     
 
     #varqite1.run_A2(0,2)
     #varqite1.init_A(0,2)
     
     #print(d_omega)
-    end1=time.time()
 
-    start2=time.time()
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=10)
     varqite2.initialize_circuits()
+    start2=time.time()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
-    #print(d_omega)
     end2=time.time()
+    #print(d_omega)
 
     print(f'Time used H1: {np.around(end1-start1, decimals=1)} seconds')
     print(f'Time used H2: {np.around(end2-start2, decimals=1)} seconds')
@@ -439,10 +439,6 @@ This looks neat!
 """
 Next list:
     - Complete initialisation of the thing med labels and such
-        - Complete A
-            - Run each circuit instead of all and see if it is the same
-            - Can't invert it using pinv, maybe round to 5 decimals? xD
-                - Or search the error
         - Complete C
     - Go through the TODO's
     - Numba/paralellization
@@ -454,4 +450,5 @@ Next list:
     - print A2, why is there some weird cx(1,3)cx(2,4)cx(1,3)cx(2,4)
     - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
       maybe connection with the cx-thing over?
+    - Run multiple circuits in paralell instead of separate
 """
