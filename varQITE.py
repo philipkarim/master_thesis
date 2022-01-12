@@ -142,7 +142,7 @@ class varQITE:
         lmbs=(np.array(self.hamil)[:, 0]).astype('float')
         #print(labels)
 
-        A_mat=zeros_like(self.A_init)
+        A_mat=zeros_like(self.A_init, dtype='float')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
@@ -216,7 +216,17 @@ class varQITE:
             A_mat*=0.25
 
 
+            """
             A_mat2=np.copy(self.get_A2())
+            print(f'Matrix 1: {A_mat}')
+            print(f'MAtrix 2: {A_mat2}')
+
+            print(f'Is the matrices same?: {np.all(A_mat==A_mat2)}')
+            A2_inv=np.linalg.pinv(A_mat2, hermitian=False)
+            print(f'inverted matrix 2: {A2_inv}')
+            A_inv=np.linalg.pinv(A_mat, hermitian=False)
+            print('inverted matrix 1: {A_inv}')
+            """
             
             #testing=self.run_A2(11, 11)
 
@@ -245,7 +255,7 @@ class varQITE:
             #A_mat2=np.copy(self.get_A_from_init())
             
             #print(A_mat2)
-            
+            A_mat2=A_mat
             C_vec2=np.copy(self.get_C2())
 
             #print(A_mat2)
@@ -582,7 +592,7 @@ class varQITE:
         temp_circ.h(0)
         #TODO Add this back
         temp_circ.measure(0,0)
-        print(temp_circ)
+        #print(temp_circ)
         #print(f'---------{first}{sec}-------')
         #print(temp_circ)
         #print('_-----------------------')
