@@ -446,9 +446,9 @@ Next list:
     - Reproduce results/write code to produce it
     - Numba/paralellization
     - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
-      maybe connection with the cx-thing over?
         - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
         that means U_1 is applied first which makes sense for why C is reversed?
+        - The key might be to know why C should be reversed
     - Run multiple circuits in paralell instead of separate
     - Do classical BM
 """
