@@ -155,6 +155,8 @@ if both==False:
         H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
 
         print(f'Fidelity: {H_fidelity}')
+elif both==True:
+    pass
 
 else:
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -278,16 +280,21 @@ else:
 
 
 
-def train(H, ansatz, n_epochs):
+def train(H, ansatz, n_epochs, p_data, n_steps=10):
     print('------------------------------------------------------')
 
     loss_list=[]
     epoch_list=[]
-    
-    tracing_q=range(1, 2*n_qubits_H+2, 2)
-    optim=optimize(H, rotational_indices, n_qubits_params, tracing_q) ##Do not call this each iteration, it will mess with the momentum
 
-    varqite_train=varQITE(H, ansatz, rotational_indices, n_qubits_params, steps=10)
+    tracing_q, rotational_indices, n_qubits_ansatz=getUtilityParameters(H, ansatz)
+
+    #print(tracing_q, rotational_indices, n_qubits_ansatz)
+
+    optim=optimize(H, rotational_indices, tracing_q) ##Do not call this each iteration, it will mess with the momentum
+
+    varqite_train=varQITE(H, ansatz, steps=n_steps)
+    varqite_train.initialize_circuits()
+
 
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
@@ -317,7 +324,7 @@ def train(H, ansatz, n_epochs):
         print('Updating params..')
 
         #TODO: Check if this is right
-        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=10)
+        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=n_steps)
         print(f'gradient of qbm: {gradient_qbm}')
         gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
 
@@ -361,7 +368,17 @@ ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3],
 Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-#train(Ham2, ansatz2, 2)
+p_data2=[0.5, 0, 0, 0.5]
+
+
+ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                #[gate, value, qubit]
+Ham1=       [[1., 'z', 0]]
+
+p_data1=[0.8, 0.2]
+
+train(Ham1, ansatz1, 2, p_data1)
 
 """
 Try and fail method:

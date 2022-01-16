@@ -6,7 +6,7 @@ import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 
 class optimize:
-    def __init__(self, Hamil, rot_in,n_qubit_H, trace_list, learning_rate=0.01, circuit=None):
+    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.01, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -16,7 +16,6 @@ class optimize:
             circuit:        Quantum circuit that is used
         """
         self.rot_in=rot_in
-        self.n_qubit_H=n_qubit_H
         self.n_hamil_params=len(Hamil)
         self.trace_list=trace_list
         self.H_qubit_states=2**len(self.trace_list)
@@ -229,8 +228,12 @@ class optimize:
                     params_right_shift[k][1]+=0.5*np.pi
                     params_left_shift[k][1]-=0.5*np.pi
 
-                    varqite_right=varQITE(H, params_right_shift, self.rot_in, self. n_qubit_H, steps=steps)
-                    varqite_left=varQITE(H, params_left_shift, self.rot_in, self. n_qubit_H, steps=steps)
+                    varqite_right=varQITE(H, params_right_shift, steps=steps)
+                    varqite_left=varQITE(H, params_left_shift, steps=steps)
+
+                    #Optimize this, probably as an argument which makes an argument true, else run the init (inside the class?)
+                    varqite_right.initialize_circuits()
+                    varqite_left.initialize_circuits()
 
                     omega_right, throw_away=varqite_right.state_prep(gradient_stateprep=True)
                     omega_left, throw_away=varqite_left.state_prep(gradient_stateprep=True)
@@ -240,7 +243,7 @@ class optimize:
 
                     trace_right=create_initialstate(params_right)
                     trace_left=create_initialstate(params_left)
-
+                    #TODO: run this or just trace it?
                     DM_right=DensityMatrix.from_instruction(trace_right)
                     DM_left=DensityMatrix.from_instruction(trace_left)
 
@@ -255,6 +258,8 @@ class optimize:
                     #TODO: I dont actually think this should be positive, but  negative is 0
                     w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)+np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
 
+                    print(f'postive? {w_k_sum[i]}')
+                
         return w_k_sum.real.astype(float)
 
     def gradient_loss(self, data, p_QBM, w_k_sum2):

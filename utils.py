@@ -387,3 +387,28 @@ def update_parameters(old_params, new_params):
             old_params[i][1]=new_params[i]
     
     return old_params
+
+def getUtilityParameters(H, ansatz):
+    """
+    Just doing some small caluclations that will show themselves usefull
+    later on
+    """
+    rotational_indices=[]
+    n_qubits_A=0
+
+    for i in range(len(ansatz)):
+        if ansatz[i][0]=='cx' or ansatz[i][0]=='cy' or ansatz[i][0]=='cz':
+            if n_qubits_A<ansatz[i][1]:
+                n_qubits_A=ansatz[i][1]
+            else:
+                pass
+        else:
+            rotational_indices.append(i)
+
+        if n_qubits_A<ansatz[i][2]:
+            n_qubits_A=ansatz[i][2]
+            
+    trace_indices=list(range(int((n_qubits_A+1)/2), n_qubits_A+1))
+
+
+    return  trace_indices, rotational_indices, n_qubits_A
