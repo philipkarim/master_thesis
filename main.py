@@ -202,25 +202,18 @@ else:
     Testing
     """
     print('VarQite 1')
-    
-    
     varqite1=varQITE(H1, params1, steps=10)
     varqite1.initialize_circuits()
     start1=time.time()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
     end1=time.time()
-    
 
-    #varqite1.run_A2(0,2)
-    #varqite1.init_A(0,2)
-    
-    #print(d_omega)
 
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=10)
     varqite2.initialize_circuits()
     start2=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
     end2=time.time()
     #print(d_omega)
 
@@ -245,7 +238,7 @@ else:
     H1_analytical=np.array([[0.12, 0],[0, 0.88]])
 
     PT2=partial_trace(DM2,[2,3])
-    
+    #Just to check that the correct parts are subtraced
     PT2_2=partial_trace(DM2,[1,3])
     PT2_3=partial_trace(DM2,[0,1])
     PT2_4=partial_trace(DM2,[0,2])
@@ -290,7 +283,7 @@ def train(H, ansatz, n_epochs):
 
     loss_list=[]
     epoch_list=[]
-
+    
     tracing_q=range(1, 2*n_qubits_H+2, 2)
     optim=optimize(H, rotational_indices, n_qubits_params, tracing_q) ##Do not call this each iteration, it will mess with the momentum
 
@@ -358,7 +351,17 @@ def train(H, ansatz, n_epochs):
     
     return
 
-#train(H, params, 2)
+
+ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+            #[gate, value, qubit]
+
+Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+            [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+
+#train(Ham2, ansatz2, 2)
 
 """
 Try and fail method:
@@ -450,6 +453,7 @@ Next list:
         - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
         that means U_1 is applied first which makes sense for why C is reversed?
         - The key might be to know why C should be reversed
+        - Maybe mixed the arguments some places?
     - Run multiple circuits in paralell instead of separate
     - Do classical BM
 """

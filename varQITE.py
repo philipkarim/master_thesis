@@ -155,7 +155,7 @@ class varQITE:
         #C_vec=zeros_like(self.rot_indexes, dtype='float')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
             #start_mat=time.time()
             #print(self.A_init[0][3])
@@ -389,6 +389,7 @@ class varQITE:
             ridge_inv=False
                      
             if ridge_inv==False:
+                #TODO: Might be something wrong here?
                 A_inv=np.linalg.pinv(A_mat2, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec2
             else:
@@ -432,7 +433,7 @@ class varQITE:
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
             if gradient_stateprep==False:
-                #print("This loop takes some time to complete")
+                print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
                     #Compute the expression of the derivative
                     dA_mat=np.copy(self.get_dA(i))
@@ -442,11 +443,11 @@ class varQITE:
                     #Now we compute the derivative of omega derivated with respect to
                     #hamiltonian parameter
                     #dA_mat_inv=np.inv(dA_mat)
-                    w_dtheta_dt= A_inv@(dC_vec-dA_mat@omega_derivative)#* or @?
+                    w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
                     #print(dC_vec)
                     #print(dA_mat)
                     #print(w_dtheta_dt)
-                    self.dwdth[i]+=w_dtheta_dt*self.time_step
+                    self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
 
             #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
@@ -759,7 +760,7 @@ class varQITE:
         
         sum_C=0
         for l in range(len(lambda_l)):
-            """
+            
             #Does not work, but makes more sense
             temp_circ=V_circ.copy()
             #Then we loop through the gates in U until we reach sigma-gate
@@ -828,7 +829,7 @@ class varQITE:
             prediction=run_circuit(temp_circ)
  
             sum_C-=prediction*lambda_l[l]
-            
+            """
             
         return sum_C
 
@@ -949,245 +950,118 @@ class varQITE:
     #TODO: #Start here and see if these are alright
     def get_dC(self, i_param):
         #Lets try to remove the controlled gates
-        dC_vec_temp_i=np.zeros((len(self.trial_circ)))
+        dC_vec_temp_i=np.zeros(len(self.rot_indexes))
         #Loops through the indices of C
-        for p in range(len(self.trial_circ)):
-            dc_term=self.run_dC(p, i_param)
-            dC_vec_temp_i[p]=dc_term
+        for p in range(len(self.rot_indexes)):
+            #TODO include minus from i?
+            dC_vec_temp_i[p]=self.run_dC(self.rot_indexes[p], i_param)
         
         return dC_vec_temp_i
     
     def run_dC(self, p_index, i_theta):
-        dCircuit_term_0=self.dC_circ0(p_index, i_theta)
-        #TODO: Check if dc is right 
+        dCircuit_term_0=-0.5*self.dC_circ0(p_index, i_theta)
+
+        #TODO Continue here!
         sum_C_p=0
-        for s in range(len(self.trial_circ)): #+1?
+        for s in range(len(self.rot_indexes)):
             for i in range(len(self.hamil)):
-                dCircuit_term_1=self.dC_circ1(p_index, i, s)
-                dCircuit_term_2=self.dC_circ2(p_index, s, i)
+                dCircuit_term_1=self.dC_circ1(p_index, i, self.rot_indexes[s])
+                dCircuit_term_2=self.dC_circ2(p_index, self.rot_indexes[s], i)
                 
                 ## TODO: Fix this, I dont know how dw should be computed
-                temp_dw=self.hamil[i][0]*self.dwdth[i_theta][s]
+                temp_dw=self.hamil[i][0]*self.dwdth[i_theta][self.rot_indexes[s]]
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
                 #+ or - is this what is wrong?
-                sum_C_p+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
+                sum_C_p+=0.25*temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
-        return -dCircuit_term_0-sum_C_p
+        return dCircuit_term_0-sum_C_p
 
     def dC_circ0(self, p, j):
-        gate_label_k_i=self.trial_circ[p][0]
+        """
+        First circuit of dC in varQBM article
+        """
+        V_circ=encoding_circ('C', self.trial_qubits)    
+        temp_circ=V_circ.copy()
 
-        f_i=np.conjugate(get_f_sigma(gate_label_k_i))
+        for i in range(len(self.trial_circ)):
+            getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
         
-        first_der=p
-
-        V_circ=encoding_circ('C', self.trial_qubits)
-
-        pauli_names=['i', 'x', 'y', 'z']
+        getattr(temp_circ, 'c'+self.hamil[j][1])(0,self.hamil[j][2]+1)
         
-        sum_dC=0
+        for ii in range(len(self.trial_circ)-1, p-1, -1):
+            getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
 
-        for i in range(len(f_i)):
-            #Can a complex number be 0?
-            if f_i[i]==0 or self.hamil[j][0]==0:
-                pass
-            else:
-                #First lets make the circuit:
-                temp_circ=V_circ.copy()
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[p][0][-1])(0,1+self.trial_circ[p][2])
+        temp_circ.x(0)
 
-                #Then we loop through the gates in U untill we reach the sigma
-                for ii in range(first_der):
-                    gate1=self.trial_circ[ii][0]
-                    if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                        getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                        pass
-                    else:
-                        getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-
-                #Add x gate                
-                temp_circ.x(0)
-                #Then we add the sigma
-                #print(pauli_names[i])
-                getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first_der][2])
-
-                #Add x gate                
-                temp_circ.x(0)
-                #Continue the U_i gate:
-                for keep_going in range(first_der, len(self.trial_circ)):
-                    gate2=self.trial_circ[keep_going][0]
-                    #print(gate1)
-                    if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
-                        getattr(temp_circ, gate2)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                    else:
-                        getattr(temp_circ, gate2)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-
-                #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
-                if self.hamil[j][1]!='i':
-                    getattr(temp_circ, 'c'+self.hamil[j][1])(0,1+self.hamil[j][2])
-                
-                temp_circ.h(0)
-                temp_circ.measure(0, 0)
-
-                #print(temp_circ)
-                prediction=run_circuit(temp_circ)
-                
-                #TODO: - or +?
-                sum_dC+=np.imag(f_i[i]*self.hamil[j][0])*prediction
+        temp_circ.h(0)
+        temp_circ.measure(0, 0)
+        prediction=run_circuit(temp_circ)
         
-        return sum_dC
+        return prediction
 
     def dC_circ1(self, p, i_index, s):
-        gate_label_i=self.trial_circ[p][0]
-        gate_label_j=self.trial_circ[s][0]
+        V_circ=encoding_circ('A', self.trial_qubits)
+        temp_circ=V_circ.copy()
 
-        lmd=self.hamil[i_index][0]
-        first=p
-        sec=s
+        for i, j in enumerate(self.rot_loop[:s]):
+            getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+j, 1+self.trial_circ[i][2])
+        getattr(temp_circ, 'c'+self.trial_circ[s][0][-1])(0,1+self.trial_circ[s][2])
 
-        f_k_i=np.conjugate(get_f_sigma(gate_label_i))
-        f_l_j=get_f_sigma(gate_label_j)
-        V_circ=encoding_circ('C', self.trial_qubits)
+        for ii, jj in enumerate(self.rot_loop[s:], start=s):
+            getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
 
-        pauli_names=['i', 'x', 'y', 'z']
+        getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,self.hamil[i_index][2]+1)
+
+        for kk in range(len(self.trial_circ)-1, p-1, -1):
+            getattr(temp_circ, self.trial_circ[kk][0])(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
+
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[p][0][-1])(0,1+self.trial_circ[p][2])
+        temp_circ.x(0)
+
+        temp_circ.h(0)
+        temp_circ.measure(0,0)
+
+        prediction=run_circuit(temp_circ)
         
-        sum_dc=0
-        for i in range(len(f_k_i)):
-            for j in range(len(f_l_j)):
-                if f_k_i[i]==0 or f_l_j[j]==0 or lmd==0:
-                    pass
-                else:
-                    #First lets make the circuit:
-                    temp_circ=V_circ.copy()
-
-                    #Then we loop through the gates in U until we reach the sigma
-                    for ii in range(first):
-                        gate1=self.trial_circ[ii][0]
-                        if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                            getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                        else:
-                            getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-        
-                    temp_circ.x(0)
-                    #Then we add the sigma
-                    getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first][2])
-                    #Add x gate                
-                    temp_circ.x(0)
-
-                    #Continue the U_i gate:
-                    for keep_going in range(first, len(self.trial_circ)):
-                        gate=self.trial_circ[keep_going][0]
-   
-                        if gate == 'cx' or gate == 'cy' or gate == 'cz':
-                            getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                        else:
-                            getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                    
-                    #Adds the hamiltonian gate
-                    #Should this be a controlled gate?
-                    if self.hamil[i_index][1]!='i':
-                        getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,1+self.hamil[i_index][2])
-                
-
-                    for jj in range(len(self.trial_circ)-1, sec-1, -1):
-                        gate3=self.trial_circ[jj][0]
-                        #print(gate3)
-                        if gate3 == 'cx' or gate3 == 'cy' or gate3 == 'cz':
-                            getattr(temp_circ, gate3)(1+self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
-                        else:
-                            getattr(temp_circ, gate3)(self.trial_circ[jj][1], 1+self.trial_circ[jj][2])
-
-                    getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec][2])
-                    temp_circ.h(0)
-                    temp_circ.measure(0,0)
-
-                    """
-                    Measures the circuit
-                    """
-                    prediction=run_circuit(temp_circ)
-
-                    #TODO: + or -?
-                    sum_dc+=np.imag(f_k_i[i]*f_l_j[j])*prediction
-        #print(temp_circ)
-        
-        return sum_dc
+        return prediction
 
     def dC_circ2(self, p, s, i_index):
-        gate_label_k_i=self.trial_circ[p][0]
-        gate_label_k_j=self.trial_circ[s][0]
+        V_circ=encoding_circ('A', self.trial_qubits)
+        temp_circ=V_circ.copy()
 
-        f_i=np.conjugate(get_f_sigma(gate_label_k_i))
-        f_j=np.conjugate(get_f_sigma(gate_label_k_j))
+        #TODO: What if p=s?
+        if p>s:
+            p,s=s,p
 
-        first_der=p
-        sec_der=s
+        for i in range(len(self.trial_circ)):
+            getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
         
-        if first_der>sec_der:
-            first_der, sec_der=sec_der, first_der
-
-        V_circ=encoding_circ('C', self.trial_qubits)
-
-        pauli_names=['i', 'x', 'y', 'z']
+        getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,self.hamil[i_index][2]+1)
         
-        sum_dC=0
-        for i in range(len(f_i)):
-            for j in range(len(f_j)):
-                    if f_i[i]==0 or f_j[j]==0 or self.hamil[i_index][0]==0:
-                        pass
-                    else:
-                        #First lets make the circuit:
-                        temp_circ=V_circ.copy()
+        for kk in range(len(self.trial_circ)-1, s-1, -1):
+            getattr(temp_circ, self.trial_circ[kk][0])(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
+        
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[s][0][-1])(0,1+self.trial_circ[s][2])
+        temp_circ.x(0)
 
-                        #Then we loop through the gates in U until we reach the sigma
-                        for ii in range(first_der):
-                            gate1=self.trial_circ[ii][0]
-                            #print(gate1)
-                            if gate1 == 'cx' or gate1 == 'cy' or gate1 == 'cz':
-                                getattr(temp_circ, gate1)(1+self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                            else:
-                                getattr(temp_circ, gate1)(self.trial_circ[ii][1], 1+self.trial_circ[ii][2])
-                
-                        temp_circ.x(0)
-                        #Then we add the sigma
-                        getattr(temp_circ, 'c'+pauli_names[i])(0,1+self.trial_circ[first_der][2])
+        for kkk in range(s-1, p-1, -1):
+            getattr(temp_circ, self.trial_circ[kkk][0])(self.trial_circ[kkk][1]+self.rot_loop[kkk], 1+self.trial_circ[kkk][2])
 
-                        for sec in range(first_der, sec_der):
-                            gate_sec=self.trial_circ[sec][0]
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[p][0][-1])(0,1+self.trial_circ[p][2])
+        temp_circ.x(0)
 
-                            if gate_sec == 'cx' or gate_sec == 'cy' or gate_sec == 'cz':
-                                getattr(temp_circ, gate_sec)(1+self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
-                            else:
-                                getattr(temp_circ, gate_sec)(self.trial_circ[sec][1], 1+self.trial_circ[sec][2])
+        temp_circ.h(0)
+        temp_circ.measure(0, 0)
+        prediction=run_circuit(temp_circ)
 
-                        #Add second sigma gate, double check the index j
-                        getattr(temp_circ, 'c'+pauli_names[j])(0,1+self.trial_circ[sec_der][2])
-
-                        #Add x gate                
-                        temp_circ.x(0)
-
-                        for keep_going in range(sec_der, len(self.trial_circ)):   #+1? i think not
-                            gate=self.trial_circ[keep_going][0]
-
-                            if gate == 'cx' or gate == 'cy' or gate == 'cz':
-                                getattr(temp_circ, gate)(1+self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                            else:
-                                getattr(temp_circ, gate)(self.trial_circ[keep_going][1], 1+self.trial_circ[keep_going][2])
-                        
-                        #The if statement is to not have controlled identity gates, since it is the first element but might fix this later on
-                        if self.hamil[i_index][1]!='i':
-                            getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,1+self.hamil[i_index][2])
-                
-                        temp_circ.h(0)
-                        temp_circ.measure(0, 0)
-
-                        #print(temp_circ)
-                        prediction=run_circuit(temp_circ)
-                        
-                        #TODO: + or minus?
-                        sum_dC+=np.imag(f_i[i]*f_j[j])*prediction
-
-        return sum_dC
+        return prediction
 
 
     def last_try(self):
