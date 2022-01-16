@@ -258,7 +258,7 @@ class optimize:
                     #TODO: I dont actually think this should be positive, but  negative is 0
                     w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)+np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
 
-                    print(f'postive? {w_k_sum[i]}')
+                    print(f'postive? {((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k]}')
                 
         return w_k_sum.real.astype(float)
 

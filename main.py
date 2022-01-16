@@ -345,7 +345,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
         for i in range(len(H)):
             H[i][0]=new_parameters[i]
         
-        varqite.update_H(H)
+        varqite_train.update_H(H)
 
         print(f'Final H, lets go!!!!: {H}')
 
@@ -378,7 +378,16 @@ Ham1=       [[1., 'z', 0]]
 
 p_data1=[0.8, 0.2]
 
-train(Ham1, ansatz1, 2, p_data1)
+H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
+HU_1=        [[H_U_1[0], 'z', 0]]
+
+H_U_2=np.random.uniform(low=-1.0, high=1.0, size=4)
+HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
+        [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
+
+print(H_U_2)
+
+train(HU_2, ansatz2, 6, p_data1)
 
 """
 Try and fail method:
@@ -471,6 +480,7 @@ Next list:
         that means U_1 is applied first which makes sense for why C is reversed?
         - The key might be to know why C should be reversed
         - Maybe mixed the arguments some places?
+    - Fix H to deal with multiple same coefficients
     - Run multiple circuits in paralell instead of separate
     - Do classical BM
 """
