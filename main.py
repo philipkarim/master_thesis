@@ -442,6 +442,7 @@ Next list:
         - Complete C
     - Go through the TODO's
     - Gradietn complete
+        - dC expression
         - With initialisation
     - Reproduce results/write code to produce it
     - Numba/paralellization
