@@ -387,7 +387,7 @@ HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1],
 
 print(H_U_2)
 
-train(HU_2, ansatz2, 6, p_data1)
+train(HU_2, ansatz2, 30, p_data2, n_steps=10)
 
 """
 Try and fail method:
@@ -483,4 +483,7 @@ Next list:
     - Fix H to deal with multiple same coefficients
     - Run multiple circuits in paralell instead of separate
     - Do classical BM
+    - Gradient too high, why? Normalize 0,1 instead of pi? learning rate?
+    - Always increases, within the righ/left? where it is printed, might be that the parameters is set by running the method, 
+    or that it should be copied some place
 """
