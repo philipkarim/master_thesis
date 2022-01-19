@@ -448,6 +448,7 @@ class varQITE:
                     #print(dA_mat)
                     #print(w_dtheta_dt)
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
+                    #print(f'w_dtheta: {w_dtheta_dt*self.time_step}')
 
             #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
@@ -637,6 +638,10 @@ class varQITE:
         prediction=run_circuit(temp_circ)
  
         sum_A=prediction
+
+        #if first==3 or sec==3:
+            #print(first, sec)
+            #print(temp_circ)
         #print(f'prediction {prediction}')
 
         return sum_A

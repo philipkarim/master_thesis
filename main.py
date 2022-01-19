@@ -14,6 +14,7 @@ import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
+import matplotlib.pyplot as plt
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -69,41 +70,6 @@ if both==False:
         H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
 
 
-    #TODO: Rewrite every if 'rx'' condition to for i in indices:
-
-    ##Computing
-    """
-    rotational_indices=[]
-    n_qubits_params=0
-    for i in range(len(params)):
-        if params[i][0]=='cx' or params[i][0]=='cy' or params[i][0]=='cz':
-            if n_qubits_params<params[i][1]:
-                n_qubits_params=params[i][1]
-        else:
-            rotational_indices.append(i)
-
-        if n_qubits<params[i][2]:
-            n_qubits=params[i][2]
-
-    n_qubits_H=0
-    for j in range(len(H)):
-        if n_qubits_H<H[j][2]:
-                n_qubits_H=H[j][2]
-
-    print(f'qubit H: {n_qubits_H}')
-    #Transforms the parameters into arrays
-    #params=np.array(params)
-    #H=np.array(H)
-    """
-    """
-    Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
-    because the coefficients must be the same for pairwise hamiltonians
-    """
-
-
-    """
-    Testing
-    """
     #make_varQITE object
     start=time.time()
     varqite=varQITE(H, params, steps=10)
@@ -207,7 +173,7 @@ else:
     varqite1=varQITE(H1, params1, steps=10)
     varqite1.initialize_circuits()
     start1=time.time()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     end1=time.time()
 
 
@@ -215,13 +181,14 @@ else:
     varqite2=varQITE(H2, params2, steps=10)
     varqite2.initialize_circuits()
     start2=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     end2=time.time()
     #print(d_omega)
 
     print(f'Time used H1: {np.around(end1-start1, decimals=1)} seconds')
     print(f'Time used H2: {np.around(end2-start2, decimals=1)} seconds')
 
+    print(f'omega: {omega2}')
 
     """
     Investigating the tracing of subsystem b
@@ -232,6 +199,8 @@ else:
     #Dansity matrix measure, measure instead of computing whole DM
     trace_circ1=create_initialstate(params1)
     trace_circ2=create_initialstate(params2)
+
+    print(trace_circ2)
 
     DM1=DensityMatrix.from_instruction(trace_circ1)
     DM2=DensityMatrix.from_instruction(trace_circ2)
@@ -280,7 +249,7 @@ else:
 
 
 
-def train(H, ansatz, n_epochs, p_data, n_steps=10):
+def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
     print('------------------------------------------------------')
 
     loss_list=[]
@@ -290,7 +259,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
 
     #print(tracing_q, rotational_indices, n_qubits_ansatz)
 
-    optim=optimize(H, rotational_indices, tracing_q) ##Do not call this each iteration, it will mess with the momentum
+    optim=optimize(H, rotational_indices, tracing_q, learning_rate=lr) ##Do not call this each iteration, it will mess with the momentum
 
     varqite_train=varQITE(H, ansatz, steps=n_steps)
     varqite_train.initialize_circuits()
@@ -302,6 +271,9 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
         #Stops, memory allocation??? How to check
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
         ansatz=update_parameters(ansatz, omega)
+
+        print(f' omega: {omega}')
+        print(f' d_omega: {d_omega}')
 
         #Dansity matrix measure, measure instead of computing whole DM
         
@@ -315,20 +287,19 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
         #Hamiltonian is the number of hamiltonian params
         print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(p_data,p_QBM)
-        print(f'Loss: {loss}')
+        print(f'Loss: {loss, loss_list}')
         
         #Appending loss and epochs
         loss_list.append(loss)
         epoch_list.append(epoch)
         #Then find dL/d theta by using eq. 10
-        print('Updating params..')
-
-        #TODO: Check if this is right
+        #print('Updating params..')
+        #print(f'd_omega same? {d_omega}')
+        #TODO: This is quiet high
         gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=n_steps)
-        print(f'gradient of qbm: {gradient_qbm}')
+        #print(f'gradient of qbm: {gradient_qbm}')
         gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
-
-        #print(f'gradient_loss: {gradient_loss}')
+        print(f'gradient_loss: {gradient_loss}')
         #print(type(gradient_loss))
         #TODO: Fix the thing to handle gates with same coefficient
 
@@ -337,7 +308,13 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
         #reason for the error
 
         new_parameters=optim.adam(np.array(H)[:,0].astype(float), gradient_loss)
-        print(f'new coefficients: {new_parameters}')
+        print(f'old params: {np.array(H)[:,0].astype(float)}')
+        #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
+        print(f'New params {new_parameters}')
+        #TODO: Try this
+        #gradient_descent_gradient_done(self, params, lr, gradient):
+
+        #print(f'new coefficients: {new_parameters}')
 
         #Is this only params or the whole list? Then i think i should insert params and the
         #function replace the coefficients itself
@@ -347,16 +324,16 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10):
         
         varqite_train.update_H(H)
 
-        print(f'Final H, lets go!!!!: {H}')
+        #print(f'Final H, lets go!!!!: {H}')
 
         #Compute the dp_QBM/dtheta_i
-
-    plt.plot(epoch_list, loss_list)
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.show()
+    if plot==True:
+        plt.plot(epoch_list, loss_list)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.show()
     
-    return
+    return loss_list
 
 
 ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -368,7 +345,7 @@ ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3],
 Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-p_data2=[0.5, 0, 0, 0.5]
+p_data2=[0.25, 0, 0, 0.25]
 
 
 ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -387,7 +364,30 @@ HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1],
 
 print(H_U_2)
 
-train(HU_2, ansatz2, 30, p_data2, n_steps=10)
+train(HU_2, ansatz2, 5, p_data2, n_steps=10, lr=0.05)
+
+
+
+
+def multiple_simulations(n_sims, HU_2, ansatz2, epochs, target_data, l_r):
+    saved_error=np.zeros((n_sims, epochs))
+
+    for i in range(n_sims):
+        saved_error[i]=train(HU_2, ansatz2, epochs, target_data, lr=l_r, plot=False)
+
+    epochs_list=list(range(0,epochs))
+    avg_list=np.mean(saved_error, axis=0)
+    std_list=np.std(saved_error, axis=0)
+
+    plt.errorbar(epochs_list, avg_list, std_list, linestyle='None', marker='^')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.show()
+
+    return
+
+
+
 
 """
 Try and fail method:

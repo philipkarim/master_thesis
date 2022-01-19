@@ -1,6 +1,8 @@
+from numpy.lib.twodim_base import diagflat
 from varQITE import *
 from utils import *
 
+import copy
 import numpy as np
 import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
@@ -31,13 +33,14 @@ class optimize:
         """
         loss=0
         
+        #TODO: -= instead of returning - loss
         for i in range(len(p_data)):
             loss+=p_data[i]*np.log(p_BM[i])
 
         return -loss
     # gradient descent algorithm with adam
-    #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
+    #def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
+    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
 
         """
         I guess something like this should work?
@@ -53,6 +56,12 @@ class optimize:
         vhat = self.v / (1.0 - beta2**(self.t))
         print('____________ADAM optimizer___________')
 
+        print(f'g: {g}')
+        print(f'g^2: {g**2}')
+
+        print(f'Change in param: {np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+
+        #TODO: Changed this from minus to plus
         x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
         
         #Add 1 to the counter
@@ -60,7 +69,7 @@ class optimize:
 
         return x
     
-    def gradient_descent_gradient_done(self, params, lr, gradient):
+    def gradient_descent_gradient_done(self, params, gradient):
         """
         Gradient descent function.
         
@@ -71,7 +80,7 @@ class optimize:
                 samples:    Samples reprenting the true labels and 
                             predictions. (2D Matrix)
         """
-        params-=lr*gradient
+        params-=self.learning_rate*gradient
         return params
     
     def gradient_descent(self, params, predicted, target, samples):
@@ -222,14 +231,24 @@ class optimize:
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
             for k in self.rot_in:
+                #print(f'this is k: {k}, {params[k][0]}')
+                #TODO: Remove this thing right here
                 if params[k][0]=='rx' or params[k][0]=='ry' or params[k][0]=='rz':
-                    params_left_shift=params.copy()
-                    params_right_shift=params.copy()
+                    params_left_shift=copy.deepcopy(params)
+                    params_right_shift=copy.deepcopy(params)
                     
                     #Since the cirquits are normalised the shift is 0.25 which represents pi/2
+                    #print(f'param right: {params_right_shift}')
+                    #print(f'param: {params_right_shift[k][1]}')
                     params_right_shift[k][1]+=0.5*np.pi
+                    #print(f'mid param right: {params_right_shift}')
                     params_left_shift[k][1]-=0.5*np.pi
+                    #print(f'params: {params[k][1], params_right_shift[k][1], params_left_shift[k][1]}')
+                    #print(f'changes back?: {params[0][1], params_right_shift[0][1], params_left_shift[0][1]}')
 
+                    #print(f'param left: {params_left_shift}')
+
+                    """
                     varqite_right=varQITE(H, params_right_shift, steps=steps)
                     varqite_left=varQITE(H, params_left_shift, steps=steps)
 
@@ -242,9 +261,10 @@ class optimize:
 
                     params_right=update_parameters(params_right_shift, omega_right)
                     params_left=update_parameters(params_left_shift, omega_left)
-
-                    trace_right=create_initialstate(params_right)
-                    trace_left=create_initialstate(params_left)
+                    """
+                    
+                    trace_right=create_initialstate(params_right_shift)
+                    trace_left=create_initialstate(params_left_shift)
                     #TODO: run this or just trace it?
                     DM_right=DensityMatrix.from_instruction(trace_right)
                     DM_left=DensityMatrix.from_instruction(trace_left)
@@ -252,20 +272,31 @@ class optimize:
                     PT_right=partial_trace(DM_right,self.trace_list)
                     PT_left=partial_trace(DM_left,self.trace_list)
                     
+
+                    #print(f'diag: {(np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2}')
                     #TODO: Why does shifting right and left the same value? Should I switch another way?
                     #print(f'Shift_right: {np.diag(PT_right.data)}')
                     #print(f'Shift_right: {np.diag(PT_left.data)}')
                     #print(((np.diag(PT_right.data).astype(float)-np.diag(PT_left.data).astype(float))/2)*d_omega[i][k])
 
                     #TODO: I dont actually think this should be positive, but  negative is 0
-                    w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)+np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
+                    w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k] #a.real.astype(float)?
 
-                    print(f'postive? {((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k]}')
+                    #print(f'postive? {((np.diag(PT_right.data).real.astype(float)-np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k]}')
                 
         return w_k_sum.real.astype(float)
 
     def gradient_loss(self, data, p_QBM, w_k_sum2):
+        #TODO: List or array, print these, numpy divide?
+
         dL=data*w_k_sum2/p_QBM
+        print(f'Divide this: {data*w_k_sum2} by {p_QBM}')
+        print(f'Which gives: {dL}')
+        #print(f'dL ( before sum) {dL}')
+        print(f'dL (is all these the same?, sum wrong place?: ) {-np.sum(dL, axis=1).real.astype(float)}')
+        
+
+
         return -np.sum(dL, axis=1).real.astype(float)
 
 
