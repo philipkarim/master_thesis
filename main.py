@@ -22,6 +22,9 @@ from utils import *
 from varQITE import *
 
 import multiprocessing as mp
+import seaborn as sns
+
+sns.set_style("darkgrid")
 
 # Seeding the program to ensure reproducibillity
 random.seed(2021)
@@ -333,7 +336,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
         plt.ylabel('Loss')
         plt.show()
     
-    return loss_list
+    return loss_list, p_QBM
 
 
 ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -345,7 +348,7 @@ ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3],
 Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-p_data2=[0.25, 0, 0, 0.25]
+p_data2=[0.5, 0, 0, 0.5]
 
 
 ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -362,31 +365,106 @@ H_U_2=np.random.uniform(low=-1.0, high=1.0, size=4)
 HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
         [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
 
-print(H_U_2)
+#print(H_U_2)
 
-train(HU_2, ansatz2, 5, p_data2, n_steps=10, lr=0.05)
+#train(HU_2, ansatz2, 10, p_data2, n_steps=10, lr=0.1)
+
+#OMega isnt trained why?
 
 
-
-
-def multiple_simulations(n_sims, HU_2, ansatz2, epochs, target_data, l_r):
+def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
+    
+    qbm_list=[]
+    np.random.seed(2022)
 
     for i in range(n_sims):
-        saved_error[i]=train(HU_2, ansatz2, epochs, target_data, lr=l_r, plot=False)
+        print(f'Seed: {i} of {n_sims}')
+        H_U_2=np.random.uniform(low=-1.0, high=1.0, size=4)
+        print(H_U_2)
+        HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
+        [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
+        saved_error[i], dist=train(HU_2, ansatz2, epochs, target_data, n_steps=steps, lr=l_r, plot=False)
+        qbm_list.append(dist)
+    
 
     epochs_list=list(range(0,epochs))
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
 
+    min_error=1000
+    max_error=0
+    best_index=0
+    for j in range(n_sims):
+        print(f'saved error: {saved_error[j][-1]}')
+        if min_error>saved_error[j][-1]:
+            print(f'saved error: {saved_error[j][-1]}')
+            min_error=saved_error[j][-1]
+            best_pbm=qbm_list[j]
+            best_index=j
+
+        if max_error<saved_error[j][-1]:
+            worst_pbm=qbm_list[j]
+            max_error=saved_error[j][-1]
+
+    print(f'best_pbm {best_pbm}')
+    print(f'worst pbm {worst_pbm}')
+    print('---------------------')
+    print(f'avg_list {avg_list}')
+    print(f'std_list {std_list}')
+    print(f'error {saved_error}')
+    print('---------------------')
+
+
+    bell_state=[0.5,0,0,0.5]
+    barWidth = 0.25
+ 
+    # Set position of bar on X axis
+    br1 = np.arange(len(bell_state))
+    br2 = [x + barWidth for x in br1]
+    br3 = [x + barWidth for x in br2]
+    
+    # Make the plot
+    plt.bar(br1, bell_state, color ='r', width = barWidth,
+            edgecolor ='grey', label ='Bell state')
+    plt.bar(br2, worst_pbm, color ='g', width = barWidth,
+            edgecolor ='grey', label ='Worst trained')
+    plt.bar(br3, best_pbm, color ='b', width = barWidth,
+            edgecolor ='grey', label ='Best trained')
+    plt.xlabel('Sample')
+    plt.ylabel('Probability')
+    plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(str(l_r*1000)+'_bar.png')
+    plt.clf()
+    #plt.show()
+
     plt.errorbar(epochs_list, avg_list, std_list, linestyle='None', marker='^')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.show()
+    plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
+    plt.savefig('lr'+str(l_r*1000)+'_mean.png')
+    plt.clf()
+
+    #plt.show()
+
+    plt.plot(epochs_list, saved_error[best_index])
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Bell state: Best of 10 seeds')
+    plt.savefig(str(l_r*1000)+'_best.png')
+    plt.clf()
+
+    #plt.show()
+
 
     return
-
-
+#multiple_simulations(2, ansatz2, 1, p_data2, l_r=0.1, steps=1)
+#exit()
+multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
+multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.01, steps=10)
+multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
 
 
 """

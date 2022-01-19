@@ -40,7 +40,7 @@ class optimize:
         return -loss
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
+    def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
 
         """
         I guess something like this should work?
@@ -62,7 +62,7 @@ class optimize:
         print(f'Change in param: {np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
 
         #TODO: Changed this from minus to plus
-        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+        x += np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
         
         #Add 1 to the counter
         self.t+=1
@@ -290,10 +290,10 @@ class optimize:
         #TODO: List or array, print these, numpy divide?
 
         dL=data*w_k_sum2/p_QBM
-        print(f'Divide this: {data*w_k_sum2} by {p_QBM}')
-        print(f'Which gives: {dL}')
+        #print(f'Divide this: {data*w_k_sum2} by {p_QBM}')
+        #print(f'Which gives: {dL}')
         #print(f'dL ( before sum) {dL}')
-        print(f'dL (is all these the same?, sum wrong place?: ) {-np.sum(dL, axis=1).real.astype(float)}')
+        #print(f'dL (is all these the same?, sum wrong place?: ) {-np.sum(dL, axis=1).real.astype(float)}')
         
 
 
