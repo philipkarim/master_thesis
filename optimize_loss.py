@@ -40,7 +40,7 @@ class optimize:
         return -loss
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
+    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
 
         """
         I guess something like this should work?
@@ -62,7 +62,7 @@ class optimize:
         print(f'Change in param: {np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
 
         #TODO: Changed this from minus to plus
-        x += np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
         
         #Add 1 to the counter
         self.t+=1

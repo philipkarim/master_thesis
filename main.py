@@ -124,8 +124,8 @@ if both==False:
         H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
 
         print(f'Fidelity: {H_fidelity}')
-elif both==True:
-    pass
+#elif both==True:
+#    pass
 
 else:
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -142,32 +142,6 @@ else:
     H2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-    ##Computing
-    """
-    rotational_indices1=[]
-    n_qubits_params1=0
-    for i in range(len(params1)):
-        if params1[i][0]=='cx' or params1[i][0]=='cy' or params1[i][0]=='cz':
-            if n_qubits_params1<params1[i][1]:
-                n_qubits_params1=params1[i][1]
-        else:
-            rotational_indices1.append(i)
-
-        if n_qubits_params1<params1[i][2]:
-            n_qubits_params1=params1[i][2]
-
-    rotational_indices2=[]
-    n_qubits_params2=0
-    for i in range(len(params2)):
-        if params2[i][0]=='cx' or params2[i][0]=='cy' or params2[i][0]=='cz':
-            if n_qubits_params2<params2[i][1]:
-                n_qubits_params2=params2[i][1]
-        else:
-            rotational_indices2.append(i)
-
-        if n_qubits_params2<params2[i][2]:
-            n_qubits_params2=params2[i][2]
-    """
 
     """
     Testing
@@ -358,6 +332,9 @@ Ham1=       [[1., 'z', 0]]
 
 p_data1=[0.8, 0.2]
 
+
+np.random.seed(123)
+
 H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
 HU_1=        [[H_U_1[0], 'z', 0]]
 
@@ -367,7 +344,7 @@ HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1],
 
 #print(H_U_2)
 
-#train(HU_2, ansatz2, 10, p_data2, n_steps=10, lr=0.1)
+train(HU_2, ansatz2, 10, p_data2, n_steps=10, lr=0.1)
 
 #OMega isnt trained why?
 
@@ -462,9 +439,9 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     return
 #multiple_simulations(2, ansatz2, 1, p_data2, l_r=0.1, steps=1)
 #exit()
-multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
-multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.01, steps=10)
-multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
+#multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
+#multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
 
 
 """

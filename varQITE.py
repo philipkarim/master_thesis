@@ -12,6 +12,7 @@ import random
 import itertools as it
 #mp=pathos.helpers.mp
 import time
+import copy
 
 #from pathos.pools import ProcessPool
 
@@ -143,7 +144,7 @@ class varQITE:
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
-        omega_w=np.copy((np.array(self.trial_circ)[:, 1]).astype('float'))
+        omega_w=copy.deepcopy((np.array(self.trial_circ)[:, 1]).astype('float'))
 
         #print(f'init omega{omega_w}')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
@@ -297,7 +298,6 @@ class varQITE:
             #C_vec2=C_vec
             #A_mat2, C_vec2=self.last_try()
             #print(A_mat2)
-
             #print(C_vec2)
             """
             if i want to use this:   
@@ -386,69 +386,57 @@ class varQITE:
             #print(A_mat2)
             
             """Full matrix"""   
-            ridge_inv=False
-                     
+            ridge_inv=True
             if ridge_inv==False:
                 #TODO: Might be something wrong here?
                 A_inv=np.linalg.pinv(A_mat2, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec2
             else:
-                #beta=np.linalg.pinv(A_small.T@A_small)@A_small.T@C_small
-                #rr = Ridge(alpha=0.0001, fit_intercept=True)
-                #Can we use CV with inverting matrix?
-                regr_cv = RidgeCV(alphas= np.logspace(-4, 4, 100))
+                I=np.eye(A_mat2.shape[1])
+                regr_cv = RidgeCV(alphas= np.logspace(-16, -2))
                 model_cv = regr_cv.fit(A_mat2, C_vec2)
-                print(f'best alpha: {model_cv.alpha_}')
+                #This is better
+                #TODO: Add try/catch statement with inv/pinv?
+                omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv.alpha_*I) @ A_mat2.T @ C_vec2
+                #omega_derivative_temp=regr_cv.coef_
+                #print(f'best alpha: {model_cv.alpha_}')
+
                 #rr.fit(A_mat2, C_vec2) 
                 #pred_train_rr= rr.predict(A_mat2)
-                omega_derivative_temp=regr_cv.coef_
-
-            #print(omega_derivative_temp)
-            #print(omega_derivative)
-            #exit()
-            """Small matrix"""
-            #A_inv_small=np.linalg.pinv(A_small, hermitian=False)
-            #omega_derivative_small=A_inv_small@C_small
-
-            #print(omega_derivative_small)
-
-            #print(omega_derivative)
-            #print(self.rot_indexes)
-
-            #print(omega_derivative)
-            
-            #beta=np.linalg.pinv(A_small.T@A_small)@A_small.T@C_small
-            #rr = Ridge(alpha=0.01, fit_intercept=True)
-            #rr.fit(A_mat2, C_vec2) 
-            #pred_train_rr= rr.predict(A_mat2)
-            #omega_derivative_temp=rr.coef_
-
-            #print('___start____')
-            #print(omega_derivative[self.rot_indexes])
-            #print('___mid____')
-            #print(np.linalg.pinv(A_small)@C_small)
-            #print('___end____')
 
             omega_derivative=np.zeros(len(self.trial_circ))
             omega_derivative[self.rot_indexes]=omega_derivative_temp
+            #print(f'Is this large also? {omega_derivative_temp}')
 
             if gradient_stateprep==False:
-                print("This loop takes some time to complete")
+                #print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
                     #Compute the expression of the derivative
+                    #TODO: Deep copy takes a lot of time, fix this
                     dA_mat=np.copy(self.get_dA(i))
                     dC_vec=np.copy(self.get_dC(i))
-                    #print(dA_mat)
-                    #print(dC_vec)
+
+                    if ridge_inv==False:
+                        w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
+                    else:
+                        I=np.eye(A_mat2.shape[1])
+                        regr_cv_der = RidgeCV(alphas= np.logspace(-16, -2))
+                        y_target=dC_vec-dA_mat@omega_derivative_temp
+                        model_cv_der = regr_cv_der.fit(A_mat2, y_target)
+                        #This is better
+                        #TODO: Add try/catch statement with inv/pinv?
+                        w_dtheta_dt=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv_der.alpha_*I) @ A_mat2.T @ y_target
+
+
+
                     #Now we compute the derivative of omega derivated with respect to
                     #hamiltonian parameter
                     #dA_mat_inv=np.inv(dA_mat)
-                    w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
                     #print(dC_vec)
                     #print(dA_mat)
                     #print(w_dtheta_dt)
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
-                    #print(f'w_dtheta: {w_dtheta_dt*self.time_step}')
+                    #print(f'w_dtheta: {w_dtheta_dt}')
 
             #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
@@ -759,6 +747,7 @@ class varQITE:
         return C_vec_temp
 
     def run_C2(self, ind):
+        
         #TODO: Put the params of H in a self.variable
         lambda_l=(np.array(self.hamil)[:, 0]).astype('float')
         V_circ=encoding_circ('C', self.trial_qubits)
@@ -772,8 +761,9 @@ class varQITE:
             for i in range(len(self.trial_circ)):
                 getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
             
+            #getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
             getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
-            
+
             for ii in range(len(self.trial_circ)-1, ind-1, -1):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
 
