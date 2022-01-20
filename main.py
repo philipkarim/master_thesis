@@ -550,4 +550,8 @@ Next list:
 
     - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
     pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
+
+    - Theta ZZ thing
+
+    - CV from scikit not ridge CV
 """
