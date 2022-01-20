@@ -417,7 +417,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.clf()
     #plt.show()
 
-    plt.errorbar(epochs_list, avg_list, std_list, linestyle='None', marker='^')
+    plt.errorbar(epochs_list, avg_list, std_list)
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
@@ -437,7 +437,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
 
     return
-multiple_simulations(2, ansatz2, 5, p_data2, l_r=0.1, steps=10)
+multiple_simulations(2, ansatz2, 5, p_data2, l_r=0.01, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
