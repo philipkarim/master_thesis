@@ -353,11 +353,11 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(123)
+    np.random.seed(1234)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
-        H_U_2=np.random.uniform(low=-1.0, high=1.0, size=4)
+        H_U_2=np.random.uniform(low=-0.5, high=0.5, size=4)
         print(H_U_2)
         HU_2=[[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
         [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
@@ -435,9 +435,15 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
     #plt.show()
 
+    for k in range(len(saved_error)):
+        plt.plot(epochs_list, saved_error[k])
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Bell state: Random seeds')
+    plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(2, ansatz2, 5, p_data2, l_r=0.01, steps=10)
+multiple_simulations(5, ansatz2, 20, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -541,4 +547,7 @@ Next list:
     - Gradient too high, why? Normalize 0,1 instead of pi? learning rate?
     - Always increases, within the righ/left? where it is printed, might be that the parameters is set by running the method, 
     or that it should be copied some place
+
+    - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
+    pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
 """
