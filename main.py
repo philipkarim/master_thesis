@@ -357,7 +357,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(321)
+    np.random.seed(1)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
@@ -454,36 +454,6 @@ multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
 
 
-"""
-Try and fail method:
-
-- Try to add i<j in C and dCA
-- Check if the gradients are good
-- Why are the2 qubit case so bad?
-- Check the derivative cases of the things
-"""
-
-
-
-
-
-"""
-Steps to next week in code:
-
-- Rewrite code to work for arbitrary amount of qubits
-    - And hamiltonians
-- Find out why the imaginary og c_term works but not the real as the article says
-- Compute the p^QBM and stuff like that 
-- Compute the loss and stuff like that
-- Optimize the code to run faster.
-    - Assign parameters instead of building the circ? 
-    - Maybe have the circ as self.circ?
-    - Arrays instead of lists for hamiltonians and arrays
-        - The update parameter function for instance
-    -Search the web for optimization methods
-- Read up on GANs, and see if that could be a cool thing to do
-"""
-
 
 """
 Thoughts:
@@ -512,32 +482,13 @@ H1 best: Non ridge, C:+=, without temp.x
 """
 
 
-"""
-Tips and tricks:
-
-kan lage en liste med tuples og plusse på det ene elementet mens den andre er de med rot index for å slippe if cx
-slik:
-if gate2 == 'cx' or gate2 == 'cy' or gate2 == 'cz':
-    getattr(temp_circ, gate2)(1+self.trial_circ[test][1], 1+self.trial_circ[test][2])
-else:
-    getattr(temp_circ, gate2)(self.trial_circ[test][1], 1+self.trial_circ[test][2])
-
-til
-
-for i in [(0,1), (1,2), (0,3)...]
-    getattr(temp_circ, gate2)(self.trial_circ[i[1]][1]+i[0], 1+self.trial_circ[i[1]][2])
-
-This looks neat!
-"""
 
 """
 Next list:
     - Complete initialisation of the thing med labels and such
         - Complete C
     - Go through the TODO's
-    - Gradietn complete
-        - dC expression
-        - With initialisation
+    - Gradietn with initialisation
     - Reproduce results/write code to produce it
     - Numba/paralellization
     - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
@@ -558,4 +509,7 @@ Next list:
     - Theta ZZ thing
 
     - CV from scikit not ridge CV
+
+    - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
+    Why is loss still good after a run? Something isnt reset
 """
