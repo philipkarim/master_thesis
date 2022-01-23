@@ -240,7 +240,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
     loss_list=[]
     epoch_list=[]
 
-    tracing_q, rotational_indices, n_qubits_ansatz=getUtilityParameters(H, ansatz)
+    tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
     #print(tracing_q, rotational_indices, n_qubits_ansatz)
 
@@ -292,8 +292,13 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
         # That way I can use array for the cefficients. this might actually be the
         #reason for the error
 
-        new_parameters=optim.adam(np.array(H)[:,0].astype(float), gradient_loss)
-        print(f'old params: {np.array(H)[:,0].astype(float)}')
+        H_coefficients=np.zeros(len(H))
+
+        for ii in range(len(H)):
+            H_coefficients[ii]=H[ii][0][0]
+
+        new_parameters=optim.adam(H_coefficients, gradient_loss)
+        print(f'Old params: {H_coefficients}')
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         print(f'New params {new_parameters}')
         #TODO: Try this
@@ -305,7 +310,8 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
         #function replace the coefficients itself
 
         for i in range(len(H)):
-            H[i][0]=new_parameters[i]
+            for j in range(len(H[i])):
+                H[i][j][0]=new_parameters[i]
         
         varqite_train.update_H(H)
 
@@ -369,10 +375,10 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
-        H_U_2=np.random.uniform(low=-0.5, high=0.5, size=4)
+        H_U_2=np.random.uniform(low=-1., high=1., size=3)
         print(H_U_2)
-        HU_2=[[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
-        [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
+        HU_2=   [[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], 
+                [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
         saved_error[i], dist=train(HU_2, ansatz2, epochs, target_data, n_steps=steps, lr=l_r, plot=False)
         qbm_list.append(dist)
     
@@ -455,7 +461,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-#multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
+multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)

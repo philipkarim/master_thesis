@@ -792,6 +792,9 @@ class varQITE:
             else:
                 temp_circ=V_circ.copy()
 
+                #for theta in range(len(self.hamil[l])):
+                #    getattr(temp_circ, 'c'+self.hamil[l][theta][1])(0,self.hamil[l][theta][2]+1)
+
                 #Then we loop through the gates in U until we reach sigma-gate
                 for i in range(len(self.trial_circ)-1, ind-1, -1):
                     getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
@@ -959,7 +962,8 @@ class varQITE:
                 dCircuit_term_2=self.dC_circ2(p_index, self.rot_indexes[s], i)
                 
                 ## TODO: Fix this, I dont know how dw should be computed
-                temp_dw=self.hamil[i][0]*self.dwdth[i_theta][self.rot_indexes[s]]
+                #TODO: Is the [0][0] correct?
+                temp_dw=self.hamil[i][0][0]*self.dwdth[i_theta][self.rot_indexes[s]]
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
@@ -979,7 +983,9 @@ class varQITE:
             for i in range(len(self.trial_circ)):
                 getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
             
-            getattr(temp_circ, 'c'+self.hamil[j][1])(0,self.hamil[j][2]+1)
+            for theta in range(len(self.hamil[j])):
+                getattr(temp_circ, 'c'+self.hamil[j][theta][1])(0,self.hamil[j][theta][2]+1)
+            
             
             for ii in range(len(self.trial_circ)-1, p-1, -1):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
@@ -1001,11 +1007,11 @@ class varQITE:
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
 
             #TODO: x gates?
-            #temp_circ.x(0)
-            getattr(temp_circ, 'c'+self.hamil[j][1])(0,self.hamil[j][2]+1)
-            #temp_circ.x(0)
-
-
+            for theta in range(len(self.hamil[j])):
+                #temp_circ.x(0)
+                getattr(temp_circ, 'c'+self.hamil[j][theta][1])(0,self.hamil[j][theta][2]+1)
+                #temp_circ.x(0)
+            
         temp_circ.h(0)
         temp_circ.measure(0, 0)
         prediction=run_circuit(temp_circ)
@@ -1024,8 +1030,9 @@ class varQITE:
         for ii, jj in enumerate(self.rot_loop[s:], start=s):
             getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+jj, 1+self.trial_circ[ii][2])
 
-        getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,self.hamil[i_index][2]+1)
-
+        for theta in range(len(self.hamil[i_index])):
+            getattr(temp_circ, 'c'+self.hamil[i_index][theta][1])(0,self.hamil[i_index][theta][2]+1)
+            
         for kk in range(len(self.trial_circ)-1, p-1, -1):
             getattr(temp_circ, self.trial_circ[kk][0])(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
 
@@ -1052,9 +1059,10 @@ class varQITE:
 
             for i in range(len(self.trial_circ)):
                 getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
-            
-            getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,self.hamil[i_index][2]+1)
-            
+                        
+            for theta in range(len(self.hamil[i_index])):
+               getattr(temp_circ, 'c'+self.hamil[i_index][theta][1])(0,self.hamil[i_index][theta][2]+1)
+         
             for kk in range(len(self.trial_circ)-1, s-1, -1):
                 getattr(temp_circ, self.trial_circ[kk][0])(self.trial_circ[kk][1]+self.rot_loop[kk], 1+self.trial_circ[kk][2])
             
@@ -1086,9 +1094,9 @@ class varQITE:
             for ii in range(p-1, -1, -1):
                 getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
 
-            getattr(temp_circ, 'c'+self.hamil[i_index][1])(0,self.hamil[i_index][2]+1)
-
-
+            for theta in range(len(self.hamil[i_index])):
+                getattr(temp_circ, 'c'+self.hamil[i_index][theta][1])(0,self.hamil[i_index][theta][2]+1)
+         
         temp_circ.h(0)
         temp_circ.measure(0, 0)
         prediction=run_circuit(temp_circ)

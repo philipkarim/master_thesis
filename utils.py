@@ -388,7 +388,7 @@ def update_parameters(old_params, new_params):
     
     return old_params
 
-def getUtilityParameters(H, ansatz):
+def getUtilityParameters(ansatz):
     """
     Just doing some small caluclations that will show themselves usefull
     later on
@@ -411,4 +411,4 @@ def getUtilityParameters(H, ansatz):
     trace_indices=list(range(int((n_qubits_A+1)/2), n_qubits_A+1))
 
 
-    return  trace_indices, rotational_indices, n_qubits_A
+    return  trace_indices, rotational_indices
