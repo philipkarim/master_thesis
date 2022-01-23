@@ -131,7 +131,9 @@ else:
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                 ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
                 #[gate, value, qubit]
-    H1=        [[1., 'z', 0]]
+    #H1=        [[1., 'z', 0]]
+    H1=        [[[1., 'z', 0]]]
+
     params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
             ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
@@ -139,8 +141,14 @@ else:
             #[gate, value, qubit]
 
     #Write qk.z instead of str? then there is no need to use get.atr?
-    H2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-            [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+    #H2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+    #        [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+    
+    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+    
+    #H2=     [[[1., 'z', 0]], [[1., 'z', 1]], [[-0.2, 'z', 0]], 
+    #    [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
 
     """
@@ -447,7 +455,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -507,9 +515,16 @@ Next list:
     pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
 
     - Theta ZZ thing
+        -Fix optimization thing also
+        - update self.hamil
 
     - CV from scikit not ridge CV
 
     - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
     Why is loss still good after a run? Something isnt reset
+
+    Okay list of gates inside each list
+
+    for i in range(list):
+        loop through each list
 """

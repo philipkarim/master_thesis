@@ -150,7 +150,7 @@ class varQITE:
         #print(f'init omega{omega_w}')
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
-        lmbs=(np.array(self.hamil)[:, 0]).astype('float')
+        #lmbs=(np.array(self.hamil)[:, 0]).astype('float')
         #print(labels)
 
         A_mat=zeros_like(self.A_init, dtype='float')
@@ -743,6 +743,7 @@ class varQITE:
             c_term=self.run_C2(self.rot_indexes[i])
             
             #Multiplying with 0.5 due to the derivative factor
+            #TODO might be - 0.5 instead?
             C_vec_temp[i]=c_term*0.5
  
         return C_vec_temp
@@ -750,11 +751,10 @@ class varQITE:
     def run_C2(self, ind):
         
         #TODO: Put the params of H in a self.variable
-        lambda_l=(np.array(self.hamil)[:, 0]).astype('float')
         V_circ=encoding_circ('C', self.trial_qubits)
         
         sum_C=0
-        for l in range(len(lambda_l)):
+        for l in range(len(self.hamil)):
             if self.best==False:
                 #Does not work, but makes more sense
                 temp_circ=V_circ.copy()
@@ -762,8 +762,9 @@ class varQITE:
                 for i in range(len(self.trial_circ)):
                     getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
                 
-                #getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
-                getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
+                for theta in range(len(self.hamil[l])):
+                    getattr(temp_circ, 'c'+self.hamil[l][theta][1])(0,self.hamil[l][theta][2]+1)
+                
 
                 for ii in range(len(self.trial_circ)-1, ind-1, -1):
                     getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
@@ -788,13 +789,6 @@ class varQITE:
                 #getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
                 #temp_circ.x(0)
 
-                temp_circ.h(0)
-                temp_circ.measure(0, 0)
-
-                prediction=run_circuit(temp_circ)
-    
-                sum_C-=prediction*lambda_l[l]
-
             else:
                 temp_circ=V_circ.copy()
 
@@ -816,15 +810,15 @@ class varQITE:
 
                 #TODO: x gates?
                 #temp_circ.x(0)
-                getattr(temp_circ, 'c'+self.hamil[l][1])(0,self.hamil[l][2]+1)
+                for theta in range(len(self.hamil[l])):
+                    getattr(temp_circ, 'c'+self.hamil[l][theta][1])(0,self.hamil[l][theta][2]+1)
                 #temp_circ.x(0)
 
-                temp_circ.h(0)
-                temp_circ.measure(0, 0)
-
-                prediction=run_circuit(temp_circ)
-    
-                sum_C-=prediction*lambda_l[l]
+            temp_circ.h(0)
+            temp_circ.measure(0, 0)
+            prediction=run_circuit(temp_circ)
+            
+            sum_C-=prediction*self.hamil[l][0][0]
                 
             
         return sum_C
