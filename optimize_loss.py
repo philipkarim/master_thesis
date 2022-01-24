@@ -225,8 +225,9 @@ class optimize:
         
         return gradients
 
-    def gradient_ps(self, H, params, d_omega, steps=10):
-        d_omega=np.array(d_omega)
+    def gradient_ps(self, H, params, d_omega):
+        #TODO: added copy
+        d_omega=np.array(d_omega, copy=True)
         #print(self.H_qubit_states)
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
@@ -289,8 +290,9 @@ class optimize:
     def gradient_loss(self, data, p_QBM, w_k_sum2):
         #TODO: List or array, print these, numpy divide?
 
-        dL=data*w_k_sum2/p_QBM
-        #print(f'Divide this: {data*w_k_sum2} by {p_QBM}')
+        dL=data/p_QBM*w_k_sum2
+        print(f'data/p_QBM: {data/p_QBM}')
+        print(f'w_k_sum: {w_k_sum2}')
         #print(f'Which gives: {dL}')
         #print(f'dL ( before sum) {dL}')
         #print(f'dL (is all these the same?, sum wrong place?: ) {-np.sum(dL, axis=1).real.astype(float)}')

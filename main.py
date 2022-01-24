@@ -281,7 +281,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
         #print('Updating params..')
         #print(f'd_omega same? {d_omega}')
         #TODO: This is quiet high
-        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=n_steps)
+        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega)
         #print(f'gradient of qbm: {gradient_qbm}')
         gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
         print(f'gradient_loss: {gradient_loss}')
@@ -297,8 +297,8 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
         for ii in range(len(H)):
             H_coefficients[ii]=H[ii][0][0]
 
-        new_parameters=optim.adam(H_coefficients, gradient_loss)
         print(f'Old params: {H_coefficients}')
+        new_parameters=optim.adam(H_coefficients, gradient_loss)
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         print(f'New params {new_parameters}')
         #TODO: Try this
@@ -371,7 +371,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(1)
+    np.random.seed(2022)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
@@ -527,10 +527,6 @@ Next list:
     - CV from scikit not ridge CV
 
     - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
-    Why is loss still good after a run? Something isnt reset
+    Why is loss still good after a run? Something isnt reset, the gradient lacks after the run
 
-    Okay list of gates inside each list
-
-    for i in range(list):
-        loop through each list
 """
