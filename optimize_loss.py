@@ -1,11 +1,8 @@
-from numpy.lib.twodim_base import diagflat
-from varQITE import *
 from utils import *
 
 import copy
 import numpy as np
-import sys
-from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
+from qiskit.quantum_info import DensityMatrix, partial_trace
 
 class optimize:
     def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, circuit=None):
@@ -39,8 +36,8 @@ class optimize:
 
         return -loss
     # gradient descent algorithm with adam
-    #def adam(self, x, g, beta1=0.7, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
+    #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
+    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
 
         """
         I guess something like this should work?
@@ -59,7 +56,40 @@ class optimize:
         print(f'g: {g}')
         print(f'g^2: {g**2}')
 
-        print(f'Change in param: {np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+        print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+        
+        print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')
+
+        #TODO: Changed this from minus to plus
+        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+        
+        #Add 1 to the counter
+        self.t+=1
+
+        return x
+    
+    def amsgrad(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
+
+        """
+        I guess something like this should work?
+        
+        based on the following article:
+        https://machinelearningmastery.com/adam-optimization-from-scratch/
+        """
+        #Just using formulas from 
+        # https://ruder.io/optimizing-gradient-descent/index.html#adam
+        self.m = beta1 * self.m+ (1.0 - beta1) * g
+        self.v = beta2 * self.v + (1.0 - beta2) * g**2
+        mhat = self.m / (1.0 - beta1**(self.t))
+        vhat = self.v / (1.0 - beta2**(self.t))
+        print('____________ADAM optimizer___________')
+
+        print(f'g: {g}')
+        print(f'g^2: {g**2}')
+
+        print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+        
+        print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')
 
         #TODO: Changed this from minus to plus
         x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)

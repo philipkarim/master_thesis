@@ -234,7 +234,7 @@ else:
 
 
 
-def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.001, plot=True):
+def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, plot=True):
     print('------------------------------------------------------')
 
     loss_list=[]
@@ -350,19 +350,19 @@ Ham1=       [[1., 'z', 0]]
 
 p_data1=[0.8, 0.2]
 
+np.random.seed(2022)
 
-np.random.seed(123)
+#H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
+#HU_1=        [[H_U_1[0], 'z', 0]]
 
-H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
-HU_1=        [[H_U_1[0], 'z', 0]]
+H_U_2=np.random.uniform(low=-1.0, high=1.0, size=3)
 
-H_U_2=np.random.uniform(low=-1.0, high=1.0, size=4)
-HU_2=   [[H_U_2[0], 'z', 0], [H_U_2[1], 'z', 1], 
-        [H_U_2[2],'z', 0], [H_U_2[3], 'z', 1]]
+HU_2=[[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], 
+      [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
 
 #print(H_U_2)
 
-#train(HU_2, ansatz2, 10, p_data2, n_steps=10, lr=0.1)
+train(HU_2, ansatz2, 30, p_data2, n_steps=10, lr=0.1)
 
 #OMega isnt trained why?
 
@@ -461,7 +461,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(4, ansatz2, 5, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -529,4 +529,7 @@ Next list:
     
     - Check why they are the same depending on the coefficients in the gradient loop?
     - Find out what is pulling the predictions so high
+
+    - Check on the parameters of adam, maybe better with ridge?
+    - Implement amsgrad according to the article
 """
