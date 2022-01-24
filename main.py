@@ -528,5 +528,8 @@ Next list:
 
     - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
     Why is loss still good after a run? Something isnt reset, the gradient lacks after the run
-
+        - I think this is due to some running of the grads in the algorithm scheme maybe?
+        Try transposing it?
+    
+    - Check why they are the same depending on the coefficients
 """

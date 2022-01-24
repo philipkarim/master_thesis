@@ -291,8 +291,10 @@ class optimize:
         #TODO: List or array, print these, numpy divide?
 
         dL=data/p_QBM*w_k_sum2
+        grad=-np.sum(dL, axis=1).real.astype(float)
         print(f'data/p_QBM: {data/p_QBM}')
         print(f'w_k_sum: {w_k_sum2}')
+
         #print(f'Which gives: {dL}')
         #print(f'dL ( before sum) {dL}')
         #print(f'dL (is all these the same?, sum wrong place?: ) {-np.sum(dL, axis=1).real.astype(float)}')
