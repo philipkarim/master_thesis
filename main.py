@@ -520,10 +520,6 @@ Next list:
     - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
     pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
 
-    - Theta ZZ thing
-        -Fix optimization thing also
-        - update self.hamil
-
     - CV from scikit not ridge CV
 
     - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
@@ -531,5 +527,6 @@ Next list:
         - I think this is due to some running of the grads in the algorithm scheme maybe?
         Try transposing it?
     
-    - Check why they are the same depending on the coefficients
+    - Check why they are the same depending on the coefficients in the gradient loop?
+    - Find out what is pulling the predictions so high
 """
