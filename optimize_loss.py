@@ -1,3 +1,4 @@
+from this import d
 from utils import *
 
 import copy
@@ -5,7 +6,7 @@ import numpy as np
 from qiskit.quantum_info import DensityMatrix, partial_trace
 
 class optimize:
-    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, circuit=None):
+    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -20,10 +21,16 @@ class optimize:
         self.H_qubit_states=2**len(self.trace_list)
         self.learning_rate=learning_rate
         self.circuit=circuit
-        self.t=1 #or 1?    
+        self.t=0
         self.m = np.zeros(self.n_hamil_params).astype(float)
         self.v = np.zeros(self.n_hamil_params).astype(float)
 
+        self.method=method
+        
+        if self.method=='Amsgrad':
+            self.vhat= np.zeros(self.n_hamil_params).astype(float)
+
+            
     def cross_entropy_new(self, p_data,p_BM):
         """
         Loss function from article (2)
@@ -38,7 +45,6 @@ class optimize:
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
     def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
-
         """
         I guess something like this should work?
         
@@ -47,58 +53,29 @@ class optimize:
         """
         #Just using formulas from 
         # https://ruder.io/optimizing-gradient-descent/index.html#adam
-        self.m = beta1 * self.m+ (1.0 - beta1) * g
-        self.v = beta2 * self.v + (1.0 - beta2) * g**2
-        mhat = self.m / (1.0 - beta1**(self.t))
-        vhat = self.v / (1.0 - beta2**(self.t))
-        print('____________ADAM optimizer___________')
-
-        print(f'g: {g}')
-        print(f'g^2: {g**2}')
-
-        print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
-        
-        print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')
-
-        #TODO: Changed this from minus to plus
-        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
         
         #Add 1 to the counter
         self.t+=1
-
-        return x
-    
-    def amsgrad(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
-
-        """
-        I guess something like this should work?
-        
-        based on the following article:
-        https://machinelearningmastery.com/adam-optimization-from-scratch/
-        """
-        #Just using formulas from 
-        # https://ruder.io/optimizing-gradient-descent/index.html#adam
         self.m = beta1 * self.m+ (1.0 - beta1) * g
         self.v = beta2 * self.v + (1.0 - beta2) * g**2
         mhat = self.m / (1.0 - beta1**(self.t))
-        vhat = self.v / (1.0 - beta2**(self.t))
-        print('____________ADAM optimizer___________')
 
         print(f'g: {g}')
-        print(f'g^2: {g**2}')
-
-        print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
         
-        print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')
+        if self.method=='Amsgrad':
+            self.vhat=np.maximum(self.vhat, self.v)
+            x -= np.divide(self.learning_rate*mhat, np.sqrt(self.vhat) + eps)
+            print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(self.vhat) + eps)}')
+            print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(self.vhat)}') 
 
-        #TODO: Changed this from minus to plus
-        x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
-        
-        #Add 1 to the counter
-        self.t+=1
+        else:
+            vhat = self.v / (1.0 - beta2**(self.t))
+            x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+            print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+            print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')        
 
         return x
-    
+   
     def gradient_descent_gradient_done(self, params, gradient):
         """
         Gradient descent function.

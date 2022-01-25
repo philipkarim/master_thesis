@@ -234,7 +234,7 @@ else:
 
 
 
-def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, plot=True):
+def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, optim_method='Amsgrad', plot=True):
     print('------------------------------------------------------')
 
     loss_list=[]
@@ -244,11 +244,10 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, plot=True):
 
     #print(tracing_q, rotational_indices, n_qubits_ansatz)
 
-    optim=optimize(H, rotational_indices, tracing_q, learning_rate=lr) ##Do not call this each iteration, it will mess with the momentum
+    optim=optimize(H, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
     varqite_train=varQITE(H, ansatz, steps=n_steps)
     varqite_train.initialize_circuits()
-
 
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
@@ -350,7 +349,7 @@ Ham1=       [[1., 'z', 0]]
 
 p_data1=[0.8, 0.2]
 
-np.random.seed(2022)
+np.random.seed(2021)
 
 #H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
 #HU_1=        [[H_U_1[0], 'z', 0]]
@@ -529,7 +528,16 @@ Next list:
     
     - Check why they are the same depending on the coefficients in the gradient loop?
     - Find out what is pulling the predictions so high
+    - Normalizing the quantum gates between -1 and 1?
 
     - Check on the parameters of adam, maybe better with ridge?
-    - Implement amsgrad according to the article
+
+    -Params always same size, maybe try with amsgrad with + instead of minus in the x thing
+
+    - Thoughts: dA is quiet high, and the inverse have some values which are quiet low high
+
+    - Should probably normalize the shit
+    -Gå gjennom dA step by step og finn ut hvorfor den er drithøy
+
+    - Noe henger igjen som object fra tidligere
 """

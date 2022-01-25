@@ -419,6 +419,37 @@ class varQITE:
 
                     if ridge_inv==False:
                         w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
+                        if t==self.maxTime:
+                            print('Lets find out why the derivatives are so high:')
+
+                            print('A_inv:')
+                            print(A_inv)
+                            print('-----------------') 
+                            
+                            print('dA:')
+                            print(dA_mat)
+                            print('-----------------')
+
+                            print('fC_vec:')
+                            print(dC_vec)
+                            print('-----------------')
+
+                            print('omega:')
+                            print(omega_derivative_temp)
+                            print('-----------------')
+
+                            print('dA_mat@omega:')
+                            print(dA_mat@omega_derivative_temp)
+                            print('-----------------')
+                            
+                            print('dc- minus the thing over:')
+                            print(dC_vec-dA_mat@omega_derivative_temp)
+                            print('-----------------')
+
+                            print('A_inv(\cdot)')
+                            print(A_inv@(dC_vec-dA_mat@omega_derivative_temp))
+                            print('-----------------')
+                        
                     else:
                         I=np.eye(A_mat2.shape[1])
                         regr_cv_der = RidgeCV(alphas= np.logspace(-16, -2))
@@ -426,16 +457,9 @@ class varQITE:
                         model_cv_der = regr_cv_der.fit(A_mat2, y_target)
                         #This is better
                         #TODO: Add try/catch statement with inv/pinv?
+                        
                         w_dtheta_dt=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv_der.alpha_*I) @ A_mat2.T @ y_target
 
-
-
-                    #Now we compute the derivative of omega derivated with respect to
-                    #hamiltonian parameter
-                    #dA_mat_inv=np.inv(dA_mat)
-                    #print(dC_vec)
-                    #print(dA_mat)
-                    #print(w_dtheta_dt)
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
                     #print(f'w_dtheta: {w_dtheta_dt}')
 
@@ -831,7 +855,7 @@ class varQITE:
         for p in range(len(self.rot_indexes)):
             for q in range(len(self.rot_indexes)):
                 #TODO: - or +?
-                dA_mat_temp_i[p][q]=-12.5*self.run_dA(self.rot_indexes[p],self.rot_indexes[q], i_param)
+                dA_mat_temp_i[p][q]=self.run_dA(self.rot_indexes[p],self.rot_indexes[q], i_param)
 
         """
         #Lets try to remove the controlled gates
@@ -844,9 +868,8 @@ class varQITE:
                 
                 dA_mat_temp_i[p][q]=da_term
         """
-
-
-        return dA_mat_temp_i
+        #TODO: should be -
+        return dA_mat_temp_i*(-0.125)
     
     def run_dA(self, p_index, q_index, i_theta):
         #Compute one term in the dA matrix
@@ -954,7 +977,6 @@ class varQITE:
     def run_dC(self, p_index, i_theta):
         dCircuit_term_0=-0.5*self.dC_circ0(p_index, i_theta)
 
-        #TODO Continue here!
         sum_C_p=0
         for s in range(len(self.rot_indexes)):
             for i in range(len(self.hamil)):
@@ -963,14 +985,15 @@ class varQITE:
                 
                 ## TODO: Fix this, I dont know how dw should be computed
                 #TODO: Is the [0][0] correct?
-                temp_dw=self.hamil[i][0][0]*self.dwdth[i_theta][self.rot_indexes[s]]
+                temp_dw=np.copy(self.hamil[i][0][0]*self.dwdth[i_theta][self.rot_indexes[s]])
 
             #I guess the real and trace part automatically is computed 
             # in the cirquit.. or is it?
                 #+ or - is this what is wrong?
+                #TODO: Should be +
                 sum_C_p+=0.25*temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
-        return dCircuit_term_0-sum_C_p
+        return dCircuit_term_0+sum_C_p
 
     def dC_circ0(self, p, j):
         """
@@ -1102,7 +1125,6 @@ class varQITE:
         prediction=run_circuit(temp_circ)
 
         return prediction
-
 
     def last_try(self):
         A_mat_temp2=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
