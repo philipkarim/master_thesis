@@ -540,4 +540,7 @@ Next list:
     -Gå gjennom dA step by step og finn ut hvorfor den er drithøy
 
     - Noe henger igjen som object fra tidligere
+
+    - Try testing if the shit works correct now, remember to update qiskit
+    - Implement the correct shit
 """

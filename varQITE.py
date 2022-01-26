@@ -35,7 +35,7 @@ class varQITE:
             max_Time(float):    Maximum time value for the propagation
             steps(int):         timesteps of varQITE
         """
-        self.best=True
+        self.best=False
         self.hamil=hamil
         self.trial_circ=trial_circ
         self.maxTime=maxTime
@@ -390,7 +390,7 @@ class varQITE:
             #print(A_mat2)
             
             """Full matrix"""   
-            ridge_inv=False
+            ridge_inv=True
             if ridge_inv==False:
                 #TODO: Might be something wrong here?
                 #A_inv=np.linalg.pinv(A_mat2, rcond=1e-20, hermitian=False)
@@ -401,12 +401,13 @@ class varQITE:
                 omega_derivative_temp=A_inv@C_vec2
             else:
                 I=np.eye(A_mat2.shape[1])
-                regr_cv = RidgeCV(alphas= np.logspace(-16, -2))
+                regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
                 model_cv = regr_cv.fit(A_mat2, C_vec2)
                 #This is better
                 #TODO: Add try/catch statement with inv/pinv?
                 omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv.alpha_*I) @ A_mat2.T @ C_vec2
                 #omega_derivative_temp=regr_cv.coef_
+                
                 #print(f'best alpha: {model_cv.alpha_}')
 
                 #rr.fit(A_mat2, C_vec2) 
