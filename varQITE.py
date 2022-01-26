@@ -387,14 +387,14 @@ class varQITE:
             #print(A_mat2)
             
             """Full matrix"""   
-            ridge_inv=False
+            ridge_inv=True
             if ridge_inv==False:
                 #TODO: Might be something wrong here?
                 A_inv=np.linalg.pinv(A_mat2, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec2
             else:
                 I=np.eye(A_mat2.shape[1])
-                regr_cv = RidgeCV(alphas= np.logspace(-20, -2))
+                regr_cv = RidgeCV(alphas= np.logspace(-16, -2))
                 model_cv = regr_cv.fit(A_mat2, C_vec2)
                 #This is better
                 #TODO: Add try/catch statement with inv/pinv?
