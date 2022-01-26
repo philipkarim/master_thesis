@@ -543,4 +543,5 @@ Next list:
 
     - Try testing if the shit works correct now, remember to update qiskit
     - Implement the correct shit
+    -Use real ridge or CV, actually try using the real scikit or tensorflow ridge
 """
