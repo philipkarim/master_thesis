@@ -14,6 +14,9 @@ import itertools as it
 import time
 import copy
 
+import scipy as sp
+
+
 #from pathos.pools import ProcessPool
 
 #from numba import jit
@@ -387,9 +390,13 @@ class varQITE:
             #print(A_mat2)
             
             """Full matrix"""   
-            ridge_inv=True
+            ridge_inv=False
             if ridge_inv==False:
                 #TODO: Might be something wrong here?
+                #A_inv=np.linalg.pinv(A_mat2, rcond=1e-20, hermitian=False)
+
+                #Try the real circuits
+
                 A_inv=np.linalg.pinv(A_mat2, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec2
             else:
