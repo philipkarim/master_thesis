@@ -401,6 +401,9 @@ class varQITE:
                 omega_derivative_temp=A_inv@C_vec2
             else:
                 I=np.eye(A_mat2.shape[1])
+                #print(A_mat2)
+                #regr_cv = RidgeCV(alphas= np.linspace(10**(-15), 10, 1000))
+
                 regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
                 model_cv = regr_cv.fit(A_mat2, C_vec2)
                 #This is better
@@ -460,7 +463,7 @@ class varQITE:
                         
                     else:
                         I=np.eye(A_mat2.shape[1])
-                        regr_cv_der = RidgeCV(alphas= np.logspace(-16, -2))
+                        regr_cv_der = RidgeCV(alphas= np.logspace(-4, 4))
                         y_target=dC_vec-dA_mat@omega_derivative_temp
                         model_cv_der = regr_cv_der.fit(A_mat2, y_target)
                         #This is better
