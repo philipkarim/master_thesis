@@ -372,7 +372,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(10)
+    np.random.seed(2022)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
@@ -462,7 +462,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.01, steps=10)
+multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -543,8 +543,16 @@ Next list:
 
     - Noe henger igjen som object fra tidligere
 
-    - Try testing if the shit works correct now, remember to update qiskit
-    - Implement the correct shit
-    -Use real ridge or CV, actually try using the real scikit or tensorflow ridge
-    -gradient doesnt change by small values when the gradient is small, try with gradient descent
+    Dagens oppgaver:
+    - Plotte fidelity som time
+        15.45
+    - Use real ridge or CV, actually try using the real scikit or tensorflow ridge
+        16.15
+    - Undersøke gradient implementasjonsmetodene
+        16.45
+    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporte
+        17.30
+    - Lage init kretser
+        -Iløpet av kvelden
+
 """
