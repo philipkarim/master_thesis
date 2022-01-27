@@ -71,7 +71,7 @@ class varQITE:
             self.alpha=alpha
         else:
             #0.0005 is good with Lasso
-            self.alpha=0.0005
+            self.alpha=0.001
 
     
     def initialize_circuits(self):
@@ -426,7 +426,7 @@ class varQITE:
                 #pred_train_rr= rr.predict(A_mat2)
                 else:
                     #alpha=0.001=best
-                    clf = Lasso(alpha=self.alpha)
+                    clf = Ridge(alpha=self.alpha)
                     clf.fit(A_mat2, C_vec2)
                     omega_derivative_temp=clf.coef_
 
