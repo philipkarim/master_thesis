@@ -33,6 +33,10 @@ random.seed(2021)
 
 both=True
 
+plot_fidelity=True
+
+
+
 if both==False:
     Hamiltonian=2
     p_data=np.array([0.12, 0.88])
@@ -124,8 +128,8 @@ if both==False:
         H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
 
         print(f'Fidelity: {H_fidelity}')
-#elif both==True:
-#    pass
+elif both==True:
+    pass
 
 else:
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -462,7 +466,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -556,3 +560,135 @@ Next list:
         -Iløpet av kvelden
 
 """
+
+
+
+def plot_fidelity(n_steps, name=None):
+    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+    H1=        [[[1., 'z', 0]]]
+
+    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+
+    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+    
+    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
+    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
+                            [-0.06, 0.43, 0.02, -0.05], 
+                            [-0.06, 0.02, 0.43, -0.05], 
+                            [0.01, -0.05, -0.05, 0.05]])
+
+    fidelities1_list=[]
+    fidelities2_list=[]
+
+    print('VarQite 1')
+    varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
+    varqite1.initialize_circuits()
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    list_omegas_fielity1=varqite1.fidelity_omega_list()
+    
+    for i in range(len(list_omegas_fielity1)):
+        params1=update_parameters(params1, list_omegas_fielity1[i])
+        trace_circ1=create_initialstate(params1)
+        DM1=DensityMatrix.from_instruction(trace_circ1)
+        PT1 =partial_trace(DM1,[1])
+        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
+
+    print('VarQite 2')
+    varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
+    varqite2.initialize_circuits()
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    list_omegas_fielity2=varqite2.fidelity_omega_list()    
+    
+    for j in range(len(list_omegas_fielity2)):
+        params2=update_parameters(params2, list_omegas_fielity2[j])
+        trace_circ2=create_initialstate(params2)
+        DM2=DensityMatrix.from_instruction(trace_circ2)
+        PT2 =partial_trace(DM2,[2,3])
+        fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
+
+    print(f'H1: {fidelities1_list[-1]}, H2: {fidelities2_list[-1]}')
+
+    plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
+    plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+    plt.xlabel('Step')
+    plt.ylabel('Fidelity')
+    plt.legend()
+
+    if name!=None:
+        plt.savefig('results/fidelity/'+name+'.png')
+    else:
+        plt.show()
+
+    return
+
+plot_fidelity(10)#, 'fidelity_H1_H2')
+
+
+def find_best_alpha(n_steps, alpha_space, name=None):
+    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+    H1=        [[[1., 'z', 0]]]
+
+    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+
+    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+    
+    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
+    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
+                            [-0.06, 0.43, 0.02, -0.05], 
+                            [-0.06, 0.02, 0.43, -0.05], 
+                            [0.01, -0.05, -0.05, 0.05]])
+
+    fidelities1_list=[]
+    fidelities2_list=[]
+
+    for i in alpha_space:
+        varqite1=varQITE(H1, params1, steps=n_steps, alpha=i)
+        varqite1.initialize_circuits()
+        omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    
+        params1=update_parameters(params1, omega1)
+        trace_circ1=create_initialstate(params1)
+        DM1=DensityMatrix.from_instruction(trace_circ1)
+        PT1 =partial_trace(DM1,[1])
+        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
+
+        varqite2=varQITE(H2, params2, steps=n_steps, alpha=i)
+        varqite2.initialize_circuits()
+        omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    
+        params2=update_parameters(params2, omega2)
+        trace_circ2=create_initialstate(params2)
+        DM2=DensityMatrix.from_instruction(trace_circ2)
+        PT2 =partial_trace(DM2,[2,3])
+        fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
+
+    max_index1 = fidelities1_list.index(max(fidelities1_list))
+    max_index2 = fidelities2_list.index(max(fidelities2_list))
+    print(fidelities1_list)
+    print(fidelities2_list)
+    print(f'H1, lambda max: {alpha_space[max_index1]}, H2: {alpha_space[max_index2]}')
+
+    plt.plot(alpha_space,fidelities1_list, label='H1')
+    plt.plot(alpha_space,fidelities2_list, label='H2')
+    plt.xlabel(r'$\lambda$')
+    plt.ylabel('Fidelity')
+    plt.legend()
+
+    if name!=None:
+        plt.savefig('results/fidelity/'+name+'.png')
+    else:
+        plt.show()
+
+    return
+
+#find_best_alpha(10, np.logspace(-4,1,5))

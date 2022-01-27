@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.core.numeric import zeros_like
 
-from sklearn.linear_model import Ridge, RidgeCV
+from sklearn.linear_model import Ridge, RidgeCV, Lasso
 
 from qiskit.circuit import ParameterVector
 
@@ -24,7 +24,7 @@ import scipy as sp
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -62,6 +62,16 @@ class varQITE:
         self.rot_indexes=np.array(rotational_indices1, dtype=int)
         #print(f'rot_indexes: {self.rot_indexes}')
         self.trial_qubits=n_qubits_params1
+
+        self.plot_fidelity=plot_fidelity
+        if self.plot_fidelity==True:
+            self.plot_fidelity_list=[]
+
+        if alpha!=None:
+            self.alpha=alpha
+        else:
+            #0.0005 is good with Lasso
+            self.alpha=0.001
 
     
     def initialize_circuits(self):
@@ -391,30 +401,34 @@ class varQITE:
             
             """Full matrix"""   
             ridge_inv=True
+            CV=False
             if ridge_inv==False:
                 #TODO: Might be something wrong here?
                 #A_inv=np.linalg.pinv(A_mat2, rcond=1e-20, hermitian=False)
 
                 #Try the real circuits
-
                 A_inv=np.linalg.pinv(A_mat2, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec2
             else:
-                I=np.eye(A_mat2.shape[1])
-                #print(A_mat2)
-                #regr_cv = RidgeCV(alphas= np.linspace(10**(-15), 10, 1000))
+                if CV==True:
+                    I=np.eye(A_mat2.shape[1])
+                    #print(A_mat2)
+                    #regr_cv = RidgeCV(alphas= np.linspace(10**(-15), 10, 1000))
 
-                regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
-                model_cv = regr_cv.fit(A_mat2, C_vec2)
-                #This is better
-                #TODO: Add try/catch statement with inv/pinv?
-                omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv.alpha_*I) @ A_mat2.T @ C_vec2
-                #omega_derivative_temp=regr_cv.coef_
-                
+                    regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
+                    model_cv = regr_cv.fit(A_mat2, C_vec2)
+                    #This is better
+                    #TODO: Add try/catch statement with inv/pinv?
+                    omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv.alpha_*I) @ A_mat2.T @ C_vec2
+                    #omega_derivative_temp=regr_cv.coef_
                 #print(f'best alpha: {model_cv.alpha_}')
-
                 #rr.fit(A_mat2, C_vec2) 
                 #pred_train_rr= rr.predict(A_mat2)
+                else:
+                    #alpha=0.001=best
+                    clf = Lasso(alpha=self.alpha)
+                    clf.fit(A_mat2, C_vec2)
+                    omega_derivative_temp=clf.coef_
 
             omega_derivative=np.zeros(len(self.trial_circ))
             omega_derivative[self.rot_indexes]=omega_derivative_temp
@@ -476,6 +490,10 @@ class varQITE:
 
             #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
+            
+            if self.plot_fidelity==True:
+                #print(omega_w)
+                self.plot_fidelity_list.append(np.copy(omega_w))
             #print(omega_w)
 
             #print(f'omega after step {omega_w}')
@@ -1154,3 +1172,7 @@ class varQITE:
 
 
         return A_mat_temp2, C_vec_temp2
+    
+    def fidelity_omega_list(self):
+        return self.plot_fidelity_list
+
