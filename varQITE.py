@@ -71,7 +71,7 @@ class varQITE:
             self.alpha=alpha
         else:
             #0.0005 is good with Lasso
-            self.alpha=0.001
+            self.alpha=1e-20
 
     
     def initialize_circuits(self):
@@ -416,12 +416,18 @@ class varQITE:
                     #regr_cv = RidgeCV(alphas= np.linspace(10**(-15), 10, 1000))
 
                     regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
-                    model_cv = regr_cv.fit(A_mat2, C_vec2)
+                    regr_cv.fit(A_mat2, C_vec2)
                     #This is better
                     #TODO: Add try/catch statement with inv/pinv?
-                    omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv.alpha_*I) @ A_mat2.T @ C_vec2
+                    omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + regr_cv.alpha_*I) @ A_mat2.T @ C_vec2
+                    
+
                     #omega_derivative_temp=regr_cv.coef_
-                #print(f'best alpha: {model_cv.alpha_}')
+
+                    #omega_derivative_temp=regr_cv.coef_
+                    #print(f'best alpha: {regr_cv.alpha_}')
+
+
                 #rr.fit(A_mat2, C_vec2) 
                 #pred_train_rr= rr.predict(A_mat2)
                 else:

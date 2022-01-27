@@ -548,11 +548,6 @@ Next list:
     - Noe henger igjen som object fra tidligere
 
     Dagens oppgaver:
-    - Plotte fidelity som time
-        15.45
-    - Use real ridge or CV, actually try using the real scikit or tensorflow ridge
-        16.15
-    - Should use method resampling methods, which gives the best answers, CV? 
     - Undersøke gradient implementasjonsmetodene
         16.45
     - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporte
