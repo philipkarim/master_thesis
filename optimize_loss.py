@@ -44,7 +44,7 @@ class optimize:
         return -loss
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
+    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
         """
         I guess something like this should work?
         
@@ -87,6 +87,9 @@ class optimize:
                 samples:    Samples reprenting the true labels and 
                             predictions. (2D Matrix)
         """
+
+        print(f'gradient {gradient}')
+        print(f'change in gradient: {self.learning_rate*gradient}')
         params-=self.learning_rate*gradient
         return params
     

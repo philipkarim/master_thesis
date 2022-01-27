@@ -297,7 +297,9 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, optim_method='Amsgra
             H_coefficients[ii]=H[ii][0][0]
 
         print(f'Old params: {H_coefficients}')
-        new_parameters=optim.adam(H_coefficients, gradient_loss)
+        #new_parameters=optim.adam(H_coefficients, gradient_loss)
+        new_parameters=optim.gradient_descent_gradient_done(H_coefficients, gradient_loss)
+
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         print(f'New params {new_parameters}')
         #TODO: Try this
@@ -544,4 +546,5 @@ Next list:
     - Try testing if the shit works correct now, remember to update qiskit
     - Implement the correct shit
     -Use real ridge or CV, actually try using the real scikit or tensorflow ridge
+    -gradient doesnt change by small values when the gradient is small, try with gradient descent
 """
