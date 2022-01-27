@@ -609,8 +609,8 @@ def plot_fidelity(n_steps, name=None):
 
     print(f'H1: {fidelities1_list[-1]}, H2: {fidelities2_list[-1]}')
 
-    plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
-    plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+    plt.plot(list(range(0, len(fidelities1_list))),np.array(fidelities1_list)/np.max(np.array(fidelities1_list)), label='H1')
+    plt.plot(list(range(0, len(fidelities2_list))),np.array(fidelities2_list)/np.max(np.array(fidelities2_list)), label='H2')
     plt.xlabel('Step')
     plt.ylabel('Fidelity')
     plt.legend()
@@ -622,7 +622,7 @@ def plot_fidelity(n_steps, name=None):
 
     return
 
-plot_fidelity(10)#, 'fidelity_H1_H2')
+plot_fidelity(10, 'fidelity_H1_H2')
 
 
 def find_best_alpha(n_steps, alpha_space, name=None):
