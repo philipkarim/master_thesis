@@ -71,7 +71,7 @@ class varQITE:
             self.alpha=alpha
         else:
             #0.0005 is good with Lasso
-            self.alpha=0.001
+            self.alpha=0.0005
 
     
     def initialize_circuits(self):

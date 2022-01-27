@@ -552,6 +552,7 @@ Next list:
         15.45
     - Use real ridge or CV, actually try using the real scikit or tensorflow ridge
         16.15
+    - Should use method resampling methods, which gives the best answers, CV? 
     - Undersøke gradient implementasjonsmetodene
         16.45
     - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporte
