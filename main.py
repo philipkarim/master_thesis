@@ -548,8 +548,6 @@ Next list:
     - Noe henger igjen som object fra tidligere
 
     Dagens oppgaver:
-    - Fikse lambda med 0.01 av minste verdien langs diag?
-        18.00
     - Undersøke gradient implementasjonsmetodene funker
         Tror det er noe feil med implementasjonen av de to siste coeffisientene
         18.45
@@ -602,7 +600,7 @@ def plot_fidelity(n_steps, name=None):
         trace_circ1=create_initialstate(params1)
         DM1=DensityMatrix.from_instruction(trace_circ1)
         PT1 =partial_trace(DM1,[1])
-        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
+        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=True))
 
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
@@ -619,13 +617,12 @@ def plot_fidelity(n_steps, name=None):
 
     print(f'H1: {fidelities1_list[-1]}, H2: {fidelities2_list[-1]}')
 
-    #plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
-    #plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+    plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
+    plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
     
-    plt.scatter(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
-    plt.scatter(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
-    #plt.plot(list(range(0, len(fidelities1_list))),np.array(fidelities1_list)/np.max(np.array(fidelities1_list)), label='H1')
-    #plt.plot(list(range(0, len(fidelities2_list))),np.array(fidelities2_list)/np.max(np.array(fidelities2_list)), label='H2')
+    #plt.scatter(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
+    #plt.scatter(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+   
     plt.xlabel('Step')
     plt.ylabel('Fidelity')
     plt.legend()
@@ -637,7 +634,7 @@ def plot_fidelity(n_steps, name=None):
 
     return
 
-plot_fidelity(10, 'fidelity_H1_H2_0_001minC_dots')
+plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
 
 
 def find_best_alpha(n_steps, alpha_space, name=None):

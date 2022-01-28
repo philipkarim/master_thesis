@@ -414,4 +414,45 @@ def getUtilityParameters(ansatz):
     return  trace_indices, rotational_indices
 
 
-#fidelity_own(A,B)
+def fidelity_own(A, B, validate=True):
+    """
+    Calculates the fidelity (pseudo-metric) between two density matrices.
+    See: Nielsen & Chuang, "Quantum Computation and Quantum Information"
+
+    Parameters
+    ----------
+    A : qobj
+        Density matrix or state vector.
+    B : qobj
+        Density matrix or state vector with same dimensions as A.
+
+    Returns
+    -------
+    fid : float
+        Fidelity pseudo-metric between A and B.
+
+    Examples
+    --------
+    >>> x = fock_dm(5,3)
+    >>> y = coherent_dm(5,1)
+    >>> fidelity(x,y)
+    0.24104350624628332
+
+    """
+    #print(A)
+    #print(B)
+    sqrtmA = np.sqrt(A)
+
+    #if sqrtmA.dims != B.dims:
+    #    raise TypeError('Density matrices do not have same dimensions.')
+
+    # We don't actually need the whole matrix here, just the trace
+    # of its square root, so let's just get its eigenenergies instead.
+    # We also truncate negative eigenvalues to avoid nan propagation;
+    # even for positive semidefinite matrices, small negative eigenvalues
+    # can be reported.
+    temp_term= np.sqrt(sqrtmA * B * sqrtmA)
+
+
+    
+    return float(np.trace(temp_term)**2)
