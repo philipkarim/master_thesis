@@ -159,291 +159,55 @@ class varQITE:
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
-        omega_w=copy.deepcopy((np.array(self.trial_circ)[:, 1]).astype('float'))
+        omega_w=np.array(self.trial_circ)[:, 1].astype('float')
 
-        #print(f'init omega{omega_w}')
+        omega_derivative=np.zeros(len(self.trial_circ))
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
-        #lmbs=(np.array(self.hamil)[:, 0]).astype('float')
-        #print(labels)
-
         A_mat=zeros_like(self.A_init, dtype='float')
         C_vec=zeros_like(self.rot_indexes, dtype='float')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
-            
-            #Fills a list of quantum circuits and binds values to them while at it 
-            #qc_list_A=[]
-            #qc_list_C=[]
-            labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
-            
 
             #Expression A: Binds the parameters to the circuits
             for i_a in range(len(self.rot_indexes)):
                 for j_a in range(len(self.rot_indexes)):
                     #Just the circuits
-                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters(labels[:len(self.A_init[i_a][j_a].parameters)]))
+                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters(omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]))
             
-
             A_mat*=0.25
 
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
-                    C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].bind_parameters(labels[:len(self.C_init[i_c][j_c].parameters)]))
-                    #print(self.C_init[i_c][j_c])
-                    #print(self.C_init[i_c][j_c].bind_parameters(labels[:len(self.C_init[i_c][j_c].parameters)]))
-            #exit()
+                    C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].\
+                    bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]))
 
             C_vec*=-0.5
-
-
-            """
-            #Expression A: Running circuits produced above,  this can most certainly be done in parallel
-            counter=0
-            for i in range(len(self.rot_indexes)):
-                for j in range(len(self.rot_indexes)):
-                    #A_mat[i][j]=matrix_values[counter]*0.25
-                    A_mat[i][j]=run_circuit(qc_list_A[counter])
-                    counter+=1
-            A_mat*=0.25
-            """
-            #Expression C: Binds the parameters to the circuits
-            """
-            counter_C=0
-            for i in range(len(self.hamil)):
-                for j in range(len(self.rot_indexes)):
-                    #Just the circuits
-                    qc_list_C.append(self.C_init[i][j].bind_parameters(labels[len(self.rot_indexes):len(self.C_init[i][j].parameters):-1]))
-                    counter_C+=1
-                    #n_rotations=len(self.A_init[i][j].parameters)
-                    #print('-------------')
-                    #print(self.A_init[i][j])
-                    #print(len(self.A_init[i][j].parameters), i, j)
             
-            
-                    
-                    They produces the same circuits
-                    trash, circ=self.run_A2(self.rot_indexes[i],self.rot_indexes[j])
-                    print(i,j,Statevector.from_instruction(self.A_init[i][j].bind_parameters(\
-                    labels[:len(self.A_init[i][j].parameters)])).equiv(Statevector.from_instruction(circ)))
-            """
-
-                    #print(i,j, counter2)
-                    #print(qc_list[0]==circ)
-                    #print(labels[:len(self.A_init[i][j].parameters)])
-
-            #print(qc_list[0])
-            #print(circ)
-
-
-            #print(qc_list[0])
-            #exit()
-            #print(f'qc_list length {len(qc_list)}')
-            #print(run_circuit(qc_list[0]))
-
-            #matrix_values=run_circuit(qc_list, multiple_circuits=True)
-            #print(f' Values from the matrix{matrix_values}')
-            
-           
-
-            """
-            #Expression C: Running circuits produced above
-            counter2_C=0
-            for i in range(len(self.hamil)):
-                for j in range(len(self.rot_indexes)):
-                    #A_mat[i][j]=matrix_values[counter]*0.25
-                    C_vec[j]+=run_circuit(qc_list_C[counter2_C])
-                    counter2_C+=1
-            C_vec*=0.5
-            """
-
-
-            """
-            A_mat2=np.copy(self.get_A2())
-            print(f'Matrix 1: {A_mat}')
-            print(f'MAtrix 2: {A_mat2}')
-
-            print(f'Is the matrices same?: {np.all(A_mat==A_mat2)}')
-            A2_inv=np.linalg.pinv(A_mat2, hermitian=False)
-            print(f'inverted matrix 2: {A2_inv}')
-            A_inv=np.linalg.pinv(A_mat, hermitian=False)
-            print('inverted matrix 1: {A_inv}')
-            """
-            
-            #testing=self.run_A2(11, 11)
-
-            #exit()
-            #print(A_mat)        
-            
-
-            #A_mat2=A_mat
-            #print(A_mat2)
-            #print('----')
-            #print(A_mat)
-
-            #A_mat2=A_mat
-            """Basicly the same matrices"""
-            #print(np.all(A_mat2==A_mat))
-
-            #exit()
-            """
-            #TODO fix this, always same values, does not get updated
-            if len(omega_w)>8:
-                print(omega_w[2],omega_w[3], omega_w[7])
-            """
-
-            #exit()
-            #end_mat=time.time()
-            
-            #print(A_mat2)
-            A_mat2=A_mat
-            C_vec2=C_vec
-            #A_mat2=np.copy(self.get_A2())
-            #C_vec2=np.copy(self.get_C2())
-           
-            #C_vec2=C_vec
-            #A_mat2, C_vec2=self.last_try()
-            #print(A_mat2)
-            #print(C_vec2)
-            """
-            if i want to use this:   
-                #A_mat_test=(self.A_init)
-                #C_vec_test=self.C_init.copy()
-                #Remember to multiply with (0+0.5j)*(0-0.5j)
-                circ=[]
-                start_loop=time.time()
-                for ii in range(len(A_mat_test)):
-                    for jj in range(len(A_mat_test[0])):
-                        circ_test=A_mat_test[ii][jj]
-                        
-                        if circ_test!=None:
-                            n_rotations=len(circ_test.parameters)
-                            circ_test=circ_test.bind_parameters(labels[:n_rotations])
-                            circ.append(circ_test)
-                            circ_pred=run_circuit(circ_test)
-                            A_mat_test[ii][jj]=circ_pred*0.25
-                        else:
-                            A_mat_test[ii][jj]=0.
-                end_loop=time.time()
-                #print(f'old mat {end_mat-start_mat}')
-                #print(f'loop {end_loop-start_loop}')
-
-
-                circ_pred=0
-
-                for ii in range(len(C_vec_test)):
-                    circ_test=C_vec_test[ii]
-                    gate=self.trial_circ[ii][0]
-                    if gate== 'cx' or gate == 'cy' or gate == 'cz':
-                        C_vec_test[ii]=0
-                    else:
-                        for jj in range(len(C_vec_test[ii])):
-        
-                            temp_list=[]
-
-                            n_rotations=len(circ_test[jj].parameters)
-                            circ_test[jj]=circ_test[jj].bind_parameters(labels[:n_rotations])
-                            #Just appending for option to run paralell circuits
-                            temp_list.append(circ_test[jj])
-                            #print(f'lambda is {self.hamil[:0][self.C_lmb_index[ii]]}')
-                            circ_pred=run_circuit(circ_test[jj])
-
-                            C_vec_test[ii]=circ_pred*0.5*lmbs[self.C_lmb_index[ii][jj]]
-                        #else:
-                                #C_vec_test[ii]=0.
-                            
-                            circ.append(temp_list)
-
-                Just do it the old way, make it work and optimize later
-                #print(A_mat2)
-                print(C_vec2)
-                C_vec2_2=np.zeros(len(self.trial_circ))
-                C_vec2_2[self.rot_indexes]=C_vec_test
-                print(C_vec2)
-                print(C_vec2_2)
-                print(np.all(C_vec2==C_vec2_2))     
-
-                C_vec2=C_vec2_2
-            """
-            #C_small=np.zeros(len(self.rot_indexes))
-            #C_small=C_vec2[self.rot_indexes]
-            #print(C_small)
-
-            #A_small=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
-            #for i in range(len(self.rot_indexes)):
-            #print(A_mat2[self.rot_indexes][self.rot_indexes])
-
-            #A_small=A_mat2[self.rot_indexes][self.rot_indexes]
-
-            #for i in range(len(self.rot_indexes)):
-            #    for j in range(len(self.rot_indexes)):
-            #        A_small[i][j]=A_mat2[self.rot_indexes[i]][self.rot_indexes[j]]
-
-            #print(A_small)
-
-
-
-            #print(self.rot_indexes)
-            #exit()
-            #print(A_mat2)
-            #print(C_vec2)
-            #Kan bruke Ridge regression på den inverterte
-            #print(C_vec2)
-            #print(A_mat2)
-            
-            """Full matrix"""   
             ridge_inv=True
             CV=False
             if ridge_inv==False:
-                #TODO: Might be something wrong here?
-                #A_inv=np.linalg.pinv(A_mat2, rcond=1e-20, hermitian=False)
-
-                #Try the real circuits
-                A_inv=np.linalg.pinv(A_mat2, hermitian=False)
-                omega_derivative_temp=A_inv@C_vec2
+                A_inv=np.linalg.pinv(A_mat, hermitian=False)
+                omega_derivative_temp=A_inv@C_vec
             else:
                 if CV==True:
-                    I=np.eye(A_mat2.shape[1])
-                    #print(A_mat2)
-                    #regr_cv = RidgeCV(alphas= np.linspace(10**(-15), 10, 1000))
-
+                    I=np.eye(A_mat.shape[1])
                     regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
-                    regr_cv.fit(A_mat2, C_vec2)
-                    #This is better
-                    #TODO: Add try/catch statement with inv/pinv?
-                    omega_derivative_temp=np.linalg.inv(A_mat2.T @ A_mat2 + regr_cv.alpha_*I) @ A_mat2.T @ C_vec2
-                    
+                    regr_cv.fit(A_mat, C_vec)
+                    omega_derivative_temp=np.linalg.inv(A_mat.T @ A_mat + regr_cv.alpha_*I) @ A_mat.T @ C_vec
 
-                    #omega_derivative_temp=regr_cv.coef_
-
-                    #omega_derivative_temp=regr_cv.coef_
-                    #print(f'best alpha: {regr_cv.alpha_}')
-
-
-                #rr.fit(A_mat2, C_vec2) 
-                #pred_train_rr= rr.predict(A_mat2)
                 else:
-                    #alpha=0.001=best
-                    #print(f'A: {A_mat2}')
-                    #print(f'C: {C_vec2}')
-                    #print(f'max element of A: {np.max(np.diag(A_mat2))}, max of C: {C_vec2}')
-                    #clf = Ridge(alpha=self.alpha)
-                    #clf = Ridge(alpha=np.max(np.diag(A_mat2))*0.01)
-                    print(abs(np.min(C_vec2))*0.001)
-                    clf = Ridge(alpha=abs(np.min(C_vec2))*0.001)
-                    
-                    clf.fit(A_mat2, C_vec2)
-                    omega_derivative_temp=clf.coef_
+                    #print(abs(np.min(C_vec))*0.001)
+                    model_R = Ridge(alpha=abs(np.min(C_vec))*0.001)
+                    model_R.fit(A_mat, C_vec)
+                    #TODO: Deep copy coeff?
+                    omega_derivative_temp=model_R.coef_
 
-            omega_derivative=np.zeros(len(self.trial_circ))
             omega_derivative[self.rot_indexes]=omega_derivative_temp
-            #print(f'Is this large also? {omega_derivative_temp}')
-
+            
             if gradient_stateprep==False:
-                #print("This loop takes some time to complete")
                 for i in range(len(self.hamil)):
-                    #Compute the expression of the derivative
                     #TODO: Deep copy takes a lot of time, fix this
                     dA_mat=np.copy(self.get_dA(i))
                     dC_vec=np.copy(self.get_dC(i))
@@ -482,19 +246,11 @@ class varQITE:
                             print('-----------------')
                         
                     else:
-                        """
-                        I=np.eye(A_mat2.shape[1])
-                        regr_cv_der = RidgeCV(alphas= np.logspace(-4, 4))
-                        y_target=dC_vec-dA_mat@omega_derivative_temp
-                        model_cv_der = regr_cv_der.fit(A_mat2, y_target)
-                        #This is better
-                        #TODO: Add try/catch statement with inv/pinv?
-                        
-                        w_dtheta_dt=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv_der.alpha_*I) @ A_mat2.T @ y_target
-                        """
-                        clf_d = Ridge(alpha=self.alpha)
-                        clf_d.fit(A_mat2, C_vec2)
-                        w_dtheta_dt=clf_d.coef_
+                        print(f'lambda in dc= {abs(np.min(rh_side))*0.001}')
+                        rh_side=dC_vec-dA_mat@omega_derivative_temp
+                        model_dR = Ridge(alpha=abs(np.min(rh_side))*0.001)
+                        model_dR.fit(A_mat, rh_side)
+                        w_dtheta_dt=model_dR.coef_
 
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
                     #print(f'w_dtheta: {w_dtheta_dt}')
@@ -513,6 +269,7 @@ class varQITE:
             #Update parameters
             #print(self.trial_circ)
             #print(omega_w)
+            #TODO: do I change this multiple times?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
             #print(self.trial_circ)
             #exit()
