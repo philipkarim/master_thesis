@@ -482,6 +482,7 @@ class varQITE:
                             print('-----------------')
                         
                     else:
+                        """
                         I=np.eye(A_mat2.shape[1])
                         regr_cv_der = RidgeCV(alphas= np.logspace(-4, 4))
                         y_target=dC_vec-dA_mat@omega_derivative_temp
@@ -490,6 +491,10 @@ class varQITE:
                         #TODO: Add try/catch statement with inv/pinv?
                         
                         w_dtheta_dt=np.linalg.inv(A_mat2.T @ A_mat2 + model_cv_der.alpha_*I) @ A_mat2.T @ y_target
+                        """
+                        clf_d = Ridge(alpha=self.alpha)
+                        clf_d.fit(A_mat2, C_vec2)
+                        w_dtheta_dt=clf_d.coef_
 
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
                     #print(f'w_dtheta: {w_dtheta_dt}')
