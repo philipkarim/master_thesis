@@ -104,15 +104,15 @@ class varQITE:
         """
 
         #hamiltonian_params=np.array(self.hamil)[:, 0].astype('float')
-        """
+        
         C_circ= np.empty(shape=(len(self.hamil),len(self.rot_indexes)), dtype=object)
         
         #Assuming there is only one circ per i,j, due to r? only having 1 element in f
         for i in range(len(self.hamil)):
             for j in range(len(self.rot_indexes)):
                 #Just the circuits
-                C_circ[i][j]=self.init_C(i, self.rot_indexes[i])
-        """
+                C_circ[i][j]=self.init_C(self.hamil[i], self.rot_indexes[j])
+        
         """
         Creating circ C
         """
@@ -149,7 +149,7 @@ class varQITE:
         #print(np.where(C_vec==0.075732421875))
 
         self.A_init=A_circ
-        #self.C_init=C_circ
+        self.C_init=C_circ
         #self.C_lmb_index=C_lmb
 
         #return A_circ, C_vec #, dA_circ, dc_circ
@@ -168,45 +168,46 @@ class varQITE:
         #print(labels)
 
         A_mat=zeros_like(self.A_init, dtype='float')
-        #C_vec=zeros_like(self.rot_indexes, dtype='float')
+        C_vec=zeros_like(self.rot_indexes, dtype='float')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
             
-            #start_mat=time.time()
-            #print(self.A_init[0][3])
-            #print(len(self.A_init[0][3].parameters))
-            #n_rotations=len(self.A_init[0][3].parameters)
-            #circ_test=self.A_init.tolist()
-            #print(type(circ_test))
-            #print(type(circ_test.tolist()))
-            #circ_test=self.A_init[0][3].bind_parameters([1,1,1])
-
-            #circ_test=circ_test.bind_parameters(labels[:n_rotations])
-            #print(circ_test)
-            #print(self.A_init[0][3])
-            """
-            Something like this?
-            """
-            #circ_pred=run_circuit(circ_test)
-            #A_mat_test[ii][jj]=circ_pred*0.25
-            
             #Fills a list of quantum circuits and binds values to them while at it 
-            qc_list_A=[]
-            qc_list_C=[]
+            #qc_list_A=[]
+            #qc_list_C=[]
             labels=np.concatenate((omega_w[self.rot_indexes], omega_w[self.rot_indexes]), axis=0)
             
-            from qiskit.quantum_info import Statevector
 
             #Expression A: Binds the parameters to the circuits
-            counter2=0
+            for i_a in range(len(self.rot_indexes)):
+                for j_a in range(len(self.rot_indexes)):
+                    #Just the circuits
+                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters(labels[:len(self.A_init[i_a][j_a].parameters)]))
+            
+
+            A_mat*=0.25
+
+            for i_c in range(len(self.hamil)):
+                for j_c in range(len(self.rot_indexes)):
+                    C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].bind_parameters(labels[:len(self.C_init[i_c][j_c].parameters)]))
+                    #print(self.C_init[i_c][j_c])
+                    #print(self.C_init[i_c][j_c].bind_parameters(labels[:len(self.C_init[i_c][j_c].parameters)]))
+            #exit()
+
+            C_vec*=-0.5
+
+
+            """
+            #Expression A: Running circuits produced above,  this can most certainly be done in parallel
+            counter=0
             for i in range(len(self.rot_indexes)):
                 for j in range(len(self.rot_indexes)):
-                    #Just the circuits
-                    qc_list_A.append(self.A_init[i][j].bind_parameters(labels[:len(self.A_init[i][j].parameters)]))
-                    counter2+=1
-
-            
+                    #A_mat[i][j]=matrix_values[counter]*0.25
+                    A_mat[i][j]=run_circuit(qc_list_A[counter])
+                    counter+=1
+            A_mat*=0.25
+            """
             #Expression C: Binds the parameters to the circuits
             """
             counter_C=0
@@ -245,14 +246,6 @@ class varQITE:
             #print(f' Values from the matrix{matrix_values}')
             
            
-            #Expression A: Running circuits produced above,  this can most certainly be done in parallel
-            counter=0
-            for i in range(len(self.rot_indexes)):
-                for j in range(len(self.rot_indexes)):
-                    #A_mat[i][j]=matrix_values[counter]*0.25
-                    A_mat[i][j]=run_circuit(qc_list_A[counter])
-                    counter+=1
-            A_mat*=0.25
 
             """
             #Expression C: Running circuits produced above
@@ -302,13 +295,12 @@ class varQITE:
 
             #exit()
             #end_mat=time.time()
-            #A_mat2=np.copy(self.get_A_from_init())
             
             #print(A_mat2)
-            #A_mat2=A_mat
-            
-            A_mat2=np.copy(self.get_A2())
-            C_vec2=np.copy(self.get_C2())
+            A_mat2=A_mat
+            C_vec2=C_vec
+            #A_mat2=np.copy(self.get_A2())
+            #C_vec2=np.copy(self.get_C2())
            
             #C_vec2=C_vec
             #A_mat2, C_vec2=self.last_try()
@@ -724,18 +716,19 @@ class varQITE:
         V_circ=encoding_circ('A', self.trial_qubits)
         temp_circ=V_circ.copy()
         
-        p_vec = ParameterVector('Init_param', 2*len(self.rot_indexes))
+        p_vec = ParameterVector('Init_param', len(self.rot_indexes))
 
         for i, j in enumerate(self.rot_loop[:first]):
             if i in self.rot_indexes:
-                name=p_vec[i]
+                name=p_vec[np.where(self.rot_indexes==i)[0][0]]
+                #name=p_vec[i] 
             else:
                 name=self.trial_circ[i][1]+j
             getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
         
         getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
 
-        if first<sec:
+        if first==39.3:#<sec:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 if ii in self.rot_indexes:
@@ -748,7 +741,9 @@ class varQITE:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:], start=first):
                 if ii in self.rot_indexes:
-                    name=p_vec[ii]
+                    #name=p_vec[ii]
+                    name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
+
                 else:
                     name=self.trial_circ[ii][1]+jj
                 getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
@@ -756,17 +751,17 @@ class varQITE:
             #TODO: Only thing to check up is this range, shuld it be reversed? Rewrite it as enumerate?
             for jjj in range(len(self.trial_circ)-1, sec-1, -1):
                 if jjj in self.rot_indexes:
-                    name=p_vec[jjj]
+                    #name=p_vec[jjj]
+                    name=p_vec[np.where(self.rot_indexes==jjj)[0][0]]
                 else:
                     name=self.trial_circ[jjj][1]+self.rot_loop[jjj]
 
                 getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
 
-        #TODO: add x?
-        #temp_circ.x(0)
-        getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
         
-        #temp_circ.x(0)
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
+        temp_circ.x(0)
 
         temp_circ.h(0)
         #TODO add this
@@ -778,44 +773,40 @@ class varQITE:
         #TODO: Remember to switch everything I switch here, elsewhere
         V_circ=encoding_circ('C', self.trial_qubits)
         temp_circ=V_circ.copy()
-        p_vec_C = ParameterVector('Init_C_param', len(self.rot_indexes))
+        p_vec_C = ParameterVector('Init_param', len(self.rot_indexes))
 
-        #Then we loop through the gates in U until we reach sigma-gate
-        for i in range(len(self.trial_circ)-1, fir-1, -1):
-            #print(len(p_vec_C))
+        for i, j in enumerate(self.rot_loop):
             if i in self.rot_indexes:
-                name=p_vec_C[i]
+                name=p_vec_C[np.where(self.rot_indexes==i)[0][0]]
             else:
-                name=self.trial_circ[i][1]+self.rot_loop[i]
-            #getattr(temp_circ, self.trial_circ[i][0])(self.trial_circ[i][1]+self.rot_loop[i], 1+self.trial_circ[i][2])
+                name=self.trial_circ[i][1]+j
+            getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+        
+        for theta in range(len(lamb)):
+            getattr(temp_circ, 'c'+lamb[theta][1])(0,lamb[theta][2]+1)
 
-        #Add x gate                
+        for k in range(len(self.trial_circ)-1, fir-1, -1):
+            #print(len(p_vec_C))
+            if k in self.rot_indexes:
+                #print(k)
+                #print(self.rot_indexes)
+                #print(len(self.trial_circ))
+                #print(p_vec_C)
+                name=p_vec_C[np.where(self.rot_indexes==k)[0][0]]
+            else:
+                name=self.trial_circ[k][1]+self.rot_loop[k]
+
+            getattr(temp_circ, self.trial_circ[k][0])(name, 1+self.trial_circ[k][2])
+
         temp_circ.x(0)
-        #Then we add the sigma
         getattr(temp_circ, 'c'+self.trial_circ[fir][0][-1])(0,1+self.trial_circ[fir][2])
-        #Add x gate                
         temp_circ.x(0)
-
-        for ii, jj in enumerate(self.rot_loop[fir:], start=fir):
-            if ii in self.rot_indexes:
-                name=p_vec_C[ii]
-            else:
-                name=self.trial_circ[ii][1]+jj
-            getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
-
-
-        #Continue the U_i gate:
-        #for keep_going in range(ind, len(self.trial_circ)):
-        #for ii in range(fir-1, -1, -1):
-        #    getattr(temp_circ, self.trial_circ[ii][0])(self.trial_circ[ii][1]+self.rot_loop[ii], 1+self.trial_circ[ii][2])
-
-        #TODO: x gates?
-        #temp_circ.x(0)
-        getattr(temp_circ, 'c'+self.hamil[lamb][1])(0,self.hamil[lamb][2]+1)
-        #temp_circ.x(0)
 
         temp_circ.h(0)
         temp_circ.measure(0, 0)
+
+        #print(f'fir {fir}')
+        #print(temp_circ)
         
         return temp_circ
 

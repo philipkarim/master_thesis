@@ -630,12 +630,16 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-        plt.show()
-
+    
+        #plt.show()
+        pass
     return
 
+plot_function=time.time()
 plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+plot_function_end=time.time()
 
+print(f'Time: {plot_function_end-plot_function}')
 
 def find_best_alpha(n_steps, alpha_space, name=None):
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
