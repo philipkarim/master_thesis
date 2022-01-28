@@ -466,7 +466,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -548,12 +548,22 @@ Next list:
     - Noe henger igjen som object fra tidligere
 
     Dagens oppgaver:
-    - Undersøke gradient implementasjonsmetodene
-        16.45
-    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporte
-        17.30
+    - Fikse lambda med 0.01 av minste verdien langs diag?
+        18.00
+    - Undersøke gradient implementasjonsmetodene funker
+        Tror det er noe feil med implementasjonen av de to siste coeffisientene
+        18.45
+    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporten
+        Teste det
+        19.30
     - Lage init kretser
-        -Iløpet av kvelden
+        - A og C
+        20.30
+        -dc circ og da circ
+        22.00
+    -Finne feilen frem til 24
+
+    Should C be negative?
 
 """
 
@@ -609,8 +619,13 @@ def plot_fidelity(n_steps, name=None):
 
     print(f'H1: {fidelities1_list[-1]}, H2: {fidelities2_list[-1]}')
 
-    plt.plot(list(range(0, len(fidelities1_list))),np.array(fidelities1_list)/np.max(np.array(fidelities1_list)), label='H1')
-    plt.plot(list(range(0, len(fidelities2_list))),np.array(fidelities2_list)/np.max(np.array(fidelities2_list)), label='H2')
+    #plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
+    #plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+    
+    plt.scatter(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
+    plt.scatter(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
+    #plt.plot(list(range(0, len(fidelities1_list))),np.array(fidelities1_list)/np.max(np.array(fidelities1_list)), label='H1')
+    #plt.plot(list(range(0, len(fidelities2_list))),np.array(fidelities2_list)/np.max(np.array(fidelities2_list)), label='H2')
     plt.xlabel('Step')
     plt.ylabel('Fidelity')
     plt.legend()
@@ -622,7 +637,7 @@ def plot_fidelity(n_steps, name=None):
 
     return
 
-#plot_fidelity(10)#, 'fidelity_H1_H2')
+plot_fidelity(10, 'fidelity_H1_H2_0_001minC_dots')
 
 
 def find_best_alpha(n_steps, alpha_space, name=None):

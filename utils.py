@@ -412,3 +412,6 @@ def getUtilityParameters(ansatz):
 
 
     return  trace_indices, rotational_indices
+
+
+#fidelity_own(A,B)

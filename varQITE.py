@@ -432,7 +432,14 @@ class varQITE:
                 #pred_train_rr= rr.predict(A_mat2)
                 else:
                     #alpha=0.001=best
-                    clf = Ridge(alpha=self.alpha)
+                    #print(f'A: {A_mat2}')
+                    #print(f'C: {C_vec2}')
+                    #print(f'max element of A: {np.max(np.diag(A_mat2))}, max of C: {C_vec2}')
+                    #clf = Ridge(alpha=self.alpha)
+                    #clf = Ridge(alpha=np.max(np.diag(A_mat2))*0.01)
+                    print(abs(np.min(C_vec2))*0.001)
+                    clf = Ridge(alpha=abs(np.min(C_vec2))*0.001)
+                    
                     clf.fit(A_mat2, C_vec2)
                     omega_derivative_temp=clf.coef_
 
