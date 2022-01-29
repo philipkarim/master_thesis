@@ -556,7 +556,11 @@ Next list:
         19.30
     - Lage init kretser
         -dc circ og da circ
-    -Finne feilen
+    - fikse lambda loopen
+
+    -Cyclic property?
+
+
 
     - If loss is larger than 0.5 reduce the alpha by factor 0.1
     Should C be negative?
