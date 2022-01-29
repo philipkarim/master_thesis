@@ -149,8 +149,6 @@ class varQITE:
                     #pass
 
 
-
-
         """
         Creating circ dC
         """
@@ -259,8 +257,10 @@ class varQITE:
             if gradient_stateprep==False:
                 for i in range(len(self.hamil)):
                     #TODO: Deep copy takes a lot of time, fix this
-                    dA_mat=np.copy(self.get_dA(i))
+                    #dA_mat=np.copy(self.get_dA(i))
                     dC_vec=np.copy(self.get_dC(i))
+
+                    dA_mat=np.copy(self.getdA_init(i))
 
                     if ridge_inv==False:
                         w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
@@ -777,6 +777,19 @@ class varQITE:
         """
         #TODO: should be -
         return dA_mat_temp_i*(-0.125)
+
+    def getdA_init(self, i):
+
+        for i_da in range(len(self.rot_indexes)):
+                for j_da in range(len(self.rot_indexes)):
+                    #Just the circuits
+                    A_mat[i_da][j_da]=run_circuit(self.A_init[i_da][j_da].bind_parameters(omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]))
+            
+            A_mat*=0.25
+        
+        
+        
+        return
 
     def init_dA(self,pp, ss, qq, type_circ):
         #TODO: Remember to switch everything I switch here, elsewhere
