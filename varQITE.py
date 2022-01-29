@@ -246,8 +246,8 @@ class varQITE:
                             print('-----------------')
                         
                     else:
-                        print(f'lambda in dc= {abs(np.min(rh_side))*0.001}')
                         rh_side=dC_vec-dA_mat@omega_derivative_temp
+                        print(f'lambda in dc= {abs(np.min(rh_side))*0.001}')
                         model_dR = Ridge(alpha=abs(np.min(rh_side))*0.001)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
