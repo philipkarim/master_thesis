@@ -16,6 +16,7 @@ import copy
 
 import scipy as sp
 
+from sklearn.metrics import mean_squared_error
 
 #from pathos.pools import ProcessPool
 
@@ -138,6 +139,15 @@ class varQITE:
         """
         Creating circ dA
         """
+        dA_circ= np.empty(shape=(len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2), dtype=object)
+        
+        #Assuming there is only one circ per i,j, due to r? only having 1 element in f
+        for i in range(len(self.rot_indexes)):
+            for j in range(len(self.rot_indexes)):
+                for k in range(len(self.rot_indexes)):
+                    #dA_circ[i][j][k][0]=self.init_dA(self.hamil[i], self.rot_indexes[j],self.rot_indexes[k], 0)
+                    #dA_circ[i][j][k][1]=self.init_dA(self.hamil[i], self.rot_indexes[j],self.rot_indexes[k], 1)
+                    pass
 
 
 
@@ -199,10 +209,40 @@ class varQITE:
 
                 else:
                     #print(abs(np.min(C_vec))*0.001)
-                    model_R = Ridge(alpha=abs(np.min(C_vec))*0.001)
+                    """
+                    loss=1000
+                    lmb=100.0
+                    
+                    loss_list=[]
+                    while loss>0.05:
+                        lmb*=0.1
+                        model_R = Ridge(alpha=lmb)
+                        model_R.fit(A_mat, C_vec)
+                        #TODO: Deep copy coeff?
+                        omega_derivative_temp=model_R.coef_
+                        loss=mean_squared_error(C_vec,omega_derivative_temp)
+                        loss_list.append(loss)
+
+                        print(loss, lmb)
+
+                        if lmb<1e-14:
+                            print('lmb too high')
+                            lmb=10**(-1*loss_list.index(max(loss_list)))
+                            print(lmb)
+                            break
+                    
+                    print(f'loss: {loss}, lmb: {lmb}')
+                    """
+                    model_R = Ridge(alpha=0.0001)
                     model_R.fit(A_mat, C_vec)
-                    #TODO: Deep copy coeff?
                     omega_derivative_temp=model_R.coef_
+
+                    #model_R = Ridge(alpha=abs(np.max(np.diag(A_mat)))*1e-5)
+                    #print(f'lambda: {abs(np.max(np.diag(A_mat)))*1e-5}')
+                    #model_R = Ridge(alpha=abs(np.min(C_vec/len(C_vec)))*1e-8)
+                    #print(f'lambda {abs(np.min(C_vec/len(C_vec)))*1e-4}')
+                    #print(f'Loss from ridge: {loss}')
+                    
 
             omega_derivative[self.rot_indexes]=omega_derivative_temp
             
@@ -247,15 +287,20 @@ class varQITE:
                         
                     else:
                         rh_side=dC_vec-dA_mat@omega_derivative_temp
-                        print(f'lambda in dc= {abs(np.min(rh_side))*0.001}')
-                        model_dR = Ridge(alpha=abs(np.min(rh_side))*0.001)
+                        #print(f'lambda in dc= {abs(np.min(rh_side))*0.001}')
+                        #print(f'max on diag: {np.max(np.diag(A_mat))}, lambda: {abs(np.max(np.diag(A_mat)))*1e-5}')
+                        #model_dR = Ridge(alpha=abs(np.max(np.diag(A_mat)))*1e-5)
+                        model_dR = Ridge(alpha=1e-7)
+                        #model_dR = Ridge(alpha=np.log(-1*len(rh_side)))
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
+                        
+                        temp_loss_d=mean_squared_error(rh_side,w_dtheta_dt)
+                        print(f'Loss from ridge derivert: {temp_loss_d}')
 
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
                     #print(f'w_dtheta: {w_dtheta_dt}')
 
-            #*t instead of timestep->0.88 for H2, but bad for H1    
             omega_w+=(omega_derivative*self.time_step)
             
             if self.plot_fidelity==True:
@@ -697,6 +742,64 @@ class varQITE:
         """
         #TODO: should be -
         return dA_mat_temp_i*(-0.125)
+
+    def init_dA(self,first, sec):
+        #TODO: Remember to switch everything I switch here, elsewhere
+        V_circ=encoding_circ('A', self.trial_qubits)
+        temp_circ=V_circ.copy()
+        
+        p_vec = ParameterVector('Init_param', len(self.rot_indexes))
+
+        for i, j in enumerate(self.rot_loop[:first]):
+            if i in self.rot_indexes:
+                name=p_vec[np.where(self.rot_indexes==i)[0][0]]
+                #name=p_vec[i] 
+            else:
+                name=self.trial_circ[i][1]+j
+            getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+        
+        getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
+
+        if first==39.3:#<sec:
+            #Continue the U_i gate:
+            for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
+                if ii in self.rot_indexes:
+                    name=p_vec[ii]
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
+
+        else:
+            #Continue the U_i gate:
+            for ii, jj in enumerate(self.rot_loop[first:], start=first):
+                if ii in self.rot_indexes:
+                    #name=p_vec[ii]
+                    name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
+
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
+
+            #TODO: Only thing to check up is this range, shuld it be reversed? Rewrite it as enumerate?
+            for jjj in range(len(self.trial_circ)-1, sec-1, -1):
+                if jjj in self.rot_indexes:
+                    #name=p_vec[jjj]
+                    name=p_vec[np.where(self.rot_indexes==jjj)[0][0]]
+                else:
+                    name=self.trial_circ[jjj][1]+self.rot_loop[jjj]
+
+                getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
+
+        
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
+        temp_circ.x(0)
+
+        temp_circ.h(0)
+        #TODO add this
+        temp_circ.measure(0,0)
+  
+        return temp_circ
     
     def run_dA(self, p_index, q_index, i_theta):
         #Compute one term in the dA matrix

@@ -466,7 +466,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -555,12 +555,10 @@ Next list:
         Teste det
         19.30
     - Lage init kretser
-        - A og C
-        20.30
         -dc circ og da circ
-        22.00
-    -Finne feilen frem til 24
+    -Finne feilen
 
+    - If loss is larger than 0.5 reduce the alpha by factor 0.1
     Should C be negative?
 
 """
@@ -630,7 +628,6 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-    
         #plt.show()
         pass
     return
