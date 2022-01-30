@@ -268,7 +268,7 @@ class varQITE:
                     #TODO: Deep copy takes a lot of time, fix this
                     #dA_mat=np.copy(self.get_dA(i))
                     #dC_vec=np.copy(self.get_dC(i))
-                    dC_vec=getdC_bound(i, omega_w)
+                    dC_vec=self.getdC_bound(i, omega_w)
 
                     #dA_mat=np.copy(self.getdA_init(i))
 
