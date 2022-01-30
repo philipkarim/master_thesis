@@ -471,7 +471,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
     return
 
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
+multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.01, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)

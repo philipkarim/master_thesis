@@ -151,13 +151,13 @@ class varQITE:
         """
         Creating circ dC
         """
-        dC_circ= np.empty(shape=(len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2), dtype=object)
+        dC_circ= np.empty(shape=(len(self.hamil), len(self.rot_indexes), len(self.rot_indexes), 2), dtype=object)
 
         for ii in range(len(self.hamil)):
             for jj in range(len(self.rot_indexes)):
                 for kk in range(len(self.rot_indexes)):
-                    dC_circ[ii][jj][kk][0]=self.init_dC(self.rot_indexes[ii], self.rot_indexes[jj],self.rot_indexes[kk], 0)
-                    dC_circ[ii][jj][kk][1]=self.init_dC(self.rot_indexes[ii], self.rot_indexes[jj],self.rot_indexes[kk], 1)
+                    dC_circ[ii][jj][kk][0]=self.init_dC(ii, self.rot_indexes[jj],self.rot_indexes[kk], 0)
+                    dC_circ[ii][jj][kk][1]=self.init_dC(ii, self.rot_indexes[jj],self.rot_indexes[kk], 1)
 
 
         #print(np.where(C_vec==0.075732421875))
@@ -165,7 +165,7 @@ class varQITE:
         self.A_init=A_circ
         self.C_init=C_circ
         self.dA_init=dA_circ
-
+        self.dC_init=dC_circ
         #return A_circ, C_vec #, dA_circ, dc_circ
         return
 
@@ -215,7 +215,7 @@ class varQITE:
                     model_R = Ridge(alpha=1e-8)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    print(mean_squared_error(C_vec,A_mat@omega_derivative_temp))
+                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp))
 
                     #print(abs(np.min(C_vec))*0.001)<   
                     """ 
@@ -267,7 +267,8 @@ class varQITE:
                 for i in range(len(self.hamil)):
                     #TODO: Deep copy takes a lot of time, fix this
                     #dA_mat=np.copy(self.get_dA(i))
-                    dC_vec=np.copy(self.get_dC(i))
+                    #dC_vec=np.copy(self.get_dC(i))
+                    dC_vec=getdC_bound(i, omega_w)
 
                     #dA_mat=np.copy(self.getdA_init(i))
 
@@ -307,12 +308,12 @@ class varQITE:
                     else:
                         rh_side=dC_vec-dA_mat[i]@omega_derivative_temp
 
-                        model_dR = Ridge(alpha=1e-8)
+                        model_dR = Ridge(alpha=1e-3)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
                         
                         temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
-                        print(f'Loss from ridge derivert: {temp_loss_d}')
+                        #print(f'Loss from ridge derivert: {temp_loss_d}')
                         """
                         loss=1000
                         lmb_2=10.0
@@ -812,30 +813,21 @@ class varQITE:
         
         return dA
 
-    def getdC_bound(self, binding_values):
-        dC_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2))
+    def getdC_bound(self,i_th, binding_values):
+        dC_i=np.zeros(len(self.rot_indexes))
 
-        dC=np.zeros((len(self.hamil), len(self.rot_indexes)))
-
-        for p_dc in range(len(self.rot_indexes)):
-            for q_dc in range(len(self.rot_indexes)):
+        for j_p in range(len(self.rot_indexes)):
+            #TODO- is the same?
+            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].\
+            bind_parameters(binding_values[self.rot_indexes][:len(self.C_init[i_th][j_p].parameters)]))
+            
+            for i_dc in range(len(self.rot_indexes)):
                 for s_dc in range(len(self.rot_indexes)):
-                    #print(self.dA_init[p_da][q_da][s_da][0])
-                    #print(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
-                    dC_mat_temp[p_dc][q_dc][s_dc][0]=run_circuit(self.dC_init[p_dc][q_dc][s_dc][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_dc][q_dc][s_dc][0].parameters)]))
-                    dC_mat_temp[p_dc][q_dc][s_dc][1]=run_circuit(self.dC_init[p_dc][q_dc][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_dc][q_dc][s_dc][1].parameters)]))
-                    #Quiet high, 0.5 print(dA_mat_temp[p_da][q_da][s_da][0])
-       
-        for i in range(len(self.hamil)):
-            for p in range(len(self.rot_indexes)):
-                for q in range(len(self.rot_indexes)):
-                    for s in range(len(self.rot_indexes)):
-                        dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
-
-        #TODO: Changed from negative to positive
-        dA*=0.125
+                    term1_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][0].parameters)]))
+                    term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]))
+                    dC_i[j_p]+=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
         
-        return dA
+        return dC_i
 
     def init_dA(self,pp, ss, qq, type_circ):
         V_circ=encoding_circ('C', self.trial_qubits)
