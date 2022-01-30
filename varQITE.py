@@ -42,8 +42,7 @@ class varQITE:
         self.trial_circ=trial_circ
         self.maxTime=maxTime
         self.steps=steps
-        self.time_step=self.maxTime/self.steps        
-        
+        self.time_step=self.maxTime/self.steps
         self.rot_loop=np.zeros(len(trial_circ), dtype=int)
 
         #TODO: It is called indices not indexes
@@ -152,6 +151,17 @@ class varQITE:
         """
         Creating circ dC
         """
+        dC_circ= np.empty(shape=(len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2), dtype=object)
+
+        for ii in range(len(self.hamil)):
+            for jj in range(len(self.rot_indexes)):
+                for kk in range(len(self.rot_indexes)):
+                    dC_circ[ii][jj][kk][0]=self.init_dC(self.rot_indexes[ii], self.rot_indexes[jj],self.rot_indexes[kk], 0)
+                    dC_circ[ii][jj][kk][1]=self.init_dC(self.rot_indexes[ii], self.rot_indexes[jj],self.rot_indexes[kk], 1)
+
+
+
+
 
         #print(np.where(C_vec==0.075732421875))
 
@@ -208,7 +218,7 @@ class varQITE:
                     model_R = Ridge(alpha=1e-8)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    print(mean_squared_error(C_vec,omega_derivative_temp))
+                    print(mean_squared_error(C_vec,A_mat@omega_derivative_temp))
 
                     #print(abs(np.min(C_vec))*0.001)<   
                     """ 
@@ -255,15 +265,17 @@ class varQITE:
             omega_derivative[self.rot_indexes]=omega_derivative_temp
             
             if gradient_stateprep==False:
+                dA_mat=self.getdA_bound(omega_w)
+                
                 for i in range(len(self.hamil)):
                     #TODO: Deep copy takes a lot of time, fix this
                     #dA_mat=np.copy(self.get_dA(i))
                     dC_vec=np.copy(self.get_dC(i))
 
-                    dA_mat=np.copy(self.getdA_init(i))
+                    #dA_mat=np.copy(self.getdA_init(i))
 
                     if ridge_inv==False:
-                        w_dtheta_dt=A_inv@(dC_vec-dA_mat@omega_derivative_temp)#* or @?
+                        w_dtheta_dt=A_inv@(dC_vec-dA_mat[i]@omega_derivative_temp)#* or @?
                         if t==self.maxTime:
                             print('Lets find out why the derivatives are so high:')
 
@@ -296,13 +308,13 @@ class varQITE:
                             print('-----------------')
                         
                     else:
-                        rh_side=dC_vec-dA_mat@omega_derivative_temp
+                        rh_side=dC_vec-dA_mat[i]@omega_derivative_temp
 
                         model_dR = Ridge(alpha=1e-8)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
                         
-                        temp_loss_d=mean_squared_error(rh_side,w_dtheta_dt)
+                        temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                         print(f'Loss from ridge derivert: {temp_loss_d}')
                         """
                         loss=1000
@@ -778,21 +790,31 @@ class varQITE:
         #TODO: should be -
         return dA_mat_temp_i*(-0.125)
 
-    def getdA_init(self, i):
+    def getdA_bound(self, binding_values):
+        dA_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2))
 
-        for i_da in range(len(self.rot_indexes)):
-                for j_da in range(len(self.rot_indexes)):
-                    #Just the circuits
-                    A_mat[i_da][j_da]=run_circuit(self.A_init[i_da][j_da].bind_parameters(omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]))
-            
-            A_mat*=0.25
+        dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
+
+        for p_da in range(len(self.rot_indexes)):
+            for q_da in range(len(self.rot_indexes)):
+                for s_da in range(len(self.rot_indexes)):
+                    #print(self.dA_init[p_da][q_da][s_da][0])
+                    #print(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
+                    dA_mat_temp[p_da][q_da][s_da][0]=run_circuit(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
+                    dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]))
+                    #Quiet high, 0.5 print(dA_mat_temp[p_da][q_da][s_da][0])
+       
+        for i in range(len(self.hamil)):
+            for p in range(len(self.rot_indexes)):
+                for q in range(len(self.rot_indexes)):
+                    for s in range(len(self.rot_indexes)):
+                        dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
+
+        dA*=-0.125
         
-        
-        
-        return
+        return dA
 
     def init_dA(self,pp, ss, qq, type_circ):
-        #TODO: Remember to switch everything I switch here, elsewhere
         V_circ=encoding_circ('C', self.trial_qubits)
         temp_circ=V_circ.copy()
 
@@ -898,11 +920,111 @@ class varQITE:
             dCircuit_term_1=self.dA_circ([p_index, s], [q_index])
             dCircuit_term_2=self.dA_circ([p_index], [q_index, s])
 
+            #TODO: self.dwdth copy?
             temp_dw=self.dwdth[i_theta][s]
 
             sum_A_pq+=temp_dw*(dCircuit_term_1+dCircuit_term_2)
         
         return sum_A_pq
+
+    def init_dC(self, ii, pp, ss,type_of_circ):
+        V_circ=encoding_circ('A', self.trial_qubits)
+        temp_circ=V_circ.copy()
+
+        p_vec = ParameterVector('Init_param', len(self.rot_indexes))
+
+        if type_of_circ==0:
+            if pp>ss:
+                pp,ss=ss,pp
+
+            for i, j in enumerate(self.rot_loop[:qq]):
+                if i in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==i)[0][0]]
+                else:
+                    name=self.trial_circ[i][1]+j
+                getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+            
+            getattr(temp_circ, 'c'+self.trial_circ[qq][0][-1])(0,1+self.trial_circ[qq][2])
+
+            #TODO Can probably remove a chunk of this
+            for ii, jj in enumerate(self.rot_loop[qq:], start=qq):
+                if ii in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
+
+            for jjj in range(len(self.trial_circ)-1, ss-1, -1):
+                if jjj in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==jjj)[0][0]]
+                else:
+                    name=self.trial_circ[jjj][1]+self.rot_loop[jjj]   
+                getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
+        
+            temp_circ.x(0)
+            getattr(temp_circ, 'c'+self.trial_circ[ss][0][-1])(0,1+self.trial_circ[ss][2])
+
+            for last in range(ss, pp-1, -1):
+                if last in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==last)[0][0]]
+                else:
+                    name=self.trial_circ[last][1]+self.rot_loop[last]   
+                getattr(temp_circ, self.trial_circ[last][0])(name, 1+self.trial_circ[last][2])
+        
+            getattr(temp_circ, 'c'+self.trial_circ[pp][0][-1])(0,1+self.trial_circ[pp][2])
+            temp_circ.x(0)
+        
+        elif type_circ==1:
+            if ss>qq:
+                qq,ss=ss,qq
+
+            for i, j in enumerate(self.rot_loop[:ss]):
+                if i in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==i)[0][0]]
+                else:
+                    name=self.trial_circ[i][1]+j
+                getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+            
+            getattr(temp_circ, 'c'+self.trial_circ[ss][0][-1])(0,1+self.trial_circ[ss][2])
+
+            for ii, jj in enumerate(self.rot_loop[ss:qq], start=ss):
+                if ii in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
+            
+            getattr(temp_circ, 'c'+self.trial_circ[qq][0][-1])(0,1+self.trial_circ[qq][2])
+
+            for iii, jjj in enumerate(self.rot_loop[qq:], start=qq):
+                if iii in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==iii)[0][0]]
+                else:
+                    name=self.trial_circ[iii][1]+jjj
+                getattr(temp_circ, self.trial_circ[iii][0])(name, 1+self.trial_circ[iii][2])
+
+
+            for last in range(len(self.trial_circ)-1, pp-1, -1):
+                if last in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==last)[0][0]]
+                else:
+                    name=self.trial_circ[last][1]+self.rot_loop[last]   
+                getattr(temp_circ, self.trial_circ[last][0])(name, 1+self.trial_circ[last][2])
+              
+            temp_circ.x(0)
+            getattr(temp_circ, 'c'+self.trial_circ[pp][0][-1])(0,1+self.trial_circ[pp][2])
+            temp_circ.x(0)
+            
+        else:
+            print('Cant initialize dA circ')
+            exit()
+
+        temp_circ.h(0)
+        temp_circ.measure(0,0)
+
+
+
+        return
     
     #TODO: add a if j<i statement to make circs mindre
     def dA_circ(self, circ_1, circ_2):
@@ -910,7 +1032,7 @@ class varQITE:
         Might be an error when the same indexes in the double derivative is simulated.
         Missing an rotational gate between the two sigmas, maybe can remove? Idk test it
         """
-        #Does this work?      
+        #Does this work?
         assert len(circ_2)==1 or len(circ_2)==2
 
         if len(circ_1)==1:

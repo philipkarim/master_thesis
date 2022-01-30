@@ -384,7 +384,11 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
         print(H_U_2)
         HU_2=   [[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], 
                 [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
+        time_1epoch=time.time()
         saved_error[i], dist=train(HU_2, ansatz2, epochs, target_data, n_steps=steps, lr=l_r, plot=False)
+        time_1epoch_end=time.time()
+
+        print(f'Time for 1 loop: {time_1epoch_end-time_1epoch}')
         qbm_list.append(dist)
     
 
@@ -466,7 +470,8 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     plt.savefig(str(l_r*1000)+'_all.png')
 
     return
-#multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
+
+multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
@@ -557,7 +562,7 @@ Next list:
     - Lage init kretser
         -dc circ og da circ
     - fikse lambda loopen
-
+    - Maybe there is only one error in the article
     -Cyclic property?
 
 
@@ -594,7 +599,7 @@ def plot_fidelity(n_steps, name=None):
     print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
     varqite1.initialize_circuits()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
     
     for i in range(len(list_omegas_fielity1)):
@@ -602,12 +607,12 @@ def plot_fidelity(n_steps, name=None):
         trace_circ1=create_initialstate(params1)
         DM1=DensityMatrix.from_instruction(trace_circ1)
         PT1 =partial_trace(DM1,[1])
-        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=True))
+        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
 
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
     varqite2.initialize_circuits()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
     list_omegas_fielity2=varqite2.fidelity_omega_list()    
     
     for j in range(len(list_omegas_fielity2)):
@@ -637,7 +642,7 @@ def plot_fidelity(n_steps, name=None):
     return
 
 plot_function=time.time()
-plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+#plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
 plot_function_end=time.time()
 
 print(f'Time: {plot_function_end-plot_function}')
