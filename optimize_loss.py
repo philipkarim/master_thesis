@@ -90,7 +90,7 @@ class optimize:
 
         print(f'gradient {gradient}')
         print(f'change in gradient: {self.learning_rate*gradient}')
-        params-=self.learning_rate*gradient
+        params+=self.learning_rate*gradient
         return params
     
     def gradient_descent(self, params, predicted, target, samples):

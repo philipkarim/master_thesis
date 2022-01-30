@@ -160,9 +160,6 @@ class varQITE:
                     dC_circ[ii][jj][kk][1]=self.init_dC(self.rot_indexes[ii], self.rot_indexes[jj],self.rot_indexes[kk], 1)
 
 
-
-
-
         #print(np.where(C_vec==0.075732421875))
 
         self.A_init=A_circ
@@ -810,7 +807,33 @@ class varQITE:
                     for s in range(len(self.rot_indexes)):
                         dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
-        dA*=-0.125
+        #TODO: Changed from negative to positive
+        dA*=0.125
+        
+        return dA
+
+    def getdC_bound(self, binding_values):
+        dC_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes), len(self.rot_indexes), 2))
+
+        dC=np.zeros((len(self.hamil), len(self.rot_indexes)))
+
+        for p_dc in range(len(self.rot_indexes)):
+            for q_dc in range(len(self.rot_indexes)):
+                for s_dc in range(len(self.rot_indexes)):
+                    #print(self.dA_init[p_da][q_da][s_da][0])
+                    #print(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
+                    dC_mat_temp[p_dc][q_dc][s_dc][0]=run_circuit(self.dC_init[p_dc][q_dc][s_dc][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_dc][q_dc][s_dc][0].parameters)]))
+                    dC_mat_temp[p_dc][q_dc][s_dc][1]=run_circuit(self.dC_init[p_dc][q_dc][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_dc][q_dc][s_dc][1].parameters)]))
+                    #Quiet high, 0.5 print(dA_mat_temp[p_da][q_da][s_da][0])
+       
+        for i in range(len(self.hamil)):
+            for p in range(len(self.rot_indexes)):
+                for q in range(len(self.rot_indexes)):
+                    for s in range(len(self.rot_indexes)):
+                        dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
+
+        #TODO: Changed from negative to positive
+        dA*=0.125
         
         return dA
 
@@ -927,33 +950,57 @@ class varQITE:
         
         return sum_A_pq
 
-    def init_dC(self, ii, pp, ss,type_of_circ):
+    def init_dC(self, i_index, pp, ss,type_of_circ):
         V_circ=encoding_circ('A', self.trial_qubits)
         temp_circ=V_circ.copy()
-
         p_vec = ParameterVector('Init_param', len(self.rot_indexes))
 
         if type_of_circ==0:
-            if pp>ss:
-                pp,ss=ss,pp
-
-            for i, j in enumerate(self.rot_loop[:qq]):
+            for i, j in enumerate(self.rot_loop[:ss]):
                 if i in self.rot_indexes:
                     name=p_vec[np.where(self.rot_indexes==i)[0][0]]
                 else:
                     name=self.trial_circ[i][1]+j
                 getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
             
-            getattr(temp_circ, 'c'+self.trial_circ[qq][0][-1])(0,1+self.trial_circ[qq][2])
-
-            #TODO Can probably remove a chunk of this
-            for ii, jj in enumerate(self.rot_loop[qq:], start=qq):
+            getattr(temp_circ, 'c'+self.trial_circ[ss][0][-1])(0,1+self.trial_circ[ss][2])
+        
+            for ii, jj in enumerate(self.rot_loop[ss:], start=ss):
                 if ii in self.rot_indexes:
                     name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
                 else:
                     name=self.trial_circ[ii][1]+jj
                 getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
 
+            for theta in range(len(self.hamil[i_index])):
+                getattr(temp_circ, 'c'+self.hamil[i_index][theta][1])(0,self.hamil[i_index][theta][2]+1)
+
+            for jjj in range(len(self.trial_circ)-1, pp-1, -1):
+                if jjj in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==jjj)[0][0]]
+                else:
+                    name=self.trial_circ[jjj][1]+self.rot_loop[jjj]
+
+                getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
+        
+            temp_circ.x(0)
+            getattr(temp_circ, 'c'+self.trial_circ[pp][0][-1])(0,1+self.trial_circ[pp][2])
+            temp_circ.x(0)
+    
+        elif type_of_circ==1:
+            if pp>ss:
+                pp,ss=ss,pp
+
+            for i, j in enumerate(self.rot_loop):
+                if i in self.rot_indexes:
+                    name=p_vec[np.where(self.rot_indexes==i)[0][0]]
+                else:
+                    name=self.trial_circ[i][1]+j
+                getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+            
+            for theta in range(len(self.hamil[i_index])):
+                getattr(temp_circ, 'c'+self.hamil[i_index][theta][1])(0,self.hamil[i_index][theta][2]+1)
+    
             for jjj in range(len(self.trial_circ)-1, ss-1, -1):
                 if jjj in self.rot_indexes:
                     name=p_vec[np.where(self.rot_indexes==jjj)[0][0]]
@@ -973,58 +1020,16 @@ class varQITE:
         
             getattr(temp_circ, 'c'+self.trial_circ[pp][0][-1])(0,1+self.trial_circ[pp][2])
             temp_circ.x(0)
-        
-        elif type_circ==1:
-            if ss>qq:
-                qq,ss=ss,qq
 
-            for i, j in enumerate(self.rot_loop[:ss]):
-                if i in self.rot_indexes:
-                    name=p_vec[np.where(self.rot_indexes==i)[0][0]]
-                else:
-                    name=self.trial_circ[i][1]+j
-                getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
-            
-            getattr(temp_circ, 'c'+self.trial_circ[ss][0][-1])(0,1+self.trial_circ[ss][2])
-
-            for ii, jj in enumerate(self.rot_loop[ss:qq], start=ss):
-                if ii in self.rot_indexes:
-                    name=p_vec[np.where(self.rot_indexes==ii)[0][0]]
-                else:
-                    name=self.trial_circ[ii][1]+jj
-                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
-            
-            getattr(temp_circ, 'c'+self.trial_circ[qq][0][-1])(0,1+self.trial_circ[qq][2])
-
-            for iii, jjj in enumerate(self.rot_loop[qq:], start=qq):
-                if iii in self.rot_indexes:
-                    name=p_vec[np.where(self.rot_indexes==iii)[0][0]]
-                else:
-                    name=self.trial_circ[iii][1]+jjj
-                getattr(temp_circ, self.trial_circ[iii][0])(name, 1+self.trial_circ[iii][2])
-
-
-            for last in range(len(self.trial_circ)-1, pp-1, -1):
-                if last in self.rot_indexes:
-                    name=p_vec[np.where(self.rot_indexes==last)[0][0]]
-                else:
-                    name=self.trial_circ[last][1]+self.rot_loop[last]   
-                getattr(temp_circ, self.trial_circ[last][0])(name, 1+self.trial_circ[last][2])
-              
-            temp_circ.x(0)
-            getattr(temp_circ, 'c'+self.trial_circ[pp][0][-1])(0,1+self.trial_circ[pp][2])
-            temp_circ.x(0)
-            
         else:
-            print('Cant initialize dA circ')
+            print('Cant make the dC circ')
             exit()
 
         temp_circ.h(0)
         temp_circ.measure(0,0)
 
-
-
-        return
+        return temp_circ
+  
     
     #TODO: add a if j<i statement to make circs mindre
     def dA_circ(self, circ_1, circ_2):
