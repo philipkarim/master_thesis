@@ -212,40 +212,42 @@ class varQITE:
                     omega_derivative_temp=np.linalg.inv(A_mat.T @ A_mat + regr_cv.alpha_*I) @ A_mat.T @ C_vec
 
                 else:
-                    model_R = Ridge(alpha=1e-8)
-                    model_R.fit(A_mat, C_vec)
-                    omega_derivative_temp=model_R.coef_
+                    #model_R = Ridge(alpha=1e-8)
+                    #model_R.fit(A_mat, C_vec)
+                    #omega_derivative_temp=model_R.coef_
                     #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp))
 
                     #print(abs(np.min(C_vec))*0.001)<   
-                    """ 
+                    
                     loss=1000
-                    lmb=10.0
+                    lmb=1.0
                     
                     loss_list=[]
                     #omega_list=[]
-                    while loss>0.001:
+                    while loss>0.0001:
                         lmb*=0.1
                         model_R = Ridge(alpha=lmb)
                         model_R.fit(A_mat, C_vec)
                         #TODO: Deep copy coeff?
                         omega_derivative_temp=model_R.coef_
                         #omega_list.append(omega_derivative_temp)
-                        loss=mean_squared_error(C_vec,omega_derivative_temp)
+                        loss=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
+                        #print(loss, lmb)
                         loss_list.append(loss)
 
                         if lmb<1e-14:
                             lmb=10**(-1*loss_list.index(min(loss_list)))
                             break
                     
-                    print(f'loss: {min(loss_list)}, lmb: {lmb}')
+                    #print(f'loss: {min(loss_list)}, lmb: {lmb}')
 
-                    lmb=1e-8
+                    #lmb=1e-8
 
                     model_R = Ridge(alpha=lmb)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    print(mean_squared_error(C_vec,omega_derivative_temp))
+
+                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), lmb)
 
                     #omega_derivative_temp=omega_list[loss_list.index(min(loss_list))]
                     
@@ -253,7 +255,7 @@ class varQITE:
                     #model_R.fit(A_mat, C_vec)
                     #omega_derivative_temp=model_R.coef_
 
-                    """
+                    
                     
                     #model_R = Ridge(alpha=abs(np.min(C_vec/len(C_vec)))*1e-8)
                     #print(f'lambda {abs(np.min(C_vec/len(C_vec)))*1e-4}')
@@ -308,15 +310,16 @@ class varQITE:
                     else:
                         rh_side=dC_vec-dA_mat[i]@omega_derivative_temp
 
-                        model_dR = Ridge(alpha=1e-4)
-                        model_dR.fit(A_mat, rh_side)
-                        w_dtheta_dt=model_dR.coef_
+                        #model_dR = Ridge(alpha=1e-4)
+                        #model_dR.fit(A_mat, rh_side)
+                        #w_dtheta_dt=model_dR.coef_
                         
-                        temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
+                        #temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                         #print(f'Loss from ridge derivert: {temp_loss_d}')
-                        """
+                        
+                        
                         loss=1000
-                        lmb_2=10.0
+                        lmb_2=1.0
                         
                         loss_list_2=[]
                         while loss>0.001:
@@ -325,22 +328,27 @@ class varQITE:
                             model_dR.fit(A_mat, rh_side)
                             #TODO: Deep copy coeff?
                             w_dtheta_dt=model_dR.coef_
-                            loss=mean_squared_error(rh_side,w_dtheta_dt)
+                            loss=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                             loss_list_2.append(loss)
 
+                            #print(loss, lmb_2)
                             if lmb_2<1e-14:
                                 lmb_2=10**(-1*loss_list_2.index(min(loss_list_2)))
                                 break
                         
-                        print(f'Derivert: loss_: {min(loss_list_2)}, lmb: {lmb_2}')
-                        """
+                        #print(f'Derivert: loss_: {min(loss_list_2)}, lmb: {lmb_2}')
+                        
+                        model_dR = Ridge(alpha=lmb_2)
+                        model_dR.fit(A_mat, rh_side)
+                        w_dtheta_dt=model_dR.coef_
+                        
+                        #print(mean_squared_error(rh_side,A_mat@w_dtheta_dt), lmb_2)
 
                         #model_dR = Ridge(alpha=1e-3)
                         #model_dR = Ridge(alpha=np.log(-1*len(rh_side)))
                         #model_dR.fit(A_mat, rh_side)
                         #w_dtheta_dt=model_dR.coef_
                         
-                        #temp_loss_d=mean_squared_error(rh_side,w_dtheta_dt)
                         #print(f'Loss from ridge derivert: {temp_loss_d}')
 
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step

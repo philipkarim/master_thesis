@@ -27,16 +27,10 @@ import seaborn as sns
 
 sns.set_style("darkgrid")
 
-# Seeding the program to ensure reproducibillity
-random.seed(2021)
-
-#Best seed=2021
 
 both=True
 
 plot_fidelity=True
-
-
 
 if both==False:
     Hamiltonian=2
@@ -239,7 +233,7 @@ else:
 
 
 
-def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
+def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
     print('------------------------------------------------------')
 
     loss_list=[]
@@ -249,9 +243,9 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
 
     #print(tracing_q, rotational_indices, n_qubits_ansatz)
 
-    optim=optimize(H, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
+    optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
-    varqite_train=varQITE(H, ansatz, steps=n_steps)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps)
     varqite_train.initialize_circuits()
 
     for epoch in range(n_epochs):
@@ -275,7 +269,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
         p_QBM=np.diag(PT.data).real.astype(float)
         #Hamiltonian is the number of hamiltonian params
         print(f'p_QBM: {p_QBM}')
-        loss=optim.cross_entropy_new(p_data,p_QBM)
+        loss=optim.cross_entropy_new(target_data,p_QBM)
         print(f'Loss: {loss, loss_list}')
         
         #Appending loss and epochs
@@ -285,21 +279,21 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
         #print('Updating params..')
         #print(f'd_omega same? {d_omega}')
         #TODO: This is quiet high
-        gradient_qbm=optim.gradient_ps(H, ansatz, d_omega)
+        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         #print(f'gradient of qbm: {gradient_qbm}')
-        gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
+        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
         print(f'gradient_loss: {gradient_loss}')
         #print(type(gradient_loss))
         #TODO: Fix the thing to handle gates with same coefficient
 
-        #TODO: Make the coefficients an own list, and the parameters another. 
+        #TODO: Make the coefficients an own list, and the parameters another
         # That way I can use array for the cefficients. this might actually be the
         #reason for the error
 
-        H_coefficients=np.zeros(len(H))
+        H_coefficients=np.zeros(len(H_operator))
 
-        for ii in range(len(H)):
-            H_coefficients[ii]=H[ii][0][0]
+        for ii in range(len(H_operator)):
+            H_coefficients[ii]=H_operator[ii][0][0]
 
         print(f'Old params: {H_coefficients}')
         #new_parameters=optim.adam(H_coefficients, gradient_loss)
@@ -315,11 +309,11 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
         #Is this only params or the whole list? Then i think i should insert params and the
         #function replace the coefficients itself
 
-        for i in range(len(H)):
-            for j in range(len(H[i])):
-                H[i][j][0]=new_parameters[i]
+        for i in range(len(H_operator)):
+            for j in range(len(H_operator[i])):
+                H_operator[i][j][0]=new_parameters[i]
         
-        varqite_train.update_H(H)
+        varqite_train.update_H(H_operator)
 
         #print(f'Final H, lets go!!!!: {H}')
 
@@ -337,44 +331,23 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
     return loss_list, p_QBM
 
 
-
-p_data1=[0.8, 0.2]
-
-np.random.seed(2021)
-
-#H_U_1=np.random.uniform(low=-1.0, high=1.0, size=1)
-#HU_1=        [[H_U_1[0], 'z', 0]]
-
-H_U_2=np.random.uniform(low=-1.0, high=1.0, size=3)
-
-HU_2=[[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], 
-      [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
-
-#print(H_U_2)
-
-#train(HU_2, ansatz2, 30, p_data2, n_steps=10, lr=0.1)
-
-#OMega isnt trained why?
-
-
-def multiple_simulations(n_sims, ans, epochs, target_data, l_r, steps):
+def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(12345)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
-        H_U_2=np.random.uniform(low=-1., high=1., size=3)
-        print(H_U_2)
-        HU_2=   [[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], \
-                [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
+        H_init_val=np.random.uniform(low=-1., high=1., size=len(initial_H))
+        print(H_init_val)
+        
+        for term_H in range(len(initial_H)):
+            for qub in range(len(initial_H[term_H])):
+                initial_H[term_H][qub][0]=H_init_val[term_H]
+        
         time_1epoch=time.time()
-        if i==1:
-        #print(f'Ansatz: Please be the same: {ans}')
-            saved_error[i], dist=train(HU_2, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, plot=False)
-            qbm_list.append(dist)
-        #print(f'Ansatz: Please be the same: {ans}')
+        saved_error[i], dist=train(initial_H, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
+        qbm_list.append(dist)
         time_1epoch_end=time.time()
 
         print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
@@ -384,53 +357,54 @@ def multiple_simulations(n_sims, ans, epochs, target_data, l_r, steps):
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
 
-    min_error=1000
-    max_error=0
-    best_index=0
-    for j in range(n_sims):
-        print(f'saved error: {saved_error[j][-1]}')
-        if min_error>saved_error[j][-1]:
+
+
+    if len(target_data)==4:
+        min_error=1000
+        max_error=0
+        best_index=0
+        for j in range(n_sims):
             print(f'saved error: {saved_error[j][-1]}')
-            min_error=saved_error[j][-1]
-            best_pbm=qbm_list[j]
-            best_index=j
+            if min_error>saved_error[j][-1]:
+                print(f'saved error: {saved_error[j][-1]}')
+                min_error=saved_error[j][-1]
+                best_pbm=qbm_list[j]
+                best_index=j
 
-        if max_error<saved_error[j][-1]:
-            worst_pbm=qbm_list[j]
-            max_error=saved_error[j][-1]
+            if max_error<saved_error[j][-1]:
+                worst_pbm=qbm_list[j]
+                max_error=saved_error[j][-1]
 
-    print(f'best_pbm {best_pbm}')
-    print(f'worst pbm {worst_pbm}')
-    print('---------------------')
-    print(f'avg_list {avg_list}')
-    print(f'std_list {std_list}')
-    print(f'error {saved_error}')
-    print('---------------------')
-
-
-    bell_state=[0.5,0,0,0.5]
-    barWidth = 0.25
- 
-    # Set position of bar on X axis
-    br1 = np.arange(len(bell_state))
-    br2 = [x + barWidth for x in br1]
-    br3 = [x + barWidth for x in br2]
+        print(f'best_pbm {best_pbm}')
+        print(f'worst pbm {worst_pbm}')
+        print('---------------------')
+        print(f'avg_list {avg_list}')
+        print(f'std_list {std_list}')
+        print(f'error {saved_error}')
+        print('---------------------')
+        bell_state=[0.5,0,0,0.5]
+        barWidth = 0.25
     
-    # Make the plot
-    plt.bar(br1, bell_state, color ='r', width = barWidth,
-            edgecolor ='grey', label ='Bell state')
-    plt.bar(br2, worst_pbm, color ='g', width = barWidth,
-            edgecolor ='grey', label ='Worst trained')
-    plt.bar(br3, best_pbm, color ='b', width = barWidth,
-            edgecolor ='grey', label ='Best trained')
-    plt.xlabel('Sample')
-    plt.ylabel('Probability')
-    plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(str(l_r*1000)+'_bar.png')
-    plt.clf()
-    #plt.show()
+        # Set position of bar on X axis
+        br1 = np.arange(len(bell_state))
+        br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
+        
+        # Make the plot
+        plt.bar(br1, bell_state, color ='r', width = barWidth,
+                edgecolor ='grey', label ='Bell state')
+        plt.bar(br2, worst_pbm, color ='g', width = barWidth,
+                edgecolor ='grey', label ='Worst trained')
+        plt.bar(br3, best_pbm, color ='b', width = barWidth,
+                edgecolor ='grey', label ='Best trained')
+        plt.xlabel('Sample')
+        plt.ylabel('Probability')
+        plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(str(l_r*1000)+'_bar.png')
+        plt.clf()
+        #plt.show()
 
     plt.errorbar(epochs_list, avg_list, std_list)
     plt.xlabel('Epoch')
@@ -440,126 +414,25 @@ def multiple_simulations(n_sims, ans, epochs, target_data, l_r, steps):
     plt.clf()
 
     #plt.show()
-
-    plt.plot(epochs_list, saved_error[best_index])
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Bell state: Best of 10 seeds')
-    plt.savefig(str(l_r*1000)+'_best.png')
-    plt.clf()
+    if len(target_data)==4:
+        plt.plot(epochs_list, saved_error[best_index])
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Bell state: Best of 10 seeds')
+        plt.savefig(str(l_r*1000)+'_best.png')
+        plt.clf()
 
     #plt.show()
 
     for k in range(len(saved_error)):
         plt.plot(epochs_list, saved_error[k])
+
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Bell state: Random seeds')
     plt.savefig(str(l_r*1000)+'_all.png')
 
-    return
-
-#multiple_simulations(2, ansatz2, 15, p_data2, l_r=0.1, steps=10)
-#multiple_simulations(2, ansatz2, 2, p_data2, l_r=0.1, steps=1)
-#exit()
-#multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
-#multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
-
-
-
-"""
-Thoughts:
-- Test encoding thing, do some math?
-- Okay I might know something, well basicly the code doesnt update all the params,
-only half of them actually. But how does it know if it is a controlled gate or not?
-"""
-"""
-Todays list:
-    - Fix rot indices loops
-    - times -0.5j standard
-    - + or - in sums
-    - might be due to ridge?
-
-    - where to put H gate
-
-    -Something wrong with C since it is not arbitrary to the X gates hmmmm
-
-
-"""
-
-
-"""
-H2 best: Non ridge, C:-=, temp.x
-H1 best: Non ridge, C:+=, without temp.x
-"""
-
-
-
-"""
-Next list:
-    - Complete initialisation of the thing med labels and such
-        - Complete C
-    - Go through the TODO's
-    - Gradietn with initialisation
-    - Reproduce results/write code to produce it
-    - Numba/paralellization
-    - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
-        - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
-        that means U_1 is applied first which makes sense for why C is reversed?
-        - The key might be to know why C should be reversed
-        - Maybe mixed the arguments some places?
-    - Fix H to deal with multiple same coefficients
-    - Run multiple circuits in paralell instead of separate
-    - Do classical BM
-    - Gradient too high, why? Normalize 0,1 instead of pi? learning rate?
-    - Always increases, within the righ/left? where it is printed, might be that the parameters is set by running the method, 
-    or that it should be copied some place
-
-    - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
-    pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
-
-    - CV from scikit not ridge CV
-
-    - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
-    Why is loss still good after a run? Something isnt reset, the gradient lacks after the run
-        - I think this is due to some running of the grads in the algorithm scheme maybe?
-        Try transposing it?
-    
-    - Check why they are the same depending on the coefficients in the gradient loop?
-    - Find out what is pulling the predictions so high
-    - Normalizing the quantum gates between -1 and 1?
-
-    - Check on the parameters of adam, maybe better with ridge?
-
-    -Params always same size, maybe try with amsgrad with + instead of minus in the x thing
-
-    - Thoughts: dA is quiet high, and the inverse have some values which are quiet low high
-
-    - Should probably normalize the shit
-    -Gå gjennom dA step by step og finn ut hvorfor den er drithøy
-
-    - Noe henger igjen som object fra tidligere
-
-    Dagens oppgaver:
-    - Undersøke gradient implementasjonsmetodene funker
-        Tror det er noe feil med implementasjonen av de to siste coeffisientene
-        18.45
-    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporten
-        Teste det
-        19.30
-    - Lage init kretser
-        -dc circ og da circ
-    - fikse lambda loopen
-    - Maybe there is only one error in the article
-    -Cyclic property?
-
-
-
-    - If loss is larger than 0.5 reduce the alpha by factor 0.1
-    Should C be negative?
-
-"""
-
+    return 
 
 
 def plot_fidelity(n_steps, name=None):
@@ -693,35 +566,132 @@ def find_best_alpha(n_steps, alpha_space, name=None):
 
     return
 
-#find_best_alpha(10, np.logspace(-4,1,5))
 
 def main():
+    np.random.seed(12345)
+
+    number_of_seeds=4
     learningRate=0.1
-    ite_steps=1
+    ite_steps=10
+    epochs=6
+    optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
             ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-            #[gate, value, qubit]
 
-    Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+    Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
+            [[0., 'z', 0]], [[0., 'z', 1]]]
+
+    Ham2_qubit=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
                 [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
     p_data2=[0.5, 0, 0, 0.5]
-
+    
+    p_data1=[0.8, 0.2]
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
                     #[gate, value, qubit]
-    Ham1=       [[1., 'z', 0]]
+    Ham1=       [[[1., 'z', 0]]]
 
 
-    multiple_simulations(2, ansatz2, 2, p_data2, l_r=learningRate, steps=ite_steps)
+    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
 
     #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    #find_best_alpha(10, np.logspace(-4,1,5))
+
 
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+"""
+Thoughts:
+- Test encoding thing, do some math?
+- Okay I might know something, well basicly the code doesnt update all the params,
+only half of them actually. But how does it know if it is a controlled gate or not?
+
+Todays list:
+    - Fix rot indices loops
+    - times -0.5j standard
+    - + or - in sums
+    - might be due to ridge?
+
+    - where to put H gate
+
+    -Something wrong with C since it is not arbitrary to the X gates hmmmm
+
+
+H2 best: Non ridge, C:-=, temp.x
+H1 best: Non ridge, C:+=, without temp.x
+
+Next list:
+    - Complete initialisation of the thing med labels and such
+        - Complete C
+    - Go through the TODO's
+    - Gradietn with initialisation
+    - Reproduce results/write code to produce it
+    - Numba/paralellization
+    - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
+        - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
+        that means U_1 is applied first which makes sense for why C is reversed?
+        - The key might be to know why C should be reversed
+        - Maybe mixed the arguments some places?
+    - Fix H to deal with multiple same coefficients
+    - Run multiple circuits in paralell instead of separate
+    - Do classical BM
+    - Gradient too high, why? Normalize 0,1 instead of pi? learning rate?
+    - Always increases, within the righ/left? where it is printed, might be that the parameters is set by running the method, 
+    or that it should be copied some place
+
+    - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
+    pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
+
+    - CV from scikit not ridge CV
+
+    - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
+    Why is loss still good after a run? Something isnt reset, the gradient lacks after the run
+        - I think this is due to some running of the grads in the algorithm scheme maybe?
+        Try transposing it?
+    
+    - Check why they are the same depending on the coefficients in the gradient loop?
+    - Find out what is pulling the predictions so high
+    - Normalizing the quantum gates between -1 and 1?
+
+    - Check on the parameters of adam, maybe better with ridge?
+
+    -Params always same size, maybe try with amsgrad with + instead of minus in the x thing
+
+    - Thoughts: dA is quiet high, and the inverse have some values which are quiet low high
+
+    - Should probably normalize the shit
+    -Gå gjennom dA step by step og finn ut hvorfor den er drithøy
+
+    - Noe henger igjen som object fra tidligere
+
+    Dagens oppgaver:
+    - Undersøke gradient implementasjonsmetodene funker
+        Tror det er noe feil med implementasjonen av de to siste coeffisientene
+        18.45
+    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporten
+        Teste det
+        19.30
+    - Lage init kretser
+        -dc circ og da circ
+    - fikse lambda loopen
+    - Maybe there is only one error in the article
+    -Cyclic property?
+
+
+
+    - If loss is larger than 0.5 reduce the alpha by factor 0.1
+    Should C be negative?
+
+"""
