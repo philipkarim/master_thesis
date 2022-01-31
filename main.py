@@ -238,7 +238,7 @@ else:
 
 
 
-def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, optim_method='Amsgrad', plot=True):
+def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
     print('------------------------------------------------------')
 
     loss_list=[]
@@ -302,7 +302,7 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.01, optim_method='Amsgra
 
         print(f'Old params: {H_coefficients}')
         #new_parameters=optim.adam(H_coefficients, gradient_loss)
-        new_parameters=optim.gradient_descent_gradient_done(H_coefficients, gradient_loss)
+        new_parameters=optim.adam(H_coefficients, gradient_loss)
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         print(f'New params {new_parameters}')
@@ -376,7 +376,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
-    np.random.seed(123)
+    np.random.seed(12345)
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
@@ -388,7 +388,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
         saved_error[i], dist=train(HU_2, ansatz2, epochs, target_data, n_steps=steps, lr=l_r, plot=False)
         time_1epoch_end=time.time()
 
-        print(f'Time for 1 loop: {time_1epoch_end-time_1epoch}')
+        print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
         qbm_list.append(dist)
     
 
@@ -471,7 +471,7 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
     return
 
-multiple_simulations(4, ansatz2, 9, p_data2, l_r=0.01, steps=10)
+multiple_simulations(2, ansatz2, 15, p_data2, l_r=0.1, steps=10)
 #exit()
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)

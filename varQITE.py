@@ -308,7 +308,7 @@ class varQITE:
                     else:
                         rh_side=dC_vec-dA_mat[i]@omega_derivative_temp
 
-                        model_dR = Ridge(alpha=1e-3)
+                        model_dR = Ridge(alpha=1e-4)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
                         
@@ -809,7 +809,7 @@ class varQITE:
                         dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
         #TODO: Changed from negative to positive
-        dA*=0.125
+        dA*=-0.125
         
         return dA
 
@@ -818,10 +818,10 @@ class varQITE:
 
         for j_p in range(len(self.rot_indexes)):
             #TODO- is the same?
-            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].\
+            dC_i[j_p]+=-0.5*run_circuit(self.C_init[i_th][j_p].\
             bind_parameters(binding_values[self.rot_indexes][:len(self.C_init[i_th][j_p].parameters)]))
             
-            for i_dc in range(len(self.rot_indexes)):
+            for i_dc in range(len(self.hamil)):
                 for s_dc in range(len(self.rot_indexes)):
                     term1_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][0].parameters)]))
                     term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]))
