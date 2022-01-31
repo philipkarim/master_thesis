@@ -402,7 +402,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
         plt.legend()
         plt.tight_layout()
-        plt.savefig(str(l_r*1000)+'_bar.png')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+'_bar.png')
         plt.clf()
         #plt.show()
 
@@ -410,7 +410,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
-    plt.savefig('lr'+str(l_r*1000)+'_mean.png')
+    plt.savefig('lr'+str(l_r*1000)+str(len(target_data))+'_mean.png')
     plt.clf()
 
     #plt.show()
@@ -419,7 +419,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.title('Bell state: Best of 10 seeds')
-        plt.savefig(str(l_r*1000)+'_best.png')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+'_best.png')
         plt.clf()
 
     #plt.show()
@@ -430,7 +430,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Bell state: Random seeds')
-    plt.savefig(str(l_r*1000)+'_all.png')
+    plt.savefig(str(l_r*1000)+str(len(target_data))+'_all.png')
 
     return 
 
@@ -570,10 +570,10 @@ def find_best_alpha(n_steps, alpha_space, name=None):
 def main():
     np.random.seed(12345)
 
-    number_of_seeds=4
+    number_of_seeds=1
     learningRate=0.1
-    ite_steps=10
-    epochs=6
+    ite_steps=2
+    epochs=1
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -589,7 +589,7 @@ def main():
 
     p_data2=[0.5, 0, 0, 0.5]
     
-    p_data1=[0.8, 0.2]
+    p_data1=[0.2, 0.8]
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
@@ -597,7 +597,8 @@ def main():
     Ham1=       [[[1., 'z', 0]]]
 
 
-    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
 
     #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
