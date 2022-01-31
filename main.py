@@ -568,12 +568,12 @@ def find_best_alpha(n_steps, alpha_space, name=None):
 
 
 def main():
-    np.random.seed(12345)
+    np.random.seed(1357)
 
-    number_of_seeds=1
+    number_of_seeds=3
     learningRate=0.1
-    ite_steps=2
-    epochs=1
+    ite_steps=10
+    epochs=15
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
