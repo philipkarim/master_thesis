@@ -9,6 +9,7 @@ xrandr --query to find the name of the monitors
 
 """
 import random
+import copy
 import numpy as np
 import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
@@ -336,22 +337,6 @@ def train(H, ansatz, n_epochs, p_data, n_steps=10, lr=0.1, optim_method='Adam', 
     return loss_list, p_QBM
 
 
-ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-            #[gate, value, qubit]
-
-Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-            [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
-
-p_data2=[0.5, 0, 0, 0.5]
-
-
-ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                #[gate, value, qubit]
-Ham1=       [[1., 'z', 0]]
 
 p_data1=[0.8, 0.2]
 
@@ -372,7 +357,7 @@ HU_2=[[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]],
 #OMega isnt trained why?
 
 
-def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
+def multiple_simulations(n_sims, ans, epochs, target_data, l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
     
     qbm_list=[]
@@ -382,14 +367,17 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
         print(f'Seed: {i} of {n_sims}')
         H_U_2=np.random.uniform(low=-1., high=1., size=3)
         print(H_U_2)
-        HU_2=   [[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], 
+        HU_2=   [[[H_U_2[0],'z', 0], [H_U_2[0], 'z', 1]], \
                 [[H_U_2[1],'z', 0]], [[H_U_2[2], 'z', 1]]]
         time_1epoch=time.time()
-        saved_error[i], dist=train(HU_2, ansatz2, epochs, target_data, n_steps=steps, lr=l_r, plot=False)
+        if i==1:
+        #print(f'Ansatz: Please be the same: {ans}')
+            saved_error[i], dist=train(HU_2, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, plot=False)
+            qbm_list.append(dist)
+        #print(f'Ansatz: Please be the same: {ans}')
         time_1epoch_end=time.time()
 
         print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
-        qbm_list.append(dist)
     
 
     epochs_list=list(range(0,epochs))
@@ -471,9 +459,9 @@ def multiple_simulations(n_sims, ansatz2, epochs, target_data, l_r, steps):
 
     return
 
-multiple_simulations(2, ansatz2, 15, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(2, ansatz2, 15, p_data2, l_r=0.1, steps=10)
+#multiple_simulations(2, ansatz2, 2, p_data2, l_r=0.1, steps=1)
 #exit()
-#multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.1, steps=10)
 #multiple_simulations(3, ansatz2, 20, p_data2, l_r=0.01, steps=10)
 #multiple_simulations(10, ansatz2, 50, p_data2, l_r=0.001, steps=10)
 
@@ -641,11 +629,7 @@ def plot_fidelity(n_steps, name=None):
         pass
     return
 
-plot_function=time.time()
-#plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
-plot_function_end=time.time()
 
-print(f'Time: {plot_function_end-plot_function}')
 
 def find_best_alpha(n_steps, alpha_space, name=None):
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -710,3 +694,34 @@ def find_best_alpha(n_steps, alpha_space, name=None):
     return
 
 #find_best_alpha(10, np.logspace(-4,1,5))
+
+def main():
+    learningRate=0.1
+    ite_steps=1
+
+    ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+            #[gate, value, qubit]
+
+    Ham2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
+                [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+
+    p_data2=[0.5, 0, 0, 0.5]
+
+
+    ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+                    #[gate, value, qubit]
+    Ham1=       [[1., 'z', 0]]
+
+
+    multiple_simulations(2, ansatz2, 2, p_data2, l_r=learningRate, steps=ite_steps)
+
+    #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+
+
+
+if __name__ == "__main__":
+    main()
