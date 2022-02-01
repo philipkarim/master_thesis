@@ -246,13 +246,18 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
     varqite_train=varQITE(H_operator, ansatz, steps=n_steps)
+    
+    time_intit=time.time()
     varqite_train.initialize_circuits()
-
+    print(f'initialization time: {time.time()-time_intit}')
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
         #Stops, memory allocation??? How to check
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+
+        optimize_time=time.time()
+
         ansatz=update_parameters(ansatz, omega)
 
         print(f' omega: {omega}')
@@ -262,33 +267,23 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
-
         PT=partial_trace(DM,tracing_q)
-
-        #Is this correct?
         p_QBM=np.diag(PT.data).real.astype(float)
-        #Hamiltonian is the number of hamiltonian params
+        
         print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(target_data,p_QBM)
         print(f'Loss: {loss, loss_list}')
-        
+        norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
         loss_list.append(loss)
         epoch_list.append(epoch)
-        #Then find dL/d theta by using eq. 10
-        #print('Updating params..')
-        #print(f'd_omega same? {d_omega}')
-        #TODO: This is quiet high
-        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-        #print(f'gradient of qbm: {gradient_qbm}')
-        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        print(f'gradient_loss: {gradient_loss}')
-        #print(type(gradient_loss))
-        #TODO: Fix the thing to handle gates with same coefficient
 
-        #TODO: Make the coefficients an own list, and the parameters another
-        # That way I can use array for the cefficients. this might actually be the
-        #reason for the error
+        time_g_ps=time.time()
+        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
+        print(f'Time for ps: {time.time()-time_g_ps}')
+
+        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+        print(f'gradient_loss: {gradient_loss}')        
 
         H_coefficients=np.zeros(len(H_operator))
 
@@ -304,20 +299,11 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
 
-        #print(f'new coefficients: {new_parameters}')
-
-        #Is this only params or the whole list? Then i think i should insert params and the
-        #function replace the coefficients itself
-
         for i in range(len(H_operator)):
             for j in range(len(H_operator[i])):
                 H_operator[i][j][0]=new_parameters[i]
         
         varqite_train.update_H(H_operator)
-
-        #print(f'Final H, lets go!!!!: {H}')
-
-        #Compute the dp_QBM/dtheta_i
     
     del optim
     del varqite_train
@@ -328,11 +314,14 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         plt.ylabel('Loss')
         plt.show()
     
-    return loss_list, p_QBM
+    print(f'Time to optimize: {time.time()-optimize_time}')
+
+    return loss_list, norm, p_QBM
 
 
 def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps):
     saved_error=np.zeros((n_sims, epochs))
+    l1_norm=np.zeros((n_sims, epochs))
     
     qbm_list=[]
 
@@ -346,7 +335,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
                 initial_H[term_H][qub][0]=H_init_val[term_H]
         
         time_1epoch=time.time()
-        saved_error[i], dist=train(initial_H, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
+        saved_error[i], l1_norm[i], dist=train(initial_H, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
         qbm_list.append(dist)
         time_1epoch_end=time.time()
 
@@ -357,6 +346,8 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
 
+    print(l1_norm)
+    np.save('results/arrays/momentum_07.npy', saved_error, l1_norm, np.array(qbm_list))
 
 
     if len(target_data)==4:
@@ -503,7 +494,6 @@ def plot_fidelity(n_steps, name=None):
     return
 
 
-
 def find_best_alpha(n_steps, alpha_space, name=None):
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                 ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
@@ -568,12 +558,13 @@ def find_best_alpha(n_steps, alpha_space, name=None):
 
 
 def main():
-    np.random.seed(1357)
+    #np.random.seed(1357)
+    np.random.seed(2022)
 
-    number_of_seeds=3
+    number_of_seeds=2
     learningRate=0.1
     ite_steps=10
-    epochs=15
+    epochs=5
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -587,18 +578,26 @@ def main():
     Ham2_qubit=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
                 [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
-    p_data2=[0.5, 0, 0, 0.5]
+    p_data2=np.array([0.5, 0, 0, 0.5])
     
-    p_data1=[0.2, 0.8]
+    p_data1=np.array([0.2, 0.8])
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
                     #[gate, value, qubit]
     Ham1=       [[[1., 'z', 0]]]
 
+    #Testing the optimization
+    Ham2=np.array(Ham2, dtype=object)
+    Ham1=np.array(Ham1, dtype=object)
 
+    start=time.time()
+    multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(1, Ham2, ansatz2, 2, p_data2, optimizing_method,l_r=learningRate, steps=10)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
-    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
+    end_time=time.time()
+    print(f'Final time: {end_time-start}')
 
     #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))

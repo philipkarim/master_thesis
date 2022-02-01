@@ -113,7 +113,8 @@ def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, ba
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,
                     seed_simulator=10,
-                    optimization_level=0
+                    optimization_level=0,
+                    max_credits=1000
                     )
         results = job.result()
         results = results.get_counts(qc_circ)

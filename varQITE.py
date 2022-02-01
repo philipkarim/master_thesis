@@ -167,14 +167,13 @@ class varQITE:
         self.dA_init=dA_circ
         self.dC_init=dC_circ
         #return A_circ, C_vec #, dA_circ, dc_circ
-        return
+        return A_circ, C_circ, dA_circ, dC_circ
 
     def state_prep(self, gradient_stateprep=False):
         """
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
         omega_w=np.array(self.trial_circ)[:, 1].astype('float')
-
         omega_derivative=np.zeros(len(self.trial_circ))
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
@@ -185,12 +184,19 @@ class varQITE:
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
+
+            time_A=time.time()
             for i_a in range(len(self.rot_indexes)):
                 for j_a in range(len(self.rot_indexes)):
                     #Just the circuits
-                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters(omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]))
+                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
+                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]))
             
             A_mat*=0.25
+
+            #print(f'Time to prepare A: {time.time()-time_A}')
+            
+            time_C=time.time()
 
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
@@ -198,7 +204,12 @@ class varQITE:
                     bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]))
 
             C_vec*=-0.5
-            
+
+            #print(f'Time to prepare C: {time.time()-time_C}')
+
+
+            time_invert=time.time()
+
             ridge_inv=True
             CV=False
             if ridge_inv==False:
@@ -219,11 +230,26 @@ class varQITE:
 
                     #print(abs(np.min(C_vec))*0.001)<   
                     
-                    loss=1000
-                    lmb=1.0
+                    #loss=1000
+                    #lmb=0.1
                     
                     loss_list=[]
-                    #omega_list=[]
+                    lambdas_list=np.logspace(-11,-2,10)
+                    #print(lambdas_list)
+
+
+                    for lmb in lambdas_list:
+                        model_R = Ridge(alpha=lmb)
+                        model_R.fit(A_mat, C_vec)
+                        omega_derivative_temp=model_R.coef_
+                        loss=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
+                        #print(loss, lmb)
+                        loss_list.append(loss)
+
+                    final_lmb=lambdas_list[loss_list.index(min(loss_list))]
+                    #print(f'Finale lmb {final_lmb}')
+
+                    """
                     while loss>0.0001:
                         lmb*=0.1
                         model_R = Ridge(alpha=lmb)
@@ -235,19 +261,19 @@ class varQITE:
                         #print(loss, lmb)
                         loss_list.append(loss)
 
-                        if lmb<1e-14:
+                        if lmb<1e-13:
                             lmb=10**(-1*loss_list.index(min(loss_list)))
                             break
                     
                     #print(f'loss: {min(loss_list)}, lmb: {lmb}')
 
                     #lmb=1e-8
-
-                    model_R = Ridge(alpha=lmb)
+                    """
+                    model_R = Ridge(alpha=final_lmb)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-
-                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), lmb)
+                    loss_list=[]
+                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
 
                     #omega_derivative_temp=omega_list[loss_list.index(min(loss_list))]
                     
@@ -261,19 +287,32 @@ class varQITE:
                     #print(f'lambda {abs(np.min(C_vec/len(C_vec)))*1e-4}')
                     #print(f'Loss from ridge: {loss}')
                     
-            omega_derivative[self.rot_indexes]=omega_derivative_temp
+                    
             
+            #print(f'Time to invert: {time.time()-time_invert}')
+            
+            omega_derivative[self.rot_indexes]=omega_derivative_temp
+
             if gradient_stateprep==False:
+                
+                time_dA=time.time()
                 dA_mat=self.getdA_bound(omega_w)
                 
+                #print(f'Time to prepare whole dA: {time.time()-time_dA}')
+
+                sum_timedC=0
                 for i in range(len(self.hamil)):
                     #TODO: Deep copy takes a lot of time, fix this
                     #dA_mat=np.copy(self.get_dA(i))
                     #dC_vec=np.copy(self.get_dC(i))
+                    
+                    time_dC=time.time()
                     dC_vec=self.getdC_bound(i, omega_w)
+                    sum_timedC+=(time.time()-time_dC)
 
                     #dA_mat=np.copy(self.getdA_init(i))
 
+                    time_invertdC=time.time()
                     if ridge_inv==False:
                         w_dtheta_dt=A_inv@(dC_vec-dA_mat[i]@omega_derivative_temp)#* or @?
                         if t==self.maxTime:
@@ -316,13 +355,22 @@ class varQITE:
                         
                         #temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                         #print(f'Loss from ridge derivert: {temp_loss_d}')
-                        
-                        
+                        for lmb in lambdas_list:
+                            model_dR = Ridge(alpha=lmb)
+                            model_dR.fit(A_mat, rh_side)
+                            w_dtheta_dt=model_dR.coef_
+                            loss=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
+                            #print(loss, lmb)
+                            loss_list.append(loss)
+
+                        final_lmb_2=lambdas_list[loss_list.index(min(loss_list))]
+                        loss_list=[]
+                        """
                         loss=1000
-                        lmb_2=1.0
+                        lmb_2=0.1
                         
                         loss_list_2=[]
-                        while loss>0.001:
+                        while loss>0.0001:
                             lmb_2*=0.1
                             model_dR = Ridge(alpha=lmb_2)
                             model_dR.fit(A_mat, rh_side)
@@ -331,18 +379,20 @@ class varQITE:
                             loss=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                             loss_list_2.append(loss)
 
-                            #print(loss, lmb_2)
-                            if lmb_2<1e-14:
+                            print(loss, lmb_2)
+                            if lmb_2<1e-13:
                                 lmb_2=10**(-1*loss_list_2.index(min(loss_list_2)))
+                                print(lmb_2)
                                 break
+                        """
                         
                         #print(f'Derivert: loss_: {min(loss_list_2)}, lmb: {lmb_2}')
                         
-                        model_dR = Ridge(alpha=lmb_2)
+                        model_dR = Ridge(alpha=final_lmb_2)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
                         
-                        #print(mean_squared_error(rh_side,A_mat@w_dtheta_dt), lmb_2)
+                        #print(mean_squared_error(rh_side,A_mat@w_dtheta_dt), final_lmb_2)
 
                         #model_dR = Ridge(alpha=1e-3)
                         #model_dR = Ridge(alpha=np.log(-1*len(rh_side)))
@@ -350,7 +400,7 @@ class varQITE:
                         #w_dtheta_dt=model_dR.coef_
                         
                         #print(f'Loss from ridge derivert: {temp_loss_d}')
-
+                    #print(f'Time to invert deriated: {time.time()-time_invertdC}')
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
                     #print(f'w_dtheta: {w_dtheta_dt}')
 
@@ -369,15 +419,8 @@ class varQITE:
             #print(omega_w)
             #TODO: do I change this multiple times?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
-            #print(self.trial_circ)
-            #exit()
-            #print(omega_w)
-                #Solve A(d d omega)=d C -(d A)*d omega(t)
-                
-                #Compute:
-                #dw(t)=dw(t-time_step)+d d w time_step
-            #compute dw
-            #w(t+time_step)=w(t)dw(t)time_step
+
+            #print(f'Time to bound dC {sum_timedC}')
 
         return omega_w, self.dwdth
 
@@ -801,15 +844,16 @@ class varQITE:
 
         dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
 
+        da_run=time.time()
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
                 for s_da in range(len(self.rot_indexes)):
-                    #print(self.dA_init[p_da][q_da][s_da][0])
-                    #print(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
                     dA_mat_temp[p_da][q_da][s_da][0]=run_circuit(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
                     dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]))
-                    #Quiet high, 0.5 print(dA_mat_temp[p_da][q_da][s_da][0])
-       
+        #print(f'Time to run dA circs{time.time()-da_run}')
+
+        #TODO: slice this, but it uses very little time to compute
+        da_compute=time.time()
         for i in range(len(self.hamil)):
             for p in range(len(self.rot_indexes)):
                 for q in range(len(self.rot_indexes)):
@@ -818,7 +862,8 @@ class varQITE:
 
         #TODO: Changed from negative to positive
         dA*=-0.125
-        
+        #print(f'Time to compute dA circs{time.time()-da_compute}')
+
         return dA
 
     def getdC_bound(self,i_th, binding_values):
