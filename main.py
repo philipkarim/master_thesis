@@ -347,7 +347,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     std_list=np.std(saved_error, axis=0)
 
     print(l1_norm)
-    np.save('results/arrays/momentum_07.npy', saved_error, l1_norm, np.array(qbm_list))
+    np.save('results/arrays/momentum_.npy', saved_error, l1_norm, np.array(qbm_list))
 
 
     if len(target_data)==4:
@@ -564,7 +564,7 @@ def main():
     number_of_seeds=2
     learningRate=0.1
     ite_steps=10
-    epochs=5
+    epochs=30
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -592,10 +592,10 @@ def main():
     Ham1=np.array(Ham1, dtype=object)
 
     start=time.time()
-    multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(2, Ham1, ansatz1, 1, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(1, Ham2, ansatz2, 2, p_data2, optimizing_method,l_r=learningRate, steps=10)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
-    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
+    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
@@ -693,5 +693,8 @@ Next list:
 
     - If loss is larger than 0.5 reduce the alpha by factor 0.1
     Should C be negative?
+
+
+    -Change three things: seed, momentum, saved momentum title
 
 """
