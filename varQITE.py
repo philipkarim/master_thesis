@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.core.numeric import zeros_like
 
-from sklearn.linear_model import Ridge, RidgeCV, Lasso
+from sklearn.linear_model import Ridge, RidgeCV, Lasso, BayesianRidge
 
 from qiskit.circuit import ParameterVector
 
@@ -177,8 +177,8 @@ class varQITE:
         omega_derivative=np.zeros(len(self.trial_circ))
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
-        A_mat=zeros_like(self.A_init, dtype='float')
-        C_vec=zeros_like(self.rot_indexes, dtype='float')
+        A_mat=zeros_like(self.A_init, dtype='float128')
+        C_vec=zeros_like(self.rot_indexes, dtype='float128')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
@@ -233,21 +233,44 @@ class varQITE:
                     #loss=1000
                     #lmb=0.1
                     
-                    loss_list=[]
-                    lambdas_list=np.logspace(-11,-2,10)
-                    #print(lambdas_list)
+                    lambdas_list=np.logspace(-10,-4,7)
 
+                    loss=1e8
+                    """
+                    for alpha in range(len(lambdas_list)):
+                        for lmb in range(len(lambdas_list)):
+                            model_R = BayesianRidge(lambda_init=2, alpha_1=0)
+                            model_R.fit(A_mat, C_vec)
+                            omega_derivative_temp=model_R.coef_
+                            loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
+                            print(loss_temp, lambdas_list[lmb], lambdas_list[alpha])
+                            
+                            if loss_temp<loss:
+                                final_lmb, final_alp=lambdas_list[lmb], lambdas_list[alpha] 
+                    """
 
-                    for lmb in lambdas_list:
-                        model_R = Ridge(alpha=lmb)
+                    for lmb in range(len(lambdas_list)):
+                        model_R = Ridge(alpha=lambdas_list[lmb])
                         model_R.fit(A_mat, C_vec)
                         omega_derivative_temp=model_R.coef_
-                        loss=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
-                        #print(loss, lmb)
-                        loss_list.append(loss)
+                        loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
+                        print(loss_temp, lambdas_list[lmb])
+                        
+                        if loss_temp<loss:
+                            final_lmb=lambdas_list[lmb]
+                            loss=loss_temp
+                    
 
-                    final_lmb=lambdas_list[loss_list.index(min(loss_list))]
-                    #print(f'Finale lmb {final_lmb}')
+
+                    #final_lmb=lambdas_list[loss_list.index(min(loss_list))]
+                    #print(f'Finale lmb {final_lmb} and alpha: {final_alp}')
+
+                    #print(f'A mat: {A_mat}')
+                    #print(f'omega: {omega_derivative_temp}')
+                    #print(f'A @ w: {A_mat@omega_derivative_temp}')
+                    #print(f'C vec: {C_vec}')
+
+
 
                     """
                     while loss>0.0001:
@@ -269,11 +292,18 @@ class varQITE:
 
                     #lmb=1e-8
                     """
+                    
                     model_R = Ridge(alpha=final_lmb)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    loss_list=[]
-                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
+                    print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
+
+                    
+                    #model_R = BayesianRidge(lambda_init=0.5)
+                    #model_R.fit(A_mat, C_vec)
+                    #omega_derivative_temp=model_R.coef_
+                    #loss_list=[]
+                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb, final_alp)
 
                     #omega_derivative_temp=omega_list[loss_list.index(min(loss_list))]
                     

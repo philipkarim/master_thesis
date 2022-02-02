@@ -347,7 +347,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     std_list=np.std(saved_error, axis=0)
 
     print(l1_norm)
-    np.save('results/arrays/momentum_.npy', saved_error, l1_norm, np.array(qbm_list))
+    np.save('results/arrays/.npy', saved_error, l1_norm, np.array(qbm_list))
 
 
     if len(target_data)==4:
@@ -451,7 +451,7 @@ def plot_fidelity(n_steps, name=None):
     print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
     varqite1.initialize_circuits()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
     
     for i in range(len(list_omegas_fielity1)):
@@ -464,7 +464,7 @@ def plot_fidelity(n_steps, name=None):
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
     varqite2.initialize_circuits()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     list_omegas_fielity2=varqite2.fidelity_omega_list()    
     
     for j in range(len(list_omegas_fielity2)):
@@ -564,7 +564,7 @@ def main():
     number_of_seeds=2
     learningRate=0.1
     ite_steps=10
-    epochs=30
+    epochs=25
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -592,14 +592,14 @@ def main():
     Ham1=np.array(Ham1, dtype=object)
 
     start=time.time()
-    #multiple_simulations(2, Ham1, ansatz1, 1, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(1, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(1, Ham2, ansatz2, 2, p_data2, optimizing_method,l_r=learningRate, steps=10)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
-    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
+    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
