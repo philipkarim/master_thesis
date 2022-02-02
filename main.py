@@ -238,7 +238,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
     loss_list=[]
     epoch_list=[]
-
+    norm_list=[]
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
     #print(tracing_q, rotational_indices, n_qubits_ansatz)
@@ -275,6 +275,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
+        norm_list.append(norm)
         loss_list.append(loss)
         epoch_list.append(epoch)
 
@@ -316,7 +317,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
     
     print(f'Time to optimize: {time.time()-optimize_time}')
 
-    return loss_list, norm, p_QBM
+    return np.array(loss_list), np.array(norm_list), p_QBM
 
 
 def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps):
@@ -557,14 +558,49 @@ def find_best_alpha(n_steps, alpha_space, name=None):
     return
 
 
+def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps, name):
+    seed_error_l1=[]
+ 
+    for i in range(n_sims):
+        print(f'Seed: {i} of {n_sims}')
+        H_init_val=np.random.uniform(low=-1., high=1., size=len(initial_H))
+        print(H_init_val)
+        
+        for term_H in range(len(initial_H)):
+            for qub in range(len(initial_H[term_H])):
+                initial_H[term_H][qub][0]=H_init_val[term_H]
+        
+        time_1epoch=time.time()
+        loss_temp, norm_temp, dist=train(initial_H, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
+        time_1epoch_end=time.time()
+        seed_error_l1.append(np.array([loss_temp, norm_temp]))
+        
+        print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
+    
+    seed_error_l1=np.array(seed_error_l1)
+    np.save('results/arrays/learningrate/'+str(l_r)+name+'.npy', seed_error_l1)
+
+    return 
+
+
+
+
+
+
+
+
+
+
+
+
 def main():
     #np.random.seed(1357)
     np.random.seed(2022)
 
-    number_of_seeds=2
+    number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=25
+    epochs=3
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -580,7 +616,7 @@ def main():
 
     p_data2=np.array([0.5, 0, 0, 0.5])
     
-    p_data1=np.array([0.2, 0.8])
+    p_data1=np.array([0.5, 0.5])
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
@@ -592,17 +628,24 @@ def main():
     Ham1=np.array(Ham1, dtype=object)
 
     start=time.time()
-    #multiple_simulations(1, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
+
+    learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.5, steps=ite_steps, name='07')
+    learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, name='07')
+    learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.05, steps=ite_steps, name='07')
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.01, steps=ite_steps)
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps)
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
+
+
     #multiple_simulations(1, Ham2, ansatz2, 2, p_data2, optimizing_method,l_r=learningRate, steps=10)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
+    
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
-
-
 
 
 if __name__ == "__main__":
@@ -696,5 +739,11 @@ Next list:
 
 
     -Change three things: seed, momentum, saved momentum title
+
+
+    - 0.5, 0.1, 0.05. 0.01, 0.005, 0.002
+    - 0.7m,                         0.99
+
+    2 loops
 
 """

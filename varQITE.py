@@ -254,7 +254,7 @@ class varQITE:
                         model_R.fit(A_mat, C_vec)
                         omega_derivative_temp=model_R.coef_
                         loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
-                        print(loss_temp, lambdas_list[lmb])
+                        #print(loss_temp, lambdas_list[lmb])
                         
                         if loss_temp<loss:
                             final_lmb=lambdas_list[lmb]
@@ -296,7 +296,7 @@ class varQITE:
                     model_R = Ridge(alpha=final_lmb)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
+                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
 
                     
                     #model_R = BayesianRidge(lambda_init=0.5)
@@ -385,16 +385,19 @@ class varQITE:
                         
                         #temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                         #print(f'Loss from ridge derivert: {temp_loss_d}')
-                        for lmb in lambdas_list:
-                            model_dR = Ridge(alpha=lmb)
+                        
+                        loss2=1e8
+                        for lmb in range(len(lambdas_list)):
+                            model_dR = Ridge(alpha=lambdas_list[lmb])
                             model_dR.fit(A_mat, rh_side)
                             w_dtheta_dt=model_dR.coef_
-                            loss=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
+                            loss_temp2=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                             #print(loss, lmb)
-                            loss_list.append(loss)
+                            
+                            if loss_temp2<loss2:
+                                final_lmb2=lambdas_list[lmb]
+                                loss2=loss_temp2
 
-                        final_lmb_2=lambdas_list[loss_list.index(min(loss_list))]
-                        loss_list=[]
                         """
                         loss=1000
                         lmb_2=0.1
@@ -418,7 +421,7 @@ class varQITE:
                         
                         #print(f'Derivert: loss_: {min(loss_list_2)}, lmb: {lmb_2}')
                         
-                        model_dR = Ridge(alpha=final_lmb_2)
+                        model_dR = Ridge(alpha=final_lmb2)
                         model_dR.fit(A_mat, rh_side)
                         w_dtheta_dt=model_dR.coef_
                         
