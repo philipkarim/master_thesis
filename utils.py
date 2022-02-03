@@ -109,13 +109,17 @@ def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, ba
             prediction.append(prediction_value)
 
     else:
+        backendtest = qk.Aer.get_backend(backend)
+        backendtest.set_options(device='CPU')
+        
         job = qk.execute(qc_circ,
-                    backend=qk.Aer.get_backend(backend),
+                    backend=backendtest,
                     shots=shots,
                     seed_simulator=10,
                     optimization_level=0,
                     max_credits=1000
                     )
+        #Run or execute?
         results = job.result()
         results = results.get_counts(qc_circ)
 
@@ -130,8 +134,9 @@ def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, ba
                 prediction += value
         prediction/=shots
 
-    return prediction
+        return prediction
 
+    
 
 class pauli_terms:
     def __init__(self, theta=None, label=None):

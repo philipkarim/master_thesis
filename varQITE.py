@@ -177,8 +177,8 @@ class varQITE:
         omega_derivative=np.zeros(len(self.trial_circ))
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
-        A_mat=zeros_like(self.A_init, dtype='float128')
-        C_vec=zeros_like(self.rot_indexes, dtype='float128')
+        A_mat=zeros_like(self.A_init, dtype='float64')
+        C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
