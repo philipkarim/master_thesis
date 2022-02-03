@@ -250,7 +250,9 @@ class varQITE:
                     """
 
                     for lmb in range(len(lambdas_list)):
+                        #model_R = Ridge(alpha=lambdas_list[lmb])
                         model_R = Ridge(alpha=lambdas_list[lmb])
+
                         model_R.fit(A_mat, C_vec)
                         omega_derivative_temp=model_R.coef_
                         loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
@@ -877,7 +879,7 @@ class varQITE:
 
         dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
 
-        da_run=time.time()
+        #da_run=time.time()
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
                 for s_da in range(len(self.rot_indexes)):
@@ -886,7 +888,7 @@ class varQITE:
         #print(f'Time to run dA circs{time.time()-da_run}')
 
         #TODO: slice this, but it uses very little time to compute
-        da_compute=time.time()
+        #da_compute=time.time()
         for i in range(len(self.hamil)):
             for p in range(len(self.rot_indexes)):
                 for q in range(len(self.rot_indexes)):
@@ -904,7 +906,7 @@ class varQITE:
 
         for j_p in range(len(self.rot_indexes)):
             #TODO- is the same?
-            dC_i[j_p]+=-0.5*run_circuit(self.C_init[i_th][j_p].\
+            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].\
             bind_parameters(binding_values[self.rot_indexes][:len(self.C_init[i_th][j_p].parameters)]))
             
             for i_dc in range(len(self.hamil)):
@@ -913,6 +915,8 @@ class varQITE:
                     term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]))
                     dC_i[j_p]+=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
         
+        #print(dC_i)
+
         return dC_i
 
     def init_dA(self,pp, ss, qq, type_circ):

@@ -595,7 +595,7 @@ def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_m
 
 def main():
     #np.random.seed(1357)
-    np.random.seed(2022)
+    np.random.seed(9999)
 
     number_of_seeds=10
     learningRate=0.1
@@ -632,7 +632,7 @@ def main():
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.01, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    #multiple_simulations(1, Ham1, ansatz1, 1, p_data1, optimizing_method,l_r=0.01, steps=ite_steps)
+    multiple_simulations(1, Ham1, ansatz1, 10, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
@@ -644,7 +644,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
