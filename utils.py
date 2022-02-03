@@ -110,7 +110,7 @@ def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, ba
 
     else:
         backendtest = qk.Aer.get_backend(backend)
-        backendtest.set_options(device='CPU')
+        #backendtest.set_options(device='CPU')
         
         job = qk.execute(qc_circ,
                     backend=backendtest,

@@ -295,7 +295,7 @@ class varQITE:
                     #lmb=1e-8
                     """
                     
-                    model_R = Ridge(alpha=final_lmb)
+                    model_R = Ridge(alpha=final_lmb)#0.001)
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
                     #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
