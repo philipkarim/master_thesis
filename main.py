@@ -608,11 +608,11 @@ def main():
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
-    Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
-            [[0., 'z', 0]], [[0., 'z', 1]]]
+    #Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
+    #        [[0., 'z', 0]], [[0., 'z', 1]]]
 
-    Ham2_qubit=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-                [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
+    Ham2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+                [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
     p_data2=np.array([0.5, 0, 0, 0.5])
     
@@ -644,7 +644,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
