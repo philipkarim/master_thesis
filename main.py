@@ -320,7 +320,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
     return np.array(loss_list), np.array(norm_list), p_QBM
 
 
-def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps):
+def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps, names):
     saved_error=np.zeros((n_sims, epochs))
     l1_norm=np.zeros((n_sims, epochs))
     
@@ -328,7 +328,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
-        H_init_val=np.random.uniform(low=-1., high=1., size=len(initial_H))
+        H_init_val=np.random.uniform(low=-0.5, high=0.5, size=len(initial_H))
         print(H_init_val)
         
         for term_H in range(len(initial_H)):
@@ -347,8 +347,8 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
 
-    print(l1_norm)
-    np.save('results/arrays/.npy', saved_error, l1_norm, np.array(qbm_list))
+    #print(l1_norm)
+    #np.save('results/arrays/.npy', saved_error, l1_norm, np.array(qbm_list))
 
 
     if len(target_data)==4:
@@ -394,15 +394,15 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
         plt.legend()
         plt.tight_layout()
-        plt.savefig(str(l_r*1000)+str(len(target_data))+'_bar.png')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_bar.png')
         plt.clf()
         #plt.show()
 
     plt.errorbar(epochs_list, avg_list, std_list)
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
-    plt.savefig('lr'+str(l_r*1000)+str(len(target_data))+'_mean.png')
+    #plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
+    plt.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_mean.png')
     plt.clf()
 
     #plt.show()
@@ -410,19 +410,26 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.plot(epochs_list, saved_error[best_index])
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.title('Bell state: Best of 10 seeds')
-        plt.savefig(str(l_r*1000)+str(len(target_data))+'_best.png')
+        #plt.title('Bell state: Best of 10 seeds')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_best.png')
         plt.clf()
 
     #plt.show()
+    for k in range(len(l1_norm)):
+        plt.plot(epochs_list, l1_norm[k])
+
+    plt.xlabel('Epoch')
+    plt.ylabel('L1 norm')
+    #plt.title('Bell state: Random seeds')
+    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
 
     for k in range(len(saved_error)):
         plt.plot(epochs_list, saved_error[k])
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.title('Bell state: Random seeds')
-    plt.savefig(str(l_r*1000)+str(len(target_data))+'_all.png')
+    #plt.title('Bell state: Random seeds')
+    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
 
     return 
 
@@ -595,7 +602,7 @@ def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_m
 
 def main():
     #np.random.seed(1357)
-    np.random.seed(9999)
+    np.random.seed(123)
 
     number_of_seeds=10
     learningRate=0.1
@@ -608,15 +615,15 @@ def main():
             ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
             ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
-    #Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
-    #        [[0., 'z', 0]], [[0., 'z', 1]]]
+    Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
+            [[0., 'z', 0]], [[0., 'z', 1]]]
 
-    Ham2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-                [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+    #Ham2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+    #            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
     p_data2=np.array([0.5, 0, 0, 0.5])
     
-    p_data1=np.array([0.5, 0.5])
+    p_data1=np.array([0.70, 0.30])
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
@@ -632,19 +639,19 @@ def main():
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.01, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    #multiple_simulations(1, Ham1, ansatz1, 10, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
+    #multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='pdAH2')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 
-    #multiple_simulations(1, Ham2, ansatz2, 2, p_data2, optimizing_method,l_r=learningRate, steps=10)
+    #multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=learningRate, steps=10)
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 

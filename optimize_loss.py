@@ -63,8 +63,9 @@ class optimize:
         
         if self.method=='Amsgrad':
 
-            a_t = self.learning_rate*np.sqrt(1-beta2**self.t)/(1-beta1**self.t)
-            print(self.learning_rate)
+            #a_t = self.learning_rate*np.sqrt(1-beta2**self.t)/(1-beta1**self.t)
+            a_t=self.learning_rate
+            #print(self.learning_rate)
             #a_t=self.learning_rate
             self.vhat=np.maximum(self.vhat, self.v)
             x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)
