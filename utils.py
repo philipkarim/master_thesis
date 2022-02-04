@@ -75,9 +75,10 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc_circ, shots=0, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
+def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
     
     if parallel==True:
+        #Read at this jobmanager thing https://quantumcomputing.stackexchange.com/questions/13707/how-many-shots-are-executed-when-using-the-ibmqjobmanager
         qobj_list = [qk.compile(qc, qk.Aer.get_backend(backend)) for qc in qc_circ]
         job_list = [backend.run(qobj) for qobj in qobj_list]
 
@@ -91,7 +92,7 @@ def run_circuit(qc_circ, shots=0, multiple_circuits=False ,parallel=False, backe
         job = qk.execute(qc_circ,
                     backend=qk.Aer.get_backend(backend),
                     shots=shots,
-                    seed_simulator=10,
+                    #seed_simulator=10,
                     optimization_level=0
                     )
         results = job.result()
@@ -109,36 +110,77 @@ def run_circuit(qc_circ, shots=0, multiple_circuits=False ,parallel=False, backe
             prediction.append(prediction_value)
 
     else:
-        backendtest = qk.Aer.get_backend(backend)
-        #backendtest.set_options(device='CPU')
-        
-        job = qk.execute(qc_circ,
-                    backend=backendtest,
-                    shots=shots,
-                    seed_simulator=10,
-                    optimization_level=0,
-                    max_credits=1000
-                    )
-        #Run or execute?
-        results = job.result()
-        
-        results = results.get_counts(qc_circ)
-        print(results)
+        if statevector_test==False:
+            backendtest = qk.Aer.get_backend(backend)
+            #backendtest.set_options(device='CPU')
+            
+            job = qk.execute(qc_circ,
+                        backend=backendtest,
+                        shots=shots,
+                        seed_simulator=10,
+                        optimization_level=0,
+                        max_credits=1000
+                        )
+            #Run or execute?
+            results = job.result()
+            
+            results = results.get_counts(qc_circ)
+            #print(results)
 
 
-        if histogram==True:
-            qk.visualization.plot_histogram(results)
-            plt.show()
+            if histogram==True:
+                qk.visualization.plot_histogram(results)
+                plt.show()
 
-        prediction = 0
-        
-        for key,value in results.items():
-            #print(key, value)
-            if key == '1':
-                prediction += value
-        prediction/=shots
-        
-        return prediction
+            prediction = 0
+            
+            for key,value in results.items():
+                #print(key, value)
+                if key == '1':
+                    prediction += value
+            prediction/=shots
+            
+            return prediction
+        else:
+            #backendtest = qk.Aer.get_backend(backend)
+            #backendtest.set_options(device='CPU')
+            
+            job = qk.execute(qc_circ,
+                        backend=qk.Aer.get_backend(backend),
+                        shots=0
+                        )
+            #Run or execute?
+            results = job.result()
+            #print(results.data())
+            counts = results.get_counts(qc_circ)
+            #print(results)
+
+            #print(list(counts.items())[0][0])
+            
+            measurement_key=len(list(counts.items())[0][0])*'0'
+            
+            #print(counts.items()['111'])
+
+            #exit()
+            #measure_key = len(str(next(iter(counts.items()))))
+            #res = list(counts.items().keys())[0]
+
+
+            #print(measure_key)
+            if histogram==True:
+                qk.visualization.plot_histogram(results)
+                plt.show()
+
+            prediction = 0
+            for key,value in counts.items():
+                #001 for H1
+                if key == '00011' or key=='001':
+                    prediction = value
+                    #print(prediction)
+            
+            #exit()
+            
+            return prediction
 
     
 
