@@ -422,6 +422,8 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.ylabel('L1 norm')
     #plt.title('Bell state: Random seeds')
     plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
+    plt.clf()
+
 
     for k in range(len(saved_error)):
         plt.plot(epochs_list, saved_error[k])
@@ -604,7 +606,7 @@ def main():
     #np.random.seed(1357)
     np.random.seed(123)
 
-    number_of_seeds=10
+    number_of_seeds=1
     learningRate=0.1
     ite_steps=10
     epochs=30
@@ -636,11 +638,11 @@ def main():
 
     start=time.time()
 
-    #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.01, steps=ite_steps, name='09')
+    #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
     #multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='pdAH2')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps)
+    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testpCdc')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 
