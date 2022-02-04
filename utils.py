@@ -75,7 +75,7 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
+def run_circuit(qc_circ, shots=0, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
     
     if parallel==True:
         qobj_list = [qk.compile(qc, qk.Aer.get_backend(backend)) for qc in qc_circ]
@@ -121,19 +121,23 @@ def run_circuit(qc_circ, shots=1024, multiple_circuits=False ,parallel=False, ba
                     )
         #Run or execute?
         results = job.result()
+        
         results = results.get_counts(qc_circ)
+        print(results)
+
 
         if histogram==True:
             qk.visualization.plot_histogram(results)
             plt.show()
 
         prediction = 0
+        
         for key,value in results.items():
             #print(key, value)
             if key == '1':
                 prediction += value
         prediction/=shots
-
+        
         return prediction
 
     
