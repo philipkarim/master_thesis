@@ -350,6 +350,9 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
 
+    avg_list_norm=np.mean(l1_norm, axis=0)
+    std_list_norm=np.std(l1_norm, axis=0)
+
     #print(l1_norm)
     #np.save('results/arrays/.npy', saved_error, l1_norm, np.array(qbm_list))
 
@@ -435,6 +438,56 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.ylabel('Loss')
     #plt.title('Bell state: Random seeds')
     plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
+    plt.clf()
+
+        # Plot the subplots
+    # Plot 1
+    fig, axs = plt.subplots(2, sharex=True)
+    fig.suptitle('QBM training- Target: [0.8, 0.2]')    #fig.xlabel('Epoch')
+    #plt.figure(figsize=[11, 9])
+    axs[1].errorbar(epochs_list, avg_list, std_list)
+    axs[1].set(ylabel='Loss', xlabel='Epoch')
+    axs[0].errorbar(epochs_list, avg_list_norm, std_list_norm)
+    axs[0].set(ylabel='L1 Distance')
+    fig.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_both.png')
+
+    """
+    plt.subplot(2, sharex=True)
+    ax1._label('Loss')
+
+    plt.plot(x, y1, 'g', linewidth=2)
+    plt.title('Plot 1: 1st Degree curve')
+
+    # Plot 2
+    plt.subplot(2, 2, 2)
+    plt.scatter(x, y2, color='k')
+    plt.title('Plot 2: 2nd Degree curve')
+
+    # Plot 3
+    plt.subplot(2, 2, 3)
+    plt.plot(x, y3, '-.y', linewidth=3)
+    plt.title('Plot 3: 3rd Degree curve')
+
+    # Plot 4
+    plt.subplot(2, 2, 4)
+    plt.plot(x, y4, '--b', linewidth=3)
+    plt.title('Plot 4: 4th Degree curve')
+
+    plt.show()
+
+
+    fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+    ax1.errorbar(epochs_list, avg_list, std_list)
+    ax1._label('Loss')
+    plt.xlabel('Epoch')
+
+    ax2.errorbar(epochs_list, avg_list_norm, std_list_norm)
+    #ax2.xlabel('Epoch')
+    ax2._label('L1 norm')
+
+    #plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
+    plt.clf()
+    """
 
     return 
 
@@ -627,9 +680,9 @@ def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_m
 
 def main():
     #np.random.seed(1357)
-    np.random.seed(123)
+    np.random.seed(2022)
 
-    number_of_seeds=1
+    number_of_seeds=10
     learningRate=0.1
     ite_steps=10
     epochs=50
@@ -648,7 +701,7 @@ def main():
 
     p_data2=np.array([0.5, 0, 0, 0.5])
     
-    p_data1=np.array([0.2, 0.8])
+    p_data1=np.array([0.8, 0.2])
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
@@ -664,8 +717,9 @@ def main():
     #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='test')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test')
+    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='5_seed_25_epoch')
+    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='')
+    #multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testing_plot_with_norm')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 

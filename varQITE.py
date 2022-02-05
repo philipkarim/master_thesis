@@ -946,7 +946,7 @@ class varQITE:
                         dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
         #TODO: Changed from negative to positive
-        dA*=+0.125
+        dA*=-0.125
         #print(f'Time to compute dA circs{time.time()-da_compute}')
 
         return dA
@@ -969,7 +969,7 @@ class varQITE:
                     term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1]\
                     .bind_parameters(binding_values[self.rot_indexes]\
                     [:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]), statevector_test=True)
-                    dC_i[j_p]-=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
+                    dC_i[j_p]+=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
         
         #print(dC_i)
 
