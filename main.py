@@ -443,7 +443,9 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         # Plot the subplots
     # Plot 1
     fig, axs = plt.subplots(2, sharex=True)
-    fig.suptitle('QBM training- Target: [0.8, 0.2]')    #fig.xlabel('Epoch')
+    #fig.suptitle('QBM training- Target: '+str(target_data))    #fig.xlabel('Epoch')
+    fig.suptitle('QBM training- Target: Bell state')    #fig.xlabel('Epoch')
+
     #plt.figure(figsize=[11, 9])
     axs[1].errorbar(epochs_list, avg_list, std_list)
     axs[1].set(ylabel='Loss', xlabel='Epoch')
@@ -717,8 +719,8 @@ def main():
     #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='5_seed_25_epoch')
-    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='')
+    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='')
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
     #multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testing_plot_with_norm')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
