@@ -465,6 +465,14 @@ def plot_fidelity(n_steps, name=None):
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
     
+    
+    #This is changed in the thing
+    trace_circ1=create_initialstate(params2)
+    DM1=DensityMatrix.from_instruction(trace_circ1)
+    PT1 =partial_trace(DM1,[1,2])
+    
+    print(PT1.data)
+    
     for i in range(len(list_omegas_fielity1)):
         params1=update_parameters(params1, list_omegas_fielity1[i])
         trace_circ1=create_initialstate(params1)
@@ -492,12 +500,10 @@ def plot_fidelity(n_steps, name=None):
         fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
         
         PT2_2=np.around(state_fidelity(partial_trace(DM2,[0,1]).data, H2_analytical, validate=False), decimals=4)
-        PT2_3=np.around(state_fidelity(partial_trace(DM2,[0,2]).data, H2_analytical, validate=False), decimals=4)
-        PT2_4=np.around(state_fidelity(partial_trace(DM2,[1,3]).data, H2_analytical, validate=False), decimals=4)
         PT2_5=np.around(state_fidelity(partial_trace(DM2,[0,3]).data, H2_analytical, validate=False), decimals=4)
         PT2_6=np.around(state_fidelity(partial_trace(DM2,[1,2]).data, H2_analytical, validate=False), decimals=4)
 
-    print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_3:{PT2_3}, H2_4: {PT2_4}, H2_5: {PT2_5}, H2_6: {PT2_6}')
+    print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_5: {PT2_5}, H2_6: {PT2_6}')
 
     plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
     plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
@@ -512,7 +518,7 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-        #plt.show()
+        plt.show()
         pass
     
     return
@@ -667,7 +673,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
