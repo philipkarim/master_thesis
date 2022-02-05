@@ -184,6 +184,7 @@ class varQITE:
             print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
+            
 
             time_A=time.time()
             for i_a in range(len(self.rot_indexes)):
@@ -206,8 +207,8 @@ class varQITE:
                 for j_c in range(len(self.rot_indexes)):
                     C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].\
                     bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]), statevector_test=True)
-
             
+            #-1 gives higher than 1 fidelity 
             C_vec*=-0.5
 
             #print(C_vec)
@@ -261,10 +262,10 @@ class varQITE:
                                 final_lmb, final_alp=lambdas_list[lmb], lambdas_list[alpha] 
                     """
 
+                    #print(A_mat)
                     for lmb in range(len(lambdas_list)):
                         #model_R = Ridge(alpha=lambdas_list[lmb])
                         model_R = Ridge(alpha=lambdas_list[lmb])
-
                         model_R.fit(A_mat, C_vec)
                         omega_derivative_temp=model_R.coef_
                         loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
@@ -274,7 +275,9 @@ class varQITE:
                             final_lmb=lambdas_list[lmb]
                             loss=loss_temp
                     
-
+                    
+                    #print(final_lmb)
+                    #exit()
 
                     #final_lmb=lambdas_list[loss_list.index(min(loss_list))]
                     #print(f'Finale lmb {final_lmb} and alpha: {final_alp}')
@@ -704,13 +707,46 @@ class varQITE:
                 getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
 
         
-        temp_circ.x(0)
+        #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
-        temp_circ.x(0)
+        #temp_circ.x(0)
 
         temp_circ.h(0)
         #TODO add this
         #temp_circ.measure(0,0)
+  
+        return temp_circ
+
+    def init_C2(self,lamb, fir):
+        #TODO: Remember to switch everything I switch here, elsewhere
+        V_circ=encoding_circ('C', self.trial_qubits)
+        temp_circ=V_circ.copy()
+        p_vec_C = ParameterVector('Init_param', len(self.rot_indexes))
+        
+        for i, j in enumerate(self.rot_loop[:fir]):
+            if i in self.rot_indexes:
+                name=p_vec_C[np.where(self.rot_indexes==i)[0][0]]
+                #name=p_vec[i] 
+            else:
+                name=self.trial_circ[i][1]+j
+            getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
+        
+        temp_circ.x(0)
+        getattr(temp_circ, 'c'+self.trial_circ[fir][0][-1])(0,1+self.trial_circ[fir][2])
+        temp_circ.x(0)
+
+
+        for ii, jj in enumerate(self.rot_loop[fir:], start=fir):
+                if ii in self.rot_indexes:
+                    name=p_vec_C[np.where(self.rot_indexes==ii)[0][0]]
+                else:
+                    name=self.trial_circ[ii][1]+jj
+                getattr(temp_circ, self.trial_circ[ii][0])(name, 1+self.trial_circ[ii][2])
+
+        for theta in range(len(lamb)):
+            getattr(temp_circ, 'c'+lamb[theta][1])(0,lamb[theta][2]+1)
+
+        temp_circ.h(0)
   
         return temp_circ
 
@@ -719,7 +755,7 @@ class varQITE:
         V_circ=encoding_circ('C', self.trial_qubits)
         temp_circ=V_circ.copy()
         p_vec_C = ParameterVector('Init_param', len(self.rot_indexes))
-
+        
         for i, j in enumerate(self.rot_loop):
             if i in self.rot_indexes:
                 name=p_vec_C[np.where(self.rot_indexes==i)[0][0]]
@@ -731,21 +767,16 @@ class varQITE:
             getattr(temp_circ, 'c'+lamb[theta][1])(0,lamb[theta][2]+1)
 
         for k in range(len(self.trial_circ)-1, fir-1, -1):
-            #print(len(p_vec_C))
             if k in self.rot_indexes:
-                #print(k)
-                #print(self.rot_indexes)
-                #print(len(self.trial_circ))
-                #print(p_vec_C)
                 name=p_vec_C[np.where(self.rot_indexes==k)[0][0]]
             else:
                 name=self.trial_circ[k][1]+self.rot_loop[k]
 
             getattr(temp_circ, self.trial_circ[k][0])(name, 1+self.trial_circ[k][2])
 
-        temp_circ.x(0)
+        #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[fir][0][-1])(0,1+self.trial_circ[fir][2])
-        temp_circ.x(0)
+        #temp_circ.x(0)
 
         temp_circ.h(0)
         #temp_circ.measure(0, 0)

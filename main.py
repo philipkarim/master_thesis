@@ -458,7 +458,7 @@ def plot_fidelity(n_steps, name=None):
     fidelities1_list=[]
     fidelities2_list=[]
 
-    """
+    
     print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
     varqite1.initialize_circuits()
@@ -472,18 +472,16 @@ def plot_fidelity(n_steps, name=None):
         PT1 =partial_trace(DM1,[1])
         fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
         PT1_2 =partial_trace(DM1,[0])
-    fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
     
     print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
-    """
+    
     print('VarQite 2')
     varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
     varqite2.initialize_circuits()
     star=time.time()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     print(time.time()-star)
-    list_omegas_fielity2=varqite2.fidelity_omega_list()    
-    
+    list_omegas_fielity2=varqite2.fidelity_omega_list()
 
     for j in range(len(list_omegas_fielity2)):
         params2=update_parameters(params2, list_omegas_fielity2[j])
@@ -493,11 +491,11 @@ def plot_fidelity(n_steps, name=None):
         PT2 =partial_trace(DM2,[2,3])
         fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
         
-        PT2_2=np.around(state_fidelity(partial_trace(DM2,[0,1]).data, H2_analytical, validate=False), decimals=2)
-        PT2_3=np.around(state_fidelity(partial_trace(DM2,[0,2]).data, H2_analytical, validate=False), decimals=2)
-        PT2_4=np.around(state_fidelity(partial_trace(DM2,[1,3]).data, H2_analytical, validate=False), decimals=2)
-        PT2_5=np.around(state_fidelity(partial_trace(DM2,[0,3]).data, H2_analytical, validate=False), decimals=2)
-        PT2_6=np.around(state_fidelity(partial_trace(DM2,[1,2]).data, H2_analytical, validate=False), decimals=2)
+        PT2_2=np.around(state_fidelity(partial_trace(DM2,[0,1]).data, H2_analytical, validate=False), decimals=4)
+        PT2_3=np.around(state_fidelity(partial_trace(DM2,[0,2]).data, H2_analytical, validate=False), decimals=4)
+        PT2_4=np.around(state_fidelity(partial_trace(DM2,[1,3]).data, H2_analytical, validate=False), decimals=4)
+        PT2_5=np.around(state_fidelity(partial_trace(DM2,[0,3]).data, H2_analytical, validate=False), decimals=4)
+        PT2_6=np.around(state_fidelity(partial_trace(DM2,[1,2]).data, H2_analytical, validate=False), decimals=4)
 
     print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_3:{PT2_3}, H2_4: {PT2_4}, H2_5: {PT2_5}, H2_6: {PT2_6}')
 
@@ -512,10 +510,11 @@ def plot_fidelity(n_steps, name=None):
     plt.legend()
 
     if name!=None:
-        #plt.savefig('results/fidelity/'+name+'.png')
-        plt.show()
+        plt.savefig('results/fidelity/'+name+'.png')
     else:
+        #plt.show()
         pass
+    
     return
 
 
