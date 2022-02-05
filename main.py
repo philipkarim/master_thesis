@@ -235,6 +235,8 @@ else:
 
 def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
     print('------------------------------------------------------')
+    
+    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     loss_list=[]
     epoch_list=[]
@@ -254,6 +256,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         print(f'epoch: {epoch}')
 
         #Stops, memory allocation??? How to check
+        ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
 
         optimize_time=time.time()
@@ -629,7 +632,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=100
+    epochs=5
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -662,7 +665,7 @@ def main():
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
     #multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='pdAH2')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='')
+    multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 
@@ -673,7 +676,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 

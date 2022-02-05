@@ -141,6 +141,8 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
             prediction/=shots
             
             return prediction
+
+
         else:
             #backendtest = qk.Aer.get_backend(backend)
             #backendtest.set_options(device='CPU')
