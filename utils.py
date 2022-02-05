@@ -147,24 +147,21 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
             
             job = qk.execute(qc_circ,
                         backend=qk.Aer.get_backend(backend),
-                        shots=0
-                        )
+                        shots=0,
+                        optimization_level=0)
             #Run or execute?
             results = job.result()
             #print(results.data())
+            
+
+            psi=results.get_statevector()
+            probs_qubit_0 = psi.probabilities([0])
+
+            
             counts = results.get_counts(qc_circ)
-            #print(results)
-
-            #print(list(counts.items())[0][0])
-            
             measurement_key=len(list(counts.items())[0][0])*'0'
-            
-            #print(counts.items()['111'])
-
-            #exit()
-            #measure_key = len(str(next(iter(counts.items()))))
-            #res = list(counts.items().keys())[0]
-
+            #print('Qubit-0 probs: {}'.format(probs_qubit_0))
+            #print(results.data()['statevector'])
 
             #print(measure_key)
             if histogram==True:
@@ -172,15 +169,17 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
                 plt.show()
 
             prediction = 0
+            #print('------------------------')
             for key,value in counts.items():
-                #001 for H1
-                if key == '01000' or key=='001':
-                    prediction = value
+                #print(key,value)
+                if key == '00001' or key=='001' or key == '00000':
+                    prediction +=value
                     #print(prediction)
             
             #exit()
             
-            return prediction
+            
+            return probs_qubit_0[1]
 
     
 
