@@ -174,7 +174,7 @@ class varQITE:
         Prepares an approximation for the gibbs states using imaginary time evolution 
         """
         omega_w=np.array(self.trial_circ)[:, 1].astype('float')
-        print(f'Start: {omega_w}')
+        #print(f'Start: {omega_w}')
         omega_derivative=np.zeros(len(self.trial_circ))
         self.dwdth=np.zeros((len(self.hamil), len(self.trial_circ)))
         
@@ -192,7 +192,7 @@ class varQITE:
                 for j_a in range(len(self.rot_indexes)):
                     #Just the circuits
                     A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
-                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=False)
+                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)
             
 
             #print(A_mat)
@@ -207,7 +207,7 @@ class varQITE:
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
                     C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].\
-                    bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]), statevector_test=False)
+                    bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]), statevector_test=True)
             
             #-1 gives higher than 1 fidelity 
             C_vec*=-0.5
@@ -341,10 +341,14 @@ class varQITE:
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
+            #print(f'Omega derivate: {omega_derivative}')
+
             if gradient_stateprep==False:
                 
                 time_dA=time.time()
                 dA_mat=self.getdA_bound(omega_w)
+                #print(f'dA_mat: {dA_mat}')
+                #exit()
                 #print(dA_mat)
                 #print(f'Time to prepare whole dA: {time.time()-time_dA}')
 
@@ -714,7 +718,7 @@ class varQITE:
 
         temp_circ.h(0)
         #TODO add this
-        temp_circ.measure(0,0)
+        #temp_circ.measure(0,0)
   
         return temp_circ
 
@@ -780,7 +784,7 @@ class varQITE:
         #temp_circ.x(0)
 
         temp_circ.h(0)
-        temp_circ.measure(0, 0)
+        #temp_circ.measure(0, 0)
 
         #print(f'fir {fir}')
         #print(temp_circ)
@@ -927,8 +931,10 @@ class varQITE:
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
                 for s_da in range(len(self.rot_indexes)):
-                    dA_mat_temp[p_da][q_da][s_da][0]=run_circuit(self.dA_init[p_da][q_da][s_da][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]))
-                    dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]))
+                    dA_mat_temp[p_da][q_da][s_da][0]=run_circuit(self.dA_init[p_da][q_da][s_da][0].\
+                    bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]), statevector_test=True)
+                    dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].\
+                    bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]), statevector_test=True)
         #print(f'Time to run dA circs{time.time()-da_run}')
 
         #TODO: slice this, but it uses very little time to compute, so might not be necesarry
@@ -950,13 +956,19 @@ class varQITE:
 
         for j_p in range(len(self.rot_indexes)):
             #TODO- is the same?
-            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].\
-            bind_parameters(binding_values[self.rot_indexes][:len(self.C_init[i_th][j_p].parameters)]))
+            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].bind_parameters(binding_values[self.rot_indexes]\
+                                                [:len(self.C_init[i_th][j_p].parameters)]),statevector_test=True)
             
             for i_dc in range(len(self.hamil)):
                 for s_dc in range(len(self.rot_indexes)):
-                    term1_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][0].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][0].parameters)]))
-                    term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1].bind_parameters(binding_values[self.rot_indexes][:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]))
+                    #This looks really ugly
+                    term1_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][0].\
+                    bind_parameters(binding_values[self.rot_indexes]\
+                    [:len(self.dC_init[i_dc][j_p][s_dc][0].parameters)]),statevector_test=True)
+
+                    term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1]\
+                    .bind_parameters(binding_values[self.rot_indexes]\
+                    [:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]), statevector_test=True)
                     dC_i[j_p]-=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
         
         #print(dC_i)
@@ -1056,7 +1068,7 @@ class varQITE:
             exit()
 
         temp_circ.h(0)
-        temp_circ.measure(0,0)
+        #temp_circ.measure(0,0)
   
         return temp_circ
     
@@ -1152,7 +1164,7 @@ class varQITE:
             exit()
 
         temp_circ.h(0)
-        temp_circ.measure(0,0)
+        #temp_circ.measure(0,0)
 
         return temp_circ
   
