@@ -174,7 +174,7 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
             prediction = 0
             for key,value in counts.items():
                 #001 for H1
-                if key == '00011' or key=='001':
+                if key == '01000' or key=='001':
                     prediction = value
                     #print(prediction)
             

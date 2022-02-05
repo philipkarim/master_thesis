@@ -190,7 +190,7 @@ class varQITE:
                 for j_a in range(len(self.rot_indexes)):
                     #Just the circuits
                     A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
-                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)
+                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=False)
             
             A_mat*=0.25
 
@@ -201,7 +201,7 @@ class varQITE:
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
                     C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].\
-                    bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]))
+                    bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]), statevector_test=True)
 
             C_vec*=-0.5
 
@@ -698,7 +698,7 @@ class varQITE:
 
         temp_circ.h(0)
         #TODO add this
-        #temp_circ.measure(0,0)
+        temp_circ.measure(0,0)
   
         return temp_circ
 
@@ -736,7 +736,7 @@ class varQITE:
         temp_circ.x(0)
 
         temp_circ.h(0)
-        temp_circ.measure(0, 0)
+        #temp_circ.measure(0, 0)
 
         #print(f'fir {fir}')
         #print(temp_circ)
