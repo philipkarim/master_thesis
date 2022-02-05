@@ -632,7 +632,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=5
+    epochs=50
     optimizing_method='Amsgrad'
 
     ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
@@ -648,7 +648,7 @@ def main():
 
     p_data2=np.array([0.5, 0, 0, 0.5])
     
-    p_data1=np.array([0.70, 0.30])
+    p_data1=np.array([0.2, 0.8])
 
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
