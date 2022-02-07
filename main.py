@@ -331,7 +331,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
 
     for i in range(n_sims):
         print(f'Seed: {i} of {n_sims}')
-        H_init_val=np.random.uniform(low=-0.5, high=0.5, size=len(initial_H))
+        H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(initial_H))
         print(H_init_val)
         
         for term_H in range(len(initial_H)):
