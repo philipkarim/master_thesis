@@ -678,10 +678,10 @@ def main():
     #np.random.seed(1357)
     np.random.seed(1111)
 
-    number_of_seeds=10
+    number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=50
+    epochs=30
     optimizing_method='Amsgrad'
 
     """
@@ -702,19 +702,11 @@ def main():
                         [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
 
-    Ham3=       [[[0., 'z', 0], [0., 'z', 1]], 
-                [[0., 'z', 0]], [[0., 'z', 1]]]
-    ansatz3=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+    ansatz3=getAnsatz(3)
+    ansatz4=getAnsatz(4)
 
     Ham3=get_Hamiltonian(3)
-    Ham4=get_Hamiltonian(3)
-    Ham5=get_Hamiltonian(3)
-
-    ansatz=get_Ansatz()
-
+    Ham4=get_Hamiltonian(4)
 
     p_data1=np.array([0.5, 0.5])
     p_data2=np.array([0.5, 0, 0, 0.5])
@@ -723,18 +715,17 @@ def main():
     p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
 
 
-
-
-    #exit()
-
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
 
     start=time.time()
 
+    
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
-    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
+    """Run these"""
+    multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed')
+    #multiple_simulations(number_of_seeds, Ham4, ansatz4, epochs, p_data4, optimizing_method,l_r=0.1, steps=ite_steps, names='H4_no_seed')
 
     #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')

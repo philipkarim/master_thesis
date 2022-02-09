@@ -503,6 +503,48 @@ def get_Hamiltonian(n):
             else:
                 hamiltonian_list.append([[0., 'z', j], [0., 'z', k]])
 
-    print(hamiltonian_list)
+    #print(hamiltonian_list)
 
     return np.array(hamiltonian_list, dtype=object)
+    
+
+def getAnsatz(anatz_number):
+    buils_ansatz=[]
+
+    interval=np.arange(anatz_number*2)
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['ry',0, i])
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['rz',0, i])
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['cx', interval[i-1],i])
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['ry',0, i])
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['rz',0, i])
+
+    for i in range(anatz_number*2):
+        buils_ansatz.append(['cx', interval[i-1] ,interval[i-2]])
+
+    for i in range(anatz_number*2):
+        if interval[i-1]<=anatz_number-1:
+            ry_value=np.pi*0.5
+        else:
+            ry_value=0
+        
+        buils_ansatz.append(['ry',ry_value, interval[i-1]])
+
+    for i in range(anatz_number*2): 
+        buils_ansatz.append(['rz',0, interval[i-1]])
+    
+    for i in range(anatz_number):
+        buils_ansatz.append(['cx',i, i+anatz_number])
+
+    return buils_ansatz
+
+
