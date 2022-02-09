@@ -516,21 +516,19 @@ def plot_fidelity(n_steps, name=None):
     fidelities1_list=[]
     fidelities2_list=[]
 
+    #This is changed in the thing
+    """
+    trace_circ1=create_initialstate(params1)
+    DM1=DensityMatrix.from_instruction(trace_circ1)
+    PT1 =partial_trace(DM1,[0])
+    """
     
     print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
-    
-    
-    #This is changed in the thing
-    trace_circ1=create_initialstate(params2)
-    DM1=DensityMatrix.from_instruction(trace_circ1)
-    PT1 =partial_trace(DM1,[1,2])
-    
-    print(PT1.data)
-    
+        
     for i in range(len(list_omegas_fielity1)):
         params1=update_parameters(params1, list_omegas_fielity1[i])
         trace_circ1=create_initialstate(params1)
@@ -562,6 +560,12 @@ def plot_fidelity(n_steps, name=None):
         PT2_6=np.around(state_fidelity(partial_trace(DM2,[1,2]).data, H2_analytical, validate=False), decimals=4)
 
     print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_5: {PT2_5}, H2_6: {PT2_6}')
+
+    #print(PT2.data, PT2_2.data)
+
+    #print(PT2.data)
+    #print(np.linalg.norm(H2_analytical, 2))
+    #print(PT2.data/np.linalg.norm(PT2.data))
 
     plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
     plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
@@ -670,19 +674,9 @@ def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_m
     return 
 
 
-
-
-
-
-
-
-
-
-
-
 def main():
     #np.random.seed(1357)
-    np.random.seed(2022)
+    np.random.seed(1111)
 
     number_of_seeds=10
     learningRate=0.1
@@ -690,36 +684,35 @@ def main():
     epochs=50
     optimizing_method='Amsgrad'
 
-    ansatz2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+    """
+    [gate, value, qubit]
+    """
+    Ham1=       [[[1., 'z', 0]]]
+    ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+        
+    Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
+                [[0., 'z', 0]], [[0., 'z', 1]]]
+    ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
-    Ham2=   [[[0., 'z', 0], [0., 'z', 1]], 
-            [[0., 'z', 0]], [[0., 'z', 1]]]
-
-    #Ham2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-    #            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+    Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+                        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
     p_data2=np.array([0.5, 0, 0, 0.5])
-    
     p_data1=np.array([0.8, 0.2])
 
-    ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                    #[gate, value, qubit]
-    Ham1=       [[[1., 'z', 0]]]
-
-    #Testing the optimization
-    Ham2=np.array(Ham2, dtype=object)
     Ham1=np.array(Ham1, dtype=object)
+    Ham2=np.array(Ham2, dtype=object)
 
     start=time.time()
 
     #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='')
+    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
     #multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testing_plot_with_norm')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
@@ -732,7 +725,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    #plot_fidelity(10)#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
