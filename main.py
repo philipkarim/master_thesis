@@ -701,18 +701,35 @@ def main():
     Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
                         [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
+
+    Ham3=       [[[0., 'z', 0], [0., 'z', 1]], 
+                [[0., 'z', 0]], [[0., 'z', 1]]]
+    ansatz3=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+
+    p_data1=np.array([0.5, 0.5])
     p_data2=np.array([0.5, 0, 0, 0.5])
-    p_data1=np.array([0.8, 0.2])
+    p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
+    p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
+    p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
+
+    print(p_data3)
+    exit()
 
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
 
     start=time.time()
 
+    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
+    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
+    multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
+
     #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
     #multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testing_plot_with_norm')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
@@ -725,7 +742,7 @@ def main():
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 
