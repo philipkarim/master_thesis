@@ -482,6 +482,27 @@ def fidelity_own(A, B, validate=True):
     # can be reported.
     temp_term= np.sqrt(sqrtmA * B * sqrtmA)
 
+    return float(np.trace(temp_term)**2)
+
+
+def get_Hamiltonian(n):
+
+    Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
+                [[0., 'z', 0]], [[0., 'z', 1]]]
+
+    hamiltonian_list=[]
+
+    for i in range(n):
+        hamiltonian_list.append([[0., 'z', i]])
 
     
-    return float(np.trace(temp_term)**2)
+    for j in range(n):
+        for k in range(j):
+            if j==k:
+                pass
+            else:
+                hamiltonian_list.append([[0., 'z', j], [0., 'z', k]])
+
+    print(hamiltonian_list)
+
+    return np.array(hamiltonian_list, dtype=object)

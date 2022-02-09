@@ -709,14 +709,23 @@ def main():
                 ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
                 ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
+    Ham3=get_Hamiltonian(3)
+    Ham4=get_Hamiltonian(3)
+    Ham5=get_Hamiltonian(3)
+
+    ansatz=get_Ansatz()
+
+
     p_data1=np.array([0.5, 0.5])
     p_data2=np.array([0.5, 0, 0, 0.5])
     p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
     p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
     p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
 
-    print(p_data3)
-    exit()
+
+
+
+    #exit()
 
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
