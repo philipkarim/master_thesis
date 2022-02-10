@@ -724,7 +724,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
     """Run these"""
-    #multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed')
+    multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed_new')
     #multiple_simulations(number_of_seeds, Ham4, ansatz4, epochs, p_data4, optimizing_method,l_r=0.1, steps=ite_steps, names='H4_no_seed')
     """
     """
