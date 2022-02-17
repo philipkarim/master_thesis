@@ -495,17 +495,34 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
 
 
 def plot_fidelity(n_steps, name=None):
-    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-    H1=        [[[1., 'z', 0]]]
+    rz_add=False
 
-    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+    if rz_add==True:
+        params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rz',0, 2]]
+        H1=        [[[1., 'z', 0]]]
 
-    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+        params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3], ['rz',0, 4]]
+
+        H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+
+    else:
+        params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+        H1=        [[[1., 'z', 0]]]
+
+        params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+
+        H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+
     
     H1_analytical=np.array([[0.12, 0],[0, 0.88]])
     H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
@@ -531,7 +548,11 @@ def plot_fidelity(n_steps, name=None):
         
     for i in range(len(list_omegas_fielity1)):
         params1=update_parameters(params1, list_omegas_fielity1[i])
-        trace_circ1=create_initialstate(params1)
+        if rz_add==True:
+            trace_circ1=create_initialstate(params1[:-1])
+        else:
+            trace_circ1=create_initialstate(params1)
+
         DM1=DensityMatrix.from_instruction(trace_circ1)
         PT1 =partial_trace(DM1,[1])
         fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
@@ -549,7 +570,11 @@ def plot_fidelity(n_steps, name=None):
 
     for j in range(len(list_omegas_fielity2)):
         params2=update_parameters(params2, list_omegas_fielity2[j])
-        trace_circ2=create_initialstate(params2)
+        if rz_add==True:
+            trace_circ2=create_initialstate(params2[:-1])
+        else:
+            trace_circ2=create_initialstate(params2)
+
         DM2=DensityMatrix.from_instruction(trace_circ2)
         #Switched to 0,1 instead of 2,3
         PT2 =partial_trace(DM2,[2,3])
@@ -580,7 +605,7 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-        plt.show()
+        #plt.show()
         pass
     
     return
@@ -724,7 +749,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
     """Run these"""
-    multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed_new')
+    #multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed_new')
     #multiple_simulations(number_of_seeds, Ham4, ansatz4, epochs, p_data4, optimizing_method,l_r=0.1, steps=ite_steps, names='H4_no_seed')
     """
     """
@@ -740,10 +765,10 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
-    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #find_best_alpha(10, np.logspace(-4,1,5))
 
 

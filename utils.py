@@ -312,18 +312,10 @@ def encoding_circ(circuit, input_qubits):
     """
     Just defining the quantum circuit encoder in FidS1. in the supplememnt
     """
-    data_register_enc = qk.QuantumRegister(2+input_qubits)
+    data_register_enc = qk.QuantumRegister(2+input_qubits+1)
     classical_register_enc = qk.ClassicalRegister(1)
     
     qc_enc = qk.QuantumCircuit(data_register_enc, classical_register_enc)
-
-    """
-    Note to self: Remember to fix the derivative terms. 0 and pi/2 is given by
-                  H and H-S respectively, both are used in the derivative terms.
-                  so might need to mix depending on the term used.
-                  if statement of H-S
-    """
-    #return qc_enc
 
     if circuit=='A':
         qc_enc.h(data_register_enc[0])
@@ -336,7 +328,7 @@ def encoding_circ(circuit, input_qubits):
         print('A or C?')
         exit()
     
-    #print(qc_enc)
+    #qc_enc.z(data_register_enc[-1])
 
     return qc_enc
 
