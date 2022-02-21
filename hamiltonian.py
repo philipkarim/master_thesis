@@ -2,6 +2,17 @@
 This file handles everything to do with the Hamiltonian
 """
 
+def produce_pairing_Hamiltonian():
+    """
+    Insert values, and initiaal states and stuff like that:
+
+    Returns some stuff: Might make a new function which returns
+    the hamitlonian with a JW transformation in terms of qubits and stuff 
+    """
+
+
+
+
 ###Based on Stian's thesis
 def pairing_hamiltonian(n_states,delta,g):
 	"""
