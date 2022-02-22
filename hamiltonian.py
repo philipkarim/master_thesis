@@ -13,6 +13,10 @@ def produce_pairing_Hamiltonian():
 
 
 
+
+
+
+
 ###Based on Stian's thesis
 def pairing_hamiltonian(n_states,delta,g):
 	"""
