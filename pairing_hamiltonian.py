@@ -27,36 +27,38 @@ def pairing_hamiltonian(n_states,d_energy,g):
     V = []
     phase_H_0 = 0
     phase_V = 0
+
+    for i in range(n_states):
+        if 
+
     for p in range(0,int(n_states)):
         if (p+1 - 1 - (1 if (p+1)%2 == 0 else 0)) != 0 and d_energy != 0:
             phase_H_0 += 0.5*d_energy*0.5*(p+1 - 1 - (1 if (p+1)%2 == 0 else 0))
-            #print(phase_H_0, p)
             H_0.append([0.5*d_energy*0.5*(p+1 - 1 - (1 if (p+1)%2 == 0 else 0)),[p,'z']])
         if g != 0 and p < int(n_states/2):
             phase_V += -(1/8)*g
             V.append([-(1/8)*g,[2*p,'z']])
             V.append([-(1/8)*g,[2*p+1,'z']])
             V.append([-(1/8)*g,[2*p,'z'],[2*p+1,'z']])
-            if H_0==32.2:
-                for q in range(p+1,int(n_states/2)):
-                    V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'x'],[2*q,'x'],[2*q+1,'x']])
-                    V.append([(1/16)*g,[2*p,'x'],[2*p+1,'x'],[2*q,'y'],[2*q+1,'y']])
-                    V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'y'],[2*q,'x'],[2*q+1,'y']])
-                    V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'y'],[2*q,'y'],[2*q+1,'x']])
-                    V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'x'],[2*q,'x'],[2*q+1,'y']])
-                    V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'x'],[2*q,'y'],[2*q+1,'x']])
-                    V.append([(1/16)*g,[2*p,'y'],[2*p+1,'y'],[2*q,'x'],[2*q+1,'x']])
-                    V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'y'],[2*q,'y'],[2*q+1,'y']])
+            for q in range(p+1,int(n_states/2)):
+                V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'x'],[2*q,'x'],[2*q+1,'x']])
+                V.append([(1/16)*g,[2*p,'x'],[2*p+1,'x'],[2*q,'y'],[2*q+1,'y']])
+                V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'y'],[2*q,'x'],[2*q+1,'y']])
+                V.append([-(1/16)*g,[2*p,'x'],[2*p+1,'y'],[2*q,'y'],[2*q+1,'x']])
+                V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'x'],[2*q,'x'],[2*q+1,'y']])
+                V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'x'],[2*q,'y'],[2*q+1,'x']])
+                V.append([(1/16)*g,[2*p,'y'],[2*p+1,'y'],[2*q,'x'],[2*q+1,'x']])
+                V.append([-(1/16)*g,[2*p,'y'],[2*p+1,'y'],[2*q,'y'],[2*q+1,'y']])
     hamiltonian_list = H_0
-    hamiltonian_list.extend(V)
-    hamiltonian_list.append([phase_H_0+phase_V])
+    #hamiltonian_list.extend(V)
+    #hamiltonian_list.append([phase_H_0+phase_V])
     
     #return H_0
     return hamiltonian_list
 
 
 
-circ_list=pairing_hamiltonian(4,1,1)
+circ_list=pairing_hamiltonian(8,1,1)
 
 print(circ_list)
 
