@@ -21,6 +21,8 @@ def pairing_hamiltonian(n_states,d_energy,g):
     #TODO: Rewrite H to fit my own circ
     #Try to get the FCI matrix from psi4 or make the FCI function myself
 
+    H_gates=[]
+    total_energy=0
 
     hamiltonian_list = []
     H_0 = []
@@ -28,8 +30,18 @@ def pairing_hamiltonian(n_states,d_energy,g):
     phase_H_0 = 0
     phase_V = 0
 
+
     for i in range(n_states):
-        if 
+        level_energy=0.5*d_energy*(i-i%2)*0.5
+        total_energy+=level_energy
+
+        if level_energy!=0:
+            H_gates.append([level_energy, [i, 'z']])
+        
+        #Interaction term diagonal:
+        for i in range()
+    
+    print(H_gates)
 
     for p in range(0,int(n_states)):
         if (p+1 - 1 - (1 if (p+1)%2 == 0 else 0)) != 0 and d_energy != 0:
@@ -52,13 +64,14 @@ def pairing_hamiltonian(n_states,d_energy,g):
     hamiltonian_list = H_0
     #hamiltonian_list.extend(V)
     #hamiltonian_list.append([phase_H_0+phase_V])
+    print(phase_H_0)
     
-    #return H_0
+    
     return hamiltonian_list
 
 
 
-circ_list=pairing_hamiltonian(8,1,1)
+circ_list=pairing_hamiltonian(6,3,18)
 
 print(circ_list)
 
