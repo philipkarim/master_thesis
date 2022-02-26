@@ -1,3 +1,4 @@
+from operator import length_hint
 import numpy as np
 import scipy.special as special
 import itertools as it
@@ -116,49 +117,40 @@ def ci_matrix_pairing(n_pairs,n_basis,delta,g):
     n_SD = int(special.binom(n_basis,n_pairs))
     H0_mat = np.zeros((n_SD,n_SD))
     H1_mat = np.zeros_like(H0_mat)
-    H_mat = np.zeros_like(H0_mat)
 
-    S = stateMatrix(n_pairs,n_basis)
-    print(S)
+    S=np.array(list(it.combinations(range(0,n_basis),n_pairs)))
 
     #Without interaction along diagonal
-    for i in range(n_SD):            
-            H0_mat[i][i]+=2*delta*i
-
-    #Interaction part
-    for j in range(n_SD):
-        for k in range(n_SD):
-            if j==k:
+    for i, levels in enumerate(S):
+        H0_mat[i][i]+=2*delta*np.sum(levels)
+        #print(2*delta*np.sum(levels), levels)
+    for j, levels_1 in enumerate(S):
+        for k, levels_2 in enumerate(S):
+            if np.all(levels_1==levels_2):
+                #0.5 or 0.25?
                 H1_mat[j][k]+=-0.5*g*n_pairs
             else:
-                H1_mat[j][k]+=-0.5*g
-
-    for row in range(n_SD):
-        bra = S[row,:]
-        for col in range(n_SD):
-            ket = S[col,:]
-            if np.sum(np.equal(bra,ket)) == bra.shape:
-                H_mat[row,col] += 2*delta*np.sum(bra - 1) - 0.5*g*n_pairs
-            if n_pairs - np.intersect1d(bra,ket).shape[0] == 1:
-                H_mat[row,col] += -0.5*g
-    return(H_mat, H0_mat, H1_mat)
+                H1_mat[j][k]+=-0.5*g*len(np.intersect1d(levels_1, levels_2))
+                #print(j,k,len(np.intersect1d(levels_1, levels_2)))
+    
+    return H0_mat+H1_mat
 
 def orbital_possibilities(n_pairs, n_basis):
     """
     Find possible ways of filling the orbitals
     """
-    unique_perms=1
-    #permutations=it.permutations(n_basis,n_pairs)
-    
-    #print(list(permutations))
+    unique_perms=list(it.combinations(range(1,1+n_basis),n_pairs))
+
+    #print('----')
+    #print(unique_perms)
     L = []
     states=range(1,n_basis+1)
     for i in it.permutations(states,n_pairs):
         L.append(i)
-    print(L)
+    #print(L)
     return unique_perms
 
-orbital_possibilities(3, 4)
+#orbital_possibilities(2, 4)
 
 
     
@@ -180,24 +172,15 @@ def unique_rows(a):
 
 #Denne funker
 #print('Uten interaction')
-ci_matrix_1, trash, trash=ci_matrix_pairing(3, 4, 1, 0)
+#ci_matrix_1, trash=ci_matrix_pairing(2, 4, 1, 0)
 #print(ci_matrix_1)
 
-print('Kun interaction')
-ci_matrix_2, trash, trash=ci_matrix_pairing(3, 4, 0, 1)
-print(ci_matrix_2)
-print(trash)
+#print('Kun interaction')
+#ci_matrix_2, trash=ci_matrix_pairing(2, 4, 0, 1)
+#print(ci_matrix_2)
+#print(trash)
 
 #print('Full interaction')
-ci_matrix, own_0, own_1=ci_matrix_pairing(3, 4, 1, 1)
-
-#g=0 uten interaksjon
-print(own_0)
-print(own_1)
-print(own_0+own_1)
-print(ci_matrix)
-print(np.all(ci_matrix==(ci_matrix_1+ci_matrix_2)))
-print(np.all(ci_matrix==(own_0+own_1)))
 
 
 
@@ -212,7 +195,7 @@ def FCI(n,l,h,v,ret_all=False):
     H = np.zeros((n_SD,n_SD),dtype=complex)
     # Get occupied indices for all states
     S = configurations(n,l) 
-    print(S)
+    #print(S)
     for row,bra in enumerate(S):
         for col,ket in enumerate(S):
             if np.sum(np.equal(bra,ket)) == bra.shape:
@@ -269,7 +252,7 @@ def ci_matrix_pairing_sol(n_pairs,n_basis,delta,g):
     n_SD = int(special.binom(n_basis,n_pairs))
     H_mat = np.zeros((n_SD,n_SD))
     S = stateMatrix_sol(n_pairs,n_basis)
-    print(S)
+    #print(S)
     for row in range(n_SD):
         bra = S[row,:]
         for col in range(n_SD):
@@ -278,7 +261,7 @@ def ci_matrix_pairing_sol(n_pairs,n_basis,delta,g):
                 H_mat[row,col] += 2*delta*np.sum(bra - 1) - 0.5*g*n_pairs
             if n_pairs - np.intersect1d(bra,ket).shape[0] == 1:
                 H_mat[row,col] += -0.5*g
-    return(H_mat,H_mat[0,0])
+    return(H_mat)
 
 def stateMatrix_sol(n_pairs,n_basis):
     L = []
@@ -294,3 +277,15 @@ def unique_rows_sol(a):
     a = np.ascontiguousarray(a)
     unique_a = np.unique(a.view([('', a.dtype)]*a.shape[1]))
     return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+
+
+
+
+own=ci_matrix_pairing(1, 4, 0.5, 1)
+ci_matrix=ci_matrix_pairing_sol(1, 4, 1, 1)
+#g=0 uten interaksjon
+print(ci_matrix)
+print(own)
+print(np.all(ci_matrix==own))
+lam, eigv=np.linalg.eig(own)
+print(lam)
