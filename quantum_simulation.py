@@ -18,16 +18,10 @@ import seaborn as sns
 sns.set_style("darkgrid")
 
 def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
-    print('------------------------------------------------------')
-    
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-
     loss_list=[]
     epoch_list=[]
-    norm_list=[]
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
-
-    #print(tracing_q, rotational_indices, n_qubits_ansatz)
 
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
@@ -39,9 +33,9 @@ def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
-        #Stops, memory allocation??? How to check
+        #Stops, memory allocation??
         ansatz=update_parameters(ansatz, init_params)
-        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+        omega, d_omega=varqite_train.state_prep(gradient_stateprep=True)
 
         optimize_time=time.time()
 
@@ -53,16 +47,20 @@ def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam
         #Dansity matrix measure, measure instead of computing whole DM
         
         trace_circ=create_initialstate(ansatz)
+
+        #circuit to matrix?
+        #Transform both to matrices and cross them, shoulf be -1 hartree after enough steps
+
+
+
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
         p_QBM=np.diag(PT.data).real.astype(float)
         
         print(f'p_QBM: {p_QBM}')
-        loss=optim.cross_entropy_new(target_data,p_QBM)
+        loss=optim.cross_entropy_new(np.array([0.5, 0, 0, 0.5]),p_QBM)
         print(f'Loss: {loss, loss_list}')
-        norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
-        norm_list.append(norm)
         loss_list.append(loss)
         epoch_list.append(epoch)
 
@@ -70,7 +68,7 @@ def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         print(f'Time for ps: {time.time()-time_g_ps}')
 
-        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+        gradient_loss=optim.gradient_loss(np.array([0.5, 0, 0, 0.5]), p_QBM, gradient_qbm)
         print(f'gradient_loss: {gradient_loss}')
 
         H_coefficients=np.zeros(len(H_operator))
@@ -103,7 +101,7 @@ def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam
     
     print(f'Time to optimize: {time.time()-optimize_time}')
 
-    return np.array(loss_list), np.array(norm_list), p_QBM
+    return np.array(loss_list), np.array(epoch_list)
 
 
 def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
@@ -142,7 +140,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=20
+    epochs=2
     optimizing_method='Amsgrad'
 
     """
