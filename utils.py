@@ -539,4 +539,29 @@ def getAnsatz(anatz_number):
 
     return buils_ansatz
 
+def getCircuitMatrix(circuit, not_object=False):
+    """
+    Gets the unitary matrix of the circuit
+
+    Args: 
+        circuit(object):    The circuit which we want to have the unitary matrix of
+        not_object(Bool):   Boolean to choose if the circuit is an object or patrameters
+                            of the circuit which has to be created first
+    Returns:
+        (array):    Unitary matrix
+    """
+
+    if not_object==False:
+        backend = qk.Aer.get_backend('unitary_simulator')
+
+        job = qk.execute(circuit, backend)
+        result = job.result()
+        print(result.get_unitary(circuit, decimals=3))
+
+    else:
+        print('Not implemented yet, but just build H basicly')
+        exit()
+
+    return 
+
 

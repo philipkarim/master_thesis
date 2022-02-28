@@ -48,9 +48,10 @@ def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam
         
         trace_circ=create_initialstate(ansatz)
 
-        #circuit to matrix?
-        #Transform both to matrices and cross them, shoulf be -1 hartree after enough steps
-
+        #circuit to matrix? Migh tonly get ancillas? or opposite? I have no idea
+        getCircuitMatrix(trace_circ)
+        #Transform both to matrices and compute them, shoulf be -1 hartree after enough steps
+        
 
 
         DM=DensityMatrix.from_instruction(trace_circ)
