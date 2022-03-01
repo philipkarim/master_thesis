@@ -29,7 +29,6 @@ class optimize:
         
         if self.method=='Amsgrad':
             self.vhat= np.zeros(self.n_hamil_params).astype(float)
-
             
     def cross_entropy_new(self, p_data,p_BM):
         """
@@ -40,6 +39,26 @@ class optimize:
         #    loss-=p_data[i]*np.log(p_BM[i])
 
         return -np.sum(p_data*np.log(p_BM))
+
+    def fraud_CE(self, p_data, p_BM):
+        """
+        Loss function(cross entropy) adapted to fit the fraud dataset
+        classification.
+
+        Args:
+            p_data(list):   Target Data
+            p_BM(list):     The resulting Boltzmann distribution
+
+        Return(float):      The computed loss
+        """
+        
+        #Something wrong witht one of the things
+        sum_x=0
+        for x in range(len(p_data)):
+            sum_x+=p_data[x]*np.sum(p_data[x]*np.log(p_BM[x]))
+
+        return -sum_x
+
 
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):

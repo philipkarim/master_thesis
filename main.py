@@ -870,4 +870,7 @@ Next list:
 
     2 loops
 
+
+
+Method part in thesis: Write about the same thing as in the article
 """
