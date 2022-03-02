@@ -8,21 +8,19 @@ xrandr --output DP-1 --rotate normal
 xrandr --query to find the name of the monitors
 
 """
-import random
 import copy
 import numpy as np
 import qiskit as qk
-from qiskit.circuit import Parameter, ParameterVector
-from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
+from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 
 # Import the other classes and functions
 from optimize_loss import optimize
 from utils import *
 from varQITE import *
 
-import multiprocessing as mp
 import seaborn as sns
 
 sns.set_style("darkgrid")
@@ -132,6 +130,15 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     Returns:    Scores on how the BM performed
     """
+    #Importing the data
+    dataset_fraud=np.load('time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
+    #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
+    scaler=StandardScaler()
+    #Transform data
+    fraud_data_scaled=scaler.fit_transform(dataset_fraud)
+
+    print(f'Scaled data: {fraud_data_scaled}')
+
     #This will be used to reinitiate the ansatz parameters each epoch
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
     H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(initial_H))
@@ -196,3 +203,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     del varqite_train
 
     return np.array(loss_list), np.array(norm_list), p_QBM
+
+
+
