@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 from optimize_loss import optimize
 from utils import *
 from varQITE import *
+from fraud_classification import fraud_detection
+
 
 import multiprocessing as mp
 import seaborn as sns
@@ -745,7 +747,8 @@ def main():
 
     start=time.time()
 
-    
+    fraud_detection(1, ansatz2, n_epochs, n_steps, lr, opt_met)
+
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
     """Run these"""

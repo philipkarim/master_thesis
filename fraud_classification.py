@@ -139,13 +139,31 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     print(f'Scaled data: {fraud_data_scaled}')
 
-    #This will be used to reinitiate the ansatz parameters each epoch
-    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(initial_H))
-    for term_H in range(len(initial_H)):
-        for qub in range(len(initial_H[term_H])):
-            initial_H[term_H][qub][0]=H_init_val[term_H]
+    #TODO: Write the hamiltonians
+    if initial_H==1:
+        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
+        n_hamilParameters=len(hamiltonian)
+    elif initial_H==2:
+        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0.1, 'x', 0]],[[0.1, 'x', 1]]]
+        n_hamilParameters=len(hamiltonian)-2
+    elif initial_H==3:
+        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0, 'x', 0]],[[0, 'x', 1]]]
+        n_hamilParameters=len(hamiltonian)
 
+    else:
+        print('Hamiltonian not defined')
+        exit()
+
+    #This will be used to reinitiate the ansatz parameters each epoch
+    #init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
+    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=n_hamilParameters)
+    for term_H in range(len(n_hamilParameters)):
+        for qub in range(len(initial_H[term_H])):
+            hamiltonian[term_H][qub][0]=H_init_val[term_H]
+
+    print(f'Hamiltonian: {hamiltonian}')
+    exit()
+    
     loss_list=[]
     epoch_list=[]
 
