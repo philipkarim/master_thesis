@@ -563,5 +563,3 @@ def getCircuitMatrix(circuit, not_object=False):
         exit()
 
     return 
-
-

@@ -118,6 +118,21 @@ def train_fraudmodel(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0
     return np.array(loss_list), np.array(norm_list), p_QBM
 
 
+def bias_param(x, theta):
+    """
+    Function which computes the Hamiltonian parameters with supervised fraud dataset
+    and datasample as bias
+
+        Args:   
+            x(list):        Data sample
+            theta(array):   Hamiltonian parameters for 1 parameter
+
+        Return: (float): The dot producted parameter
+    """
+
+    return np.dot(x, theta)
+
+
 def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     """
     Function to run fraud classification with the variational Boltzmann machine
@@ -131,13 +146,19 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     Returns:    Scores on how the BM performed
     """
     #Importing the data
-    dataset_fraud=np.load('time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
+    dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
     #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
     scaler=StandardScaler()
     #Transform data
     fraud_data_scaled=scaler.fit_transform(dataset_fraud)
 
-    print(f'Scaled data: {fraud_data_scaled}')
+    #TODO: think this is right correct?
+    X_scaled=np.hsplit(fraud_data_scaled, (len(fraud_data_scaled[0])-1,len(fraud_data_scaled[0])))
+    y=X_scaled[1]
+    X_scaled=X_scaled[0]
+
+
+    #print(f'Scaled data: {fraud_data_scaled}')
 
     #TODO: Write the hamiltonians
     if initial_H==1:
@@ -155,15 +176,23 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         exit()
 
     #This will be used to reinitiate the ansatz parameters each epoch
-    #init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=n_hamilParameters)
-    for term_H in range(len(n_hamilParameters)):
-        for qub in range(len(initial_H[term_H])):
-            hamiltonian[term_H][qub][0]=H_init_val[term_H]
+    
+    #Initializing the parameters:
+
+    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_scaled[0]))))
+    
+    #TODO: Move this inside a loop since they are changing each time according to input data
+    #and updates, not sure if the indices is correct in H_init_val[term_H], check tomorrow
+    for term_H in range(n_hamilParameters):
+        for qub in range(len(hamiltonian[term_H])):
+            hamiltonian[term_H][qub][0]=bias_param(X_scaled[term_H], H_init_val[term_H])
 
     print(f'Hamiltonian: {hamiltonian}')
-    exit()
+
     
+    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
+
+
     loss_list=[]
     epoch_list=[]
 
