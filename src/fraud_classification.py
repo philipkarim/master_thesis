@@ -178,18 +178,22 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     test_indices_false=np.random.choice(false_indices, test_false_samples, replace=False)
     val_indices_false = np.delete(false_indices, np.where(np.in1d(false_indices, test_indices_false)))
 
-    y_train=np.sort(np.concatenate((train_indices, train_indices_false)))
-    y_test=np.sort(np.concatenate((test_indices, test_indices_false)))
-    y_val=np.sort(np.concatenate((val_indices, val_indices_false)))
+    y_train_indices=np.sort(np.concatenate((train_indices, train_indices_false)))
+    y_test_indices=np.sort(np.concatenate((test_indices, test_indices_false)))
+    y_val_indices=np.sort(np.concatenate((val_indices, val_indices_false)))
 
-    print(len(y_train))
-    print(len(y_test))
-    print(len(y_val))
+    print(len(y_train_indices))
+    print(len(y_test_indices))
+    print(len(y_val_indices))
 
     #Splits the samples according to the sampling of y
-    X_train=X[y_train]
-    X_test=X[y_test]
-    X_val=X[y_val]
+    X_train=X[y_train_indices]
+    X_test=X[y_test_indices]
+    X_val=X[y_val_indices]
+
+    y_train=y[y_train_indices]
+    y_test=y[y_test_indices]
+    y_val=y[y_val_indices]
 
     #Just doublechecks that all indices are unique
     #print(any((y_test == x).all() for x in y_train))
@@ -208,6 +212,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     y_test_scaled = scaler.transform(y_test)
     y_val_scaled = scaler.transform(y_val)
 
+    #print(X_train_scaled)
+
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
@@ -222,17 +228,16 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         print('Hamiltonian not defined')
         exit()
 
-    #This will be used to reinitiate the ansatz parameters each epoch
     
     #Initializing the parameters:
-
-    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_scaled[0]))))
+    H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
     
+    """
     for term_H in range(n_hamilParameters):
         for qub in range(len(hamiltonian[term_H])):
-            hamiltonian[term_H][qub][0]=bias_param(X_scaled[0], H_init_val[term_H])
-
-    print(f'Hamiltonian: {hamiltonian}')
+            hamiltonian[term_H][qub][0]=bias_param(X_train[0], H_init_val[term_H])
+    """
+    #print(f'Hamiltonian: {hamiltonian}')
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
@@ -241,59 +246,64 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
-    optim=optimize(initial_H, rotational_indices, tracing_q, learning_rate=lr, method=opt_met)
-    varqite_train=varQITE(initial_H, ansatz, steps=n_steps)
+    optim=optimize(n_hamilParameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met)
+    varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps)
     varqite_train.initialize_circuits()
 
     for epoch in range(n_epochs):
-        print(f'Epoch: {epoch}/{n_epoch}')
+        print(f'Epoch: {epoch}/{n_epochs}')
 
-        #for sample in range(len(X_train)):
+        #Loops over each sample
+        for sample in X_train:
+            #Updating the Hamiltonian with the correct parameters
+            for term_H in range(n_hamilParameters):
+                for qub in range(len(hamiltonian[term_H])):
+                    hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
+            ansatz=update_parameters(ansatz, init_params)
+            omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+            ansatz=update_parameters(ansatz, omega)
+            trace_circ=create_initialstate(ansatz)
 
+            print(trace_circ)
 
-        ansatz=update_parameters(ansatz, init_params)
-        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-        ansatz=update_parameters(ansatz, omega)
-        trace_circ=create_initialstate(ansatz)
+            DM=DensityMatrix.from_instruction(trace_circ)
+            #TODO: Not sure about this one, traced over this?
+            PT=partial_trace(DM,[2,3])
+            #print(f'PT, diagonal?{PT}')
+            p_QBM=np.diag(PT.data).real.astype(float)
+            
+            print(f'p_QBM: {p_QBM}')
 
-        #print(f' omega: {omega}')
-        #print(f' d_omega: {d_omega}')
+            exit()
+            
 
-        DM=DensityMatrix.from_instruction(trace_circ)
-        PT=partial_trace(DM,tracing_q)
-        p_QBM=np.diag(PT.data).real.astype(float)
-        
-        print(f'p_QBM: {p_QBM}')
+            #TODO: Do something about the target data
+            loss=optim.fraud_CE(p_data,p_QBM)
+            print(f'Loss: {loss, loss_list}')
 
-        
+            #Appending loss and epochs
+            loss_list.append(loss)
+            epoch_list.append(epoch)
 
-        #TODO: Do something about the target data
-        loss=optim.fraud_CE(p_data,p_QBM)
-        print(f'Loss: {loss, loss_list}')
+            gradient_qbm=optim.gradient_ps(hamiltonian, ansatz, d_omega)
+            gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+            print(f'gradient_loss: {gradient_loss}')        
 
-        #Appending loss and epochs
-        loss_list.append(loss)
-        epoch_list.append(epoch)
+            H_coefficients=np.zeros(len(hamiltonian))
 
-        gradient_qbm=optim.gradient_ps(initial_H, ansatz, d_omega)
-        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        print(f'gradient_loss: {gradient_loss}')        
+            for ii in range(len(hamiltonian)):
+                H_coefficients[ii]=hamiltonian[ii][0][0]
 
-        H_coefficients=np.zeros(len(initial_H))
+            print(f'Old params: {H_coefficients}')
+            new_parameters=optim.adam(H_coefficients, gradient_loss)
 
-        for ii in range(len(initial_H)):
-            H_coefficients[ii]=initial_H[ii][0][0]
-
-        print(f'Old params: {H_coefficients}')
-        new_parameters=optim.adam(H_coefficients, gradient_loss)
-
-        print(f'New params {new_parameters}')
-        for i in range(len(initial_H)):
-            for j in range(len(initial_H[i])):
-                initial_H[i][j][0]=new_parameters[i]
-        
-        varqite_train.update_H(initial_H)
+            print(f'New params {new_parameters}')
+            for i in range(len(hamiltonian)):
+                for j in range(len(hamiltonian[i])):
+                    hamiltonian[i][j][0]=new_parameters[i]
+            
+            varqite_train.update_H(hamiltonian)
     
     del optim
     del varqite_train

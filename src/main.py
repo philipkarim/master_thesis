@@ -707,7 +707,7 @@ def main():
 
     number_of_seeds=1
     learningRate=0.1
-    ite_steps=10
+    ite_steps=1
     epochs=30
     optimizing_method='Amsgrad'
 
@@ -749,6 +749,7 @@ def main():
 
     fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
+    #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
     """Run these"""

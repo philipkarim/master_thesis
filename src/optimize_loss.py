@@ -6,6 +6,9 @@ import numpy as np
 from qiskit.quantum_info import DensityMatrix, partial_trace
 
 class optimize:
+    """
+    Class handling everything to do with optimization of parameters and loss computations
+    """
     def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
@@ -16,7 +19,10 @@ class optimize:
             circuit:        Quantum circuit that is used
         """
         self.rot_in=rot_in
-        self.n_hamil_params=len(Hamil)
+        if type(Hamil)==int:
+            self.n_hamil_params=Hamil
+        else:
+            self.n_hamil_params=len(Hamil)
         self.trace_list=trace_list
         self.H_qubit_states=2**len(self.trace_list)
         self.learning_rate=learning_rate
