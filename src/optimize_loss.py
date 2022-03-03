@@ -59,11 +59,20 @@ class optimize:
         """
         
         #Something wrong witht one of the things
-        sum_x=0
-        for x in range(len(p_data)):
-            sum_x+=p_data[x]*np.sum(p_data[x]*np.log(p_BM[x]))
+        #sum_x=0
+        #for x in range(len(p_data)):
+        #    sum_x+=p_data[x]*np.sum(p_data[x]*np.log(p_BM[x]))
 
-        return -sum_x
+        #TODO: Have to rewrite and add a sum if batch size are larger
+        #than one
+
+        #print(p_data)
+        #print(p_data_vec)
+
+        #p_data_vec=np.zeros(2)
+        #p_data_vec[p_data]=1
+
+        return -np.sum(p_data*np.log(p_BM))
 
 
     # gradient descent algorithm with adam
@@ -289,6 +298,38 @@ class optimize:
                 
                 w_k_sum[i]+=((np.diag(PT_right.data).real.astype(float)-\
                             np.diag(PT_left.data).real.astype(float))/2)*d_omega[i][k]
+            
+        return w_k_sum.real.astype(float)
+
+    def fraud_grad_ps(self, H, params, d_omega, n_visible):
+        #TODO: added copy
+        d_omega=np.array(d_omega, copy=True)
+        #print(self.H_qubit_states)
+        w_k_sum=np.zeros((len(H), 2))
+        for i in range(len(H)):
+            for k in self.rot_in:
+                params_left_shift=copy.deepcopy(params)
+                params_right_shift=copy.deepcopy(params)
+                
+                params_right_shift[k][1]+=0.5*np.pi
+                params_left_shift[k][1]-=0.5*np.pi
+                
+                trace_right=create_initialstate(params_right_shift)
+                trace_left=create_initialstate(params_left_shift)
+                #TODO: run this or just trace it?
+                DM_right=DensityMatrix.from_instruction(trace_right)
+                DM_left=DensityMatrix.from_instruction(trace_left)
+
+                PT_right=partial_trace(DM_right,self.trace_list)
+                PT_left=partial_trace(DM_left,self.trace_list)
+
+                #print(PT_right.probabilities(n_visible))
+                #print(PT_left.probabilities(n_visible))
+                #print(((PT_right.probabilities(n_visible)-\
+                #            PT_left.probabilities(n_visible))/2)*d_omega[i][k])
+
+                w_k_sum[i]+=((PT_right.probabilities(n_visible)-\
+                            PT_left.probabilities(n_visible))/2)*d_omega[i][k]
             
         return w_k_sum.real.astype(float)
 
