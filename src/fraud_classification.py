@@ -9,12 +9,14 @@ xrandr --query to find the name of the monitors
 
 """
 import copy
+from dataclasses import replace
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -148,19 +150,64 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     #Importing the data
     dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
     #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
+
+    #Split the data into X and y
+    X=np.hsplit(dataset_fraud, (len(dataset_fraud[0])-1,len(dataset_fraud[0])))
+    y=X[1]
+    X=X[0]
+
+    #Extracts indices of samples which are fraud and not fraud
+    true_indices=np.where(y==1)[0]
+    false_indices=np.where(y==0)[0]
+
+    #Train: 20% 100/500
+    train_true_samples=100
+    test_true_samples=50
+    train_false_samples=400
+    test_false_samples=200
+
+    #Makes sure that each set of data contains the wanted number of true samples
+    train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
+    true_indices = np.delete(true_indices, np.where(np.in1d(true_indices, train_indices)))
+    test_indices=np.random.choice(true_indices, test_true_samples, replace=False)
+    val_indices = np.delete(true_indices, np.where(np.in1d(true_indices, test_indices)))
+
+    #Random sampling from the false samples
+    train_indices_false=np.random.choice(false_indices, train_false_samples, replace=False)
+    false_indices = np.delete(false_indices, np.where(np.in1d(false_indices, train_indices_false)))
+    test_indices_false=np.random.choice(false_indices, test_false_samples, replace=False)
+    val_indices_false = np.delete(false_indices, np.where(np.in1d(false_indices, test_indices_false)))
+
+    y_train=np.sort(np.concatenate((train_indices, train_indices_false)))
+    y_test=np.sort(np.concatenate((test_indices, test_indices_false)))
+    y_val=np.sort(np.concatenate((val_indices, val_indices_false)))
+
+    print(len(y_train))
+    print(len(y_test))
+    print(len(y_val))
+
+    #Splits the samples according to the sampling of y
+    X_train=X[y_train]
+    X_test=X[y_test]
+    X_val=X[y_val]
+
+    #Just doublechecks that all indices are unique
+    #print(any((y_test == x).all() for x in y_train))
+    
+    #Now it is time to scale the data   
     scaler=StandardScaler()
-    #Transform data
-    fraud_data_scaled=scaler.fit_transform(dataset_fraud)
+    scaler.fit(X_train)
+    X_train_scaled = scaler.transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    X_val_scaled = scaler.transform(X_val)
 
-    #TODO: think this is right correct?
-    X_scaled=np.hsplit(fraud_data_scaled, (len(fraud_data_scaled[0])-1,len(fraud_data_scaled[0])))
-    y=X_scaled[1]
-    X_scaled=X_scaled[0]
+    #TODO: double check if I should use the mean of y_train or X_train
+    scaler=StandardScaler()
+    scaler.fit(y_train)
+    y_train_scaled = scaler.transform(y_train)
+    y_test_scaled = scaler.transform(y_test)
+    y_val_scaled = scaler.transform(y_val)
 
-
-    #print(f'Scaled data: {fraud_data_scaled}')
-
-    #TODO: Write the hamiltonians
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
@@ -181,17 +228,13 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     H_init_val=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_scaled[0]))))
     
-    #TODO: Move this inside a loop since they are changing each time according to input data
-    #and updates, not sure if the indices is correct in H_init_val[term_H], check tomorrow
     for term_H in range(n_hamilParameters):
         for qub in range(len(hamiltonian[term_H])):
-            hamiltonian[term_H][qub][0]=bias_param(X_scaled[term_H], H_init_val[term_H])
+            hamiltonian[term_H][qub][0]=bias_param(X_scaled[0], H_init_val[term_H])
 
     print(f'Hamiltonian: {hamiltonian}')
-
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-
 
     loss_list=[]
     epoch_list=[]
@@ -203,6 +246,12 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     varqite_train.initialize_circuits()
 
     for epoch in range(n_epochs):
+        print(f'Epoch: {epoch}/{n_epoch}')
+
+        #for sample in range(len(X_train)):
+
+
+
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
         ansatz=update_parameters(ansatz, omega)
