@@ -2,6 +2,8 @@ import numpy as np
 import scipy.special as special
 import itertools as it
 
+
+#TODO: Not quiet done
 def pairing_hamiltonian(n_states,non_e,int_e):
     """
     Produces the Jordan Wigner transformed Hamiltonian og the
@@ -16,7 +18,7 @@ def pairing_hamiltonian(n_states,non_e,int_e):
             jordan wigner transformed Hamiltonian (matrix)
     
 	Inputs:
-		n_states (int) - The number of basis states / qubits used in the model.
+		n_states (int) - The number of possible states / qubits used in the model.
 		delta (float) - One body interaction term
 		g (float) - Two body interaction term
 	Output:
@@ -98,9 +100,6 @@ FCI_mat=ci_matrix_pairing(2, 4, 1, 1)
 lam, eigv=np.linalg.eig(FCI_mat)
 print(FCI_mat)
 print(lam)
-
-
-
 
 JW_Ham=pairing_hamiltonian(2,1,1)
 
