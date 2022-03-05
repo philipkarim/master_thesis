@@ -77,7 +77,7 @@ class optimize:
 
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8):
+    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False):
         """
         I guess something like this should work?
         
@@ -102,14 +102,23 @@ class optimize:
             #print(self.learning_rate)
             #a_t=self.learning_rate
             self.vhat=np.maximum(self.vhat, self.v)
-            x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)
+
+            if discriminative==True:
+                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps).reshape((len(x), 1))
+            else:  
+                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)
             
-            print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(self.vhat) + eps)}')
-            print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(self.vhat)}') 
+            #print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(self.vhat) + eps)}')
+            #print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(self.vhat)}') 
 
         else:
             vhat = self.v / (1.0 - beta2**(self.t))
-            x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+
+            if discriminative==True:
+                x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps).reshape((len(x), 1))
+            else:
+                x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
+    
             print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
             print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')        
 
