@@ -1,4 +1,6 @@
 # Master Thesis - Machine learning with Quantum Computers
 ## Philip K. Sørli Niane
 
-This the github repository with the codes used in my master thesis
+Repository containing codes used in my master thesis.
+
+Clean up of codes and folders are highly necessary.
