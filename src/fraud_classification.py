@@ -206,6 +206,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     X_test = scaler.transform(X_test)
     X_val = scaler.transform(X_val)
 
+
+    #TODO: Continue here!
     X_train=X_train[0:2]
     y_train=y_train[0:2]
     X_test=X_test[0:2]
