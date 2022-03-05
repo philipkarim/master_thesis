@@ -156,6 +156,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     y=X[1].astype('int')
     X=X[0]
 
+    ## The reason we split it like this instead of the regular train_test_split is to secure
+    ## The right amount of true samples in each set(Probably is a lot more efficient way to do this)
+
     #Extracts indices of samples which are fraud and not fraud
     true_indices=np.where(y==1)[0]
     false_indices=np.where(y==0)[0]
@@ -289,7 +292,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             print(f'gradient_loss: {gradient_loss}')        
 
             #TODO: fix when diagonal elemetns, also do not compute the
-            #gradient
+            #gradient if there is no need inside the var qite loop 
             #H_coefficients=np.zeros(len(hamiltonian))
             #for ii in range(len(hamiltonian)):
             #    H_coefficients[ii]=hamiltonian[ii][0][0]
