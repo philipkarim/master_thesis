@@ -206,12 +206,11 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     X_test = scaler.transform(X_test)
     X_val = scaler.transform(X_val)
 
-
-    #TODO: Continue here!
-    X_train=X_train[0:2]
-    y_train=y_train[0:2]
-    X_test=X_test[0:2]
-    y_test=y_test[0:2]
+    #TODO: Remove this when the thing work
+    X_train=X_train[0:100]
+    y_train=y_train[0:100]
+    X_test=X_test[0:25]
+    y_test=y_test[0:25]
 
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
@@ -308,7 +307,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
             loss=optim.fraud_CE(target_data,p_QBM)
             print(f'Sample: {i}/{len(X_train)}')
-            print(f'Current AS: {accuracy_score(y_train[:i],train_pred_epoch)}, Loss: {loss}')
+            print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
             print(f'p_QBM: {p_QBM}, target: {target_data}')
 
             #Appending loss and epochs
@@ -363,7 +362,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
 
             print(f'Sample: {i}/{len(X_test)}')
-            print(f'Current AS: {accuracy_score(y_test[:i],test_pred_epoch)} Loss: {loss}')
+            print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
             print(f'p_QBM: {p_QBM}, target: {target_data}')
 
         #Computes the test scores regarding the test set:
@@ -378,10 +377,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     np.save('results/fraud/acc_test.npy', np.array(acc_score_test))
     np.save('results/fraud/acc_train.npy', np.array(acc_score_train))
     np.save('results/fraud/loss_test.npy', np.array(loss_mean_test))
-    np.save('results/fraud/acc_train.npy', np.array(loss_mean_train))
+    np.save('results/fraud/loss_train.npy', np.array(loss_mean))
 
 
-    return np.array(loss_list), np.array(norm_list), p_QBM
+    return 
 
 
 

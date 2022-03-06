@@ -707,8 +707,8 @@ def main():
 
     number_of_seeds=1
     learningRate=0.1
-    ite_steps=1
-    epochs=2
+    ite_steps=10
+    epochs=50
     optimizing_method='Amsgrad'
 
     """
@@ -769,7 +769,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
