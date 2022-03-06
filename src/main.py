@@ -607,8 +607,8 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-        #plt.show()
-        pass
+        plt.show()
+        #pass
     
     return
 
@@ -747,7 +747,7 @@ def main():
 
     start=time.time()
 
-    fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
+    #fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
@@ -769,7 +769,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 

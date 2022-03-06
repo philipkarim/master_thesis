@@ -212,6 +212,13 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     X_test=X_test[0:25]
     y_test=y_test[0:25]
 
+    """
+    X_train=np.array([X_train[0]])
+    y_train=np.array([y_train[0]])
+    X_test=np.array([X_test[0]])
+    y_test=np.array([y_test[0]])
+    """
+    
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
     # when we are dealing with binary classification? 
@@ -254,7 +261,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
-    optim=optimize(n_hamilParameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met)
+    optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
     varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps)
     varqite_train.initialize_circuits()
 
@@ -322,7 +329,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             #TODO: fix when diagonal elemetns, also do not compute the
             #gradient if there is no need inside the var qite loop 
             #H_coefficients=np.zeros(len(hamiltonian))
-            new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=True)
+            new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=True, sample=sample)
         
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))

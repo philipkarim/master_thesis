@@ -9,7 +9,7 @@ class optimize:
     """
     Class handling everything to do with optimization of parameters and loss computations
     """
-    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',circuit=None):
+    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',fraud=False, circuit=None):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -19,22 +19,29 @@ class optimize:
             circuit:        Quantum circuit that is used
         """
         self.rot_in=rot_in
-        if type(Hamil)==int:
-            self.n_hamil_params=Hamil
+        self.method=method
+
+        if fraud==True:
+            self.m = np.zeros_like((Hamil)).astype(float)
+            self.v = np.zeros_like((Hamil)).astype(float)
+            if self.method=='Amsgrad':
+                self.vhat= np.zeros_like((Hamil)).astype(float)
+
         else:
-            self.n_hamil_params=len(Hamil)
+            self.n_hamil_params=len(Hamil)    
+            self.m = np.zeros(self.n_hamil_params).astype(float)
+            self.v = np.zeros(self.n_hamil_params).astype(float)
+         
+            if self.method=='Amsgrad':
+                self.vhat= np.zeros(self.n_hamil_params).astype(float)
+        
         self.trace_list=trace_list
         self.H_qubit_states=2**len(self.trace_list)
         self.learning_rate=learning_rate
         self.circuit=circuit
         self.t=0
-        self.m = np.zeros(self.n_hamil_params).astype(float)
-        self.v = np.zeros(self.n_hamil_params).astype(float)
 
-        self.method=method
         
-        if self.method=='Amsgrad':
-            self.vhat= np.zeros(self.n_hamil_params).astype(float)
             
     def cross_entropy_new(self, p_data,p_BM):
         """
@@ -77,7 +84,7 @@ class optimize:
 
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False):
+    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False, sample=None):
         """
         I guess something like this should work?
         
@@ -88,13 +95,32 @@ class optimize:
         # https://ruder.io/optimizing-gradient-descent/index.html#adam
         
         #Add 1 to the counter
+
+        """
+        if sample!=None:
+            self.t+=1
+            self.m = beta1 * self.m+ (1.0 - beta1) * g
+            self.v = beta2 * self.v + (1.0 - beta2) * g**2
+            mhat = self.m / (1.0 - beta1**(self.t))
+        """
+        if sample is not None:
+            gradient=np.zeros((len(g),len(sample)))
+            for i in range(len(g)):
+                for j in range(len(sample)):
+                    gradient[i][j]=g[i]*sample[j]
+
+            g=gradient
+                    
         self.t+=1
         self.m = beta1 * self.m+ (1.0 - beta1) * g
         self.v = beta2 * self.v + (1.0 - beta2) * g**2
         mhat = self.m / (1.0 - beta1**(self.t))
 
-        print(f'g: {g}')
+        #print(f'g: {g}')
+        #print(f'm: {self.m}')
+        #print(f'v: {self.v}')
         
+
         if self.method=='Amsgrad':
 
             #a_t = self.learning_rate*np.sqrt(1-beta2**self.t)/(1-beta1**self.t)
@@ -104,7 +130,7 @@ class optimize:
             self.vhat=np.maximum(self.vhat, self.v)
 
             if discriminative==True:
-                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps).reshape((len(x), 1))
+                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)#.reshape((len(x), 1))
             else:  
                 x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)
             
@@ -287,6 +313,7 @@ class optimize:
         #TODO: added copy
         d_omega=np.array(d_omega, copy=True)
         #print(self.H_qubit_states)
+        #TODO: self.H_qubit_state potential to give the wrong answer with hidden qubits
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
             for k in self.rot_in:
