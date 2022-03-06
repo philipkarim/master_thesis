@@ -145,8 +145,8 @@ class optimize:
             else:
                 x -= np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)
     
-            print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
-            print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')        
+            #print(f'Change in param: {-np.divide(self.learning_rate*mhat, np.sqrt(vhat) + eps)}')
+            #print(f'Parameters in adam: m_hat:{mhat} vhat which will be divided upon: {np.sqrt(vhat)}')        
 
         return x
    

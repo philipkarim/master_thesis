@@ -25,7 +25,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, symmetrix_matrices=False, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -36,6 +36,7 @@ class varQITE:
             max_Time(float):    Maximum time value for the propagation
             steps(int):         timesteps of varQITE
         """
+        self.symmetrix_matrices=symmetrix_matrices
         self.best=False
         self.sup=False
         self.hamil=hamil
@@ -84,12 +85,19 @@ class varQITE:
         Creating circ A
         """
         A_circ= np.empty(shape=(len(self.rot_indexes), len(self.rot_indexes)), dtype=object)
-        
+
         #Assuming there is only one circ per i,j, due to r? only having 1 element in f
-        for i in range(len(self.rot_indexes)):
-            for j in range(len(self.rot_indexes)):
-                #Just the circuits
-                A_circ[i][j]=self.init_A(self.rot_indexes[i],self.rot_indexes[j])
+        if self.symmetrix_matrices==True:
+            for i in range(len(self.rot_indexes)):
+                            for j in range(i+1):
+                                #Just the circuits
+                                A_circ[i][j]=self.init_A(self.rot_indexes[i],self.rot_indexes[j])
+        else:
+            for i in range(len(self.rot_indexes)):
+                for j in range(len(self.rot_indexes)):
+                    #Just the circuits
+                    A_circ[i][j]=self.init_A(self.rot_indexes[i],self.rot_indexes[j])
+                
         #print(A_circ)
         """
         A_mat_temp=np.zeros((len(self.rot_indexes), len(self.rot_indexes)))
@@ -182,21 +190,30 @@ class varQITE:
         C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
             
 
             time_A=time.time()
-            for i_a in range(len(self.rot_indexes)):
-                for j_a in range(len(self.rot_indexes)):
-                    #Just the circuits
-                    A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
-                        (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)
-            
+            if self.symmetrix_matrices==True:
+                for i_a in range(len(self.rot_indexes)):
+                    for j_a in range(i_a+1):
+                        #Just the circuits
+                        A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
+                            (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)
+                        A_mat[j_a][i_a]=A_mat[i_a][j_a]
+            else:
+                for i_a in range(len(self.rot_indexes)):
+                    for j_a in range(len(self.rot_indexes)):
+                        #Just the circuits
+                        A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
+                            (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)            
 
             #print(A_mat)
             #exit()
+
+            #print(f'Matrix A symmetric?: {np.allclose(A_mat, A_mat.T, rtol=1e-5, atol=1e-8)}')
 
             A_mat*=0.25
 
@@ -347,6 +364,7 @@ class varQITE:
                 
                 time_dA=time.time()
                 dA_mat=self.getdA_bound(omega_w)
+                #print(dA_mat)
                 #print(f'dA_mat: {dA_mat}')
                 #exit()
                 #print(dA_mat)
@@ -928,6 +946,7 @@ class varQITE:
         dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
 
         #da_run=time.time()
+            
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
                 for s_da in range(len(self.rot_indexes)):
@@ -939,11 +958,23 @@ class varQITE:
 
         #TODO: slice this, but it uses very little time to compute, so might not be necesarry
         #da_compute=time.time()
-        for i in range(len(self.hamil)):
-            for p in range(len(self.rot_indexes)):
-                for q in range(len(self.rot_indexes)):
-                    for s in range(len(self.rot_indexes)):
-                        dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
+        if self.symmetrix_matrices==True:
+            for i in range(len(self.hamil)):
+                for p in range(len(self.rot_indexes)):
+                    for q in range(p+1):
+                        for s in range(len(self.rot_indexes)):
+                            dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
+            
+            for i in range(len(self.hamil)):
+                for p in range(len(self.rot_indexes)):
+                    for q in range(p):
+                        dA[i][q][p]=dA[i][p][q]
+        else:
+            for i in range(len(self.hamil)):
+                for p in range(len(self.rot_indexes)):
+                    for q in range(len(self.rot_indexes)):
+                        for s in range(len(self.rot_indexes)):
+                            dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
         #TODO: Changed from negative to positive
         dA*=0.125
@@ -1266,8 +1297,6 @@ class varQITE:
                 dCircuit_term_1=self.dC_circ1(p_index, i, self.rot_indexes[s])
                 dCircuit_term_2=self.dC_circ2(p_index, self.rot_indexes[s], i)
                 
-                ## TODO: Fix this, I dont know how dw should be computed
-                #TODO: Is the [0][0] correct?
                 temp_dw=np.copy(self.hamil[i][0][0]*self.dwdth[i_theta][self.rot_indexes[s]])
 
             #I guess the real and trace part automatically is computed 

@@ -249,7 +249,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
     
     time_intit=time.time()
     varqite_train.initialize_circuits()
@@ -265,8 +265,8 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
         ansatz=update_parameters(ansatz, omega)
 
-        print(f' omega: {omega}')
-        print(f' d_omega: {d_omega}')
+        #print(f' omega: {omega}')
+        #print(f' d_omega: {d_omega}')
 
         #Dansity matrix measure, measure instead of computing whole DM
         
@@ -286,22 +286,22 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
         time_g_ps=time.time()
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-        print(f'Time for ps: {time.time()-time_g_ps}')
+        #print(f'Time for ps: {time.time()-time_g_ps}')
 
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        print(f'gradient_loss: {gradient_loss}')        
+        #print(f'gradient_loss: {gradient_loss}')        
 
         H_coefficients=np.zeros(len(H_operator))
 
         for ii in range(len(H_operator)):
             H_coefficients[ii]=H_operator[ii][0][0]
 
-        print(f'Old params: {H_coefficients}')
+        #print(f'Old params: {H_coefficients}')
         #new_parameters=optim.adam(H_coefficients, gradient_loss)
         new_parameters=optim.adam(H_coefficients, gradient_loss)
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        print(f'New params {new_parameters}')
+        #print(f'New params {new_parameters}')
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
 
@@ -543,9 +543,9 @@ def plot_fidelity(n_steps, name=None):
     """
     
     print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=n_steps, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
     varqite1.initialize_circuits()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
         
     for i in range(len(list_omegas_fielity1)):
@@ -563,10 +563,10 @@ def plot_fidelity(n_steps, name=None):
     print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
     
     print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=n_steps, plot_fidelity=True)
+    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
     varqite2.initialize_circuits()
     star=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
     print(time.time()-star)
     list_omegas_fielity2=varqite2.fidelity_omega_list()
 
@@ -735,7 +735,7 @@ def main():
     Ham3=get_Hamiltonian(3)
     Ham4=get_Hamiltonian(4)
 
-    p_data1=np.array([0.5, 0.5])
+    p_data1=np.array([0.8, 0.2])
     p_data2=np.array([0.5, 0, 0, 0.5])
     p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
     p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
@@ -747,7 +747,7 @@ def main():
 
     start=time.time()
 
-    #fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
+    fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
@@ -761,7 +761,7 @@ def main():
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
-    #multiple_simulations(2, Ham1, ansatz1, 2, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='testing_plot_with_norm')
+    #multiple_simulations(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_run')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 
@@ -769,7 +769,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 

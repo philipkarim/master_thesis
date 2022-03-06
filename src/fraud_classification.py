@@ -207,8 +207,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     X_val = scaler.transform(X_val)
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:100]
-    y_train=y_train[0:100]
+    X_train=X_train[100:200]
+    y_train=y_train[100:200]
     X_test=X_test[0:25]
     y_test=y_test[0:25]
 
@@ -218,7 +218,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     X_test=np.array([X_test[0]])
     y_test=np.array([y_test[0]])
     """
-    
+
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
     # when we are dealing with binary classification? 
@@ -262,7 +262,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
-    varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps)
+    varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=True)
     varqite_train.initialize_circuits()
 
     loss_mean=[]
@@ -284,14 +284,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         #Loops over each sample
         for i,sample in enumerate(X_train):
             #Updating the Hamiltonian with the correct parameters
-            print(f'Old hamiltonian {hamiltonian}')
+            #print(f'Old hamiltonian {hamiltonian}')
             for term_H in range(n_hamilParameters):
                 for qub in range(len(hamiltonian[term_H])):
                     hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
-            print(f'New hamiltonian {hamiltonian}')
+            #print(f'New hamiltonian {hamiltonian}')
             ansatz=update_parameters(ansatz, init_params)
             omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
             ansatz=update_parameters(ansatz, omega)
@@ -337,6 +337,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
         print(f'Epoch complete: mean loss list= {loss_mean}')
         print(f'Epoch complete: AS train list= {acc_score_train}')
+        print(f'Epoch complete: Hamiltomian= {hamiltonian}')
 
         print(f'Testing model on test data')
 
