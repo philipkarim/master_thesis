@@ -543,9 +543,9 @@ def plot_fidelity(n_steps, name=None):
     """
     
     print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=1000, maxTime=10, symmetrix_matrices=True, plot_fidelity=True)
     varqite1.initialize_circuits()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=False)
+    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
         
     for i in range(len(list_omegas_fielity1)):
@@ -566,7 +566,7 @@ def plot_fidelity(n_steps, name=None):
     varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
     varqite2.initialize_circuits()
     star=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=False)
+    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     print(time.time()-star)
     list_omegas_fielity2=varqite2.fidelity_omega_list()
 
@@ -700,6 +700,22 @@ def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_m
 
     return 
 
+def ite_gs(toy_example=True):
+
+    if toy_example==True:
+        H=None
+    else:
+        g0=0.2252;  g1=0.3435;  g2=-0.4347
+        g3=0.5716;  g4=0.0910;  g5=0.0910
+
+        hydrogen_ham=[[[g0, 'z', 0], [g0, 'z', 0]], 
+                    [[g1, 'z', 0]],[[g2, 'z', 1]], 
+                    [[g3, 'z', 0], [g3, 'z', 1]], 
+                    [[g4, 'y', 0], [g4, 'y', 1]], 
+                    [[g5, 'x', 0], [g5, 'x', 1]]]
+
+        
+
 
 def main():
     #np.random.seed(1357)
@@ -746,8 +762,10 @@ def main():
     Ham2=np.array(Ham2, dtype=object)
 
     start=time.time()
+    
+    #ite_gs(toy_example=True)
 
-    fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
+    #fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
@@ -769,7 +787,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
