@@ -543,7 +543,7 @@ def plot_fidelity(n_steps, name=None):
     """
     
     print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=1000, maxTime=10, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
@@ -714,6 +714,64 @@ def ite_gs(toy_example=True):
                     [[g4, 'y', 0], [g4, 'y', 1]], 
                     [[g5, 'x', 0], [g5, 'x', 1]]]
 
+        uniform_params=np.random.uniform(low=-1, high=1, size=8)
+        
+        ansatz_supp=[['ry',uniform_params[0], 0],['ry',uniform_params[1], 1], 
+                    ['rz',uniform_params[2], 0],['rz',uniform_params[3], 1], 
+                    ['cx', 0, 1],
+                    ['ry',uniform_params[4], 0],['ry',uniform_params[5], 1], 
+                    ['rz',uniform_params[6], 0],['rz',uniform_params[7], 1]]
+
+        #eigenvalues=-1, -1, 1 and 1
+
+        #Is each qubit an eigenvalue maybe? No idea
+        test_hamiltonian=[[[1,'x', 0]], [[1, 'z', 1]]]
+
+        test_circ=qk.QuantumCircuit(2)
+        test_circ.x(0)
+        test_circ.z(1)
+
+        print(test_circ)
+        #psi=create_initialstate(ansatz_supp)
+        #print(psi) 
+
+        varqite_gs=varQITE(test_hamiltonian, ansatz_supp, steps=300, maxTime=4,symmetrix_matrices=True)
+        varqite_gs.initialize_circuits()
+        omega, trash=varqite_gs.state_prep(gradient_stateprep=True)
+
+
+        #varqite_gs=varQITE(hydrogen_ham, ansatz_supp, steps=10, symmetrix_matrices=True)
+        #varqite_gs.initialize_circuits()
+        #omega1, d_omega=varqite_gs.state_prep(gradient_stateprep=True)
+        ansatz_supp=update_parameters(ansatz_supp, omega)
+        psi=create_initialstate(ansatz_supp)
+
+        backend = qk.Aer.get_backend('unitary_simulator')
+        job = qk.execute(psi, backend)
+        result = job.result()
+        mat_psi=result.get_unitary(psi, decimals=3).data
+        print(mat_psi)
+
+
+        
+        backend = qk.Aer.get_backend('unitary_simulator')
+        job = qk.execute(test_circ, backend)
+        result = job.result()
+        mat_H=result.get_unitary(test_circ, decimals=3).data
+        print(mat_H)
+
+        print(mat_H@mat_psi)
+        final_mat=(mat_H@mat_psi)-mat_psi
+        print(final_mat)
+
+        print(np.linalg.eig(np.real(final_mat)))
+
+
+
+        #print(np.diag(mat))
+        
+        
+
         
 
 
@@ -763,7 +821,7 @@ def main():
 
     start=time.time()
     
-    #ite_gs(toy_example=True)
+    ite_gs(toy_example=False)
 
     #fraud_detection(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
@@ -787,7 +845,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
