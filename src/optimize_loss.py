@@ -28,6 +28,7 @@ class optimize:
                 self.vhat= np.zeros_like((Hamil)).astype(float)
 
         else:
+            #TODO: Change this when the hamiltonian has non changeable coefficients
             self.n_hamil_params=len(Hamil)    
             self.m = np.zeros(self.n_hamil_params).astype(float)
             self.v = np.zeros(self.n_hamil_params).astype(float)
@@ -84,7 +85,8 @@ class optimize:
 
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False, sample=None):
+    #def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False, sample=None):
+    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8, discriminative=False, sample=None):
         """
         I guess something like this should work?
         
@@ -130,7 +132,7 @@ class optimize:
             self.vhat=np.maximum(self.vhat, self.v)
 
             if discriminative==True:
-                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)#.reshape((len(x), 1))
+                x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps).reshape((len(x), 1))
             else:  
                 x -= np.divide(a_t*mhat, np.sqrt(self.vhat) + eps)
             

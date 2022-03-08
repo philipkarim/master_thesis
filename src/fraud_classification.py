@@ -29,99 +29,6 @@ import seaborn as sns
 
 sns.set_style("darkgrid")
 
-
-both=True
-
-plot_fidelity=True
-
-
-def train_fraudmodel(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):    
-    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-
-    loss_list=[]
-    epoch_list=[]
-    norm_list=[]
-    tracing_q, rotational_indices=getUtilityParameters(ansatz)
-
-    #print(tracing_q, rotational_indices, n_qubits_ansatz)
-
-    optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method)
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps)
-    
-    time_intit=time.time()
-    varqite_train.initialize_circuits()
-    print(f'initialization time: {time.time()-time_intit}')
-    for epoch in range(n_epochs):
-        print(f'epoch: {epoch}')
-
-        #Stops, memory allocation??? How to check
-        ansatz=update_parameters(ansatz, init_params)
-        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-
-        optimize_time=time.time()
-
-        ansatz=update_parameters(ansatz, omega)
-
-        print(f' omega: {omega}')
-        print(f' d_omega: {d_omega}')
-
-        #Dansity matrix measure, measure instead of computing whole DM
-        
-        trace_circ=create_initialstate(ansatz)
-        DM=DensityMatrix.from_instruction(trace_circ)
-        PT=partial_trace(DM,tracing_q)
-        p_QBM=np.diag(PT.data).real.astype(float)
-        
-        print(f'p_QBM: {p_QBM}')
-        loss=optim.cross_entropy_new(target_data,p_QBM)
-        print(f'Loss: {loss, loss_list}')
-        norm=np.linalg.norm((target_data-p_QBM), ord=1)
-        #Appending loss and epochs
-        norm_list.append(norm)
-        loss_list.append(loss)
-        epoch_list.append(epoch)
-
-        time_g_ps=time.time()
-        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-        print(f'Time for ps: {time.time()-time_g_ps}')
-
-        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        print(f'gradient_loss: {gradient_loss}')        
-
-        H_coefficients=np.zeros(len(H_operator))
-
-        for ii in range(len(H_operator)):
-            H_coefficients[ii]=H_operator[ii][0][0]
-
-        print(f'Old params: {H_coefficients}')
-        #new_parameters=optim.adam(H_coefficients, gradient_loss)
-        new_parameters=optim.adam(H_coefficients, gradient_loss)
-
-        #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        print(f'New params {new_parameters}')
-        #TODO: Try this
-        #gradient_descent_gradient_done(self, params, lr, gradient):
-
-        for i in range(len(H_operator)):
-            for j in range(len(H_operator[i])):
-                H_operator[i][j][0]=new_parameters[i]
-        
-        varqite_train.update_H(H_operator)
-    
-    del optim
-    del varqite_train
-
-    if plot==True:
-        plt.plot(epoch_list, loss_list)
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.show()
-    
-    print(f'Time to optimize: {time.time()-optimize_time}')
-
-    return np.array(loss_list), np.array(norm_list), p_QBM
-
-
 def bias_param(x, theta):
     """
     Function which computes the Hamiltonian parameters with supervised fraud dataset
@@ -150,70 +57,82 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     Returns:    Scores on how the BM performed
     """
     #Importing the data
-    dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
-    #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
+    fraud_20=False
+    save_scores=False
 
-    #Split the data into X and y
-    X=np.hsplit(dataset_fraud, (len(dataset_fraud[0])-1,len(dataset_fraud[0])))
-    y=X[1].astype('int')
-    X=X[0]
+    if fraud_20==True:
+        dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
+        #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
 
-    ## The reason we split it like this instead of the regular train_test_split is to secure
-    ## The right amount of true samples in each set(Probably is a lot more efficient way to do this)
+        #Split the data into X and y
+        X=np.hsplit(dataset_fraud, (len(dataset_fraud[0])-1,len(dataset_fraud[0])))
+        y=X[1].astype('int')
+        X=X[0]
 
-    #Extracts indices of samples which are fraud and not fraud
-    true_indices=np.where(y==1)[0]
-    false_indices=np.where(y==0)[0]
+        ## The reason we split it like this instead of the regular train_test_split is to secure
+        ## The right amount of true samples in each set(Probably is a lot more efficient way to do this)
 
-    #Train: 20% 100/500
-    train_true_samples=100
-    test_true_samples=50
-    train_false_samples=400
-    test_false_samples=200
+        #Extracts indices of samples which are fraud and not fraud
+        true_indices=np.where(y==1)[0]
+        false_indices=np.where(y==0)[0]
 
-    #CV
-    #Liste med kretser, paralellisering, gpu
+        #Train: 20% 100/500
+        train_true_samples=100
+        test_true_samples=50
+        train_false_samples=400
+        test_false_samples=200
 
-    #Makes sure that each set of data contains the wanted number of true samples
-    train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
-    true_indices = np.delete(true_indices, np.where(np.in1d(true_indices, train_indices)))
-    test_indices=np.random.choice(true_indices, test_true_samples, replace=False)
-    val_indices = np.delete(true_indices, np.where(np.in1d(true_indices, test_indices)))
+        #CV
+        #Liste med kretser, paralellisering, gpu
 
-    #Random sampling from the false samples
-    train_indices_false=np.random.choice(false_indices, train_false_samples, replace=False)
-    false_indices = np.delete(false_indices, np.where(np.in1d(false_indices, train_indices_false)))
-    test_indices_false=np.random.choice(false_indices, test_false_samples, replace=False)
-    val_indices_false = np.delete(false_indices, np.where(np.in1d(false_indices, test_indices_false)))
+        #Makes sure that each set of data contains the wanted number of true samples
+        train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
+        true_indices = np.delete(true_indices, np.where(np.in1d(true_indices, train_indices)))
+        test_indices=np.random.choice(true_indices, test_true_samples, replace=False)
+        val_indices = np.delete(true_indices, np.where(np.in1d(true_indices, test_indices)))
 
-    y_train_indices=np.sort(np.concatenate((train_indices, train_indices_false)))
-    y_test_indices=np.sort(np.concatenate((test_indices, test_indices_false)))
-    y_val_indices=np.sort(np.concatenate((val_indices, val_indices_false)))
+        #Random sampling from the false samples
+        train_indices_false=np.random.choice(false_indices, train_false_samples, replace=False)
+        false_indices = np.delete(false_indices, np.where(np.in1d(false_indices, train_indices_false)))
+        test_indices_false=np.random.choice(false_indices, test_false_samples, replace=False)
+        val_indices_false = np.delete(false_indices, np.where(np.in1d(false_indices, test_indices_false)))
 
-    #Splits the samples according to the sampling of y
-    X_train=X[y_train_indices]
-    X_test=X[y_test_indices]
-    X_val=X[y_val_indices]
+        y_train_indices=np.sort(np.concatenate((train_indices, train_indices_false)))
+        y_test_indices=np.sort(np.concatenate((test_indices, test_indices_false)))
+        y_val_indices=np.sort(np.concatenate((val_indices, val_indices_false)))
 
-    y_train=y[y_train_indices]
-    y_test=y[y_test_indices]
-    y_val=y[y_val_indices]
+        #Splits the samples according to the sampling of y
+        X_train=X[y_train_indices]
+        X_test=X[y_test_indices]
+        X_val=X[y_val_indices]
 
-    #Just doublechecks that all indices are unique
-    #print(any((y_test == x).all() for x in y_train))
+        y_train=y[y_train_indices]
+        y_test=y[y_test_indices]
+        y_val=y[y_val_indices]
+
+    else:
+        dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances_5050.npy', allow_pickle=True)
+
+        X=np.hsplit(dataset_fraud, (len(dataset_fraud[0])-1,len(dataset_fraud[0])))
+        y=X[1].astype('int')
+        X=X[0]
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+        #Now it is time to scale the data   
     
-    #Now it is time to scale the data   
     scaler=StandardScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
-    X_val = scaler.transform(X_val)
+    if fraud_20==True:
+        X_val = scaler.transform(X_val)
 
     #TODO: Remove this when the thing work
-    X_train=X_train[100:200]
-    y_train=y_train[100:200]
-    X_test=X_test[0:25]
-    y_test=y_test[0:25]
+    X_train=X_train[:2]
+    y_train=y_train[:2]
+    X_test=X_test[0:2]
+    y_test=y_test[0:2]
+
 
     """
     X_train=np.array([X_train[0]])
@@ -253,11 +172,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     #Initializing the parameters:
     H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
     
-    """
-    for term_H in range(n_hamilParameters):
-        for qub in range(len(hamiltonian[term_H])):
-            hamiltonian[term_H][qub][0]=bias_param(X_train[0], H_init_val[term_H])
-    """
     #print(f'Hamiltonian: {hamiltonian}')
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
@@ -332,7 +246,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             #TODO: fix when diagonal elemetns, also do not compute the
             #gradient if there is no need inside the var qite loop 
             #H_coefficients=np.zeros(len(hamiltonian))
-            new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=True, sample=sample)
+            new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
         
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
@@ -385,10 +299,11 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     del varqite_train
 
     #Save the scores
-    np.save('results/fraud/acc_test.npy', np.array(acc_score_test))
-    np.save('results/fraud/acc_train.npy', np.array(acc_score_train))
-    np.save('results/fraud/loss_test.npy', np.array(loss_mean_test))
-    np.save('results/fraud/loss_train.npy', np.array(loss_mean))
+    if save_scores==True:
+        np.save('results/fraud/acc_test.npy', np.array(acc_score_test))
+        np.save('results/fraud/acc_train.npy', np.array(acc_score_train))
+        np.save('results/fraud/loss_test.npy', np.array(loss_mean_test))
+        np.save('results/fraud/loss_train.npy', np.array(loss_mean))
 
 
     return 
