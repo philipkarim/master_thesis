@@ -58,7 +58,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     """
     #Importing the data
     fraud_20=False
-    save_scores=False
+    save_scores=True
 
     if fraud_20==True:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
@@ -128,10 +128,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         X_val = scaler.transform(X_val)
 
     #TODO: Remove this when the thing work
-    X_train=X_train[:2]
-    y_train=y_train[:2]
-    X_test=X_test[0:2]
-    y_test=y_test[0:2]
+    X_train=X_train[0:75]
+    y_train=y_train[0:75]
+    X_test=X_test[0:25]
+    y_test=y_test[0:25]
 
 
     """
@@ -300,10 +300,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     #Save the scores
     if save_scores==True:
-        np.save('results/fraud/acc_test.npy', np.array(acc_score_test))
-        np.save('results/fraud/acc_train.npy', np.array(acc_score_train))
-        np.save('results/fraud/loss_test.npy', np.array(loss_mean_test))
-        np.save('results/fraud/loss_train.npy', np.array(loss_mean))
+        np.save('results/fraud/acc_test_5050.npy', np.array(acc_score_test))
+        np.save('results/fraud/acc_train_5050.npy', np.array(acc_score_train))
+        np.save('results/fraud/loss_test_5050.npy', np.array(loss_mean_test))
+        np.save('results/fraud/loss_train_5050.npy', np.array(loss_mean))
 
 
     return 
