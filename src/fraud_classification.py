@@ -171,6 +171,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     train_false_samples=400
     test_false_samples=200
 
+    #CV
+    #Liste med kretser, paralellisering, gpu
+
     #Makes sure that each set of data contains the wanted number of true samples
     train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
     true_indices = np.delete(true_indices, np.where(np.in1d(true_indices, train_indices)))

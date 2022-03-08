@@ -24,14 +24,14 @@ def sample_data(samples):
     fraud_index=np.where(numpy_df.T[-1]=='Yes')[0]
     notfraud_index=np.where(numpy_df.T[-1]=='No')[0]
     
-    random_fraudsamples=np.random.choice(fraud_index, int(samples*0.2), replace=False)
-    random_notfraudsamples=np.random.choice(notfraud_index, int(samples*0.8), replace=False)
+    random_fraudsamples=np.random.choice(fraud_index, int(samples*0.5), replace=False)
+    random_notfraudsamples=np.random.choice(notfraud_index, int(samples*0.5), replace=False)
 
     random_samples=np.sort(np.concatenate((random_fraudsamples, random_notfraudsamples)))
     df_numpy=numpy_df[random_samples]
 
     
-    np.save('time_amount_zip_mcc', df_numpy)
+    np.save('time_amount_zip_mcc_5050', df_numpy)
 
     return df_numpy
 
@@ -94,16 +94,16 @@ def transform_dataset(sample_list):
 #Just a function to shorten the data. The dataset we sample from is so big that it wont upload to
 #github, we sample 1000 instances. The dataset can be found here: https://www.kaggle.com/paulrohan2020/#synthetic-transactions-virtual-world-simulator
 
-#data=sample_data(1000)
+data=sample_data(1000)
 
 #Now we preprocess the data:
-data=np.load('time_amount_zip_mcc.npy', allow_pickle=True)
+data=np.load('time_amount_zip_mcc_5050.npy', allow_pickle=True)
 dataset=np.zeros((len(data), len(data[0])+9))
 for i in range(len(data)):
     dataset[i]=transform_dataset(data[i])
 
 
-np.save('time_amount_zip_mcc_1000_instances', dataset)
+np.save('time_amount_zip_mcc_1000_instances_5050', dataset)
 
 
 
