@@ -6,16 +6,28 @@ import seaborn as sns
 sns.set_style("darkgrid")
 #x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
 
-#print(x)
+def plot_fraud():
+    acc_train=np.load('results/fraud/acc_train.npy', allow_pickle=True)
+    acc_test=np.load('results/fraud/acc_test.npy', allow_pickle=True)
+    loss_train=np.load('results/fraud/loss_train.npy', allow_pickle=True)
+    loss_test=np.load('results/fraud/loss_test.npy', allow_pickle=True)
 
-#From terminal loss
-list_plot=[0.7493727671681883, 0.6124065546284976, 0.8166200597670867, 1.1990152770061346, 1.367541130000406, 1.4538064436336788, 1.4353704797333224, 1.3170124607593703, 1.0864287631233536, 0.767873439495864, 0.6276103973543284, 1.2601428881555112, 1.6984149194534803, 2.1305995074869664, 2.533573070375492, 2.7723286365975683, 2.9078607597398523, 2.9880277468085783, 2.9959813828993944, 2.9349543527645308, 2.7915668521535104, 2.4780162135136674, 1.7485566639392616, 0.6499583642003834, 0.7271566251817814, 0.6123066444352221, 0.620031769468391, 0.6277022552672584]
 
-epochs_list=list(range(len(list_plot)))
+    plt.plot(list(range(len(acc_train))), acc_train, label='Train set')
+    plt.plot(list(range(len(acc_test))), acc_test, label='Test set')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    #plt.savefig('30 epochs.png')
+    plt.show()
 
-plt.plot(epochs_list, list_plot)
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.savefig('30 epochs.png')
+    plt.plot(list(range(len(loss_train))), loss_train, label='Train set')
+    plt.plot(list(range(len(loss_test))), loss_test,  label='Test set')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    #plt.savefig('30 epochs.png')
+    plt.show()
 
-print(list_plot)
+
+plot_fraud()

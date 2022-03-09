@@ -15,7 +15,8 @@ import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.datasets import load_digits
@@ -61,9 +62,9 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     save_scores=False
 
     #Load the digits 0,1,2,3
-    digits = load_digits(n_class=4)
-
-    
+    classes=4
+    digits = load_digits(n_class=classes)
+    """
     _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
     for ax, image, label in zip(axes, digits.images, digits.target):
         ax.set_axis_off()
@@ -71,51 +72,35 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         ax.set_title("Training: %i" % label)
     
     plt.show()
-    
+    """
 
     X=digits.data
     y=digits.target
-
-
-    #print(X)
-    #print(y)
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
     #Now it is time to scale the data   
-
-    scaler=StandardScaler()
+    scaler=MinMaxScaler()
     scaler.fit(X_train)
+    #print(scaler.data_max_, scaler.data_min_)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
-    if fraud_20==True:
-        X_val = scaler.transform(X_val)
 
-    #TODO: Remove this when the thing work
-    X_train=X_train[:2]
-    y_train=y_train[:2]
-    X_test=X_test[0:2]
-    y_test=y_test[0:2]
+    print(len(X_train))
 
-
-    """
-    X_train=np.array([X_train[0]])
-    y_train=np.array([y_train[0]])
+    #TODO: Remove this when the model works
+    X_train=X_train[0:100]
+    y_train=y_train[0:100]
+    X_test=X_test[0:25]
+    y_test=y_test[0:25]
+    
+    X_train=np.array([X_train[1]])
+    y_train=np.array([y_train[1]])
     X_test=np.array([X_test[0]])
     y_test=np.array([y_test[0]])
-    """
 
-    #TODO: double check if I should use the mean of y_train or X_train
-    #TODO: Is it really necessary to scale the target variables,
-    # when we are dealing with binary classification? 
-    #Doesnt hurt to test and see if it has any affect iguess
+    X_test=[]
+    y_test=[]
 
-    #scaler=StandardScaler()
-    #scaler.fit(y_train)
-    #y_train = scaler.transform(y_train)
-    #y_test = scaler.transform(y_test)
-    #y_val = scaler.transform(y_val)
-
-    #print(X_train_scaled)
 
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
@@ -138,7 +123,6 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     #print(f'Hamiltonian: {hamiltonian}')
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
@@ -161,6 +145,8 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         test_pred_epoch=[]
         loss_list=[]
 
+        y_train_labels=[]
+
         #Loops over each sample
         for i,sample in enumerate(X_train):
             #Updating the Hamiltonian with the correct parameters
@@ -181,28 +167,40 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
-            p_QBM = PT.probabilities([0])
+            
+            #TODO: Test both these
+            visible_q=[0,1]
+            p_QBM = PT.probabilities(visible_q)
+            #p_QBM = PT.probabilities([2,3])
+
             #Both work I guess, but then use[1,2,3] as tracing qubits
             #p_QBM=np.diag(PT.data).real.astype(float)
 
-            target_data=np.zeros(2)
-            target_data[y_train[i]]=1
+            #target_data=np.zeros(classes)
+            #target_data[y_train[i]]=1
+
+            #print(f'Target vector: {target_data}, target sol: {y_train[i]}')
             
             #TODO: Rewrite for multiclass classification
             #Appending predictions and compute
-            train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
+            #train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
+            target_data=np.zeros(classes)
+            target_data[y_train[i]]=1
+
+            train_pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
 
             loss=optim.fraud_CE(target_data,p_QBM)
             print(f'Sample: {i}/{len(X_train)}')
             print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
             print(f'p_QBM: {p_QBM}, target: {target_data}')
 
+            #exit()            
             #Appending loss and epochs
             loss_list.append(loss)
-            
+
             #TODO: Remember to insert the visible qubit list, might do it 
             #automaticly
-            gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
+            gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, visible_q)
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
             #print(f'gradient_loss: {gradient_loss}')        
 
@@ -238,16 +236,14 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
-            p_QBM = PT.probabilities([0])
+            p_QBM = PT.probabilities(visible_q)
+            test_pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
 
-            target_data=np.zeros(2)
-            target_data[y_test[i]]=1
-            
+            target_data=np.zeros(classes)
+            target_data[y_train[i]]=1
+
             loss=optim.fraud_CE(target_data,p_QBM)
             loss_list.append(loss)
-            #TODO: Rewrite for multiclass classification
-            #Appending predictions and compute
-            test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
 
             print(f'Sample: {i}/{len(X_test)}')
             print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')

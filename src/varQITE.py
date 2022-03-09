@@ -217,7 +217,7 @@ class varQITE:
 
             A_mat*=0.25
 
-            #print(f'Time to prepare A: {time.time()-time_A}')
+            print(f'Time to prepare A: {time.time()-time_A}')
             
             time_C=time.time()
 
@@ -233,7 +233,7 @@ class varQITE:
             #exit()
 
 
-            #print(f'Time to prepare C: {time.time()-time_C}')
+            print(f'Time to prepare C: {time.time()-time_C}')
 
 
             #print(A_mat)
@@ -354,7 +354,7 @@ class varQITE:
                     
                     
             
-            #print(f'Time to invert: {time.time()-time_invert}')
+            print(f'Time to invert: {time.time()-time_invert}')
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
@@ -368,7 +368,7 @@ class varQITE:
                 #print(f'dA_mat: {dA_mat}')
                 #exit()
                 #print(dA_mat)
-                #print(f'Time to prepare whole dA: {time.time()-time_dA}')
+                print(f'Time to prepare whole dA: {time.time()-time_dA}')
 
                 sum_timedC=0
                 for i in range(len(self.hamil)):
@@ -493,7 +493,7 @@ class varQITE:
             #TODO: do I change this multiple times?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
-            #print(f'Time to bound dC {sum_timedC}')
+            print(f'Time to bound dC {sum_timedC}')
 
         return omega_w, self.dwdth
 
@@ -945,8 +945,11 @@ class varQITE:
 
         dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
 
-        #da_run=time.time()
-            
+        da_run=time.time()
+        
+        """
+        This loop right here needs to be computed faster
+        """
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
                 for s_da in range(len(self.rot_indexes)):
@@ -954,10 +957,10 @@ class varQITE:
                     bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]), statevector_test=True)
                     dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].\
                     bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]), statevector_test=True)
-        #print(f'Time to run dA circs{time.time()-da_run}')
+        print(f'Time to run dA circs{time.time()-da_run}')
 
         #TODO: slice this, but it uses very little time to compute, so might not be necesarry
-        #da_compute=time.time()
+        da_compute=time.time()
         if self.symmetrix_matrices==True:
             for i in range(len(self.hamil)):
                 for p in range(len(self.rot_indexes)):
@@ -978,7 +981,7 @@ class varQITE:
 
         #TODO: Changed from negative to positive
         dA*=0.125
-        #print(f'Time to compute dA circs{time.time()-da_compute}')
+        print(f'Time to compute dA circs{time.time()-da_compute}')
 
         return dA
 

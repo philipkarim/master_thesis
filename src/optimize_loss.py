@@ -343,7 +343,8 @@ class optimize:
         #TODO: added copy
         d_omega=np.array(d_omega, copy=True)
         #print(self.H_qubit_states)
-        w_k_sum=np.zeros((len(H), 2))
+        #TODO: This is hardcoded? 2**len(..)
+        w_k_sum=np.zeros((len(H), 2**len(n_visible)))
         for i in range(len(H)):
             for k in self.rot_in:
                 params_left_shift=copy.deepcopy(params)

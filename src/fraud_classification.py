@@ -58,7 +58,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     """
     #Importing the data
     fraud_20=False
-    save_scores=True
+    save_scores=False
 
     if fraud_20==True:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
@@ -134,12 +134,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     y_test=y_test[0:25]
 
 
-    """
-    X_train=np.array([X_train[0]])
-    y_train=np.array([y_train[0]])
+    
+    X_train=np.array([X_train[10]])
+    y_train=np.array([y_train[10]])
     X_test=np.array([X_test[0]])
     y_test=np.array([y_test[0]])
-    """
+    
+    X_test=[]
+    y_test=[]
 
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
@@ -180,7 +182,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
     varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=True)
+
+    init_circs=time.time()
     varqite_train.initialize_circuits()
+    print(f'Time initializing the circuits: {time.time()-init_circs}')
 
     loss_mean=[]
     loss_mean_test=[]
@@ -199,22 +204,29 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         loss_list=[]
 
         #Loops over each sample
+        
         for i,sample in enumerate(X_train):
             #Updating the Hamiltonian with the correct parameters
             #print(f'Old hamiltonian {hamiltonian}')
+            updating_time=time.time()
             for term_H in range(n_hamilParameters):
                 for qub in range(len(hamiltonian[term_H])):
                     hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
-
+            print(f'Updating hamiltonian parameters: {time.time()-updating_time}')
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             #print(f'New hamiltonian {hamiltonian}')
             ansatz=update_parameters(ansatz, init_params)
+            varqite_time=time.time()
             omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+            print(f'Omega prep: {time.time()-varqite_time}')
+
+            
             ansatz=update_parameters(ansatz, omega)
             trace_circ=create_initialstate(ansatz)
 
             #print(f'Print {d_omega}')
+            loss_and_Stuff=time.time()
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
@@ -247,7 +259,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             #gradient if there is no need inside the var qite loop 
             #H_coefficients=np.zeros(len(hamiltonian))
             new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
-        
+            print(f'Loss and stuff like that{time.time()-loss_and_Stuff}')
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
         acc_score_train.append(accuracy_score(y_train,train_pred_epoch))
