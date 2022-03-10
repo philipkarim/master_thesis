@@ -783,7 +783,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=1
+    epochs=20
     optimizing_method='Amsgrad'
 
     """
@@ -834,7 +834,7 @@ def main():
     #ite_gs(toy_example=False)
 
 
-    fraud_detection(1, ansatz2, 30, ite_steps, learningRate, optimizing_method)
+    #fraud_detection(1, ansatz2, 20, ite_steps, 0.1, optimizing_method, nickname='0109')
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch

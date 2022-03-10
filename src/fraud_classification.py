@@ -44,7 +44,7 @@ def bias_param(x, theta):
     return np.dot(x, theta)
 
 
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
+def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -58,7 +58,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     """
     #Importing the data
     fraud_20=False
-    save_scores=False
 
     if fraud_20==True:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
@@ -128,17 +127,17 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         X_val = scaler.transform(X_val)
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:75]
-    y_train=y_train[0:75]
+    X_train=X_train[16:18]
+    y_train=y_train[16:18]
     X_test=X_test[0:25]
     y_test=y_test[0:25]
 
 
-    print(y_train[:10])
-    X_train=np.array([X_train[3]])
-    y_train=np.array([y_train[3]])
-    X_test=np.array([X_test[1]])
-    y_test=np.array([y_test[1]])
+    #print(y_train[0:20])
+    #X_train=np.array([X_train[16]])
+    #y_train=np.array([y_train[16]])
+    #X_test=np.array([X_test[1]])
+    #y_test=np.array([y_test[1]])
     
     X_test=[]
     y_test=[]
@@ -305,11 +304,11 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     del varqite_train
 
     #Save the scores
-    if save_scores==True:
-        np.save('results/fraud/acc_test_5050.npy', np.array(acc_score_test))
-        np.save('results/fraud/acc_train_5050.npy', np.array(acc_score_train))
-        np.save('results/fraud/loss_test_5050.npy', np.array(loss_mean_test))
-        np.save('results/fraud/loss_train_5050.npy', np.array(loss_mean))
+    if nickname is not None:
+        np.save('results/fraud/acc_test_5050'+nickname+'.npy', np.array(acc_score_test))
+        np.save('results/fraud/acc_train_5050'+nickname+'.npy', np.array(acc_score_train))
+        np.save('results/fraud/loss_test_5050'+nickname+'.npy', np.array(loss_mean_test))
+        np.save('results/fraud/loss_train_5050'+nickname+'.npy', np.array(loss_mean))
 
 
     return 
