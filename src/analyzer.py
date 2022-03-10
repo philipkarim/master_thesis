@@ -7,10 +7,10 @@ sns.set_style("darkgrid")
 #x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
 
 def plot_fraud():
-    acc_train=np.load('results/fraud/acc_train.npy', allow_pickle=True)
-    acc_test=np.load('results/fraud/acc_test.npy', allow_pickle=True)
-    loss_train=np.load('results/fraud/loss_train.npy', allow_pickle=True)
-    loss_test=np.load('results/fraud/loss_test.npy', allow_pickle=True)
+    acc_train=np.load('results/fraud/acc_train_5050.npy', allow_pickle=True)
+    acc_test=np.load('results/fraud/acc_test_5050.npy', allow_pickle=True)
+    loss_train=np.load('results/fraud/loss_train_5050.npy', allow_pickle=True)
+    loss_test=np.load('results/fraud/loss_test_5050.npy', allow_pickle=True)
 
 
     plt.plot(list(range(len(acc_train))), acc_train, label='Train set')

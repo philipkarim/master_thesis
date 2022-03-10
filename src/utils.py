@@ -112,6 +112,10 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
     else:
         if statevector_test==False:
             backendtest = qk.Aer.get_backend(backend)
+            #simulator = qk.AerSimulator(method='matrix_product_state') 
+            
+            #backendtest.set_options(max_parallel_experiments=0)
+            #backendtest.set_options(statevector_parallel_threshold=1)
             #backendtest.set_options(device='CPU')
             
             job = qk.execute(qc_circ,
@@ -144,11 +148,18 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
 
 
         else:
-            #backendtest = qk.Aer.get_backend(backend)
+            backendtest = qk.Aer.get_backend(backend)
+            #backendtest.set_options(device='CPU')
+
+            #backend = qk.Aer.get_backend(method='matrix_product_state') 
+            
+            #backendtest.set_options(max_parallel_experiments=0)
+            #backendtest.set_options(statevector_parallel_threshold=1)
             #backendtest.set_options(device='CPU')
             
+            
             job = qk.execute(qc_circ,
-                        backend=qk.Aer.get_backend(backend),
+                        backend=backendtest,#qk.Aer.get_backend(backend),
                         shots=0,
                         optimization_level=0)
             #Run or execute?
