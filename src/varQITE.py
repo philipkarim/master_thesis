@@ -493,7 +493,9 @@ class varQITE:
             #TODO: do I change this multiple times?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
-            print(f'Time to bound dC {sum_timedC}')
+            #TODO: Remove this statement afterwards
+            if gradient_stateprep==False:
+                print(f'Time to bound dC {sum_timedC}')
 
         return omega_w, self.dwdth
 

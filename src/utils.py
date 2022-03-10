@@ -157,14 +157,17 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
             #backendtest.set_options(statevector_parallel_threshold=1)
             #backendtest.set_options(device='CPU')
             
-            
+            """
             job = qk.execute(qc_circ,
                         backend=backendtest,#qk.Aer.get_backend(backend),
                         shots=0,
                         optimization_level=0)
-            #Run or execute?
             results = job.result()
-            psi=results.get_statevector()
+            """
+            #Run or execute?
+            result = backendtest.run(qc_circ).result()
+
+            psi=result.get_statevector()
             probs_qubit_0 = psi.probabilities([0])
             
             

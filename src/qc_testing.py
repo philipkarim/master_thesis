@@ -12,11 +12,14 @@ def run(circ_list):
     #backendtest.set_options(statevector_parallel_threshold=1)
             #backendtest.set_options(device='CPU')
 
-    job = qk.execute(circ_list,
-                backend=backend,
-                shots=0,
-                optimization_level=0)
-    results = job.result()
+    #job = qk.execute(circ_list,
+    #            backend=backend,
+    #            shots=0,
+    #            optimization_level=0)
+    #results = job.result()
+
+    results = backend.run(circ_list).result()
+
 
     #test_list=[]
 
@@ -27,19 +30,19 @@ def run(circ_list):
     #    test_list.append(results.get_statevector(i).probabilities([0])[1])
     #print(results)
     #print(probs_qubit_0[1])
-    #psi0=results.get_statevector(0).probabilities([0])[1]
-    #psi1=results.get_statevector(1).probabilities([0])[1]
-    #psi2=results.get_statevector(2).probabilities([0])[1]
+    psi0=results.get_statevector(0).probabilities([0])[1]
+    psi1=results.get_statevector(1).probabilities([0])[1]
+    psi2=results.get_statevector(2).probabilities([0])[1]
 
     #psi=results.get_statevector(0)
     #probs_qubit_0 = results.get_statevector(1).probabilities([0])
     #print(probs_qubit_0[1])
     
     #probs_qubit_0 = results.get_statevector(2).probabilities([0])
-    #print(probs_qubit_0[1])
+    print(psi0, psi1, psi2)
 
     
-    #return psi0, psi1, psi2
+    return psi0, psi1, psi2
 
 #@jit(nopython=True) # Set "nopython" mode for best performance, equivalent to @njit
 
@@ -89,17 +92,19 @@ qc3.cx(0,2)
 qc3.cx(0,3)
 #qc3.h(0)
 
-import multiprocessing as mp
+#import multiprocessing as mp
 #print("Number of processors: ", mp.cpu_count())
+
+
 
 
 
 #run(qc3)
 
-qc_l=[qc1, qc2, qc3, qc1, qc2, qc3, qc1, qc2, qc3, qc1, qc2, qc3, qc1, qc2, qc3, qc1, qc2, qc3]
+qc_l=[qc1, qc2, qc3]
 
 
-#run(qc_l)
+run(qc_l)
 #run(qc_l)
 
 
@@ -141,6 +146,7 @@ def parallel2(circ2):
     print(result2)
 
 
+exit()
 paralell_time=time.time()
 for i in range(10):
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as p:
