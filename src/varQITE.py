@@ -190,12 +190,12 @@ class varQITE:
         C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
             
 
-            time_A=time.time()
+            #time_A=time.time()
             if self.symmetrix_matrices==True:
                 for i_a in range(len(self.rot_indexes)):
                     for j_a in range(i_a+1):
@@ -217,9 +217,9 @@ class varQITE:
 
             A_mat*=0.25
 
-            print(f'Time to prepare A: {time.time()-time_A}')
+            #print(f'Time to prepare A: {time.time()-time_A}')
             
-            time_C=time.time()
+            #time_C=time.time()
 
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
@@ -233,13 +233,13 @@ class varQITE:
             #exit()
 
 
-            print(f'Time to prepare C: {time.time()-time_C}')
+            #print(f'Time to prepare C: {time.time()-time_C}')
 
 
             #print(A_mat)
 
 
-            time_invert=time.time()
+            #time_invert=time.time()
 
             ridge_inv=True
             CV=False
@@ -354,7 +354,7 @@ class varQITE:
                     
                     
             
-            print(f'Time to invert: {time.time()-time_invert}')
+            #print(f'Time to invert: {time.time()-time_invert}')
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
@@ -362,27 +362,27 @@ class varQITE:
 
             if gradient_stateprep==False:
                 
-                time_dA=time.time()
+                #time_dA=time.time()
                 dA_mat=self.getdA_bound(omega_w)
                 #print(dA_mat)
                 #print(f'dA_mat: {dA_mat}')
                 #exit()
                 #print(dA_mat)
-                print(f'Time to prepare whole dA: {time.time()-time_dA}')
+                #print(f'Time to prepare whole dA: {time.time()-time_dA}')
 
-                sum_timedC=0
+                #sum_timedC=0
                 for i in range(len(self.hamil)):
                     #TODO: Deep copy takes a lot of time, fix this
                     #dA_mat=np.copy(self.get_dA(i))
                     #dC_vec=np.copy(self.get_dC(i))
                     
-                    time_dC=time.time()
+                    #time_dC=time.time()
                     dC_vec=self.getdC_bound(i, omega_w)
-                    sum_timedC+=(time.time()-time_dC)
+                    #sum_timedC+=(time.time()-time_dC)
 
                     #dA_mat=np.copy(self.getdA_init(i))
 
-                    time_invertdC=time.time()
+                    #time_invertdC=time.time()
                     if ridge_inv==False:
                         w_dtheta_dt=A_inv@(dC_vec-dA_mat[i]@omega_derivative_temp)#* or @?
                         if t==self.maxTime:
@@ -493,9 +493,8 @@ class varQITE:
             #TODO: do I change this multiple times?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
-            #TODO: Remove this statement afterwards
-            if gradient_stateprep==False:
-                print(f'Time to bound dC {sum_timedC}')
+            #if gradient_stateprep==False:
+                #print(f'Time to bound dC {sum_timedC}')
 
         return omega_w, self.dwdth
 
@@ -947,7 +946,7 @@ class varQITE:
 
         dA=np.zeros((len(self.hamil), len(self.rot_indexes), len(self.rot_indexes)))
 
-        da_run=time.time()
+        #da_run=time.time()
         
         """
         This loop right here needs to be computed faster
@@ -959,10 +958,10 @@ class varQITE:
                     bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][0].parameters)]), statevector_test=True)
                     dA_mat_temp[p_da][q_da][s_da][1]=run_circuit(self.dA_init[p_da][q_da][s_da][1].\
                     bind_parameters(binding_values[self.rot_indexes][:len(self.dA_init[p_da][q_da][s_da][1].parameters)]), statevector_test=True)
-        print(f'Time to run dA circs{time.time()-da_run}')
+        #print(f'Time to run dA circs{time.time()-da_run}')
 
         #TODO: slice this, but it uses very little time to compute, so might not be necesarry
-        da_compute=time.time()
+        #da_compute=time.time()
         if self.symmetrix_matrices==True:
             for i in range(len(self.hamil)):
                 for p in range(len(self.rot_indexes)):
@@ -983,7 +982,7 @@ class varQITE:
 
         #TODO: Changed from negative to positive
         dA*=0.125
-        print(f'Time to compute dA circs{time.time()-da_compute}')
+        #print(f'Time to compute dA circs{time.time()-da_compute}')
 
         return dA
 

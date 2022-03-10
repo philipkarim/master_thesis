@@ -101,7 +101,7 @@ qc3.cx(0,3)
 
 #run(qc3)
 
-qc_l=[qc1, qc2, qc3]
+qc_l=[qc1, qc2, qc3, qc1, qc2, qc3, qc1, qc2, qc3]
 
 
 run(qc_l)
@@ -143,15 +143,26 @@ def parallel2(circ2):
     
     simulator2 = qk.Aer.get_backend('aer_simulator')
     result2 = simulator2.run(circ2).result()
-    print(result2)
+    #print(result2)
 
 
-exit()
+#exit()
+"""
+This paralellization part works, but doesnt seem to be much faster
+"""
 paralell_time=time.time()
-for i in range(10):
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as p:
+for i in range(100):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as p:
         p.map(parallel2,qc_l)
 print(f'Time for paralell run: {time.time()-paralell_time}')
+
+paralell_time2=time.time()
+for i in range(10):
+    for j in range(len(qc_l)):
+        parallel2(qc_l[j])    
+        
+
+print(f'Time for paralell_single run: {time.time()-paralell_time2}')
 
 
 #if __name__ == '__main__':

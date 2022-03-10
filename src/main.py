@@ -781,7 +781,7 @@ def main():
     np.random.seed(1111)
 
     number_of_seeds=1
-    learningRate=0.01
+    learningRate=0.1
     ite_steps=10
     epochs=1
     optimizing_method='Amsgrad'
@@ -803,6 +803,15 @@ def main():
     Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
                         [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
+    ansatz_gen_dis=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry', 0, 3],
+                    ['rz',0, 0], ['rz',0, 1], ['rz',0, 2], ['rz', 0, 3], 
+                    ['cx', 1,0], ['ry',np.pi/2, 0],        ['cx', 2, 1],
+                    ['rz',0, 0], ['ry', np.pi/2, 1],       ['cx', 3, 2],
+                    ['rz',0, 1], ['ry', 0, 2],['ry',0, 3], ['rz', 0, 2],
+                    ['rz',0, 3], ['cx', 0, 2],['cx', 1, 3]]
+    
+    #print(create_initialstate(ansatz_gen_dis))
+    #exit()
 
     ansatz3=getAnsatz(3)
     ansatz4=getAnsatz(4)
@@ -810,7 +819,7 @@ def main():
     Ham3=get_Hamiltonian(3)
     Ham4=get_Hamiltonian(4)
 
-    p_data1=np.array([0.8, 0.2])
+    p_data1=np.array([0.3, 0.7])
     p_data2=np.array([0.5, 0, 0, 0.5])
     p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
     p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
@@ -840,15 +849,15 @@ def main():
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
     #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
-    #multiple_simulations(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_run')
+    #multiple_simulations(1, Ham1, ansatz1, 100, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
 
 
-    #multiple_simulations(1, Ham2, ansatz2, 25, p_data2, optimizing_method,l_r=learningRate, steps=10)
+    #multiple_simulations(1, Ham2, ansatz_gen_dis, 25, p_data2, optimizing_method,l_r=learningRate, steps=10, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 

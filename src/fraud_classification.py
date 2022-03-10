@@ -135,10 +135,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
 
 
     
-    X_train=np.array([X_train[10]])
-    y_train=np.array([y_train[10]])
-    X_test=np.array([X_test[0]])
-    y_test=np.array([y_test[0]])
+    X_train=np.array([X_train[2]])
+    y_train=np.array([y_train[2]])
+    X_test=np.array([X_test[1]])
+    y_test=np.array([y_test[1]])
     
     X_test=[]
     y_test=[]
