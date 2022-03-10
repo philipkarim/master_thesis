@@ -134,9 +134,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
     y_test=y_test[0:25]
 
 
-    
-    X_train=np.array([X_train[2]])
-    y_train=np.array([y_train[2]])
+    print(y_train[:10])
+    X_train=np.array([X_train[3]])
+    y_train=np.array([y_train[3]])
     X_test=np.array([X_test[1]])
     y_test=np.array([y_test[1]])
     
@@ -206,27 +206,20 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
         #Loops over each sample
         
         for i,sample in enumerate(X_train):
+            varqite_time=time.time()
             #Updating the Hamiltonian with the correct parameters
             #print(f'Old hamiltonian {hamiltonian}')
-            updating_time=time.time()
             for term_H in range(n_hamilParameters):
                 for qub in range(len(hamiltonian[term_H])):
                     hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
-            print(f'Updating hamiltonian parameters: {time.time()-updating_time}')
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             #print(f'New hamiltonian {hamiltonian}')
             ansatz=update_parameters(ansatz, init_params)
-            varqite_time=time.time()
             omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-            print(f'Omega prep: {time.time()-varqite_time}')
-
             
             ansatz=update_parameters(ansatz, omega)
             trace_circ=create_initialstate(ansatz)
-
-            #print(f'Print {d_omega}')
-            loss_and_Stuff=time.time()
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
@@ -259,7 +252,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met):
             #gradient if there is no need inside the var qite loop 
             #H_coefficients=np.zeros(len(hamiltonian))
             new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
-            print(f'Loss and stuff like that{time.time()-loss_and_Stuff}')
+            print(f'1 sample run: {time.time()-varqite_time}')
+
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
         acc_score_train.append(accuracy_score(y_train,train_pred_epoch))
