@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
-
+from sklearn.utils import shuffle
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -206,6 +206,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
         loss_list=[]
 
         #Loops over each sample
+        X_train, y_train = shuffle(X_train, y_train, random_state=0)
         
         for i,sample in enumerate(X_train):
             varqite_time=time.time()
