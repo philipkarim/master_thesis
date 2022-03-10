@@ -45,11 +45,15 @@ def run(circ_list):
 
 
 def run_single(circ_list):
-    job = qk.execute(circ_list,
-                backend=qk.Aer.get_backend('statevector_simulator'),
-                shots=0,
-                optimization_level=0)
-    results = job.result()
+    
+    #job = qk.execute(circ_list,
+    #            backend=qk.Aer.get_backend('statevector_simulator'),
+    #            shots=0,
+    #            optimization_level=0)
+    #results = job.result()
+
+    simulator2 = qk.Aer.get_backend('statevector_simulator')
+    results = simulator2.run(circ_list).result()
 
     return results.get_statevector(0).probabilities([0])[1]
 
@@ -86,7 +90,7 @@ qc3.cx(0,3)
 #qc3.h(0)
 
 import multiprocessing as mp
-print("Number of processors: ", mp.cpu_count())
+#print("Number of processors: ", mp.cpu_count())
 
 
 
@@ -130,20 +134,18 @@ print(f'Single circ time: {time.time()-single}')
 
 
 
-def parallel(circ2):
+def parallel2(circ2):
     
     simulator2 = qk.Aer.get_backend('aer_simulator')
-    result2 = simulator.run(circ2).result()
+    result2 = simulator2.run(circ2).result()
     print(result2)
 
-circ1 = qc_l[0] #some kind of circuit
-simulator1 = qk.Aer.get_backend('aer_simulator')
-result1 = simulator1.run(circ1).result()
-print(result1)
 
-
-with futures.ThreadPoolExecutor(max_workers=5) as p:
-    p.map(parallel,qc_l)
+paralell_time=time.time()
+for i in range(10):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as p:
+        p.map(parallel2,qc_l)
+print(f'Time for paralell run: {time.time()-paralell_time}')
 
 
 #if __name__ == '__main__':
