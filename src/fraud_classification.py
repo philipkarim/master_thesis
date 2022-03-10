@@ -129,10 +129,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[9:19]
-    y_train=y_train[9:19]
-    X_test=X_test[25:50]
-    y_test=y_test[25:50]
+    X_train=X_train[0:30]
+    y_train=y_train[0:30]
+    X_test=X_test[0:30]
+    y_test=y_test[0:30]
 
 
 
@@ -142,8 +142,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
-    X_test=[]
-    y_test=[]
+    #X_test=[]
+    #y_test=[]
 
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,

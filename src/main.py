@@ -834,7 +834,7 @@ def main():
     #ite_gs(toy_example=False)
 
 
-    fraud_detection(1, ansatz2, 30, ite_steps, 0.001, optimizing_method, nickname='000107_10_samples')
+    fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='000509_40_samples_both_sets')
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
