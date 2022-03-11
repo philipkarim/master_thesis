@@ -771,7 +771,97 @@ def ite_gs(toy_example=True):
 
         #print(np.diag(mat))
         
+def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
+    
+    #Ising hamiltonian
+    Continue here!!
+    
+    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
+
+    loss_list=[]
+    epoch_list=[]
+    norm_list=[]
+    tracing_q, rotational_indices=getUtilityParameters(ansatz)
+
+    #print(tracing_q, rotational_indices, n_qubits_ansatz)
+
+    optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
+
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    
+    time_intit=time.time()
+    varqite_train.initialize_circuits()
+    print(f'initialization time: {time.time()-time_intit}')
+    for epoch in range(n_epochs):
+        print(f'epoch: {epoch}')
+
+        #Stops, memory allocation??? How to check
+        ansatz=update_parameters(ansatz, init_params)
+        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+
+        optimize_time=time.time()
+
+        ansatz=update_parameters(ansatz, omega)
+
+        #print(f' omega: {omega}')
+        #print(f' d_omega: {d_omega}')
+
+        #Dansity matrix measure, measure instead of computing whole DM
         
+        trace_circ=create_initialstate(ansatz)
+        DM=DensityMatrix.from_instruction(trace_circ)
+        PT=partial_trace(DM,tracing_q)
+        p_QBM=np.diag(PT.data).real.astype(float)
+        
+        print(f'p_QBM: {p_QBM}')
+        loss=optim.cross_entropy_new(target_data,p_QBM)
+        print(f'Loss: {loss, loss_list}')
+        norm=np.linalg.norm((target_data-p_QBM), ord=1)
+        #Appending loss and epochs
+        norm_list.append(norm)
+        loss_list.append(loss)
+        epoch_list.append(epoch)
+
+        time_g_ps=time.time()
+        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
+        #print(f'Time for ps: {time.time()-time_g_ps}')
+
+        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+        #print(f'gradient_loss: {gradient_loss}')        
+
+        H_coefficients=np.zeros(len(H_operator))
+
+        for ii in range(len(H_operator)):
+            H_coefficients[ii]=H_operator[ii][0][0]
+
+        #print(f'Old params: {H_coefficients}')
+        #new_parameters=optim.adam(H_coefficients, gradient_loss)
+        new_parameters=optim.adam(H_coefficients, gradient_loss)
+
+        #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
+        #print(f'New params {new_parameters}')
+        #TODO: Try this
+        #gradient_descent_gradient_done(self, params, lr, gradient):
+
+        for i in range(len(H_operator)):
+            for j in range(len(H_operator[i])):
+                H_operator[i][j][0]=new_parameters[i]
+        
+        varqite_train.update_H(H_operator)
+    
+    del optim
+    del varqite_train
+
+    if plot==True:
+        plt.plot(epoch_list, loss_list)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.show()
+    
+    print(f'Time to optimize: {time.time()-optimize_time}')
+
+    return np.array(loss_list), np.array(norm_list), p_QBM
+
 
         
 
@@ -833,8 +923,10 @@ def main():
     
     #ite_gs(toy_example=False)
 
+    isingmodel(ansatz2, epochs, n_steps=ite_steps,l_r=0.1, optim_method=optimizing_method)
 
-    fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='000509_40_samples_both_sets')
+
+    #fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='dont_save')#000509_40_samples_both_sets')
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
