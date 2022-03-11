@@ -33,17 +33,17 @@ def plot_multiple_samples():
     """
     Plots multiple data investigating the optimal parameters
     """
-    acc_train_0001=np.load('results/fraud/acc_train_5050000109.npy', allow_pickle=True)
-    loss_train_0001=np.load('results/fraud/loss_train_5050000109.npy', allow_pickle=True)
+    acc_train_0001=np.load('results/fraud/acc_train_5050000109_10_samples.npy', allow_pickle=True)
+    loss_train_0001=np.load('results/fraud/loss_train_5050000109_10_samples.npy', allow_pickle=True)
 
-    acc_train_001=np.load('results/fraud/acc_train_505000109.npy', allow_pickle=True)
-    loss_train_001=np.load('results/fraud/loss_train_505000109.npy', allow_pickle=True)
+    acc_train_001=np.load('results/fraud/acc_train_505000109_10_samples.npy', allow_pickle=True)
+    loss_train_001=np.load('results/fraud/loss_train_505000109_10_samples.npy', allow_pickle=True)
 
-    acc_train01=np.load('results/fraud/acc_train_50500109.npy', allow_pickle=True)
-    loss_train01=np.load('results/fraud/loss_train_50500109.npy', allow_pickle=True)
+    acc_train01=np.load('results/fraud/acc_train_50500109_10_samples.npy', allow_pickle=True)
+    loss_train01=np.load('results/fraud/loss_train_50500109_10_samples.npy', allow_pickle=True)
 
-    acc_train_000107=np.load('results/fraud/acc_train_5050000107.npy', allow_pickle=True)
-    loss_train_000107=np.load('results/fraud/loss_train_5050000107.npy', allow_pickle=True)
+    acc_train_000107=np.load('results/fraud/acc_train_5050000107_10_samples.npy', allow_pickle=True)
+    loss_train_000107=np.load('results/fraud/loss_train_5050000107_10_samples.npy', allow_pickle=True)
 
     plt.plot(list(range(len(acc_train_0001))), acc_train_0001, label=r'$\gamma=0.001$, $m_1=0.9$, $m_2=0.999$')
     plt.plot(list(range(len(acc_train_001))), acc_train_001, label=r'$\gamma=0.01$, $m_1=0.9$, $m_2=0.999$')
