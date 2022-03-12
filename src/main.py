@@ -16,6 +16,8 @@ from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 import matplotlib.pyplot as plt
+from qiskit.quantum_info.operators import Operator, Pauli
+
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -771,11 +773,19 @@ def ite_gs(toy_example=True):
 
         #print(np.diag(mat))
         
-def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
+def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
     
-    #Ising hamiltonian
-    Continue here!!
-    
+    #Ising hamiltonian:
+    #Without
+    target_data=[1,0,0,0]
+    random.seed(123)
+    H_operator=[]
+    for i in range(n_spins):
+        spin_init=random.randrange(-1,2,2)
+        H_operator.append([[spin_init, 'x', 0]])
+
+    print(H_operator)
+    #exit()
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     loss_list=[]
@@ -795,7 +805,29 @@ def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
-        #Stops, memory allocation??? How to check
+
+        #Delete from here
+        trace_circ=create_initialstate(ansatz)
+
+        apply_hamiltonian(trace_circ, mini_max_cut=True)
+
+        DM=DensityMatrix.from_instruction(trace_circ)
+        PT=partial_trace(DM,tracing_q)
+        print(PT)
+        print(f'Statevector: {PT.to_statevector}')
+        print(f'Operator: {PT.to_operator}')
+        
+        #Operator:
+        H_pauliZZ = Pauli(label='ZZ')
+        H_zz_op=Operator(H_pauliZZ)
+
+
+
+
+        exit()
+        
+        #Delete from here
+
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
 
@@ -811,23 +843,24 @@ def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
+        #TODO: Test with PT.trace instead of np.diag
         p_QBM=np.diag(PT.data).real.astype(float)
         
         print(f'p_QBM: {p_QBM}')
-        loss=optim.cross_entropy_new(target_data,p_QBM)
-        print(f'Loss: {loss, loss_list}')
-        norm=np.linalg.norm((target_data-p_QBM), ord=1)
+        #loss=optim.cross_entropy_new(target_data,p_QBM)
+        #print(f'Loss: {loss, loss_list}')
+        #norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
-        norm_list.append(norm)
-        loss_list.append(loss)
+        #norm_list.append(norm)
+        #loss_list.append(loss)
         epoch_list.append(epoch)
 
-        time_g_ps=time.time()
+        #time_g_ps=time.time()
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         #print(f'Time for ps: {time.time()-time_g_ps}')
 
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        #print(f'gradient_loss: {gradient_loss}')        
+        print(f'gradient_loss: {gradient_loss}')        
 
         H_coefficients=np.zeros(len(H_operator))
 
@@ -837,15 +870,21 @@ def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):
         #print(f'Old params: {H_coefficients}')
         #new_parameters=optim.adam(H_coefficients, gradient_loss)
         new_parameters=optim.adam(H_coefficients, gradient_loss)
+        print(f'New parasm: {new_parameters}')
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         #print(f'New params {new_parameters}')
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
-
         for i in range(len(H_operator)):
             for j in range(len(H_operator[i])):
-                H_operator[i][j][0]=new_parameters[i]
+                if new_parameters[i]>0:
+                    H_operator[i][j][0]=1
+                else:
+                    H_operator[i][j][0]=-1
+        
+        print(H_operator)
+
         
         varqite_train.update_H(H_operator)
     
@@ -872,7 +911,7 @@ def main():
 
     number_of_seeds=1
     learningRate=0.1
-    ite_steps=10
+    ite_steps=1
     epochs=20
     optimizing_method='Amsgrad'
 
@@ -923,7 +962,7 @@ def main():
     
     #ite_gs(toy_example=False)
 
-    isingmodel(ansatz2, epochs, n_steps=ite_steps,l_r=0.1, optim_method=optimizing_method)
+    isingmodel(2,ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
 
     #fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='dont_save')#000509_40_samples_both_sets')

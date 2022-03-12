@@ -12,6 +12,11 @@ import os
 import random
 import qiskit as qk
 import cmath
+
+from qiskit.quantum_info import DensityMatrix, partial_trace
+from qiskit.quantum_info.operators import Operator, Pauli
+
+
 #from qiskit.compiler import assemble
 #from qiskit.backends.jobstatus import JOB_FINAL_STATES
 
@@ -575,5 +580,67 @@ def getCircuitMatrix(circuit, not_object=False):
     else:
         print('Not implemented yet, but just build H basicly')
         exit()
+
+    return 
+
+
+def apply_hamiltonian(psi, mini_max_cut=True):
+    """
+    Function that applies an operator to a quantumstate
+
+    Args:
+            - psi(QuantumCircuit): The quantum state
+            - max_cut(bool):        If max cut then run the mini max cut
+                                    hamiltonian with 3 nodes
+
+            returns(float) the expectation value 
+    """
+
+    if mini_max_cut==True:
+        H=[[[]]]
+
+        print(psi)
+
+        wm=np.array([[0,3,1], [3,0,3], [1,3,0]])
+
+        for i in range(len(wm)):
+            for j in range(i):
+                print(wm[i][j])
+
+        #Continue here! implement how to run the hamiltonian
+
+        exit()
+        DM=DensityMatrix.from_instruction(psi)
+        #TODO: fix, trace circ list
+
+        PT=partial_trace(DM,[2,3])
+        
+
+        #Evolve qunatum state
+        H_pauliZZ = Pauli(label='ZZ')
+        H_zz_op=Operator(H_pauliZZ)
+        evo_state=PT.evolve(H_zz_op)
+
+        """
+        #This works
+        test_qc=qk.QuantumCircuit(2)
+        test_qc.x(0)
+        test_qc.x(1)
+        print(test_qc)
+        DM_test=DensityMatrix.from_instruction(test_qc)
+        H_test = Pauli(label='XX')
+        H_testop=Operator(H_test)
+        evo_state_test=DM_test.evolve(H_testop)
+        print(evo_state_test.to_statevector().probabilities())
+
+        #psi=result.get_statevector()
+        #    probs_qubit_0 = psi.probabilities([0])
+        
+        exit()
+        """
+        #evoliving the qauantum state 
+        #print(PT)
+        #print(f'Statevector: {PT.to_statevector}')
+        #print(f'Operator: {PT.to_operator}')
 
     return 

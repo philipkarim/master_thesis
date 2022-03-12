@@ -3,6 +3,8 @@ import time
 #from numba import jit
 import concurrent.futures
 
+
+"""
 def run(circ_list):
     backend=qk.Aer.get_backend('statevector_simulator')
     backend.set_options(max_parallel_experiments=1)
@@ -148,7 +150,9 @@ def parallel2(circ2):
 
 #exit()
 """
+"""
 This paralellization part works, but doesnt seem to be much faster
+"""
 """
 paralell_time=time.time()
 for i in range(100):
@@ -174,3 +178,8 @@ print(f'Time for paralell_single run: {time.time()-paralell_time2}')
 #pool.close()
 
 #print(results)
+
+"""
+
+
+qc=qk.QuantumCircuit()
