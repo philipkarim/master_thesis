@@ -304,7 +304,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         new_parameters=optim.adam(H_coefficients, gradient_loss)
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        #print(f'New params {new_parameters}')
+        print(f'New params {new_parameters}')
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
 
@@ -773,10 +773,11 @@ def ite_gs(toy_example=True):
 
         #print(np.diag(mat))
         
-def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
+def isingmodel(H_operator,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
     
     #Ising hamiltonian:
     #Without
+    """
     target_data=[1,0,0,0]
     random.seed(123)
     H_operator=[]
@@ -786,6 +787,7 @@ def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgr
 
     print(H_operator)
     #exit()
+    """
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     loss_list=[]
@@ -805,29 +807,6 @@ def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgr
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
-
-        #Delete from here
-        trace_circ=create_initialstate(ansatz)
-
-        apply_hamiltonian(trace_circ, mini_max_cut=True)
-
-        DM=DensityMatrix.from_instruction(trace_circ)
-        PT=partial_trace(DM,tracing_q)
-        print(PT)
-        print(f'Statevector: {PT.to_statevector}')
-        print(f'Operator: {PT.to_operator}')
-        
-        #Operator:
-        H_pauliZZ = Pauli(label='ZZ')
-        H_zz_op=Operator(H_pauliZZ)
-
-
-
-
-        exit()
-        
-        #Delete from here
-
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
 
@@ -841,26 +820,36 @@ def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgr
         #Dansity matrix measure, measure instead of computing whole DM
         
         trace_circ=create_initialstate(ansatz)
+        print(trace_circ)
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
-        #TODO: Test with PT.trace instead of np.diag
-        p_QBM=np.diag(PT.data).real.astype(float)
         
+        #TODO: Test with PT.trace instead of np.diag
+        
+
+        H_energy=apply_hamiltonian(PT, mini_max_cut=True)
+        p_QBM=np.diag(PT.data).real.astype(float)
         print(f'p_QBM: {p_QBM}')
+
         #loss=optim.cross_entropy_new(target_data,p_QBM)
-        #print(f'Loss: {loss, loss_list}')
+        print(f'Energy: {H_energy, loss_list}')
         #norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
         #norm_list.append(norm)
-        #loss_list.append(loss)
+        loss_list.append(H_energy)
         epoch_list.append(epoch)
 
         #time_g_ps=time.time()
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         #print(f'Time for ps: {time.time()-time_g_ps}')
 
-        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        print(f'gradient_loss: {gradient_loss}')        
+        target_data=[0.2,3,2,1]
+        #gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+        #print(f'Gradient first {gradient_loss}')
+        gradient_energy=optim.gradient_energy(gradient_qbm, H_energy)
+        print(f'gradient_energy: {gradient_energy}')
+
+        #exit()
 
         H_coefficients=np.zeros(len(H_operator))
 
@@ -869,19 +858,13 @@ def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgr
 
         #print(f'Old params: {H_coefficients}')
         #new_parameters=optim.adam(H_coefficients, gradient_loss)
-        new_parameters=optim.adam(H_coefficients, gradient_loss)
+        new_parameters=optim.adam(H_coefficients, gradient_energy)
         print(f'New parasm: {new_parameters}')
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
         #print(f'New params {new_parameters}')
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
-        for i in range(len(H_operator)):
-            for j in range(len(H_operator[i])):
-                if new_parameters[i]>0:
-                    H_operator[i][j][0]=1
-                else:
-                    H_operator[i][j][0]=-1
         
         print(H_operator)
 
@@ -901,8 +884,33 @@ def isingmodel(n_spins,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgr
 
     return np.array(loss_list), np.array(norm_list), p_QBM
 
+def find_hamiltonian(ansatz, steps, l_r, opt_met):
+    """
+    Function to fit an hamiltonian to experimental data, generetaed self.
+    """
 
-        
+    #Solution
+    #H=[[[0.25, 'x', 0]], [[0.25, 'x', 1]], [[-0.5, 'z', 0], [-0.5, 'z', 0]]]
+    #initial_H=[[[0, 'x', 0]], [[0, 'x', 1]], [[0, 'z', 0], [0, 'z', 0]]]
+    #0, -0.5, -0.5, -1
+    initial_H=       [[[0., 'z', 0], [0., 'z', 1]], 
+                [[0., 'z', 0]], [[0., 'z', 1]]]
+    target_data=[0.25, 0.5, 0.25, 0]
+    #target_data=[0, 0.5, 0.5, 0]
+
+    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(initial_H))
+    print(H_init_val)
+
+    for term_H in range(len(initial_H)):
+        for qub in range(len(initial_H[term_H])):
+            initial_H[term_H][qub][0]=H_init_val[term_H]
+    
+    print(f'Initial H: {initial_H}')
+
+    trash, trash, dont_save=train(initial_H, copy.deepcopy(ansatz), 30, target_data, 
+                        n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
+
+
 
 
 def main():
@@ -911,8 +919,8 @@ def main():
 
     number_of_seeds=1
     learningRate=0.1
-    ite_steps=1
-    epochs=20
+    ite_steps=10
+    epochs=30
     optimizing_method='Amsgrad'
 
     """
@@ -961,9 +969,10 @@ def main():
     start=time.time()
     
     #ite_gs(toy_example=False)
+    
 
-    isingmodel(2,ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
-
+    #TODO: Taking a break from the ising thingy for now
+    #isingmodel(Ham2,ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
     #fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='dont_save')#000509_40_samples_both_sets')
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
@@ -982,7 +991,8 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
     #multiple_simulations(1, Ham1, ansatz1, 100, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
-
+    
+    find_hamiltonian(ansatz2, ite_steps, learningRate, optimizing_method)
 
     #multiple_simulations(1, Ham2, ansatz_gen_dis, 25, p_data2, optimizing_method,l_r=learningRate, steps=10, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)

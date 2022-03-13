@@ -85,8 +85,8 @@ class optimize:
 
     # gradient descent algorithm with adam
     #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8):
-    #def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False, sample=None):
-    def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8, discriminative=False, sample=None):
+    def adam(self, x, g, beta1=0.7, beta2=0.99, eps=1e-8, discriminative=False, sample=None):
+    #def adam(self, x, g, beta1=0.9, beta2=0.999, eps=1e-8, discriminative=False, sample=None):
         """
         I guess something like this should work?
         
@@ -377,6 +377,14 @@ class optimize:
           
         return -np.sum(dL, axis=1).real.astype(float)
 
+    
+    def gradient_energy(self, gradient_qbm, H_energy):
+        #dL=H_energy*gradient_qbm
+        #OR or or oppsosite
+        dL=H_energy/gradient_qbm
+        #print(f'Sec grad: {-np.sum(H_energy/gradient_qbm, axis=1).real.astype(float)}')
+          
+        return -np.sum(dL, axis=1).real.astype(float)
 
 
 

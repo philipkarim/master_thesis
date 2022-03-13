@@ -597,29 +597,28 @@ def apply_hamiltonian(psi, mini_max_cut=True):
     """
 
     if mini_max_cut==True:
-        H=[[[]]]
+        #wm=np.array([[0,3,1], [3,0,3], [1,3,0]])
+        wm=np.array([[0,3], [3,0]])
 
-        print(psi)
-
-        wm=np.array([[0,3,1], [3,0,3], [1,3,0]])
-
-        for i in range(len(wm)):
-            for j in range(i):
-                print(wm[i][j])
-
-        #Continue here! implement how to run the hamiltonian
-
-        exit()
-        DM=DensityMatrix.from_instruction(psi)
-        #TODO: fix, trace circ list
-
-        PT=partial_trace(DM,[2,3])
-        
+        #DM=DensityMatrix.from_instruction(psi)
+        #TODO Fix trace circ list
+        #PT=partial_trace(DM,[2,3])
 
         #Evolve qunatum state
-        H_pauliZZ = Pauli(label='ZZ')
-        H_zz_op=Operator(H_pauliZZ)
-        evo_state=PT.evolve(H_zz_op)
+        H_zz_op=Operator(Pauli(label='ZZ'))
+
+        print(psi)
+        evolved_state=psi.evolve(H_zz_op)
+        print(evolved_state.probabilities())
+        #Array of probabilities
+        results=evolved_state.probabilities()
+
+        H=0
+        for i in range(len(wm)):
+            for j in range(i):
+                H+=wm[i][j]*results[i]*results[j]
+
+
 
         """
         #This works
@@ -643,4 +642,4 @@ def apply_hamiltonian(psi, mini_max_cut=True):
         #print(f'Statevector: {PT.to_statevector}')
         #print(f'Operator: {PT.to_operator}')
 
-    return 
+    return H
