@@ -21,9 +21,10 @@ from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.utils import shuffle
 
 # Import the other classes and functions
-from optimize_loss import optimize
-from utils import *
 from varQITE import *
+from utils import *
+from optimize_loss import optimize
+from NN import Feedforward, weights_init_xavier
 
 import seaborn as sns
 
@@ -44,7 +45,7 @@ def bias_param(x, theta):
     return np.dot(x, theta)
 
 
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=None):
+def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -82,7 +83,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
         test_false_samples=200
 
         #CV
-        #Liste med kretser, paralellisering, gpu
+        #Liste med kretser, paralellisering, gpu, cluster?
 
         #Makes sure that each set of data contains the wanted number of true samples
         train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
@@ -129,8 +130,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:30]
-    y_train=y_train[0:30]
+    X_train=X_train[0:1]
+    y_train=y_train[0:1]
     X_test=X_test[0:30]
     y_test=y_test[0:30]
 
@@ -142,8 +143,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
-    #X_test=[]
-    #y_test=[]
+    X_test=[]
+    y_test=[]
 
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
@@ -159,7 +160,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
     #print(X_train_scaled)
 
     if initial_H==1:
-        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
+        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0., 'x', 0]], [[0., 'y', 1]]]
         n_hamilParameters=len(hamiltonian)
     elif initial_H==2:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0.1, 'x', 0]],[[0.1, 'x', 1]]]
@@ -174,7 +175,20 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
 
     
     #Initializing the parameters:
-    H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
+    if network_coeff is not None:
+        #Initializing neural network
+        #TODO: Only one layer, make it aurtomatix, and make 3 outputs
+        H_parameters=Feedforward(len(X_train[0]), network_coeff[0])
+       
+        #print(model)
+       
+        H_parameters.apply(weights_init_xavier)
+        #for param in model.parameters():
+            #print(param.data)
+        #exit()
+
+    else:
+        H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
     
     #print(f'Hamiltonian: {hamiltonian}')
     
@@ -212,9 +226,18 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
             varqite_time=time.time()
             #Updating the Hamiltonian with the correct parameters
             #print(f'Old hamiltonian {hamiltonian}')
-            for term_H in range(n_hamilParameters):
-                for qub in range(len(hamiltonian[term_H])):
-                    hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
+            if network_coeff is not None:
+                #Network parameters
+                #TODO: Continue here: Write a function that works switch out bias_params
+                output_coefficients=bias_param(sample, H_parameters[term_H])
+
+                for term_H in range(n_hamilParameters):
+                        for qub in range(len(hamiltonian[term_H])):
+                            hamiltonian[term_H][qub][0]=output_coefficients[term_H]
+            else:
+                for term_H in range(n_hamilParameters):
+                    for qub in range(len(hamiltonian[term_H])):
+                        hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             #print(f'New hamiltonian {hamiltonian}')
@@ -246,7 +269,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, nickname=
             loss_list.append(loss)
             
             #TODO: Remember to insert the visible qubit list, might do it 
-            #automaticly
+            #automaticly by changing the utilized variable function
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
             #print(f'gradient_loss: {gradient_loss}')        

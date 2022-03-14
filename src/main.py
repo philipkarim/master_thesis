@@ -773,9 +773,32 @@ def ite_gs(toy_example=True):
 
         #print(np.diag(mat))
         
-def isingmodel(H_operator,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad'):    
+def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad', with_field=False):    
     
     #Ising hamiltonian:
+    #configurations=4
+
+    if with_field==False:
+        #No clue if the Hamiltonians are correct
+        H_4=[[[0., 'z', 0], [0., 'z', 1]],
+                    [[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0], [0., 'z', 1]]]
+
+    else:
+        H_4=[[[0., 'z', 0], [0., 'z', 1]],
+                    [[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0], [0., 'z', 1]],
+                    [[0., 'x', 0]], [[0., 'x', 0]],
+                    [[0., 'x', 0]], [[0., 'x', 0]]]
+    
+    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(H_4))
+        
+    for term_H in range(len(H_4)):
+        for qub in range(len(H_4[term_H])):
+            H_4[term_H][qub][0]=H_init_val[term_H]
+    
     #Without
     """
     target_data=[1,0,0,0]
@@ -788,6 +811,9 @@ def isingmodel(H_operator,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Am
     print(H_operator)
     #exit()
     """
+
+    target_data=[0.5, 0, 0, 0.5]
+    
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     loss_list=[]
@@ -843,7 +869,7 @@ def isingmodel(H_operator,ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Am
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         #print(f'Time for ps: {time.time()-time_g_ps}')
 
-        target_data=[0.2,3,2,1]
+        #target_data=[0.2,3,2,1]
         #gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
         #print(f'Gradient first {gradient_loss}')
         gradient_energy=optim.gradient_energy(gradient_qbm, H_energy)
@@ -969,12 +995,12 @@ def main():
     start=time.time()
     
     #ite_gs(toy_example=False)
-    
+    #Takning  a break again with the ising thingy
+    #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
-    #TODO: Taking a break from the ising thingy for now
-    #isingmodel(Ham2,ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
+    network_coeff=[3,2]
 
-    #fraud_detection(1, ansatz2, 35, ite_steps, 0.005, optimizing_method, nickname='dont_save')#000509_40_samples_both_sets')
+    fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
@@ -992,7 +1018,7 @@ def main():
     #multiple_simulations(1, Ham1, ansatz1, 100, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
     
-    find_hamiltonian(ansatz2, ite_steps, learningRate, optimizing_method)
+    #find_hamiltonian(ansatz2, ite_steps, learningRate, optimizing_method)
 
     #multiple_simulations(1, Ham2, ansatz_gen_dis, 25, p_data2, optimizing_method,l_r=learningRate, steps=10, names='test_trash_run_dont_save')
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)

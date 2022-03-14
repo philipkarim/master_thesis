@@ -9,7 +9,7 @@ class optimize:
     """
     Class handling everything to do with optimization of parameters and loss computations
     """
-    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',fraud=False, circuit=None):
+    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',fraud=False):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -20,6 +20,12 @@ class optimize:
         """
         self.rot_in=rot_in
         self.method=method
+
+        #print(type(Hamil)=='NN.Feedforward')
+        #print(len))
+        #print(type(Hamil)==class)
+
+        #if Hamil==model:
 
         if fraud==True:
             self.m = np.zeros_like((Hamil)).astype(float)
@@ -39,7 +45,6 @@ class optimize:
         self.trace_list=trace_list
         self.H_qubit_states=2**len(self.trace_list)
         self.learning_rate=learning_rate
-        self.circuit=circuit
         self.t=0
 
         
@@ -249,39 +254,6 @@ class optimize:
 
         return -sum/n_samples
 
-
-    def parameter_shift(self, sample, theta_array, theta_index):
-        """
-        Parameter shift funtion, that finds the derivative of a
-        certain variational parameter, by evaluating the cirquit
-        shiftet pi/2 to the left and right.
-
-        Args:
-                sample:     Sample that will be optimized with respect 
-                            of(list or array)
-                theta_array:Variational parameters(list or array)
-                theta_index:Index of the parameter that we want the 
-                            gradient of
-
-        Returns: optimized variational value
-        """
-        #Just copying the parameter arrays
-        theta_left_shift=theta_array.copy()
-        theta_right_shift=theta_array.copy()
-        
-        #Since the cirquits are normalised the shift is 0.25 which represents pi/2
-        theta_right_shift[theta_index]+=0.25
-        theta_left_shift[theta_index]-=0.25
-
-        #Predicting with the shifted parameters
-        pred_right_shift=self.circuit.predict(np.array([sample]),theta_right_shift)
-        pred_left_shift=self.circuit.predict(np.array([sample]),theta_left_shift)
-        
-        #Computes the gradients
-        theta_grad=(pred_right_shift[0]-pred_left_shift[0])/2
-
-        return theta_grad
-
     def gradient_of_loss(self, thetas, predicted, target, samples):
         """
         Finds the gradient used in gradient descent.
@@ -385,6 +357,9 @@ class optimize:
         #print(f'Sec grad: {-np.sum(H_energy/gradient_qbm, axis=1).real.astype(float)}')
           
         return -np.sum(dL, axis=1).real.astype(float)
+
+
+
 
 
 
