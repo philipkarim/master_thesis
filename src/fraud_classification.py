@@ -177,14 +177,15 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #Initializing the parameters:
     if network_coeff is not None:
         #Initializing neural network
-        #TODO: Only one layer, make it aurtomatix, and make 3 outputs
+        #TODO: Only one layer, make it aurtomatic, and make 3 outputs
         H_parameters=Feedforward(len(X_train[0]), network_coeff[0])
        
         #print(model)
-       
-        H_parameters.apply(weights_init_xavier)
         #for param in model.parameters():
-            #print(param.data)
+        #    print(param.data)
+        H_parameters.apply(weights_init_xavier)
+        for param in H_parameters.parameters():
+            print(param.data)
         #exit()
 
     else:
@@ -228,8 +229,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #print(f'Old hamiltonian {hamiltonian}')
             if network_coeff is not None:
                 #Network parameters
-                #TODO: Continue here: Write a function that works switch out bias_params
-                output_coefficients=bias_param(sample, H_parameters[term_H])
+                output_coefficients=(sample, H_parameters[term_H])
 
                 for term_H in range(n_hamilParameters):
                         for qub in range(len(hamiltonian[term_H])):

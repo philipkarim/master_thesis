@@ -26,7 +26,6 @@ class optimize:
         #print(type(Hamil)==class)
 
         #if Hamil==model:
-
         if fraud==True:
             self.m = np.zeros_like((Hamil)).astype(float)
             self.v = np.zeros_like((Hamil)).astype(float)
