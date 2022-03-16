@@ -280,6 +280,7 @@ class MLP:
             self.bp_update_weights()
         return total_loss
 
+    def grad_last():
 
 #theta coefficients
 output=predict()

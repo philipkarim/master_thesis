@@ -37,7 +37,7 @@ both=True
 
 plot_fidelity=True
 
-if both==False:
+if !both:
     Hamiltonian=2
     p_data=np.array([0.12, 0.88])
 
