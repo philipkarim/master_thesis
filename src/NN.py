@@ -39,7 +39,7 @@ from torchvision.datasets import CIFAR10
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-class MLP(nn.Module):
+class MLP2(nn.Module):
     '''
     Multilayer Perceptron.
     '''
@@ -283,7 +283,7 @@ class MLP:
 
 
 
-
+"""
 
 ###Make neural network but change weigths manually, 
 #then use Adam optimizer or something
@@ -311,13 +311,14 @@ out=model.forward(input_sample)
 
 print(out)
 
-
+"""
 '''
 Simple Multilayer Perceptron with Softmax and Cross-Entropy. Backpropagation handled using autograd package (automatic differentiation).
 Author: Goran Trlin
 Find more tutorials and code samples on:
 https://playandlearntocode.com
 '''
+"""
 import numpy
 from PIL import Image
 from classes.mlp.mlp import MLP
@@ -378,3 +379,5 @@ label = labels[index]
 
 print ('This image is a ' + label)
 print('MLP program completed.')
+
+"""
