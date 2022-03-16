@@ -201,7 +201,19 @@ class MLP:
     # logistic function, needed for hidden layer value calculations:
     def activation_function(self,row):
         # return 1.0 / (1.0 + math.exp(-x))
+        #TODO: remove this or make it identity 
         return 1.0 / (1.0 + np.exp(-row))
+
+    def insert_gradient_last_layer(grads):
+        """
+        Updates the gradients in the last layer
+
+        Args:
+                - grads(array): List of gradients in the last layer
+        """
+        for i in range(len(self.weights_gradients[-1])):
+            self.weights_gradients[-1][i]=grads[i]
+
 
     def cross_entropy(self,target_distribution, predicted_distribution):
         return -(np.dot(np.array(target_distribution), np.log(predicted_distribution)))
@@ -225,7 +237,7 @@ class MLP:
         matmul_hidden = np.matmul(self.inputs, weights[0])
         hidden_layer = self.activation_function(matmul_hidden)
         outputs = np.matmul(hidden_layer, weights[1])
-        
+
         #Replace last layer with the actual gradients
 
         return outputs
@@ -258,24 +270,19 @@ class MLP:
         print('Training network...')
 
         compute_gradients = grad(self.predict)
-        total_loss = 0
 
         for i in range(0, self.learning_examples_array.shape[0]):
             # real probabilities (target output) for the current training example:
-            target_distribution = np.array([self.learning_examples_array[i][4], self.learning_examples_array[i][5]])
 
-            self.inputs = np.array(self.learning_examples_array[i][1:4], dtype=float)
-            self.correct_outputs = target_distribution
-
-            current_loss =  self.predict(self.weights)
-            # after predict, we also have a new self.prediction_outputs array
-
-            total_loss += current_loss
+            self.inputs = np.array([2.5,1,2], dtype=float)
 
             self.weights_gradients =  compute_gradients(self.weights)
             self.bp_update_weights()
         return total_loss
 
+
+#theta coefficients
+output=predict()
 
 
 
