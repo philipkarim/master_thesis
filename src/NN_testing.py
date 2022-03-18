@@ -1,18 +1,23 @@
 import torch 
 import torch.nn as nn
+import torch.optim as optim
 
-class myNet(nn.Module):
+
+class Net(nn.Module):
     """
-    Class: NEural network
+    Class: Neural network
     """
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(3, 2)  # 5*5 from image dimension
-        self.fc2 = nn.Linear(2, 3)
+        self.fc1 = nn.Linear(3, 2)  # 5*f5 from image dimension
+        self.fc2 = nn.Linear(2, 3, bias=False)
         #self.fc3 = nn.Linear(84, 3)
 
   
     def forward(self, x):
+        """
+        Forwards the input through the network
+        """
         #x = self.relu(self.conv(x))
         #x.register_hook(lambda grad : torch.clamp(grad, min = 0))     #No gradient shall be backpropagated 
                                                                   #conv outside less than 0
@@ -20,8 +25,11 @@ class myNet(nn.Module):
         # print whether there is any negative grad
         #x.register_hook(lambda grad: print("Gradients less than zero:", bool((grad < 0).any()))) 
         # x=self.fc_last(self.flatten(x))
-        x = nn.relu(self.fc1(x))
-        x = nn.relu(self.fc2(x))
+        #x = nn.relu(self.fc1(x))
+        #x = nn.relu(self.fc2(x))
+        
+        x = self.fc1(x)
+        x = self.fc2(x)
         #x = self.fc3(x) 
         return x
 
@@ -34,7 +42,7 @@ class myNet(nn.Module):
         return self.last_grads
 
 
-class Net(nn.Module):
+class Net2(nn.Module):
 
     def __init__(self):
         super(Net, self).__init__()
@@ -58,18 +66,58 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
+#net = Net()
+#print(net)
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        #torch.nn.init.xavier_uniform_(m.weight)
+        #TODO: Remember to change this
+        m.weight.data.fill_(0.01)
+        if m.bias!=None:
+            m.bias.data.fill_(0.01)
 
-net = Net()
+
+net =Net()
+#print(net)
+
+net.apply(init_weights)
 print(net)
 
+import numpy as np
 
-net = myNet()
+np_array=np.array([1,1,1])
+
+#TODO: make into tensor
+print(net(torch.np))
+
+exit()
+
+#print(net.named_parameters)
+
+for name, param in net.named_parameters():
+    print(param)
+
+# create your optimizer
+optimizer = optim.Adam(net.parameters(), lr=0.01)
+
+# zero the gradient buffers
+optimizer.zero_grad()
+#criterion = nn.MSELoss()
+#loss = criterion(output, target)
+
+(1 - out).mean().backward()
+
+loss.backward()
+optimizer.step()    # Does the update
+#Initialize weights
+
+
 
 #Defines a waste loss function
 #optimizer=nn.adam()
 
 
-net.zero_grad()
+optimizer.zero_grad()
 
 #Update gradient.
 for name, param in net.named_parameters():
