@@ -43,12 +43,20 @@ class NeuralNet(nn.Module):
         self.fc1 = nn.Linear(input_size, hidden_size) 
         self.relu = nn.ReLU()
         self.fc2 = nn.Linear(hidden_size, num_classes)  
-    
+        #self.fc3 = nn.Linear(num_classes, num_classes)  
+
     def forward(self, x):
         out = self.fc1(x)
         out = self.relu(out)
         out = self.fc2(out)
+
+        x.register_hook(lambda grad : torch.clamp(grad, min = 0))     #No gradient shall be backpropagated 
+
+        #Dummy layer
+        #out = self.fc3(out)
         return out
+
+    def 
 
 
 #Initialize the model
@@ -60,18 +68,23 @@ criterion = nn.CrossEntropyLoss()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  
 
-
+import numpy as np
 gradients_test=np.array([1,1,1])
 
-def function(se):
+gradient_test=gradients_test.to_tensor()
+
+def insert_grad_ll(gradient):
     return array?
 
 
-for name, param in net.named_parameters():
+for name, param in model.named_parameters():
   # if the param is from a linear and is a bias
-  if "fc" in name:
-    param.register_hook(lambda grad: torch.zeros(grad.shape))
+  if "fc2" in name:
+    #TODO: remember to update the gradient_test
+    param.register_hook(lambda grad: gradient_test)
 
+
+pri
 
 # Train the model
 total_step = len(train_loader)
