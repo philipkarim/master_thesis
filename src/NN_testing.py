@@ -83,12 +83,23 @@ net =Net()
 net.apply(init_weights)
 print(net)
 
+net = net.float()
+
 import numpy as np
 
-np_array=np.array([1,1,1])
+np_array=np.array([1,1,1]).astype('float')
+
+print(np_array)
+np_array=torch.tensor(np_array)
+
+print(np_array)
+
+
+#np_array=np_array.Double()
+#print(type(torch.tensor(np_array)))
 
 #TODO: make into tensor
-print(net(torch.np))
+#print(net(np_array))
 
 exit()
 
