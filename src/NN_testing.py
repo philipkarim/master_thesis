@@ -9,9 +9,9 @@ class Net(nn.Module):
     """
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(3, 2)  # 5*f5 from image dimension
+        self.fc1 = nn.Linear(3, 2, bias=False)  # 5*f5 from image dimension
         self.fc2 = nn.Linear(2, 3, bias=False)
-        #self.fc3 = nn.Linear(84, 3)
+        self.last_layer = nn.Linear(3, 1, bias=False)
 
   
     def forward(self, x):
@@ -30,14 +30,15 @@ class Net(nn.Module):
         
         x = self.fc1(x)
         x = self.fc2(x)
-        #x = self.fc3(x) 
+        x = self.last_layer(x) 
         return x
 
     def update_grad_lastlayer(self, last_grads):
         self.last_grads=last_grads
 
     def get_grad_lastlayer(self, weight_shape):
-        self.last_grads=torch.randn(weight_shape)
+        print(f'Weight input grad: {weight_shape}')
+        self.last_grads=torch.zeros(weight_shape.shape)
 
         return self.last_grads
 
@@ -72,10 +73,11 @@ def init_weights(m):
     if isinstance(m, nn.Linear):
         #torch.nn.init.xavier_uniform_(m.weight)
         #TODO: Remember to change this
-        m.weight.data.fill_(0.01)
+        m.weight.data.fill_(0.1)
         if m.bias!=None:
-            m.bias.data.fill_(0.01)
+            m.bias.data.fill_(0.1)
 
+grad_manual=torch.tensor([10, 10, 10], dtype=torch.float)
 
 net =Net()
 #print(net)
@@ -87,21 +89,57 @@ net = net.float()
 
 import numpy as np
 
-np_array=np.array([1,1,1]).astype('float')
+np_array=np.array([1,1,1])
+np_array=torch.from_numpy(np_array)
+np_array=np_array.float()
 
-print(np_array)
-np_array=torch.tensor(np_array)
+target=np.array([3,2,10])
+target=torch.from_numpy(target)
+target=target.float()
 
-print(np_array)
+optimizer = optim.Adam(net.parameters(), lr=0.1)
+# zero the gradient buffers
+criterion = nn.MSELoss()
 
+for i in range(4):
+    out=net(np_array)
+    loss = criterion(out, target)
 
-#np_array=np_array.Double()
-#print(type(torch.tensor(np_array)))
+    optimizer.zero_grad()
 
-#TODO: make into tensor
-#print(net(np_array))
+    for name, param in net.named_parameters():
+        #print(param.grad)
+        if 'last_layer' in name:
+            #
+            #param.requires_grad=False
+            #param.register_hook(net.get_grad_lastlayer)
+            
+            #print(name, param.grad)
+            if param.grad is not None:
+                param.grad*=0
+            #print(name, param.grad)
+            #param.grad+=1
+            #param.grad*=torch.randn(3)#net.get_grad_lastlayer(param.grad)
+            
+        print(name, param.grad)
+
+    #for name, param in net.named_parameters():
+    #    print(name, param.grad)
+    loss.backward()
+    print('------------------------------')
+    for name, param in net.named_parameters():
+        print(name, param.grad)
+    optimizer.step()    # Does the update
+
+    print(loss.item(), out)
 
 exit()
+net.eval()
+
+test_tens=torch.tensor([1, 1, 1], dtype=torch.float)
+print(net(test_tens))
+
+
 
 #print(net.named_parameters)
 
