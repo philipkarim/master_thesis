@@ -9,8 +9,8 @@ class Net(nn.Module):
     """
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(3, 2, bias=False)  # 5*f5 from image dimension
-        self.fc2 = nn.Linear(2, 3, bias=False)
+        self.fc1 = nn.Linear(3, 3, bias=False)  # 5*f5 from image dimension
+        #self.fc2 = nn.Linear(2, 3, bias=False)
         self.last_layer = nn.Linear(3, 1, bias=False)
 
   
@@ -29,7 +29,7 @@ class Net(nn.Module):
         #x = nn.relu(self.fc2(x))
         
         x = self.fc1(x)
-        x = self.fc2(x)
+        #x = self.fc2(x)
         x = self.last_layer(x) 
         return x
 
@@ -37,7 +37,7 @@ class Net(nn.Module):
         self.last_grads=last_grads
 
     def get_grad_lastlayer(self, weight_shape):
-        print(f'Weight input grad: {weight_shape}')
+        #print(f'Weight input grad: {weight_shape}')
         self.last_grads=torch.zeros(weight_shape.shape)
 
         return self.last_grads
@@ -70,6 +70,9 @@ class Net2(nn.Module):
 #net = Net()
 #print(net)
 def init_weights(m):
+    """
+    Weight initialization
+    """
     if isinstance(m, nn.Linear):
         #torch.nn.init.xavier_uniform_(m.weight)
         #TODO: Remember to change this
@@ -79,7 +82,7 @@ def init_weights(m):
 
 grad_manual=torch.tensor([10, 10, 10], dtype=torch.float)
 
-net =Net()
+net=Net()
 #print(net)
 
 net.apply(init_weights)
@@ -89,7 +92,7 @@ net = net.float()
 
 import numpy as np
 
-np_array=np.array([1,1,1])
+np_array=np.array([1,1,11])
 np_array=torch.from_numpy(np_array)
 np_array=np_array.float()
 
@@ -103,7 +106,7 @@ criterion = nn.MSELoss()
 
 for i in range(4):
     out=net(np_array)
-    loss = criterion(out, target)
+    loss = criterion(target, out)
 
     optimizer.zero_grad()
 
@@ -112,11 +115,11 @@ for i in range(4):
         if 'last_layer' in name:
             #
             #param.requires_grad=False
-            #param.register_hook(net.get_grad_lastlayer)
+            param.register_hook(net.get_grad_lastlayer)
             
             #print(name, param.grad)
-            if param.grad is not None:
-                param.grad*=0
+            #if param.grad is not None:
+                #param.grad*=0
             #print(name, param.grad)
             #param.grad+=1
             #param.grad*=torch.randn(3)#net.get_grad_lastlayer(param.grad)
