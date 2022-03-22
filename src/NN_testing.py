@@ -7,12 +7,11 @@ class Net(nn.Module):
     """
     Class: Neural network
     """
-    def __init__(self):
+    def __init__(self, layer_list):
         super().__init__()
-        self.fc1 = nn.Linear(3, 3, bias=False)  # 5*f5 from image dimension
-        self.fc2 = nn.Linear(3, 3, bias=False)
-        #self.last_layer = nn.Linear(3, 1, bias=False)
-
+        self.layers = nn.Sequential()
+        for i in range(len(layer_list)):
+            self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i][1], bias=layer_list[i][2]))
   
     def forward(self, x):
         """
@@ -28,11 +27,14 @@ class Net(nn.Module):
         #x = nn.relu(self.fc1(x))
         #x = nn.relu(self.fc2(x))
         
-        x = self.fc1(x)
-        x = self.fc2(x)
+        #x = self.fc1(x)
+        #x = self.fc2(x)
         #x = self.last_layer(x) 
-        return x
+        #return x
 
+        return self.layers(x)
+
+        
     def update_grad_lastlayer(self, last_grads):
         self.last_grads=last_grads
 
@@ -43,46 +45,20 @@ class Net(nn.Module):
         return self.last_grads
 
 
-class Net2(nn.Module):
-
-    def __init__(self):
-        super(Net, self).__init__()
-        # 1 input image channel, 6 output channels, 5x5 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(1, 6, 5)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(16 * 5 * 5, 120)  # 5*5 from image dimension
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 10)
-
-    def forward(self, x):
-        # Max pooling over a (2, 2) window
-        x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
-        # If the size is a square, you can specify with a single number
-        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-        x = torch.flatten(x, 1) # flatten all dimensions except the batch dimension
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-#net = Net()
-#print(net)
 def init_weights(m):
     """
     Weight initialization
     """
     if isinstance(m, nn.Linear):
-        #torch.nn.init.xavier_uniform_(m.weight)
-        #TODO: Remember to change this
-        m.weight.data.fill_(0.1)
+        torch.nn.init.xavier_uniform_(m.weight)
+        #m.weight.data.fill_(0.1)
         if m.bias!=None:
             m.bias.data.fill_(0.1)
 
-grad_manual=torch.tensor([10, 10, 10], dtype=torch.float)
+#input, output, bias
+layers=[[2,1,0],[1,2,0]]
 
-net=Net()
+net=Net(layers)
 #print(net)
 
 net.apply(init_weights)
@@ -92,11 +68,11 @@ net = net.float()
 
 import numpy as np
 
-np_array=np.array([1,1,11])
+np_array=np.array([2,2])
 np_array=torch.from_numpy(np_array)
 np_array=np_array.float()
 
-target=np.array([3,2,10])
+target=np.array([0.5,0.5])
 target=torch.from_numpy(target)
 target=target.float()
 
@@ -110,7 +86,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.1)
 #        if 'last_layer' in name:
 #            param.register_hook(net.get_grad_lastlayer)
 
-for i in range(4):
+for i in range(2):
     out=net(np_array)
 
     optimizer.zero_grad()
@@ -136,7 +112,7 @@ for i in range(4):
 
     #for name, param in net.named_parameters():
     #    print(name, param.grad)
-    out.backward(gradient_pre)
+    out.backward(target)
     print('------------------------------')
     for name, param in net.named_parameters():
         print(name, param.grad)
