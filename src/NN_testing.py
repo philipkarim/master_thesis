@@ -10,8 +10,8 @@ class Net(nn.Module):
     def __init__(self):
         super().__init__()
         self.fc1 = nn.Linear(3, 3, bias=False)  # 5*f5 from image dimension
-        #self.fc2 = nn.Linear(2, 3, bias=False)
-        self.last_layer = nn.Linear(3, 1, bias=False)
+        self.fc2 = nn.Linear(3, 3, bias=False)
+        #self.last_layer = nn.Linear(3, 1, bias=False)
 
   
     def forward(self, x):
@@ -29,15 +29,15 @@ class Net(nn.Module):
         #x = nn.relu(self.fc2(x))
         
         x = self.fc1(x)
-        #x = self.fc2(x)
-        x = self.last_layer(x) 
+        x = self.fc2(x)
+        #x = self.last_layer(x) 
         return x
 
     def update_grad_lastlayer(self, last_grads):
         self.last_grads=last_grads
 
     def get_grad_lastlayer(self, weight_shape):
-        #print(f'Weight input grad: {weight_shape}')
+        print(f'Weight input grad: {weight_shape}')
         self.last_grads=torch.zeros(weight_shape.shape)
 
         return self.last_grads
@@ -100,16 +100,23 @@ target=np.array([3,2,10])
 target=torch.from_numpy(target)
 target=target.float()
 
-optimizer = optim.Adam(net.parameters(), lr=0.1)
+gradient_pre=torch.zeros(3)
+
+optimizer = optim.SGD(net.parameters(), lr=0.1)
 # zero the gradient buffers
-criterion = nn.MSELoss()
+
+#for name, param in net.named_parameters():
+        #print(param.grad)
+#        if 'last_layer' in name:
+#            param.register_hook(net.get_grad_lastlayer)
 
 for i in range(4):
     out=net(np_array)
-    loss = criterion(target, out)
 
     optimizer.zero_grad()
 
+
+    """
     for name, param in net.named_parameters():
         #print(param.grad)
         if 'last_layer' in name:
@@ -125,16 +132,17 @@ for i in range(4):
             #param.grad*=torch.randn(3)#net.get_grad_lastlayer(param.grad)
             
         print(name, param.grad)
+    """
 
     #for name, param in net.named_parameters():
     #    print(name, param.grad)
-    loss.backward()
+    out.backward(gradient_pre)
     print('------------------------------')
     for name, param in net.named_parameters():
         print(name, param.grad)
     optimizer.step()    # Does the update
 
-    print(loss.item(), out)
+    print(out)
 
 exit()
 net.eval()
