@@ -1,6 +1,5 @@
 import torch 
 import torch.nn as nn
-import torch.optim as optim
 
 class Net(nn.Module):
     """
@@ -16,7 +15,16 @@ class Net(nn.Module):
     def forward(self, x):
         """
         Forwards the input through the network
+        
+        Args:
+                x(array): Assumes the input are numpy arrays
+
+        Return:
+                Input x forwarded through the network
         """
+
+        x=torch.from_numpy(x).float()
+
         return self.layers(x)
     
     #TODO: Might want to remove these
@@ -39,37 +47,3 @@ def init_weights(model):
         #m.weight.data.fill_(0.1)
         if model.bias!=None:
             model.bias.data.fill_(0.1)
-
-#input, output, bias
-layers=[[2,1,0],[1,2,0]]
-
-net=Net(layers)
-#print(net)
-
-#Initialize weights
-net.apply(init_weights)
-#Floating the network parameters
-net = net.float()
-
-"""
-np_array=np.array([2,2])
-np_array=torch.from_numpy(np_array)
-np_array=np_array.float()
-"""
-
-gradient_pre=torch.zeros(3)
-
-optimizer = optim.SGD(net.parameters(), lr=0.1)
-
-for i in range(2):
-    out=net(np_array)
-
-    optimizer.zero_grad()
-
-    out.backward(target)
-    print('------------------------------')
-    for name, param in net.named_parameters():
-        print(name, param.grad)
-    optimizer.step()    # Does the update
-
-    print(out)

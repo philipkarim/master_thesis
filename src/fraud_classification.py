@@ -10,6 +10,7 @@ xrandr --query to find the name of the monitors
 """
 import copy
 from dataclasses import replace
+from functools import lru_cache
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
@@ -20,11 +21,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.utils import shuffle
 
+import torch.optim as optim_torch
+
 # Import the other classes and functions
 from varQITE import *
 from utils import *
 from optimize_loss import optimize
-from NN import Feedforward, weights_init_xavier
+from NN_class import *
 
 import seaborn as sns
 
@@ -54,6 +57,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
                                 will be initialized within this function
 
             ansatz(array):      Ansatz whill be used in the VarQBM
+
+            network_coeff(list): layerwise [input, output, bias], 0 if no bias, 1 with bias
 
     Returns:    Scores on how the BM performed
     """
@@ -178,61 +183,49 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     if network_coeff is not None:
         #TODO: Remember net.eval() when testing
 
+        """
         #input, output, bias
         layers=[[2,1,0],[1,2,0]]
-
-        net=Net(layers)
-        #print(net)
-
-        #Initialize weights
-        net.apply(init_weights)
-        #Floating the network parameters
-        net = net.float()
-
-        """
         np_array=np.array([2,2])
         np_array=torch.from_numpy(np_array)
         np_array=np_array.float()
         """
 
-        gradient_pre=torch.zeros(3)
+        #Initializing the network
+        net=Net(network_coeff)
 
-        optimizer = optim.SGD(net.parameters(), lr=0.1)
+        #Initialize weights
+        net.apply(init_weights)
 
-        for i in range(2):
-            out=net(np_array)
+        #Floating the network parameters
+        net = net.float()
 
-            optimizer.zero_grad()
+        #TODO: Insert optimzer list with name, lr, momentum, and everything else needed for optimizer
+        #to not insert every thing as arguments
+        if opt_met=='SGD':
+            optimizer = optim_torch.SGD(net.parameters(), lr=lr)
+        elif opt_met=='Adam':
+            optimizer = optim_torch.Adam(net.parameters(), lr=lr)
+        elif opt_met=='Amsgrad':
+            optimizer = optim_torch.Adam(net.parameters(), lr=lr, amsgrad=True)
+        else:
+            print('optimizer not defined')
+            exit()
 
-            out.backward(target)
-            print('------------------------------')
-            for name, param in net.named_parameters():
-                print(name, param.grad)
-            optimizer.step()    # Does the update
-
-            print(out)
-        #Initializing neural network
-        #TODO: Only one layer, make it aurtomatic, and make 3 outputs
-        H_parameters=Feedforward(len(X_train[0]), network_coeff[0])
-       
-        #print(model)
-        #for param in model.parameters():
-        #    print(param.data)
-        H_parameters.apply(weights_init_xavier)
-        for param in H_parameters.parameters():
-            print(param.data)
-        #exit()
+        #TODO: Might want to use from_numpy thingy
+        H_parameters=net(X_train[0])
 
     else:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
-    
+        
+
     #print(f'Hamiltonian: {hamiltonian}')
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
-
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
+    
     varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=True)
 
     init_circs=time.time()
@@ -264,15 +257,16 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #print(f'Old hamiltonian {hamiltonian}')
             if network_coeff is not None:
                 #Network parameters
-                output_coefficients=(sample, H_parameters[term_H])
+                output_coef=net(sample)
 
                 for term_H in range(n_hamilParameters):
-                        for qub in range(len(hamiltonian[term_H])):
-                            hamiltonian[term_H][qub][0]=output_coefficients[term_H]
+                    for qub in range(len(hamiltonian[term_H])):
+                        hamiltonian[term_H][qub][0]=output_coef[term_H]
             else:
                 for term_H in range(n_hamilParameters):
                     for qub in range(len(hamiltonian[term_H])):
                         hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
+
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             #print(f'New hamiltonian {hamiltonian}')
@@ -284,6 +278,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
+            #TODO: Test with this thing
             p_QBM = PT.probabilities([0])
             #Both work I guess, but then use[1,2,3] as tracing qubits
             #p_QBM=np.diag(PT.data).real.astype(float)
@@ -296,6 +291,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
 
             loss=optim.fraud_CE(target_data,p_QBM)
+
+            loss=-np.sum(p_data*np.log(p_BM))
+
             print(f'Sample: {i}/{len(X_train)}')
             print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
             print(f'p_QBM: {p_QBM}, target: {target_data}')
@@ -303,7 +301,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #Appending loss and epochs
             loss_list.append(loss)
             
-            #TODO: Remember to insert the visible qubit list, might do it 
+            #TODO: Remember to insert the visible qubit list, might do it
             #automaticly by changing the utilized variable function
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
@@ -311,8 +309,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             #TODO: fix when diagonal elemetns, also do not compute the
             #gradient if there is no need inside the var qite loop 
-            #H_coefficients=np.zeros(len(hamiltonian))
-            new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
+            if network_coeff is not None:
+                optimizer.zero_grad()
+                output_coef.backward()
+                optimizer.step()
+            else:     
+                new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
+            
+            #TODO: Time with and without if statement and check time
             print(f'1 sample run: {time.time()-varqite_time}')
 
         #Computes the test scores regarding the test set:
@@ -329,6 +333,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         loss_list=[]
         for i,sample in enumerate(X_test):
             #Updating the Hamiltonian with the correct parameters
+            #TODO: Techniquily(looks weird written) should not be updatet here, but rather before each thing, so the
+            #test samples doesnt lay 1 epoch ahead
             for term_H in range(n_hamilParameters):
                 for qub in range(len(hamiltonian[term_H])):
                     hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])

@@ -37,7 +37,7 @@ both=True
 
 plot_fidelity=True
 
-if !both:
+if both==False:
     Hamiltonian=2
     p_data=np.array([0.12, 0.88])
 
@@ -998,9 +998,12 @@ def main():
     #Takning  a break again with the ising thingy
     #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
-    network_coeff=[3,2]
+    network_coeff=[[13,3, 1],[3,4,1], [4,3,0]] 
 
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    #With neural network
+    fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
+
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
@@ -1024,7 +1027,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
