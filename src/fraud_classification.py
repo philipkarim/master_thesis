@@ -176,6 +176,41 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     
     #Initializing the parameters:
     if network_coeff is not None:
+        #TODO: Remember net.eval() when testing
+
+        #input, output, bias
+        layers=[[2,1,0],[1,2,0]]
+
+        net=Net(layers)
+        #print(net)
+
+        #Initialize weights
+        net.apply(init_weights)
+        #Floating the network parameters
+        net = net.float()
+
+        """
+        np_array=np.array([2,2])
+        np_array=torch.from_numpy(np_array)
+        np_array=np_array.float()
+        """
+
+        gradient_pre=torch.zeros(3)
+
+        optimizer = optim.SGD(net.parameters(), lr=0.1)
+
+        for i in range(2):
+            out=net(np_array)
+
+            optimizer.zero_grad()
+
+            out.backward(target)
+            print('------------------------------')
+            for name, param in net.named_parameters():
+                print(name, param.grad)
+            optimizer.step()    # Does the update
+
+            print(out)
         #Initializing neural network
         #TODO: Only one layer, make it aurtomatic, and make 3 outputs
         H_parameters=Feedforward(len(X_train[0]), network_coeff[0])
