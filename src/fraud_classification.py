@@ -135,8 +135,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:2]
-    y_train=y_train[0:2]
+    X_train=X_train[4:14]
+    y_train=y_train[4:14]
 
     print(f'y_train: {y_train}')
     X_test=X_test[0:30]

@@ -998,7 +998,7 @@ def main():
     #Takning  a break again with the ising thingy
     #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
-    network_coeff=[[13,3, 1],[3,4,1], [4,3,0]] 
+    network_coeff=[[13,10, 1],[10,5,1], [5,10,1],[10,3,1],[3,4,1], [4,3,0]] 
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
     #With neural network
