@@ -4,6 +4,7 @@ from utils import *
 import copy
 import numpy as np
 from qiskit.quantum_info import DensityMatrix, partial_trace
+import torch
 
 class optimize:
     """
@@ -25,7 +26,11 @@ class optimize:
         #print(len))
         #print(type(Hamil)==class)
 
-        #if Hamil==model:
+        if torch.is_tensor(Hamil):
+            #print(len(Hamil))
+            Hamil=np.zeros(len(Hamil))
+            #exit()
+            
         if fraud==True:
             self.m = np.zeros_like((Hamil)).astype(float)
             self.v = np.zeros_like((Hamil)).astype(float)

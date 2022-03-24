@@ -190,7 +190,7 @@ class varQITE:
         C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
             

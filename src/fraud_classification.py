@@ -135,8 +135,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:1]
-    y_train=y_train[0:1]
+    X_train=X_train[0:2]
+    y_train=y_train[0:2]
+
+    print(f'y_train: {y_train}')
     X_test=X_test[0:30]
     y_test=y_test[0:30]
 
@@ -165,7 +167,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(X_train_scaled)
 
     if initial_H==1:
-        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0., 'x', 0]], [[0., 'y', 1]]]
+        hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
     elif initial_H==2:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0.1, 'x', 0]],[[0.1, 'x', 1]]]
@@ -214,6 +216,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
         #TODO: Might want to use from_numpy thingy
         H_parameters=net(X_train[0])
+        print(f'Hamiltonian params: {H_parameters}')
 
     else:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
@@ -292,7 +295,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             loss=optim.fraud_CE(target_data,p_QBM)
 
-            loss=-np.sum(p_data*np.log(p_BM))
+            #loss=-np.sum(p_data*np.log(p_BM))
 
             print(f'Sample: {i}/{len(X_train)}')
             print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
@@ -305,13 +308,13 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #automaticly by changing the utilized variable function
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-            #print(f'gradient_loss: {gradient_loss}')        
+            print(f'gradient_loss: {gradient_loss}')        
 
             #TODO: fix when diagonal elemetns, also do not compute the
             #gradient if there is no need inside the var qite loop 
             if network_coeff is not None:
                 optimizer.zero_grad()
-                output_coef.backward()
+                output_coef.backward(torch.from_numpy(gradient_loss))
                 optimizer.step()
             else:     
                 new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
@@ -327,7 +330,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         print(f'Epoch complete: AS train list= {acc_score_train}')
         print(f'Epoch complete: Hamiltomian= {hamiltonian}')
 
-        print(f'Testing model on test data')
+        print('Testing model on test data')
 
         #Creating the correct hamiltonian with the input data as bias
         loss_list=[]
