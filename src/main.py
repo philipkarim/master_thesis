@@ -16,7 +16,7 @@ from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 import matplotlib.pyplot as plt
-from qiskit.quantum_info.operators import Operator, Pauli
+import torch
 
 
 # Import the other classes and functions
@@ -26,12 +26,11 @@ from varQITE import *
 from fraud_classification import fraud_detection
 from quantum_mnist import quantum_mnist
 
-
 import multiprocessing as mp
-import seaborn as sns
+#import seaborn as sns
 
-sns.set_style("darkgrid")
-
+#sns.set_style("darkgrid")
+plt.style.use('science')
 
 both=True
 
@@ -610,8 +609,8 @@ def plot_fidelity(n_steps, name=None):
     if name!=None:
         plt.savefig('results/fidelity/'+name+'.png')
     else:
-        #plt.show()
-        pass
+        plt.show()
+        #pass
     
     return
 
@@ -942,6 +941,7 @@ def find_hamiltonian(ansatz, steps, l_r, opt_met):
 def main():
     #np.random.seed(1357)
     np.random.seed(1111)
+    torch.manual_seed(0)
 
     number_of_seeds=1
     learningRate=0.1
@@ -998,11 +998,11 @@ def main():
     #Takning  a break again with the ising thingy
     #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
-    network_coeff=[[13,10, 1],[10,5,1], [5,10,1],[10,3,1],[3,4,1], [4,3,0]] 
+    network_coeff=[[10,1], [5,1],[3,1],[4,0]] 
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
     #With neural network
-    fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
 
     #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
 
@@ -1027,7 +1027,7 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    #plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
@@ -1045,9 +1045,10 @@ if __name__ == "__main__":
 Thoughts:
 
 Todays list:
-    - Go through the TODO's, fix neural net automatization
     - Make lambda plots-Ridge
+    - Go through the TODO's, fix neural net automatization
     - Generate target distributions plots
+    - htop
     - Paralellize code, mpi, fork slurp, spark
     - Write code to produce different results
 """

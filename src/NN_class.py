@@ -5,13 +5,19 @@ class Net(nn.Module):
     """
     Class: Neural network
     """
-    def __init__(self, layer_list):
+    def __init__(self, layer_list, sample, output_size):
         super().__init__()
         self.layers = nn.Sequential()
+        
+        #Adding layer of first 
+        self.layers.add_module('fc'+str(0),nn.Linear(len(sample), layer_list[0][0], bias=layer_list[0][1]))
         #Adds linear layers according to the input list
-        for i in range(len(layer_list)):
-            self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i][1], bias=layer_list[i][2]))
-  
+        for i in range(len(layer_list)-1):
+            self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i+1][0], bias=layer_list[i][1]))
+        
+        #Add output layer
+        self.layers.add_module('fc'+str(len(layer_list)),nn.Linear(layer_list[-1][0], output_size, bias=0))
+        
     def forward(self, x):
         """
         Forwards the input through the network
@@ -46,4 +52,4 @@ def init_weights(model):
         torch.nn.init.xavier_uniform_(model.weight)
         #m.weight.data.fill_(0.1)
         if model.bias!=None:
-            model.bias.data.fill_(0.1)
+            model.bias.data.fill_(0.01)

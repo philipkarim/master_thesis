@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-sns.set_style("darkgrid")
+#sns.set_style("darkgrid")
+plt.style.use('science')
 #x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
 
 def plot_fraud():

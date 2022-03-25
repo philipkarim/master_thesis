@@ -135,8 +135,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[4:14]
-    y_train=y_train[4:14]
+    X_train=X_train[12:14]
+    y_train=y_train[12:14]
 
     print(f'y_train: {y_train}')
     X_test=X_test[0:30]
@@ -194,7 +194,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         """
 
         #Initializing the network
-        net=Net(network_coeff)
+        #TODO: Add activation function?
+        net=Net(network_coeff, X_train[0], n_hamilParameters)
+
+        #print(net)
 
         #Initialize weights
         net.apply(init_weights)
@@ -214,16 +217,12 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             print('optimizer not defined')
             exit()
 
-        #TODO: Might want to use from_numpy thingy
         H_parameters=net(X_train[0])
         print(f'Hamiltonian params: {H_parameters}')
 
     else:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
-        
-
-    #print(f'Hamiltonian: {hamiltonian}')
-    
+            
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
