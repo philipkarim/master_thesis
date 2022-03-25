@@ -1043,96 +1043,11 @@ if __name__ == "__main__":
 
 """
 Thoughts:
-- Test encoding thing, do some math?
-- Okay I might know something, well basicly the code doesnt update all the params,
-only half of them actually. But how does it know if it is a controlled gate or not?
 
 Todays list:
-    - Fix rot indices loops
-    - times -0.5j standard
-    - + or - in sums
-    - might be due to ridge?
-
-    - where to put H gate
-
-    -Something wrong with C since it is not arbitrary to the X gates hmmmm
-
-
-H2 best: Non ridge, C:-=, temp.x
-H1 best: Non ridge, C:+=, without temp.x
-
-Next list:
-    - Complete initialisation of the thing med labels and such
-        - Complete C
-    - Go through the TODO's
-    - Gradietn with initialisation
-    - Reproduce results/write code to produce it
-    - Numba/paralellization
-    - Fix the bug, probably have something to do with omega at index 2,3 and 7 being equal.
-        - Okay listen up fam, I think I have some kind of idea to the source of the bug. Basicly V=U_N..U_1, but
-        that means U_1 is applied first which makes sense for why C is reversed?
-        - The key might be to know why C should be reversed
-        - Maybe mixed the arguments some places?
-    - Fix H to deal with multiple same coefficients
-    - Run multiple circuits in paralell instead of separate
-    - Do classical BM
-    - Gradient too high, why? Normalize 0,1 instead of pi? learning rate?
-    - Always increases, within the righ/left? where it is printed, might be that the parameters is set by running the method, 
-    or that it should be copied some place
-
-    - Okay I think I know: Just implement the gradients by ignoring the V_circ when it does not have a derivative and move the
-    pauli gate over to the other side. Basicly do just the same thing as in C for 99 and 98 percent lol
-
-    - CV from scikit not ridge CV
-
-    - Why si gradient higher when the loss is lower? Might have a wrong sign. Not always like that
-    Why is loss still good after a run? Something isnt reset, the gradient lacks after the run
-        - I think this is due to some running of the grads in the algorithm scheme maybe?
-        Try transposing it?
-    
-    - Check why they are the same depending on the coefficients in the gradient loop?
-    - Find out what is pulling the predictions so high
-    - Normalizing the quantum gates between -1 and 1?
-
-    - Check on the parameters of adam, maybe better with ridge?
-
-    -Params always same size, maybe try with amsgrad with + instead of minus in the x thing
-
-    - Thoughts: dA is quiet high, and the inverse have some values which are quiet low high
-
-    - Should probably normalize the shit
-    -Gå gjennom dA step by step og finn ut hvorfor den er drithøy
-
-    - Noe henger igjen som object fra tidligere
-
-    Dagens oppgaver:
-    - Undersøke gradient implementasjonsmetodene funker
-        Tror det er noe feil med implementasjonen av de to siste coeffisientene
-        18.45
-    - Sjekke om det er bedre sånn som nå eller gjøre som andre rapporten
-        Teste det
-        19.30
-    - Lage init kretser
-        -dc circ og da circ
-    - fikse lambda loopen
-    - Maybe there is only one error in the article
-    -Cyclic property?
-
-
-
-    - If loss is larger than 0.5 reduce the alpha by factor 0.1
-    Should C be negative?
-
-
-    -Change three things: seed, momentum, saved momentum title
-
-
-    - 0.5, 0.1, 0.05. 0.01, 0.005, 0.002
-    - 0.7m,                         0.99
-
-    2 loops
-
-
-
-Method part in thesis: Write about the same thing as in the article
+    - Go through the TODO's, fix neural net automatization
+    - Make lambda plots-Ridge
+    - Generate target distributions plots
+    - Paralellize code, mpi, fork slurp, spark
+    - Write code to produce different results
 """
