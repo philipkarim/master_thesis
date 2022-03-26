@@ -125,29 +125,29 @@ def sim_lambda_fidelity_search(n_steps, lmbs, name=None, rz_add=False):
         rz_add(bool):   If an rz gate should be added to count
                         for phase mismatch derivatives.
     """
-
-
     H1_ridge_fidelities=[]
     H2_ridge_fidelities=[]
     H1_lasso_fidelities=[]
     H2_lasso_fidelities=[]
 
     for l in lmbs:
-        h1_ridge, h2_ridge=compute_fidelity(n_steps, l, ridge, rz_add)
-        h1_lasso, h2_lasso=compute_fidelity(n_steps, l, lasso, rz_add)
+        h1_ridge, h2_ridge=compute_fidelity(n_steps, l, 'ridge', rz_add)
+        h1_lasso, h2_lasso=compute_fidelity(n_steps, l, 'lasso', rz_add)
 
         H1_ridge_fidelities.append(h1_ridge)
         H2_ridge_fidelities.append(h2_ridge)
         H1_lasso_fidelities.append(h1_lasso)
         H2_lasso_fidelities.append(h2_lasso)
+    print(H1_ridge_fidelities)
 
-    plt.plot(lmbs,H1_ridge_fidelities, label=r'\H_1- Ridge')
-    plt.plot(lmbs,H2_ridge_fidelities, label=r'\H_2- Ridge')
-    plt.plot(lmbs,H1_lasso_fidelities, label=r'\H_1- Lasso')
-    plt.plot(lmbs,H1_lasso_fidelities, label=r'\H_2- Lass')
+    plt.plot(lmbs,H1_ridge_fidelities, label=r'$H_1$- Ridge')
+    plt.plot(lmbs,H2_ridge_fidelities, label=r'$H_2$- Ridge')
+    plt.plot(lmbs,H1_lasso_fidelities, label=r'$H_1$- Lasso')
+    plt.plot(lmbs,H2_lasso_fidelities, label=r'$H_2$- Lass')
     
-    plt.xlabel('Step')
+    plt.xlabel(r'$\lambda$')
     plt.ylabel('Fidelity')
+    plt.xscale("log")
     plt.legend()
 
     if name is not None:
@@ -203,8 +203,8 @@ def compute_fidelity(n_steps, lmb, regularizer, rz_add=False):
                             [0.01, -0.05, -0.05, 0.05]])
 
 
-    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
-    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=True, plot_fidelity=True)
+    varqite2=varQITE(H2, params2, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=True, plot_fidelity=True)
     
     varqite1.initialize_circuits()
     varqite2.initialize_circuits()

@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import register_namespace
 import numpy as np
 from numpy.core.numeric import zeros_like
 
@@ -25,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, symmetrix_matrices=False, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -36,6 +37,8 @@ class varQITE:
             max_Time(float):    Maximum time value for the propagation
             steps(int):         timesteps of varQITE
         """
+        self.lmbs=lmbs
+        self.reg_method=reg
         self.symmetrix_matrices=symmetrix_matrices
         self.best=False
         self.sup=False
@@ -235,23 +238,23 @@ class varQITE:
             #print(A_mat)
             #time_invert=time.time()
 
-            if len(lmbs)>1:
+            if isinstance(self.lmbs, (np.ndarray, list)):
                 #Compute multiple lambdas, and choose the one wiht lowest loss
     
                 #lambdas_list=np.logspace(-10,-4,7)
                 loss=1e8
 
-                for lmb in range(len(lmbs)):
+                for lmb in range(len(self.lmbs)):
                     #TODO: Fix this a bit more cool with max 1 if statement
                     #model_R=globals()[reg_method]()
                     #model_R=globals()[reg_method](alpha=lambdas_list[lmb])()
-                    model_R = Ridge(alpha=lmbs[lmb])
+                    model_R = Ridge(alpha=self.lmbs[lmb])
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
                     loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
                     
                     if loss_temp<loss:
-                        final_lmb=lmbs[lmb]
+                        final_lmb=self.lmbs[lmb]
                         loss=loss_temp
                 
                 #Using the final alpha
@@ -259,159 +262,80 @@ class varQITE:
                 model_R.fit(A_mat, C_vec)
                 omega_derivative_temp=model_R.coef_
 
-            elif reg_method=='ridge':
-                model_R = Ridge(lmbs)
+            elif self.reg_method=='ridge':
+                #Ridge regression
+                model_R = Ridge(alpha=self.lmbs)
                 model_R.fit(A_mat, C_vec)
                 omega_derivative_temp=model_R.coef_
 
-            elif reg_method=='lasso':
-                model_L = Lasso(lmbs)
+            elif self.reg_method=='lasso':
+                #LASSO regression
+                model_L = Lasso(alpha=self.lmbs)
                 model_L.fit(A_mat, C_vec)
                 omega_derivative_temp=model_L.coef_
-                
+
             else:
+                #Using the pseudo inverse
                 A_inv=np.linalg.pinv(A_mat, hermitian=False)
-                omega_derivative_temp=A_inv@C_vec      
+                omega_derivative_temp=A_inv@C_vec
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
-            #print(f'Omega derivate: {omega_derivative}')
-
+            #TODO: Switch false to true, like why did I even make 'False'
+            # as the choice to actually prepare the gradient states lol
             if gradient_stateprep==False:
-                
-                #time_dA=time.time()
+                #Preparing the gradient states
                 dA_mat=self.getdA_bound(omega_w)
-                #print(dA_mat)
-                #print(f'dA_mat: {dA_mat}')
-                #exit()
-                #print(dA_mat)
-                #print(f'Time to prepare whole dA: {time.time()-time_dA}')
 
-                #sum_timedC=0
-                for i in range(len(self.hamil)):
-                    #TODO: Deep copy takes a lot of time, fix this
-                    #dA_mat=np.copy(self.get_dA(i))
-                    #dC_vec=np.copy(self.get_dC(i))
-                    
-                    #time_dC=time.time()
+                for i in range(len(self.hamil)):                    
                     dC_vec=self.getdC_bound(i, omega_w)
-                    #sum_timedC+=(time.time()-time_dC)
 
-                    #dA_mat=np.copy(self.getdA_init(i))
-
-                    #time_invertdC=time.time()
-                    if ridge_inv==False:
-                        w_dtheta_dt=A_inv@(dC_vec-dA_mat[i]@omega_derivative_temp)#* or @?
-                        if t==self.maxTime:
-                            print('Lets find out why the derivatives are so high:')
-
-                            print('A_inv:')
-                            print(A_inv)
-                            print('-----------------') 
-                            
-                            print('dA:')
-                            print(dA_mat)
-                            print('-----------------')
-
-                            print('fC_vec:')
-                            print(dC_vec)
-                            print('-----------------')
-
-                            print('omega:')
-                            print(omega_derivative_temp)
-                            print('-----------------')
-
-                            print('dA_mat@omega:')
-                            print(dA_mat@omega_derivative_temp)
-                            print('-----------------')
-                            
-                            print('dc- minus the thing over:')
-                            print(dC_vec-dA_mat@omega_derivative_temp)
-                            print('-----------------')
-
-                            print('A_inv(\cdot)')
-                            print(A_inv@(dC_vec-dA_mat@omega_derivative_temp))
-                            print('-----------------')
-                        
-                    else:
+                    if isinstance(self.lmbs, (np.ndarray, list)):
+                        #Compute multiple lambdas, and choose the one wiht lowest loss
+                        loss=1e8
                         rh_side=dC_vec-dA_mat[i]@omega_derivative_temp
 
-                        #model_dR = Ridge(alpha=1e-4)
-                        #model_dR.fit(A_mat, rh_side)
-                        #w_dtheta_dt=model_dR.coef_
-                        
-                        #temp_loss_d=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
-                        #print(f'Loss from ridge derivert: {temp_loss_d}')
-                        
-                        loss2=1e8
-                        for lmb in range(len(lambdas_list)):
-                            model_dR = Ridge(alpha=lambdas_list[lmb])
-                            model_dR.fit(A_mat, rh_side)
-                            w_dtheta_dt=model_dR.coef_
-                            loss_temp2=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
-                            #print(loss, lmb)
+                        for lmb in range(len(self.lmbs)):
+                            model_R = Ridge(alpha=self.lmbs[lmb])
+                            model_R.fit(A_mat, rh_side)
+                            w_dtheta_dt=model_R.coef_
+                            loss_temp=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
                             
-                            if loss_temp2<loss2:
-                                final_lmb2=lambdas_list[lmb]
-                                loss2=loss_temp2
+                            if loss_temp<loss:
+                                final_lmb=self.lmbs[lmb]
+                                loss=loss_temp
+                        
+                        #Using the final alpha
+                        model_R = Ridge(final_lmb)
+                        model_R.fit(A_mat, rh_side)
+                        w_dtheta_dt=model_R.coef_
 
-                        """
-                        loss=1000
-                        lmb_2=0.1
-                        
-                        loss_list_2=[]
-                        while loss>0.0001:
-                            lmb_2*=0.1
-                            model_dR = Ridge(alpha=lmb_2)
-                            model_dR.fit(A_mat, rh_side)
-                            #TODO: Deep copy coeff?
-                            w_dtheta_dt=model_dR.coef_
-                            loss=mean_squared_error(rh_side,A_mat@w_dtheta_dt)
-                            loss_list_2.append(loss)
+                    elif self.reg_method=='ridge':
+                        #Ridge regression
+                        model_R = Ridge(alpha=final_lmb)
+                        model_R.fit(A_mat, rh_side)
+                        w_dtheta_dt=model_R.coef_
 
-                            print(loss, lmb_2)
-                            if lmb_2<1e-13:
-                                lmb_2=10**(-1*loss_list_2.index(min(loss_list_2)))
-                                print(lmb_2)
-                                break
-                        """
-                        
-                        #print(f'Derivert: loss_: {min(loss_list_2)}, lmb: {lmb_2}')
-                        
-                        model_dR = Ridge(alpha=final_lmb2)
-                        model_dR.fit(A_mat, rh_side)
-                        w_dtheta_dt=model_dR.coef_
-                        
-                        #print(mean_squared_error(rh_side,A_mat@w_dtheta_dt), final_lmb_2)
+                    elif self.reg_method=='lasso':
+                        #LASSO regression
+                        model_L = Ridge(alpha=final_lmb)
+                        model_L.fit(A_mat, rh_side)
+                        w_dtheta_dt=model_L.coef_
 
-                        #model_dR = Ridge(alpha=1e-3)
-                        #model_dR = Ridge(alpha=np.log(-1*len(rh_side)))
-                        #model_dR.fit(A_mat, rh_side)
-                        #w_dtheta_dt=model_dR.coef_
+                    else:
+                        #Using the pseudo inverse
+                        dA_inv=np.linalg.pinv(dA_mat[i], hermitian=False)
+                        w_dtheta_dt=dA_inv@(dC_vec-dA_mat[i]@omega_derivative_temp)
                         
-                        #print(f'Loss from ridge derivert: {temp_loss_d}')
-                    #print(f'Time to invert deriated: {time.time()-time_invertdC}')
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
-                    #print(f'w_dtheta: {w_dtheta_dt}')
 
             omega_w+=(omega_derivative*self.time_step)
             
             if self.plot_fidelity==True:
-                #print(omega_w)
                 self.plot_fidelity_list.append(np.copy(omega_w))
-            #print(omega_w)
 
-            #print(f'omega after step {omega_w}')
-
-            #print(omega_derivative)
-            #Update parameters
-            #print(self.trial_circ)
-            #print(omega_w)
-            #TODO: do I change this multiple times?
+            #TODO: Is this automaticly changed?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
-
-            #if gradient_stateprep==False:
-                #print(f'Time to bound dC {sum_timedC}')
 
         return omega_w, self.dwdth
 

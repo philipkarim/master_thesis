@@ -1025,7 +1025,7 @@ def main():
     Fidelity simulations
     """
     #sim_plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
-    sim_lambda_fidelity_search(ite_steps, np.logspace(-10,-2,7))
+    sim_lambda_fidelity_search(ite_steps, np.logspace(-15,-1,15))
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 
