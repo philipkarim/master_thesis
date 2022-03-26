@@ -20,6 +20,7 @@ import torch
 
 
 # Import the other classes and functions
+from simulations import *
 from optimize_loss import optimize
 from utils import *
 from varQITE import *
@@ -29,8 +30,8 @@ from quantum_mnist import quantum_mnist
 import multiprocessing as mp
 #import seaborn as sns
 
-#sns.set_style("darkgrid")
-plt.style.use('science')
+sns.set_style("darkgrid")
+#plt.style.use('science')
 
 both=True
 
@@ -497,8 +498,8 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
 
     return 
 
-
-def plot_fidelity(n_steps, name=None):
+"""
+def plot_fidelity2(n_steps, name=None):
     rz_add=False
 
     if rz_add==True:
@@ -536,13 +537,6 @@ def plot_fidelity(n_steps, name=None):
 
     fidelities1_list=[]
     fidelities2_list=[]
-
-    #This is changed in the thing
-    """
-    trace_circ1=create_initialstate(params1)
-    DM1=DensityMatrix.from_instruction(trace_circ1)
-    PT1 =partial_trace(DM1,[0])
-    """
     
     print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
@@ -613,7 +607,7 @@ def plot_fidelity(n_steps, name=None):
         #pass
     
     return
-
+"""
 
 def find_best_alpha(n_steps, alpha_space, name=None):
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -1027,7 +1021,11 @@ def main():
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
-    plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    """
+    Fidelity simulations
+    """
+    #sim_plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    sim_lambda_fidelity_search(ite_steps, np.logspace(-10,-2,7))
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 

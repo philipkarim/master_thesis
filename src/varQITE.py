@@ -231,130 +231,47 @@ class varQITE:
 
             #print(C_vec)
             #exit()
-
-
             #print(f'Time to prepare C: {time.time()-time_C}')
-
-
             #print(A_mat)
-
-
             #time_invert=time.time()
 
-            ridge_inv=True
-            CV=False
-            if ridge_inv==False:
-                A_inv=np.linalg.pinv(A_mat, hermitian=False)
-                omega_derivative_temp=A_inv@C_vec
-            else:
-                if CV==True:
-                    I=np.eye(A_mat.shape[1])
-                    regr_cv = RidgeCV(alphas= np.logspace(-4, 4))
-                    regr_cv.fit(A_mat, C_vec)
-                    omega_derivative_temp=np.linalg.inv(A_mat.T @ A_mat + regr_cv.alpha_*I) @ A_mat.T @ C_vec
+            if len(lmbs)>1:
+                #Compute multiple lambdas, and choose the one wiht lowest loss
+    
+                #lambdas_list=np.logspace(-10,-4,7)
+                loss=1e8
 
-                else:
-                    #model_R = Ridge(alpha=1e-8)
-                    #model_R.fit(A_mat, C_vec)
-                    #omega_derivative_temp=model_R.coef_
-                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp))
-
-                    #print(abs(np.min(C_vec))*0.001)<   
-                    
-                    #loss=1000
-                    #lmb=0.1
-                    
-                    lambdas_list=np.logspace(-10,-4,7)
-
-                    loss=1e8
-                    """
-                    for alpha in range(len(lambdas_list)):
-                        for lmb in range(len(lambdas_list)):
-                            model_R = BayesianRidge(lambda_init=2, alpha_1=0)
-                            model_R.fit(A_mat, C_vec)
-                            omega_derivative_temp=model_R.coef_
-                            loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
-                            print(loss_temp, lambdas_list[lmb], lambdas_list[alpha])
-                            
-                            if loss_temp<loss:
-                                final_lmb, final_alp=lambdas_list[lmb], lambdas_list[alpha] 
-                    """
-
-                    #print(A_mat)
-                    for lmb in range(len(lambdas_list)):
-                        #model_R = Ridge(alpha=lambdas_list[lmb])
-                        model_R = Ridge(alpha=lambdas_list[lmb])
-                        model_R.fit(A_mat, C_vec)
-                        omega_derivative_temp=model_R.coef_
-                        loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
-                        #print(loss_temp, lambdas_list[lmb])
-                        
-                        if loss_temp<loss:
-                            final_lmb=lambdas_list[lmb]
-                            loss=loss_temp
-                    
-                    
-                    #print(final_lmb)
-                    #exit()
-
-                    #final_lmb=lambdas_list[loss_list.index(min(loss_list))]
-                    #print(f'Finale lmb {final_lmb} and alpha: {final_alp}')
-
-                    #print(f'A mat: {A_mat}')
-                    #print(f'omega: {omega_derivative_temp}')
-                    #print(f'A @ w: {A_mat@omega_derivative_temp}')
-                    #print(f'C vec: {C_vec}')
-
-
-
-                    """
-                    while loss>0.0001:
-                        lmb*=0.1
-                        model_R = Ridge(alpha=lmb)
-                        model_R.fit(A_mat, C_vec)
-                        #TODO: Deep copy coeff?
-                        omega_derivative_temp=model_R.coef_
-                        #omega_list.append(omega_derivative_temp)
-                        loss=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
-                        #print(loss, lmb)
-                        loss_list.append(loss)
-
-                        if lmb<1e-13:
-                            lmb=10**(-1*loss_list.index(min(loss_list)))
-                            break
-                    
-                    #print(f'loss: {min(loss_list)}, lmb: {lmb}')
-
-                    #lmb=1e-8
-                    """
-                    
-                    model_R = Ridge(final_lmb)#0.001)
+                for lmb in range(len(lmbs)):
+                    #TODO: Fix this a bit more cool with max 1 if statement
+                    #model_R=globals()[reg_method]()
+                    #model_R=globals()[reg_method](alpha=lambdas_list[lmb])()
+                    model_R = Ridge(alpha=lmbs[lmb])
                     model_R.fit(A_mat, C_vec)
                     omega_derivative_temp=model_R.coef_
-                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb)
+                    loss_temp=mean_squared_error(C_vec,A_mat@omega_derivative_temp)
+                    
+                    if loss_temp<loss:
+                        final_lmb=lmbs[lmb]
+                        loss=loss_temp
+                
+                #Using the final alpha
+                model_R = Ridge(final_lmb)
+                model_R.fit(A_mat, C_vec)
+                omega_derivative_temp=model_R.coef_
 
-                    
-                    #model_R = BayesianRidge(lambda_init=0.5)
-                    #model_R.fit(A_mat, C_vec)
-                    #omega_derivative_temp=model_R.coef_
-                    #loss_list=[]
-                    #print(mean_squared_error(C_vec,A_mat@omega_derivative_temp), final_lmb, final_alp)
+            elif reg_method=='ridge':
+                model_R = Ridge(lmbs)
+                model_R.fit(A_mat, C_vec)
+                omega_derivative_temp=model_R.coef_
 
-                    #omega_derivative_temp=omega_list[loss_list.index(min(loss_list))]
-                    
-                    #model_R = Ridge(alpha=1e-5)
-                    #model_R.fit(A_mat, C_vec)
-                    #omega_derivative_temp=model_R.coef_
-
-                    
-                    
-                    #model_R = Ridge(alpha=abs(np.min(C_vec/len(C_vec)))*1e-8)
-                    #print(f'lambda {abs(np.min(C_vec/len(C_vec)))*1e-4}')
-                    #print(f'Loss from ridge: {loss}')
-                    
-                    
-            
-            #print(f'Time to invert: {time.time()-time_invert}')
+            elif reg_method=='lasso':
+                model_L = Lasso(lmbs)
+                model_L.fit(A_mat, C_vec)
+                omega_derivative_temp=model_L.coef_
+                
+            else:
+                A_inv=np.linalg.pinv(A_mat, hermitian=False)
+                omega_derivative_temp=A_inv@C_vec      
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 
