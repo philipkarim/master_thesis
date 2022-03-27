@@ -31,7 +31,7 @@ from NN_class import *
 
 import seaborn as sns
 
-sns.set_style("darkgrid")
+#sns.set_style("darkgrid")
 
 def bias_param(x, theta):
     """

@@ -30,7 +30,7 @@ from quantum_mnist import quantum_mnist
 import multiprocessing as mp
 #import seaborn as sns
 
-sns.set_style("darkgrid")
+#sns.set_style("darkgrid")
 #plt.style.use('science')
 
 both=True
@@ -1024,8 +1024,28 @@ def main():
     """
     Fidelity simulations
     """
-    #sim_plot_fidelity(10)#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
-    sim_lambda_fidelity_search(ite_steps, np.logspace(-15,-1,15))
+    #sim_plot_fidelity(ite_steps, rz_add=False, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+
+    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz')
+    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz')
+
+    """
+    Generative learning
+    """
+    ## Remember to save all arrays in case i run it for a real quantum computer, then save.
+    #Plot the thing from the article, increase learning rate for each iteration and plot loss- https://towardsdatascience.com/estimating-optimal-learning-rate-for-a-deep-neural-network-ce32f2556ce0
+    #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
+    #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
+    #Now the same thing with a network, maybe with different layers/nodes
+    #Run it again with real computer?
+    """
+    Discriminative learning
+    """
+    #Fraud datasets
+
+
+
     end_time=time.time()
     print(f'Final time: {end_time-start}')
 

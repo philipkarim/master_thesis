@@ -64,7 +64,7 @@ def plotter(*args, x_axis,x_label, y_label):
           x_label:  Name of x axis(string)
           y_label:  Name of y axis(string)
     """
-    sns.set_style("darkgrid")
+    #sns.set_style("darkgrid")
     
     if len(args)>1:
         for i in range(0, int(len(args)),2):

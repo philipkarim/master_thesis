@@ -1,8 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
-
+import matplotlib
 from varQITE import *
+
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+import seaborn as sns
+
+sns.set_style("darkgrid")
+#print(plt.rcParams.keys())
+
+FIGWIDTH=4.71935 #From latex document
+FIGHEIGHT=FIGWIDTH/1.61803398875
+
+params = {'text.usetex' : True,
+          'font.size' : 10,
+          'font.family' : 'lmodern',
+          'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
+          'figure.dpi' : 1000.0,
+          #'text.latex.unicode': True,
+          }
+plt.rcParams.update(params) 
 
 def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     """
@@ -17,7 +36,6 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
         rz_add(bool):   If an rz gate should be added to count
                         for phase mismatch derivatives.
         """
-    print('hmmm')
     if rz_add:
         params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rz',0, 2]]
@@ -54,7 +72,6 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     fidelities1_list=[]
     fidelities2_list=[]
 
-    print('VarQite 1')
     varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
@@ -62,7 +79,7 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
         
     for i in list_omegas_fielity1:
         params1=update_parameters(params1, i)
-        if rz_add==True:
+        if rz_add:
             trace_circ1=create_initialstate(params1[:-1])
         else:
             trace_circ1=create_initialstate(params1)
@@ -74,12 +91,10 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     
     print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
     
-    print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    #print('VarQite 2')
+    varqite2=varQITE(H2, params2, steps=n_steps , symmetrix_matrices=True, plot_fidelity=True)
     varqite2.initialize_circuits()
-    star=time.time()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
-    print(time.time()-star)
     list_omegas_fielity2=varqite2.fidelity_omega_list()
 
     for j in list_omegas_fielity2:
@@ -100,15 +115,17 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
 
     print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_5: {PT2_5}, H2_6: {PT2_6}')
 
+    plt.figure()
     plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
     plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
     
     plt.xlabel('Step')
     plt.ylabel('Fidelity')
     plt.legend()
+    plt.tight_layout()
 
     if name is not None:
-        plt.savefig('results/fidelity/'+name+'.png')
+        plt.savefig('results/generative_learning/'+name+'.png')
     else:
         plt.show()
         #pass
@@ -138,20 +155,27 @@ def sim_lambda_fidelity_search(n_steps, lmbs, name=None, rz_add=False):
         H2_ridge_fidelities.append(h2_ridge)
         H1_lasso_fidelities.append(h1_lasso)
         H2_lasso_fidelities.append(h2_lasso)
-    print(H1_ridge_fidelities)
+    print(max(H1_ridge_fidelities))
+    print(max(H2_ridge_fidelities))
 
+    # set the font globally
+    #plt.rcParams.update({'font.family':'sans-serif'})
+
+    
+    plt.figure()
     plt.plot(lmbs,H1_ridge_fidelities, label=r'$H_1$- Ridge')
     plt.plot(lmbs,H2_ridge_fidelities, label=r'$H_2$- Ridge')
     plt.plot(lmbs,H1_lasso_fidelities, label=r'$H_1$- Lasso')
     plt.plot(lmbs,H2_lasso_fidelities, label=r'$H_2$- Lass')
     
     plt.xlabel(r'$\lambda$')
-    plt.ylabel('Fidelity')
+    plt.ylabel('Fidelity')#,fontsize=19)
     plt.xscale("log")
     plt.legend()
+    plt.tight_layout()
 
     if name is not None:
-        plt.savefig('results/fidelity/'+name+'.png')
+        plt.savefig('results/generative_learning/'+name+'.png')
     else:
         plt.show()
         #pass

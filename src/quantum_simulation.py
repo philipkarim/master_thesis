@@ -15,7 +15,7 @@ from varQITE import *
 import multiprocessing as mp
 import seaborn as sns
 
-sns.set_style("darkgrid")
+#sns.set_style("darkgrid")
 
 def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')

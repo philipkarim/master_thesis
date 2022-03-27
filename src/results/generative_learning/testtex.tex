@@ -1,0 +1,111 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{crimson2143940}{RGB}{214,39,40}
+\definecolor{darkorange25512714}{RGB}{255,127,14}
+\definecolor{darkslategray38}{RGB}{38,38,38}
+\definecolor{forestgreen4416044}{RGB}{44,160,44}
+\definecolor{lavender234234242}{RGB}{234,234,242}
+\definecolor{lightgray204}{RGB}{204,204,204}
+\definecolor{steelblue31119180}{RGB}{31,119,180}
+
+\begin{axis}[
+axis background/.style={fill=lavender234234242},
+axis line style={white},
+legend cell align={left},
+legend style={
+  fill opacity=0.8,
+  draw opacity=1,
+  text opacity=1,
+  at={(0.03,0.03)},
+  anchor=south west,
+  draw=lightgray204,
+  fill=lavender234234242
+},
+log basis x={10},
+tick align=outside,
+x grid style={white},
+xlabel=\textcolor{darkslategray38}{\(\displaystyle \lambda\)},
+xmajorgrids,
+xmajorticks=false,
+xmin=2.51188643150958e-13, xmax=3.98107170553497,
+xmode=log,
+xtick style={color=darkslategray38},
+y grid style={white},
+ylabel=\textcolor{darkslategray38}{Fidelity},
+ymajorgrids,
+ymajorticks=false,
+ymin=0.812665950705416, ymax=1.00605773398026,
+ytick style={color=darkslategray38}
+]
+\addplot [semithick, steelblue31119180]
+table {%
+1e-12 0.983957590606753
+1e-11 0.983957515026811
+1e-10 0.98395678891313
+1e-09 0.983949547360731
+1e-08 0.983878837988717
+1e-07 0.983295819013558
+1e-06 0.980691268631952
+1e-05 0.975310428922686
+0.0001 0.969485951839532
+0.001 0.965637158565105
+0.01 0.949702732969769
+0.1 0.879264244895817
+1 0.832763132647764
+};
+\addlegendentry{$H_1$- Ridge}
+\addplot [semithick, darkorange25512714]
+table {%
+1e-12 0.997267192237294
+1e-11 0.997267198376856
+1e-10 0.997267197725453
+1e-09 0.997267194776542
+1e-08 0.997267164754921
+1e-07 0.997266864533554
+1e-06 0.997263861941519
+1e-05 0.997233798557165
+0.0001 0.996929533565711
+0.001 0.993614577960537
+0.01 0.958487420294585
+0.1 0.8603509643291
+1 0.826088191534544
+};
+\addlegendentry{$H_2$- Ridge}
+\addplot [semithick, forestgreen4416044]
+table {%
+1e-12 0.960071556620858
+1e-11 0.960071805044069
+1e-10 0.960074289153848
+1e-09 0.960099113118386
+1e-08 0.960345632764205
+1e-07 0.962511054841406
+1e-06 0.968284374248543
+1e-05 0.9877123497692
+0.0001 0.986576260561561
+0.001 0.972333720265066
+0.01 0.824961536185438
+0.1 0.824961536185438
+1 0.824961536185438
+};
+\addlegendentry{$H_1$- Lasso}
+\addplot [semithick, crimson2143940]
+table {%
+1e-12 0.980962995949628
+1e-11 0.980962997902124
+1e-10 0.980963017427084
+1e-09 0.980963212676606
+1e-08 0.980965165164154
+1e-07 0.980985017509776
+1e-06 0.985852578041081
+1e-05 0.98771487473038
+0.0001 0.98752976768488
+0.001 0.947936020739298
+0.01 0.821456486308818
+0.1 0.821456486308818
+1 0.821456486308818
+};
+\addlegendentry{$H_2$- Lass}
+\end{axis}
+
+\end{tikzpicture}

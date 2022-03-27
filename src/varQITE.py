@@ -112,10 +112,7 @@ class varQITE:
                 derivative_const=0.25
                 A_mat_temp[i][j]=A_term*derivative_const
         #Remember to multiply with (0+0.5j)*(0-0.5j)
-        """
-
-        #hamiltonian_params=np.array(self.hamil)[:, 0].astype('float')
-        
+        """        
         C_circ= np.empty(shape=(len(self.hamil),len(self.rot_indexes)), dtype=object)
         
         #Assuming there is only one circ per i,j, due to r? only having 1 element in f
@@ -193,7 +190,7 @@ class varQITE:
         C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
+            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
 
             #Expression A: Binds the parameters to the circuits
             
@@ -541,7 +538,7 @@ class varQITE:
         
         getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
 
-        if first==39.3:#<sec:
+        if first<sec:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 if ii in self.rot_indexes:
@@ -591,7 +588,6 @@ class varQITE:
         for i, j in enumerate(self.rot_loop[:fir]):
             if i in self.rot_indexes:
                 name=p_vec_C[np.where(self.rot_indexes==i)[0][0]]
-                #name=p_vec[i] 
             else:
                 name=self.trial_circ[i][1]+j
             getattr(temp_circ, self.trial_circ[i][0])(name, 1+self.trial_circ[i][2])
@@ -658,8 +654,6 @@ class varQITE:
         for i in range(len(self.rot_indexes)):
             c_term=self.run_C2(self.rot_indexes[i])
             
-            #Multiplying with 0.5 due to the derivative factor
-            #TODO might be - 0.5 instead?
             C_vec_temp[i]=c_term*0.5
  
         return C_vec_temp
