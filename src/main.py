@@ -940,8 +940,8 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=30
-    optimizing_method='Amsgrad'
+    epochs=100
+    optimizing_method='SGD'
 
     """
     [gate, value, qubit]
@@ -976,12 +976,11 @@ def main():
     Ham3=get_Hamiltonian(3)
     Ham4=get_Hamiltonian(4)
 
-    p_data1=np.array([0.3, 0.7])
+    p_data1=np.array([0.5, 0.5])
     p_data2=np.array([0.5, 0, 0, 0.5])
     p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
     p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
     p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
-
 
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
@@ -1035,6 +1034,8 @@ def main():
     Generative learning
     """
     ## Remember to save all arrays in case i run it for a real quantum computer, then save.
+    #learning_rate_search(Ham1, ansatz1, 2, p_data1, n_steps=ite_steps, lr=0.1, name=True, optim_method=optimizing_method, plot=False)
+    learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name=True, optim_method=optimizing_method, plot=False)
     #Plot the thing from the article, increase learning rate for each iteration and plot loss- https://towardsdatascience.com/estimating-optimal-learning-rate-for-a-deep-neural-network-ce32f2556ce0
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
