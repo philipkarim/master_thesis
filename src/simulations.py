@@ -257,3 +257,12 @@ def compute_fidelity(n_steps, lmb, regularizer, rz_add=False):
     H_fidelity2=state_fidelity(PT2.data, H2_analytical, validate=False)
 
     return H_fidelity1, H_fidelity2
+
+
+def learning_rate_search():
+    """
+    Finding learning rate according to the following article:
+    https://towardsdatascience.com/estimating-optimal-learning-rate-for-a-deep-neural-network-ce32f2556ce0
+    """
+
+    
