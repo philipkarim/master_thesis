@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import torch.optim as optim_torch
 import torch
+import os
 
 from varQITE import *
 from optimize_loss import optimize
@@ -303,8 +304,6 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
-        #for g in optim.param_groups:
-        #    g['lr'] = 0.0001*np.exp(0.1*epoch)
         optimizer.param_groups[0]['lr'] = 0.0001*np.exp(0.1*epoch)
 
         #Updating the Hamiltonian parameters
@@ -362,3 +361,131 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
 
 
     return np.array(loss_list), np.array(norm_list), p_QBM
+
+def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_steps=10):
+    """
+    Computing multiple things, using various parameters and paralellization
+    """
+    #Testing with H1 first
+    #4 optimization techniques, (0.7, 0.99) and (0.9 and 0.999), lr=0.2, 0.1, 0.05
+    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.7, m2=0.99, name='test', plot=False)
+
+    """
+    pid = os.fork()
+
+    if pid > 0 :
+        pid=os.fork()
+        if pid>0:
+            list3=[]
+            start1=time.time()
+            for i in range(int(5e8)):
+                list3.append(i)
+            print(f'time1: {time.time()-start1}')
+
+            print("\nI am child process:")
+            print("Process ID:", os.getpid())
+            print("Parent's process ID:", os.getppid())
+        else:
+            list1=[]
+            start2=time.time()
+            for i in range(int(5e8)):
+                list1.append(i)
+            print(f'time2: {time.time()-start2}')
+
+            print("I am parent process:")
+            print("Process ID:", os.getpid())
+            print("Child's process ID:", pid)
+    else:
+        list2=[]
+        start3=time.time()
+        for i in range(int(5e8)):
+            list2.append(i)
+        print(f'time3: {time.time()-start3}')
+        print("\nI am child process:")
+        print("Process ID:", os.getpid())
+        print("Parent's process ID:", os.getppid())
+    """
+
+    
+
+def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', m1=0.7, m2=0.99, name=None, plot=True):
+    """
+    Training the model to reproduce the correct target distribution
+    """    
+    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
+
+    loss_list=[]
+    norm_list=[]
+
+    tracing_q, rotational_indices=getUtilityParameters(ansatz)
+
+    H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
+    H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
+    
+    if optim_method=='SGD':
+        optimizer = optim_torch.SGD([H_coefficients], lr=lr)
+        m1=0; m2=0
+    elif optim_method=='Adam':
+        optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2])
+    elif optim_method=='Amsgrad':
+        optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2], amsgrad=True)
+    elif optim_method=='RMSprop':
+        optimizer = optim_torch.RMSprop([H_coefficients], lr=lr, alpha=m1)
+        m2=0
+    else:
+        print('optimizer not defined')
+        exit()
+    
+    optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    
+    time_intit=time.time()
+    varqite_train.initialize_circuits()
+    print(f'initialization time: {time.time()-time_intit}')
+    
+    for epoch in range(n_epochs):
+        print(f'epoch: {epoch}')
+
+        #Updating the Hamiltonian parameters
+        for term_H in range(len(H_operator)):
+            for qub in range(len(H_operator[term_H])):
+                H_operator[term_H][qub][0]=H_coefficients[term_H].item()
+        varqite_train.update_H(H_operator)
+
+        #Updating the ansatz parameters
+        ansatz=update_parameters(ansatz, init_params)
+        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
+        ansatz=update_parameters(ansatz, omega)
+
+        trace_circ=create_initialstate(ansatz)
+        DM=DensityMatrix.from_instruction(trace_circ)
+        PT=partial_trace(DM,tracing_q)
+        #TODO: Some better way to do this?
+        p_QBM=np.diag(PT.data).real.astype(float)
+        
+
+        #Computes the loss
+        loss=optim.cross_entropy_new(target_data,p_QBM)
+
+        print(f'P_QBM: {p_QBM}, Loss: {loss}')
+        #print(f'Loss: {loss, loss_list}')
+        norm=np.linalg.norm((target_data-p_QBM), ord=1)
+        #Appending loss and epochs
+        norm_list.append(norm)
+        loss_list.append(loss)
+
+        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
+        gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
+
+        optimizer.zero_grad()
+        H_coefficients.backward(torch.from_numpy(gradient_loss))
+        optimizer.step()
+
+    del optim
+    del varqite_train
+
+    if name:
+        np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss'+str(name), np.array(loss_list))
+        np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'norm'+str(name), np.array(norm_list))
+        #np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2), np.array(loss_list))
+

@@ -940,8 +940,8 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=100
-    optimizing_method='SGD'
+    epochs=10
+    optimizing_method='Adam'
 
     """
     [gate, value, qubit]
@@ -1038,7 +1038,11 @@ def main():
     #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
+    exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+
     #Find out how to run code for multiple cores
+
+    #Use best params with 10 seeds
     #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
     #Now the same thing with a network, maybe with different layers/nodes
     #Run it again with real computer?
@@ -1047,6 +1051,53 @@ def main():
     """
     #Fraud datasets
 
+    
+    """
+    list1=[]
+    for i in range(int(5e8)):
+        list1.append(i)
+
+    list2=[]
+    for i in range(int(1e9)):
+        list2.append(i)
+    """
+  
+    """
+    pid = os.fork()
+
+    if pid > 0 :
+        pid=os.fork()
+        if pid>0:
+            list3=[]
+            start1=time.time()
+            for i in range(int(5e8)):
+                list3.append(i)
+            print(f'time1: {time.time()-start1}')
+
+            print("\nI am child process:")
+            print("Process ID:", os.getpid())
+            print("Parent's process ID:", os.getppid())
+        else:
+            list1=[]
+            start2=time.time()
+            for i in range(int(5e8)):
+                list1.append(i)
+            print(f'time2: {time.time()-start2}')
+
+            print("I am parent process:")
+            print("Process ID:", os.getpid())
+            print("Child's process ID:", pid)
+    else:
+        list2=[]
+        start3=time.time()
+        for i in range(int(5e8)):
+            list2.append(i)
+        print(f'time3: {time.time()-start3}')
+        print("\nI am child process:")
+        print("Process ID:", os.getpid())
+        print("Parent's process ID:", os.getppid())
+    """
+    
 
 
     end_time=time.time()
