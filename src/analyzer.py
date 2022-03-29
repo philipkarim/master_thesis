@@ -1,4 +1,5 @@
 
+from cProfile import label
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,6 +8,28 @@ import seaborn as sns
 #sns.set_style("darkgrid")
 #plt.style.use('science')
 #x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
+
+
+import seaborn as sns
+import matplotlib
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
+sns.set_style("darkgrid")
+#print(plt.rcParams.keys())
+
+FIGWIDTH=4.71935 #From latex document
+FIGHEIGHT=FIGWIDTH/1.61803398875
+
+params = {'text.usetex' : True,
+          'font.size' : 10,
+          'font.family' : 'lmodern',
+          'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
+          'figure.dpi' : 1000.0,
+          #'text.latex.unicode': True,
+          }
+plt.rcParams.update(params)
+
 
 def plot_fraud():
     acc_train=np.load('results/fraud/acc_train_5050000509_40_samples_both_sets.npy', allow_pickle=True)
@@ -66,5 +89,40 @@ def plot_multiple_samples():
     #plt.savefig('30 epochs.png')
     plt.show()
 
-plot_fraud()
+def plot_lr_search():
+    loss=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20loss.npy', allow_pickle=True)
+    lr=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_exp.npy', allow_pickle=True)
+
+    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20loss_A2.npy', allow_pickle=True)
+    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_exp_A2.npy', allow_pickle=True)
+
+
+    #print(lr)
+    #print(lr_A1)
+
+    plt.figure()
+    plt.plot(range(0,len(lr_A1)), lr_A1, label=r'$H_1$')
+    plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
+    plt.xlabel('Iterations')
+    plt.ylabel('Learning rate')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('results/generative_learning/SGDitVSloss.png')
+    #plt.show()
+    plt.clf
+
+    plt.figure()
+    plt.plot(lr_A1, loss_A1, label=r'$H_1$')
+    plt.plot(lr, loss, label=r'$H_2$')
+    plt.xlabel('Learning rate')
+    plt.ylabel('Loss')
+    plt.xscale("log")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('results/generative_learning/SGDlrVSloss_exp.png')
+    #plt.show()
+
+
+plot_lr_search()
+#plot_fraud()
 #plot_multiple_samples()

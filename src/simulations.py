@@ -1,17 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import torch.optim as optim_torch
 import torch
-import seaborn as sns
 
 from varQITE import *
 from optimize_loss import optimize
 
-
-
-
+import seaborn as sns
+import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
@@ -28,7 +25,7 @@ params = {'text.usetex' : True,
           'figure.dpi' : 1000.0,
           #'text.latex.unicode': True,
           }
-plt.rcParams.update(params) 
+plt.rcParams.update(params)
 
 def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     """
@@ -359,8 +356,8 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
         plt.ylabel('Loss')
         plt.show()
     if name:
-        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss', np.array(loss_list))
-        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'lr_exp', np.array(lr_list))
+        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss_A2', np.array(loss_list))
+        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'lr_exp_A2', np.array(lr_list))
         #np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2), np.array(loss_list))
 
 
