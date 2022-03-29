@@ -356,8 +356,8 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
         plt.ylabel('Loss')
         plt.show()
     if name:
-        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss_A2', np.array(loss_list))
-        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'lr_exp_A2', np.array(lr_list))
+        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss'+str(name), np.array(loss_list))
+        np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'lr_exp'+str(name), np.array(lr_list))
         #np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2), np.array(loss_list))
 
 

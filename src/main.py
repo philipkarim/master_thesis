@@ -940,7 +940,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=200
+    epochs=100
     optimizing_method='SGD'
 
     """
@@ -1034,12 +1034,11 @@ def main():
     Generative learning
     """
     ## Remember to save all arrays in case i run it for a real quantum computer, then save.
-    #learning_rate_search(Ham1, ansatz1, 2, p_data1, n_steps=ite_steps, lr=0.1, name=True, optim_method=optimizing_method, plot=False)
-    #learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name=True, optim_method=optimizing_method, plot=False)
-    learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name=True, optim_method=optimizing_method, plot=False)
-
-    #Plot the thing from the article, increase learning rate for each iteration and plot loss- https://towardsdatascience.com/estimating-optimal-learning-rate-for-a-deep-neural-network-ce32f2556ce0
+    #learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
+    #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
+    
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
+    
     #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
     #Now the same thing with a network, maybe with different layers/nodes
     #Run it again with real computer?

@@ -99,19 +99,45 @@ def plot_lr_search():
 
     #print(lr)
     #print(lr_A1)
+    sma=1
+    skip=0
+
+    derivatives = [0] * (sma + 1)
+    for i in range(1 + sma, len(lr)):
+        derivative = (loss[i] - loss[i - sma]) / sma
+        derivatives.append(derivative)
+
+    print(min(derivatives), derivatives.index(min(derivatives)), lr[77])
+
+    derivatives2 = [0] * (sma + 1)
+    for i in range(1 + sma, len(lr_A1)):
+        derivative2 = (loss_A1[i] - loss_A1[i - sma]) / sma
+        derivatives2.append(derivative2)
+
+    print(min(derivatives2), derivatives2.index(min(derivatives2)), lr_A1[derivatives2.index(min(derivatives2))])
 
     plt.figure()
-    plt.plot(range(0,len(lr_A1)), lr_A1, label=r'$H_1$')
-    plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
+    plt.ylabel("d/loss")
+    plt.xlabel("learning rate (log scale)")
+    plt.plot(lr[skip:], derivatives[skip:])
+    plt.xscale('log')
+    plt.tight_layout()
+    plt.savefig('results/generative_learning/SGDdLVSlr.png')
+    plt.clf
+
+
+    plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
+    plt.plot(range(0,len(lr_A1)), lr_A1)
+    #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
     plt.xlabel('Iterations')
     plt.ylabel('Learning rate')
-    plt.legend()
+    #plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDitVSloss.png')
+    plt.savefig('results/generative_learning/SGDitVSloss_hs.png')
     #plt.show()
     plt.clf
 
-    plt.figure()
+    plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
     plt.plot(lr_A1, loss_A1, label=r'$H_1$')
     plt.plot(lr, loss, label=r'$H_2$')
     plt.xlabel('Learning rate')
@@ -119,10 +145,10 @@ def plot_lr_search():
     plt.xscale("log")
     plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDlrVSloss_exp.png')
+    plt.savefig('results/generative_learning/SGDlrVSloss_exp_SGDitVSloss_hs.png')
     #plt.show()
 
 
-plot_lr_search()
+#plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
