@@ -1038,7 +1038,7 @@ def main():
     #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
-    
+    #Find out how to run code for multiple cores
     #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
     #Now the same thing with a network, maybe with different layers/nodes
     #Run it again with real computer?
