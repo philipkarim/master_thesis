@@ -940,7 +940,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=10
+    epochs=3
     optimizing_method='Adam'
 
     """
@@ -1100,8 +1100,8 @@ def main():
     
 
 
-    end_time=time.time()
-    print(f'Final time: {end_time-start}')
+    #end_time=time.time()
+    #print(f'Final time: {end_time-start}')
 
     #find_best_alpha(10, np.logspace(-4,1,5))
 

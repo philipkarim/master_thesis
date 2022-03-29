@@ -368,43 +368,29 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     """
     #Testing with H1 first
     #4 optimization techniques, (0.7, 0.99) and (0.9 and 0.999), lr=0.2, 0.1, 0.05
-    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.7, m2=0.99, name='test', plot=False)
-
-    """
+    s=time.time()
+    #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name='test', plot=False)
+    e=time.time()
+    #print(f'Orig time: {e-s}')
+    
+    
     pid = os.fork()
-
     if pid > 0 :
         pid=os.fork()
         if pid>0:
-            list3=[]
-            start1=time.time()
-            for i in range(int(5e8)):
-                list3.append(i)
-            print(f'time1: {time.time()-start1}')
-
-            print("\nI am child process:")
-            print("Process ID:", os.getpid())
-            print("Parent's process ID:", os.getppid())
+            pid=os.fork()
+            if pid>0:
+                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name='test', plot=False)
+            else:
+                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.99, m2=0.999, name='test', plot=False)
         else:
-            list1=[]
-            start2=time.time()
-            for i in range(int(5e8)):
-                list1.append(i)
-            print(f'time2: {time.time()-start2}')
-
-            print("I am parent process:")
-            print("Process ID:", os.getpid())
-            print("Child's process ID:", pid)
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99, name='test', plot=False)
     else:
-        list2=[]
-        start3=time.time()
-        for i in range(int(5e8)):
-            list2.append(i)
-        print(f'time3: {time.time()-start3}')
-        print("\nI am child process:")
-        print("Process ID:", os.getpid())
-        print("Parent's process ID:", os.getppid())
-    """
+        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.7, m2=0.99, name='test', plot=False)
+
+    #print(f'Time paralell: {time.time()-e}')
+    #print('Done!')
+    
 
     
 
@@ -441,10 +427,10 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     
     time_intit=time.time()
     varqite_train.initialize_circuits()
-    print(f'initialization time: {time.time()-time_intit}')
+    #print(f'initialization time: {time.time()-time_intit}')
     
     for epoch in range(n_epochs):
-        print(f'epoch: {epoch}')
+        #print(f'epoch: {epoch}')
 
         #Updating the Hamiltonian parameters
         for term_H in range(len(H_operator)):
@@ -467,7 +453,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #Computes the loss
         loss=optim.cross_entropy_new(target_data,p_QBM)
 
-        print(f'P_QBM: {p_QBM}, Loss: {loss}')
+        #print(f'P_QBM: {p_QBM}, Loss: {loss}')
         #print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
         #Appending loss and epochs
