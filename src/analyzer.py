@@ -195,7 +195,7 @@ def plot_optim_search():
     #plt.rcParams['legend.fontsize'] = 12
 
     colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
-    ticks = ["*","1",".","s", "D"]
+    ticks = ["x","1",".","s", "D"]
 
     cat=[]
     for i in labels:
@@ -217,11 +217,13 @@ def plot_optim_search():
             temp.append(2)
         
         cat.append(temp)
+
+    
     
     plt.figure()
     for j, i in enumerate(arrays_loss):
-        plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=0.5, ms=2)
-
+        plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=1, ms=2)
+    
     plt.xlabel('Iterations')
     plt.ylabel('Loss')
     #plt.yscale("log")
@@ -233,13 +235,14 @@ def plot_optim_search():
     plt.clf
 
     plt.figure()
-    for i in arrays_norm:
-        plt.plot(epoch, i)
+    for j,i in enumerate(arrays_norm):
+        plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=1, ms=2)
 
     #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
     plt.xlabel('Iterations')
     plt.ylabel('Norm')
     #plt.yscale("log")
+    plt.legend(fontsize=5, prop={'size': 8})
 
     #plt.legend()
     plt.tight_layout()

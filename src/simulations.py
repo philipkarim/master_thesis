@@ -373,7 +373,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H1_real'
+    names='H2_real'
     
     pid = os.fork()
     if pid > 0 :
@@ -401,7 +401,10 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
                                                 if pid>0:
                                                     pid=os.fork()
                                                     if pid>0:
-                                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.99, m2=0.999, name=names, plot=False)
+                                                        if pid>0:
+                                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.8, m2=0.999, name=names, plot=False)
+                                                        else:
+                                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.99, m2=0.999, name=names, plot=False)
                                                     else:
                                                         train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='SGD', m1=0.99, m2=0.999, name=names, plot=False)
                                                 else:
@@ -425,9 +428,9 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
             else:
                 train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names, plot=False)
         else:
-            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names, plot=False)
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.7, m2=0.9, name=names, plot=False)
     else:
-        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.7, m2=0.99, name=names, plot=False)
+        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.9, m2=0.999, name=names, plot=False)
     
     #print(f'Time paralell: {time.time()-e}')
     #print('Done!')

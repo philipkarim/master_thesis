@@ -931,7 +931,6 @@ def find_hamiltonian(ansatz, steps, l_r, opt_met):
 
 
 
-
 def main():
     #np.random.seed(1357)
     np.random.seed(1111)
@@ -940,7 +939,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=100
+    epochs=2
     optimizing_method='Adam'
 
     """
@@ -1039,8 +1038,8 @@ def main():
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
-    #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-    exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+    exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
+    #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
     #Find out how to run code for multiple cores
 
