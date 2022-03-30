@@ -373,7 +373,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='test'
+    names='H1_real'
     
     pid = os.fork()
     if pid > 0 :
