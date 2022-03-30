@@ -1,5 +1,6 @@
 
 from cProfile import label
+from random import sample
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -160,11 +161,14 @@ def plot_optim_search():
                 ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],['Amsgrad','0.1','0.7','0.99'],
                 ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'], ['RMSprop','0.1','0.7','0'],
                 ['SGD','0.2','0','0'],  ['SGD','0.1','0','0'],  ['SGD','0.05','0','0']]
+
     else:
         labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'], 
             ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
             ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'],
             ['SGD','0.2','0','0'],  ['SGD','0.1','0','0'],  ['SGD','0.05','0','0']]
+        #labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999']]
+
     
     """
     names_loss=['Adamloss_lr0.1m10.9m20.999lossH1_real', 'Adamloss_lr0.2m10.9m20.999lossH1_real', 'Adamloss_lr0.05m10.9m20.999lossH1_real',
@@ -180,7 +184,6 @@ def plot_optim_search():
                 'RMSproploss_lr0.2m10.99m20normH1_real', 'RMSproploss_lr0.05m10.99m20normH1_real', 'SGDloss_lr0.1m10m20normH1_real',
                 'SGDloss_lr0.2m10m20normH1_real', 'SGDloss_lr0.05m10m20normH1_real']
     """
-
     for i in labels:
         arrays_loss.append(np.load('results/generative_learning/arrays/search/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'lossH1_real'+'.npy', allow_pickle=True))
         arrays_norm.append(np.load('results/generative_learning/arrays/search/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'normH1_real'+'.npy', allow_pickle=True))
@@ -188,15 +191,43 @@ def plot_optim_search():
     epoch=range(len(arrays_loss[0]))
 
     plt.figure()
-    for j, i in enumerate(arrays_loss):
-        plt.plot(epoch, i, label=labels[j][0])#+r'$\gamma='+labels[j][1])
+    
+    #plt.rcParams['legend.fontsize'] = 12
 
-    #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
+    colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
+    ticks = ["*","1",".","s", "D"]
+
+    cat=[]
+    for i in labels:
+        temp=[]
+        if i[0]=='Adam':
+            temp.append(0)
+        elif i[0]=='Amsgrad':
+            temp.append(1)
+        elif i[0]=='RMSprop':
+            temp.append(2)
+        elif i[0]=='SGD':
+            temp.append(3)
+        
+        if i[1]=='0.2':
+            temp.append(0)
+        elif i[1]=='0.1':
+            temp.append(1)
+        elif i[1]=='0.05':
+            temp.append(2)
+        
+        cat.append(temp)
+    
+    plt.figure()
+    for j, i in enumerate(arrays_loss):
+        plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=0.5, ms=2)
+
     plt.xlabel('Iterations')
     plt.ylabel('Loss')
     #plt.yscale("log")
 
-    plt.legend()
+    plt.legend(fontsize=5, prop={'size': 8})
+    #plt.legend()
     plt.tight_layout()
     plt.savefig('results/generative_learning/test_loss.png')
     plt.clf
