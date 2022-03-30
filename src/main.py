@@ -939,7 +939,7 @@ def main():
     number_of_seeds=1
     learningRate=0.1
     ite_steps=10
-    epochs=2
+    epochs=100
     optimizing_method='Adam'
 
     """
