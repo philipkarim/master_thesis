@@ -369,7 +369,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     #Testing with H1 first
     #4 optimization techniques, (0.7, 0.99) and (0.9 and 0.999), lr=0.2, 0.1, 0.05
     s=time.time()
-    #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name='test', plot=False)
+    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name='test', plot=False)
     e=time.time()
     #print(f'Orig time: {e-s}')
     
@@ -380,13 +380,53 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
         if pid>0:
             pid=os.fork()
             if pid>0:
-                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name='test', plot=False)
+                pid=os.fork()
+                if pid>0:
+                    pid=os.fork()
+                    if pid>0:
+                        pid=os.fork()
+                        if pid>0:
+                            pid=os.fork()
+                            if pid>0:
+                                pid=os.fork()
+                                if pid>0:
+                                    pid=os.fork()
+                                    if pid>0:
+                                        pid=os.fork()
+                                        if pid>0:
+                                            pid=os.fork()
+                                            if pid>0:
+                                                pid=os.fork()
+                                                if pid>0:
+                                                    pid=os.fork()
+                                                    if pid>0:
+                                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                                    else:
+                                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='SGD', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                                else:
+                                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='SGD', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                            else:
+                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='RMSprop', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                        else:
+                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                    else:
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.999, name='H2_s', plot=False)
+                                else:
+                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Adam', m1=0.9, m2=0.999, name='H2_s', plot=False)
+                            else:
+                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.9, m2=0.999, name='H2_s', plot=False)
+                        else:
+                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name='H2_s', plot=False)
+                    else:
+                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Amsgrad', m1=0.9, m2=0.999, name='H2_s', plot=False)
+                else:
+                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name='H2_s', plot=False)
             else:
-                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.99, m2=0.999, name='test', plot=False)
+                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.9, m2=0.999, name='H2_s', plot=False)
         else:
-            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99, name='test', plot=False)
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name='H2_s', plot=False)
     else:
-        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.7, m2=0.99, name='test', plot=False)
+        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.7, m2=0.99, name='H2_s', plot=False)
 
     #print(f'Time paralell: {time.time()-e}')
     #print('Done!')
@@ -430,7 +470,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     #print(f'initialization time: {time.time()-time_intit}')
     
     for epoch in range(n_epochs):
-        #print(f'epoch: {epoch}')
+        print(f'epoch: {epoch}')
 
         #Updating the Hamiltonian parameters
         for term_H in range(len(H_operator)):
@@ -463,8 +503,14 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
+        """
+        print(f'gradient: {gradient_loss}')
+        print(f'gradient_tensor: {torch.from_numpy(gradient_loss)}')
+        print(f'gradient_new: {torch.tensor(gradient_loss, dtype=torch.float64)}')
+        """
+
         optimizer.zero_grad()
-        H_coefficients.backward(torch.from_numpy(gradient_loss))
+        H_coefficients.backward(torch.tensor(gradient_loss, dtype=torch.float64))
         optimizer.step()
 
     del optim
