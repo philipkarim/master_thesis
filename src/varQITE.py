@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-12,-4,9), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         

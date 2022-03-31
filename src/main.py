@@ -933,8 +933,9 @@ def find_hamiltonian(ansatz, steps, l_r, opt_met):
 
 def main():
     #np.random.seed(1357)
-    np.random.seed(1111)
-    torch.manual_seed(0)
+    np.random.seed(321)
+    torch.manual_seed(321)
+    rz_add=False
 
     number_of_seeds=1
     learningRate=0.1
@@ -945,26 +946,38 @@ def main():
     """
     [gate, value, qubit]
     """
-    Ham1=       [[[1., 'z', 0]]]
-    ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-        
-    Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
-                [[0., 'z', 0]], [[0., 'z', 1]]]
-    ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+    if rz_add==False:
+        Ham1=       [[[1., 'z', 0]]]
+        ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
+            
+        Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0]], [[0., 'z', 1]]]
+        ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                    ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                    ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                    ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
-    Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-                        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
+        Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
+                            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
 
-    ansatz_gen_dis=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry', 0, 3],
-                    ['rz',0, 0], ['rz',0, 1], ['rz',0, 2], ['rz', 0, 3], 
-                    ['cx', 1,0], ['ry',np.pi/2, 0],        ['cx', 2, 1],
-                    ['rz',0, 0], ['ry', np.pi/2, 1],       ['cx', 3, 2],
-                    ['rz',0, 1], ['ry', 0, 2],['ry',0, 3], ['rz', 0, 2],
-                    ['rz',0, 3], ['cx', 0, 2],['cx', 1, 3]]
+        ansatz_gen_dis=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry', 0, 3],
+                        ['rz',0, 0], ['rz',0, 1], ['rz',0, 2], ['rz', 0, 3], 
+                        ['cx', 1,0], ['ry',np.pi/2, 0],        ['cx', 2, 1],
+                        ['rz',0, 0], ['ry', np.pi/2, 1],       ['cx', 3, 2],
+                        ['rz',0, 1], ['ry', 0, 2],['ry',0, 3], ['rz', 0, 2],
+                        ['rz',0, 3], ['cx', 0, 2],['cx', 1, 3]]
+    else:
+        Ham1=       [[[1., 'z', 0]]]
+        ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
+                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rx', 0, 2]]
+
+        Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
+                    [[0., 'z', 0]], [[0., 'z', 1]]]
+        ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
+                    ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                    ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
+                    ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3], ['rz', 0, 4]]
     
     #print(create_initialstate(ansatz_gen_dis))
     #exit()
@@ -1041,7 +1054,8 @@ def main():
     exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
-    #Find out how to run code for multiple cores
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=None, rz_add=rz_add)
+
 
     #Use best params with 10 seeds
     #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
