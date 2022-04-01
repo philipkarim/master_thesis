@@ -155,8 +155,8 @@ def plot_optim_search():
     """
     arrays_loss=[]
     arrays_norm=[]
-    all='RMS_vs_ams'
-    keyw='H2_real'
+    all='RMS_vs_ams2'
+    keyw='H2_real_new'
     if all=='all':
         labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'], 
                 ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],['Amsgrad','0.1','0.7','0.99'],
@@ -176,10 +176,10 @@ def plot_optim_search():
                 ['Amsgrad','0.1','0.7','0.9'], ['Amsgrad','0.1','0.6','0.9']]
 
     else:
-        labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'], 
-            ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
-            ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'],
-            ['SGD','0.05','0','0'],  ['SGD','0.1','0','0']]#,  ['SGD','0.05','0','0']]
+        labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'], ['Adam','0.01','0.9','0.999'],
+            ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'], ['Amsgrad','0.01','0.9','0.999'],
+            ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'], ['RMSprop','0.01','0.99','0'],
+            ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0'], ['SGD','0.01','0','0']]
         #labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999']]
 
     
@@ -215,6 +215,8 @@ def plot_optim_search():
                 temp.append(1)
             elif i[1]=='0.05':
                 temp.append(2)
+            elif i[1]=='0.01':
+                temp.append(3)
             cat.append(temp)
 
     elif all=='RMS':
@@ -255,6 +257,8 @@ def plot_optim_search():
                 temp.append(1)
             elif i[1]=='0.05':
                 temp.append(2)
+            elif i[1]=='0.01':
+                temp.append(3)
             cat.append(temp)
 
     
@@ -272,8 +276,7 @@ def plot_optim_search():
         plt.ylabel('Loss')
         #plt.yscale("log")
 
-        plt.legend(prop={'size': 6})
-        #plt.legend()
+        plt.legend(prop={'size': 4.5}, loc="upper left", ncol=4) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_loss.png')
         plt.clf
@@ -304,8 +307,8 @@ def plot_optim_search():
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
         plt.xlabel('Iterations')
         plt.ylabel('Loss')
-        plt.legend(prop={'size': 6})
-        plt.legend()
+        plt.legend(fontsize=4, prop={'size': 6}, loc=0)
+        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_rms_loss.png')
         plt.clf
@@ -316,9 +319,8 @@ def plot_optim_search():
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
         plt.xlabel('Iterations')
         plt.ylabel('Norm')
-        plt.legend(fontsize=4, prop={'size': 6})
-        #plt.legend(prop={'size': 6})
-        plt.legend()
+        plt.legend(fontsize=4, prop={'size': 6}, loc=0)
+        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_rms_norm.png')
         plt.clf
@@ -326,11 +328,11 @@ def plot_optim_search():
         plt.figure()
         for j, i in enumerate(arrays_loss):
             if labels[j][0]=='Amsgrad':
-                plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+r'$m_2=$'+labels[j][3])
+                plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+','+r'$m_2=$'+labels[j][3])
         plt.xlabel('Iterations')
         plt.ylabel('Loss')
-        plt.legend(prop={'size': 3})
-        plt.legend()
+        plt.legend(fontsize=4, prop={'size': 6}, loc=0)
+        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_ams_loss.png')
         plt.clf
@@ -338,10 +340,10 @@ def plot_optim_search():
         plt.figure()
         for j, i in enumerate(arrays_norm):
             if labels[j][0]=='Amsgrad':
-                plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+r'$m_2=$'+labels[j][3])
+                plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+','+r'$m_2=$'+labels[j][3])
         plt.xlabel('Iterations')
         plt.ylabel('Norm')
-        plt.legend(fontsize=3, prop={'size': 6}, loc=0)
+        plt.legend(prop={'size': 6}, loc=0)
         #plt.legend(prop={'size': 6})
         #plt.legend()
         
@@ -349,11 +351,80 @@ def plot_optim_search():
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_ams_norm.png')
         plt.clf
-            
-      
 
+def plot_three_sub():
+    """
+    Plotting exhaustive search of optimap parameters and learning parameters
+    """
+    arrays_loss=[]
+    keyw='H2_real_new'
+
+    labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'],
+            ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
+            ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'],
+            ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0']]
+    
+    for i in labels:
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
+
+    epoch=range(len(arrays_loss[0]))
+
+    
+    colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
+    ticks = ["x","1",".","s", "D"]
+
+    cat=[]
+
+    for i in labels:
+        temp=[]
+        if i[0]=='Adam':
+            temp.append(0)
+        elif i[0]=='Amsgrad':
+            temp.append(1)
+        elif i[0]=='RMSprop':
+            temp.append(2)
+        elif i[0]=='SGD':
+            temp.append(3)
+        
+        if i[1]=='0.2':
+            temp.append(0)
+        elif i[1]=='0.1':
+            temp.append(1)
+        elif i[1]=='0.05':
+            temp.append(2)
+        elif i[1]=='0.01':
+            temp.append(3)
+
+        cat.append(temp)
+
+        #plt.figure()
+    fig, axs = plt.subplots(3, sharex=True, sharey=True)
+
+    #plt.figure()
+    for j, i in enumerate(arrays_loss):
+        axs[cat[j][1]].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+        #axs[1].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+        #axs[2].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+    
+    fontsz=5
+    axs[0].set_title('$\gamma=$'+labels[0][1], fontsize=fontsz)
+    axs[1].set_title('$\gamma=$'+labels[1][1], fontsize=fontsz)
+    axs[2].set_title('$\gamma=$'+labels[2][1], fontsize=fontsz)
+
+    plt.xlabel('Iterations')
+    axs[0].set_ylabel('Loss')
+    axs[1].set_ylabel('Loss')
+    axs[2].set_ylabel('Loss')
+
+    plt.legend(prop={'size': 4.5}, loc="upper left", bbox_to_anchor=[1, 1])       #plt.legend()
+    plt.tight_layout()
+    plt.savefig('results/generative_learning/loss_3_sub.png')
+    plt.clf()
+
+    #Get legend to have optimizer names, increase the height and make the axis not be equal, and push the sublots together so it is not much space
 
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-plot_optim_search()
+#plot_optim_search()
+plot_three_sub()
