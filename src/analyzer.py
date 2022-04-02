@@ -398,15 +398,15 @@ def plot_three_sub():
         cat.append(temp)
 
         #plt.figure()
-    fig, axs = plt.subplots(3, sharex=True, sharey=True)
+    fig, axs = plt.subplots(3, sharex=True, sharey=False)
 
     #plt.figure()
     for j, i in enumerate(arrays_loss):
-        axs[cat[j][1]].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+        axs[cat[j][1]].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0], linewidth=1, ms=2)
         #axs[1].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
         #axs[2].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
     
-    fontsz=5
+    fontsz=8
     axs[0].set_title('$\gamma=$'+labels[0][1], fontsize=fontsz)
     axs[1].set_title('$\gamma=$'+labels[1][1], fontsize=fontsz)
     axs[2].set_title('$\gamma=$'+labels[2][1], fontsize=fontsz)
@@ -416,12 +416,18 @@ def plot_three_sub():
     axs[1].set_ylabel('Loss')
     axs[2].set_ylabel('Loss')
 
-    plt.legend(prop={'size': 4.5}, loc="upper left", bbox_to_anchor=[1, 1])       #plt.legend()
+    axs[0].legend(prop={'size': 6}, bbox_to_anchor=[1, 1], loc="upper left")   #plt.legend()
     plt.tight_layout()
+    
+    #plt.subplots_adjust(left=0.1,bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
+    plt.subplots_adjust(hspace=0.4)
+
     plt.savefig('results/generative_learning/loss_3_sub.png')
     plt.clf()
 
-    #Get legend to have optimizer names, increase the height and make the axis not be equal, and push the sublots together so it is not much space
+    #Get legend to have optimizer names
+    #increase the height and make the axis not be equal
+    #  and push the sublots together so it is not much space
 
 #plot_lr_search()
 #plot_fraud()
