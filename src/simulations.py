@@ -450,6 +450,8 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
 
     loss_list=[]
     norm_list=[]
+    pqbm_list=[]
+
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
     if rz_add==True:
@@ -508,7 +510,8 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
 
         #TODO: Some better way to do this?
         p_QBM=np.diag(PT.data).real.astype(float)
-        
+        pqbm_list.append(p_QBM)
+
         #Computes the loss
         loss=optim.cross_entropy_new(target_data,p_QBM)
 
@@ -542,7 +545,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     if name:
         np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'loss'+str(name), np.array(loss_list))
         np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'norm'+str(name), np.array(norm_list))
-        #np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2), np.array(loss_list))
+        np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'pqbm_list'+str(name), np.array(pqbm_list))
 
 
 def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
@@ -562,11 +565,6 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     init_c=np.zeros((n_seeds, len(H_operator)))
     for i in range(n_seeds):
         init_c[i]=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
-        print(init_c[i])
-
-
-    exit()
-
 
     pid=os.fork()
     if pid>0:
@@ -586,22 +584,22 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
                                 if pid>0:
                                     pid=os.fork()
                                     if pid>0:
-                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.01, optim_method='SGD', m1=0.8, m2=0.999, name=names+'seed0', init_coeff=init_c[0])
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed0', init_coeff=init_c[0])
                                     else:
-                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.8, m2=0.999, name=names+'seed1', init_coeff=init_c[1])
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed1', init_coeff=init_c[1])
                                 else:
-                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='SGD', m1=0.9, m2=0.999, name=names+'seed2', init_coeff=init_c[2])
+                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed2', init_coeff=init_c[2])
                             else:
-                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='SGD', m1=0.9, m2=0.99, name=names+'seed3', init_coeff=init_c[3])
+                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed3', init_coeff=init_c[3])
                         else:
-                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed4', init_coeff=init_c[4])
+                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed4', init_coeff=init_c[4])
                     else:
-                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed5', init_coeff=init_c[5])
+                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed5', init_coeff=init_c[5])
                 else:
-                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed6', init_coeff=init_c[6])
+                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed6', init_coeff=init_c[6])
             else:
-                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed7', init_coeff=init_c[7])
+                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed7', init_coeff=init_c[7])
         else:
-            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed8', init_coeff=init_c[8])
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed8', init_coeff=init_c[8])
     else:
-        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed9', init_coeff=init_c[9])
+        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed9', init_coeff=init_c[9])
