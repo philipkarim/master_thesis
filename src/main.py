@@ -937,11 +937,11 @@ def main():
     torch.manual_seed(321)
     rz_add=False
 
-    number_of_seeds=1
+    number_of_seeds=10
     learningRate=0.1
     ite_steps=10
     epochs=100
-    optimizing_method='Adam'
+    optimizing_method='Amsgrad'
 
     """
     [gate, value, qubit]
@@ -1051,8 +1051,8 @@ def main():
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
-    exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-    #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+    #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
+    final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
 
     #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=None, rz_add=rz_add)
 
@@ -1132,10 +1132,7 @@ if __name__ == "__main__":
 Thoughts:
 
 Todays list:
-    - Make lambda plots-Ridge
-    - Go through the TODO's, fix neural net automatization
-    - Generate target distributions plots
-    - htop
     - Paralellize code, mpi, fork slurp, spark
-    - Write code to produce different results
+    - Run seed
+    - Check if the real gradients are fed into the optimizer, like all 3?    
 """

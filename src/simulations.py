@@ -442,7 +442,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     
 
 
-def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', m1=0.7, m2=0.99, name=None, rz_add=False):
+def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=None, rz_add=False, init_coeff=None):
     """
     Training the model to reproduce the correct target distribution
     """    
@@ -455,9 +455,13 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     if rz_add==True:
         tracing_q=tracing_q[:-1]
         rotational_indices=rotational_indices[:-1]
+    
+    if isinstance(init_coeff, (np.ndarray, list)):    
+        H_coefficients = torch.tensor(init_coeff, requires_grad=True)
 
-    H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
-    H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
+    else:
+        H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
+        H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
     
     if optim_method=='SGD':
         optimizer = optim_torch.SGD([H_coefficients], lr=lr)
@@ -540,3 +544,64 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         np.save('results/generative_learning/arrays/search/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2)+'norm'+str(name), np.array(norm_list))
         #np.save('results/generative_learning/arrays/'+optim_method+'loss_lr'+str(lr)+'m1'+str(m1)+'m2'+str(m2), np.array(loss_list))
 
+
+def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
+    """
+    Computing multiple things, using various parameters and paralellization
+    """
+    #Testing with H1 first
+    #4 optimization techniques, (0.7, 0.99) and (0.9 and 0.999), lr=0.2, 0.1, 0.05
+    #s=time.time()
+    #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name='test', plot=False)
+    #e=time.time()
+    #print(f'Orig time: {e-s}')
+
+    names='H2_'
+    n_seeds=10
+
+    init_c=np.zeros((n_seeds, len(H_operator)))
+    for i in range(n_seeds):
+        init_c[i]=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
+        print(init_c[i])
+
+
+    exit()
+
+
+    pid=os.fork()
+    if pid>0:
+        pid=os.fork()
+        if pid>0:
+            pid=os.fork()
+            if pid>0:
+                pid=os.fork()
+                if pid>0:
+                    pid=os.fork()
+                    if pid>0:
+                        pid=os.fork()
+                        if pid>0:
+                            pid=os.fork()
+                            if pid>0:
+                                pid=os.fork()
+                                if pid>0:
+                                    pid=os.fork()
+                                    if pid>0:
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.01, optim_method='SGD', m1=0.8, m2=0.999, name=names+'seed0', init_coeff=init_c[0])
+                                    else:
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.8, m2=0.999, name=names+'seed1', init_coeff=init_c[1])
+                                else:
+                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='SGD', m1=0.9, m2=0.999, name=names+'seed2', init_coeff=init_c[2])
+                            else:
+                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='SGD', m1=0.9, m2=0.99, name=names+'seed3', init_coeff=init_c[3])
+                        else:
+                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed4', init_coeff=init_c[4])
+                    else:
+                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed5', init_coeff=init_c[5])
+                else:
+                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Adam', m1=0.9, m2=0.999, name=names+'seed6', init_coeff=init_c[6])
+            else:
+                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed7', init_coeff=init_c[7])
+        else:
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed8', init_coeff=init_c[8])
+    else:
+        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names+'seed9', init_coeff=init_c[9])
