@@ -603,3 +603,4 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
             train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed8', init_coeff=init_c[8])
     else:
         train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed9', init_coeff=init_c[9])
+

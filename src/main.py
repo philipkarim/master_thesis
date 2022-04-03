@@ -1060,9 +1060,7 @@ def main():
     
     """
     Discriminative learning- Fraud dataset
-    """
-    #Fraud datasets
-    
+    """    
     #TODO: Make code with fraud regular- With bias variance?
     #TODO: Make code with network- With bias variance?
 
@@ -1072,7 +1070,13 @@ def main():
 
     #TODO: Create code with Franke function to test
     #TODO: And also with mnist
+    """
+    Discriminative learning- Franke Function
+    """
 
+    """
+    Discriminative learning- MNIST
+    """
     
   
     """

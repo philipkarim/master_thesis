@@ -6,11 +6,9 @@ xrandr --output DP-1 --rotate right
 xrandr --output DP-1 --rotate normal
 
 xrandr --query to find the name of the monitors
-
 """
 import copy
 from dataclasses import replace
-from functools import lru_cache
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
