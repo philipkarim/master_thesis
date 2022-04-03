@@ -559,7 +559,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     #e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H2_'
+    names='H1_'
     n_seeds=10
 
     init_c=np.zeros((n_seeds, len(H_operator)))

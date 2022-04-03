@@ -1052,30 +1052,28 @@ def main():
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-    final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
+    #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
+    final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=None, rz_add=rz_add)
-
-
-    #Use best params with 10 seeds
-    #Then use the generative, learning thing for q1,q2,q3 and q3? With 10 seeds to see that everyone converges
-    #Now the same thing with a network, maybe with different layers/nodes
+    #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
     #Run it again with real computer?
+    
     """
     Discriminative learning
     """
     #Fraud datasets
+    
+    #TODO: Make code with fraud regular- With bias variance?
+    #TODO: Make code with network- With bias variance?
+
+    #TODO: What to do about the learning rates and stuff like that?
+    #TODO: Layers and node tests?
+    #TODO: Test for less samples?
+
+    #TODO: Create code with Franke function to test
+    #TODO: And also with mnist
 
     
-    """
-    list1=[]
-    for i in range(int(5e8)):
-        list1.append(i)
-
-    list2=[]
-    for i in range(int(1e9)):
-        list2.append(i)
-    """
   
     """
     pid = os.fork()
