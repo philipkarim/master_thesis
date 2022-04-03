@@ -1059,7 +1059,7 @@ def main():
     #Run it again with real computer?
     
     """
-    Discriminative learning
+    Discriminative learning- Fraud dataset
     """
     #Fraud datasets
     
