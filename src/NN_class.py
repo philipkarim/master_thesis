@@ -1,6 +1,9 @@
 import torch 
 import torch.nn as nn
 
+torch.manual_seed(1324)
+
+
 class Net(nn.Module):
     """
     Class: Neural network
@@ -9,22 +12,29 @@ class Net(nn.Module):
         super().__init__()
         self.layers = nn.Sequential()
         
-        index=0
+        indices=layer_list[1]
+        layer_list=layer_list[0]
+        #Adding layer of first 
+        self.layers.add_module('fc'+str(0),nn.Linear(len(sample), layer_list[indices[0]][0], bias=layer_list[indices[0]][1]))
+        
         #Adds linear layers according to the input list
-        for i in range(len(layer_list)-1):
+        for i in range(len(layer_list)):
             if layer_list[i][0]=='relu':
-                self.layers.add_module('relu+'+str(i+1),nn.ReLU())
+                self.layers.add_module('relu'+str(i+1),nn.ReLU())
             elif layer_list[i][0]=='sigmoid':
-                self.layers.add_module('sigmoid+'+str(i+1),nn.Sigmoid())
+                self.layers.add_module('sigmoid'+str(i+1),nn.Sigmoid())
             elif layer_list[i][0]=='elu':
-                self.layers.add_module('elu+'+str(i+1),nn.ELU())
+                self.layers.add_module('elu'+str(i+1),nn.ELU())
             elif layer_list[i][0]=='leakyrelu':
-                self.layers.add_module('leakyrelu+'+str(i+1),nn.LeakyReLU())
+                self.layers.add_module('leakyrelu'+str(i+1),nn.LeakyReLU())
             else:
-                self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i+1][0], bias=layer_list[i][1]))
+                #self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i+2][0], bias=layer_list[i][1]))
+                #TODO: Fix this 16 hardcoded thing
+                self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[1][0], layer_list[1][0], bias=layer_list[i][1]))
 
         #Add output layer
-        self.layers.add_module('fc'+str(len(layer_list)),nn.Linear(layer_list[-1][0], output_size, bias=0))
+        #TODO: HArdcoded it, but fix tomorrow after some sleep
+        self.layers.add_module('fc'+str(len(layer_list)),nn.Linear(layer_list[-2][0], output_size, bias=0))
         
     def forward(self, x):
         """
@@ -37,7 +47,11 @@ class Net(nn.Module):
                 Input x forwarded through the network
         """
 
-        x=torch.from_numpy(x).float()
+        #x=torch.from_numpy(x).float()
+        #TODO: Require grad=True?
+        x=torch.tensor(x).float()
+        ##H_coefficients = torch.tensor(init_coeff, requires_grad=True)
+
 
         return self.layers(x)
     

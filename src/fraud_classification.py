@@ -46,7 +46,7 @@ def bias_param(x, theta):
     return np.dot(x, theta)
 
 
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, nickname=None):
+def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, bias_val=0.01, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -136,10 +136,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     X_train=X_train[0:1]
     y_train=y_train[0:1]
 
-    print(f'y_train: {y_train}')
-    X_test=X_test[0:2]
-    y_test=y_test[0:2]
-
+    #print(f'y_train: {y_train}')
+    X_test=X_test[0:1]
+    y_test=y_test[0:1]
 
 
     #print(y_train[0:20])
@@ -151,10 +150,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #X_test=[]
     #y_test=[]
 
-    #TODO: double check if I should use the mean of y_train or X_train
-    #TODO: Is it really necessary to scale the target variables,
-    # when we are dealing with binary classification? 
-    #Doesnt hurt to test and see if it has any affect iguess
 
     #scaler=StandardScaler()
     #scaler.fit(y_train)
@@ -188,10 +183,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         #TODO: Add activation function?
         net=Net(network_coeff, X_train[0], n_hamilParameters)
 
-        print(net)
-
-        #Initialize weights
+        #print(net)
         net.apply(init_weights)
+
 
         #Floating the network parameters
         net = net.float()
@@ -302,7 +296,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #gradient if there is no need inside the var qite loop 
             if network_coeff is not None:
                 optimizer.zero_grad()
-                output_coef.backward(torch.from_numpy(gradient_loss))
+                output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
                 optimizer.step()
             else:     
                 new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
