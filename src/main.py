@@ -248,8 +248,6 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
     norm_list=[]
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
-    #print(tracing_q, rotational_indices, n_qubits_ansatz)
-
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
     varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
@@ -260,7 +258,6 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
-        #Stops, memory allocation??? How to check
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
 
@@ -278,7 +275,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         PT=partial_trace(DM,tracing_q)
         p_QBM=np.diag(PT.data).real.astype(float)
         
-        print(f'p_QBM: {p_QBM}')
+        #print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(target_data,p_QBM)
         print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
@@ -932,9 +929,9 @@ def find_hamiltonian(ansatz, steps, l_r, opt_met):
 
 
 def main():
-    #np.random.seed(1357)
-    np.random.seed(321)
-    torch.manual_seed(321)
+    np.random.seed(1357)
+    #np.random.seed(321)
+    torch.manual_seed(1357)
     rz_add=False
 
     number_of_seeds=10
@@ -953,6 +950,10 @@ def main():
             
         Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
                     [[0., 'z', 0]], [[0., 'z', 1]]]
+
+        Ham2=       [[[-0.8089016, 'z', 0], [-0.8089016, 'z', 1]], 
+                    [[ 0.8500074, 'z', 0]], [[-0.31285315, 'z', 1]]]
+
         ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
                     ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
                     ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
@@ -1053,7 +1054,9 @@ def main():
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
-    final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+    #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
     #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
     #Run it again with real computer?
@@ -1062,7 +1065,20 @@ def main():
     Discriminative learning- Fraud dataset
     """    
     #TODO: Make code with fraud regular- With bias variance?
+
     #TODO: Make code with network- With bias variance?
+    fraud_sim(1, ansatz2, 30, ite_steps, 0.1, optimizing_method)#000509_40_samples_both_sets')
+
+    #TODO: 
+    #   5 activations, (5)
+
+    #   with bias and (3)
+    #   without bias  (1)
+    #   different biases, 
+
+    #   different lr (4)
+    #   different sizes and nodes (?)
+    #   
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
@@ -1070,6 +1086,12 @@ def main():
 
     #TODO: Create code with Franke function to test
     #TODO: And also with mnist
+
+    #Run with all 3 hamiltonians
+
+    #NOW:
+    #Compare with the old script
+    #Test with same Hcoeff
     """
     Discriminative learning- Franke Function
     """
@@ -1077,6 +1099,10 @@ def main():
     """
     Discriminative learning- MNIST
     """
+
+
+    ###TASKS:
+    #Rerun the thing with seed, why is it bad? Try running on my own computer? Try running the old function which was much better
     
   
     """
@@ -1115,7 +1141,7 @@ def main():
         print("Parent's process ID:", os.getppid())
     """
     
-
+    #50 epochs
 
     #end_time=time.time()
     #print(f'Final time: {end_time-start}')

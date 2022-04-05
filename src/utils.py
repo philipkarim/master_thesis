@@ -167,7 +167,7 @@ def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=Fa
                         backend=backendtest,#qk.Aer.get_backend(backend),
                         shots=0,
                         optimization_level=0)
-            results = job.result()
+            result = job.result()
             """
             #Run or execute?
             result = backendtest.run(qc_circ).result()

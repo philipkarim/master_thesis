@@ -7,7 +7,7 @@ import os
 
 from varQITE import *
 from optimize_loss import optimize
-
+from fraud_classification import fraud_detection
 import seaborn as sns
 import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -454,24 +454,26 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
 
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
+
     if rz_add==True:
         tracing_q=tracing_q[:-1]
         rotational_indices=rotational_indices[:-1]
     
     if isinstance(init_coeff, (np.ndarray, list)):    
-        H_coefficients = torch.tensor(init_coeff, requires_grad=True)
-
+        ##H_coefficients = torch.tensor(init_coeff, requires_grad=True)
+        H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
-        H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
-    
+        ##H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
+
     if optim_method=='SGD':
         optimizer = optim_torch.SGD([H_coefficients], lr=lr)
         m1=0; m2=0
     elif optim_method=='Adam':
         optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2])
     elif optim_method=='Amsgrad':
-        optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2], amsgrad=True)
+        pass
+        ##optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2], amsgrad=True)
     elif optim_method=='RMSprop':
         optimizer = optim_torch.RMSprop([H_coefficients], lr=lr, alpha=m1)
         m2=0
@@ -489,14 +491,18 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
 
+        #print(f'H_op berfore paramchange {H_operator}')
         #Updating the Hamiltonian parameters
         for term_H in range(len(H_operator)):
             for qub in range(len(H_operator[term_H])):
-                H_operator[term_H][qub][0]=H_coefficients[term_H].item()
+                H_operator[term_H][qub][0]=H_coefficients[term_H]#.item()
         varqite_train.update_H(H_operator)
+        #print(f'H_op after paramchange {H_operator}')
 
         #Updating the ansatz parameters
+        
         ansatz=update_parameters(ansatz, init_params)
+        #print(ansatz)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
         ansatz=update_parameters(ansatz, omega)
 
@@ -529,15 +535,13 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
 
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
-        """
-        print(f'gradient: {gradient_loss}')
-        print(f'gradient_tensor: {torch.from_numpy(gradient_loss)}')
-        print(f'gradient_new: {torch.tensor(gradient_loss, dtype=torch.float64)}')
-        """
+        ##optimizer.zero_grad()
+        ##H_coefficients.backward(torch.tensor(gradient_loss, dtype=torch.float64))
+        ##optimizer.step()
 
-        optimizer.zero_grad()
-        H_coefficients.backward(torch.tensor(gradient_loss, dtype=torch.float64))
-        optimizer.step()
+        
+        H_coefficients=optim.adam(H_coefficients, gradient_loss)
+
 
     del optim
     del varqite_train
@@ -603,4 +607,12 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
             train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed8', init_coeff=init_c[8])
     else:
         train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, name=names+'seed9', init_coeff=init_c[9])
+
+
+def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
+
+    nc=[['relu'], [16,0],['relu'],[16,0],['relu']] 
+    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, nickname='test')
+
+
 

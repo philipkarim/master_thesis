@@ -9,12 +9,20 @@ class Net(nn.Module):
         super().__init__()
         self.layers = nn.Sequential()
         
-        #Adding layer of first 
-        self.layers.add_module('fc'+str(0),nn.Linear(len(sample), layer_list[0][0], bias=layer_list[0][1]))
+        index=0
         #Adds linear layers according to the input list
         for i in range(len(layer_list)-1):
-            self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i+1][0], bias=layer_list[i][1]))
-        
+            if layer_list[i][0]=='relu':
+                self.layers.add_module('relu+'+str(i+1),nn.ReLU())
+            elif layer_list[i][0]=='sigmoid':
+                self.layers.add_module('sigmoid+'+str(i+1),nn.Sigmoid())
+            elif layer_list[i][0]=='elu':
+                self.layers.add_module('elu+'+str(i+1),nn.ELU())
+            elif layer_list[i][0]=='leakyrelu':
+                self.layers.add_module('leakyrelu+'+str(i+1),nn.LeakyReLU())
+            else:
+                self.layers.add_module('fc'+str(i+1),nn.Linear(layer_list[i][0], layer_list[i+1][0], bias=layer_list[i][1]))
+
         #Add output layer
         self.layers.add_module('fc'+str(len(layer_list)),nn.Linear(layer_list[-1][0], output_size, bias=0))
         

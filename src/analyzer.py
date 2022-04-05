@@ -425,10 +425,37 @@ def plot_three_sub():
     plt.savefig('results/generative_learning/loss_3_sub.png')
     plt.clf()
 
-    #Get legend to have optimizer names
-    #increase the height and make the axis not be equal
-    #  and push the sublots together so it is not much space
+def plot_finale_seeds():
+    """
+    Plotting exhaustive search of optimap parameters and learning parameters
+    """
+    keyw='H2_10seeds'
 
+    labels=['Amsgrad','0.1','0.7','0.99']
+    arrays_loss=[]
+    
+    for i in range(10):
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+labels[0]+'loss_lr'+labels[1]+'m1'+labels[2]+'m2'+labels[3]+'lossH2_seed'+str(i)+'.npy', allow_pickle=True))
+
+    epoch=range(len(arrays_loss[0]))
+    
+    colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
+    ticks = ["x","1",".","s", "D"]
+
+
+    plt.figure()
+    for j, i in enumerate(arrays_loss):
+        plt.plot(epoch, i)
+        #axs[1].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+        #axs[2].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+    
+    plt.xlabel('Iterations')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    plt.savefig('results/generative_learning/loss_H2_10seeds.png')
+    plt.clf()
+
+plot_finale_seeds()
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()

@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-12,-4,9), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -241,6 +241,7 @@ class varQITE:
                 #lambdas_list=np.logspace(-10,-4,7)
                 loss=1e8
 
+
                 for lmb in range(len(self.lmbs)):
                     #TODO: Fix this a bit more cool with max 1 if statement
                     #model_R=globals()[reg_method]()
@@ -254,6 +255,10 @@ class varQITE:
                         final_lmb=self.lmbs[lmb]
                         loss=loss_temp
                 
+
+                #final_lmb=self.lmbs[0]
+
+                #print(f'Final lmb {final_lmb}')
                 #Using the final alpha
                 model_R = Ridge(final_lmb)
                 model_R.fit(A_mat, C_vec)
@@ -284,7 +289,7 @@ class varQITE:
                 #Preparing the gradient states
                 dA_mat=self.getdA_bound(omega_w)
 
-                for i in range(len(self.hamil)):                    
+                for i in range(len(self.hamil)):                  
                     dC_vec=self.getdC_bound(i, omega_w)
 
                     if isinstance(self.lmbs, (np.ndarray, list)):
@@ -302,10 +307,14 @@ class varQITE:
                                 final_lmb=self.lmbs[lmb]
                                 loss=loss_temp
                         
-                        #Using the final alpha
+                        #final_lmb=self.lmbs[0]
+
                         model_R = Ridge(final_lmb)
                         model_R.fit(A_mat, rh_side)
                         w_dtheta_dt=model_R.coef_
+
+                        #print(f'Final lmb, grad:  {final_lmb}')
+
 
                     elif self.reg_method=='ridge':
                         #Ridge regression
@@ -538,7 +547,7 @@ class varQITE:
         
         getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
 
-        if first<sec:
+        if first==39.1:
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 if ii in self.rot_indexes:

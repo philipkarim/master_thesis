@@ -133,12 +133,12 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[12:14]
-    y_train=y_train[12:14]
+    X_train=X_train[0:1]
+    y_train=y_train[0:1]
 
     print(f'y_train: {y_train}')
-    X_test=X_test[0:30]
-    y_test=y_test[0:30]
+    X_test=X_test[0:2]
+    y_test=y_test[0:2]
 
 
 
@@ -148,8 +148,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
-    X_test=[]
-    y_test=[]
+    #X_test=[]
+    #y_test=[]
 
     #TODO: double check if I should use the mean of y_train or X_train
     #TODO: Is it really necessary to scale the target variables,
@@ -183,19 +183,12 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     if network_coeff is not None:
         #TODO: Remember net.eval() when testing
 
-        """
-        #input, output, bias
-        layers=[[2,1,0],[1,2,0]]
-        np_array=np.array([2,2])
-        np_array=torch.from_numpy(np_array)
-        np_array=np_array.float()
-        """
 
         #Initializing the network
         #TODO: Add activation function?
         net=Net(network_coeff, X_train[0], n_hamilParameters)
 
-        #print(net)
+        print(net)
 
         #Initialize weights
         net.apply(init_weights)
@@ -227,10 +220,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
     
     varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=True)
-
-    init_circs=time.time()
     varqite_train.initialize_circuits()
-    print(f'Time initializing the circuits: {time.time()-init_circs}')
 
     loss_mean=[]
     loss_mean_test=[]
@@ -239,6 +229,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     acc_score_test=[]
 
     for epoch in range(n_epochs):
+        start_time=time.time()
         print(f'Epoch: {epoch}/{n_epochs}')
 
         #Lists to save the predictions of the epoch
@@ -294,9 +285,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             #loss=-np.sum(p_data*np.log(p_BM))
 
-            print(f'Sample: {i}/{len(X_train)}')
+            #print(f'Sample: {i}/{len(X_train)}')
             print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
-            print(f'p_QBM: {p_QBM}, target: {target_data}')
+            #print(f'p_QBM: {p_QBM}, target: {target_data}')
 
             #Appending loss and epochs
             loss_list.append(loss)
@@ -305,7 +296,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #automaticly by changing the utilized variable function
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-            print(f'gradient_loss: {gradient_loss}')        
+            #print(f'gradient_loss: {gradient_loss}')        
 
             #TODO: fix when diagonal elemetns, also do not compute the
             #gradient if there is no need inside the var qite loop 
@@ -326,46 +317,52 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         print(f'Epoch complete: mean loss list= {loss_mean}')
         print(f'Epoch complete: AS train list= {acc_score_train}')
         print(f'Epoch complete: Hamiltomian= {hamiltonian}')
-
+        print(f'Train 1 sample: {time.time()-start_time}')
         print('Testing model on test data')
 
         #Creating the correct hamiltonian with the input data as bias
         loss_list=[]
-        for i,sample in enumerate(X_test):
-            #Updating the Hamiltonian with the correct parameters
-            #TODO: Techniquily(looks weird written) should not be updatet here, but rather before each thing, so the
-            #test samples doesnt lay 1 epoch ahead
-            for term_H in range(n_hamilParameters):
-                for qub in range(len(hamiltonian[term_H])):
-                    hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
+        #net.eval()
+        with torch.no_grad():
+            for i,sample in enumerate(X_test):
+                if network_coeff is not None:
+                    #Network parameters
+                    output_coef=net(sample)
+                    for term_H in range(n_hamilParameters):
+                        for qub in range(len(hamiltonian[term_H])):
+                            hamiltonian[term_H][qub][0]=output_coef[term_H]
+                else:
+                    for term_H in range(n_hamilParameters):
+                        for qub in range(len(hamiltonian[term_H])):
+                            hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
-            #Updating the hamitlonian
-            varqite_train.update_H(hamiltonian)
-            ansatz=update_parameters(ansatz, init_params)
-            omega, not_used=varqite_train.state_prep(gradient_stateprep=True)
-            ansatz=update_parameters(ansatz, omega)
-            trace_circ=create_initialstate(ansatz)
+                #Updating the hamitlonian
+                varqite_train.update_H(hamiltonian)
+                ansatz=update_parameters(ansatz, init_params)
+                omega, not_used=varqite_train.state_prep(gradient_stateprep=True)
+                ansatz=update_parameters(ansatz, omega)
+                trace_circ=create_initialstate(ansatz)
 
-            DM=DensityMatrix.from_instruction(trace_circ)
-            PT=partial_trace(DM,tracing_q)
-            p_QBM = PT.probabilities([0])
+                DM=DensityMatrix.from_instruction(trace_circ)
+                PT=partial_trace(DM,tracing_q)
+                p_QBM = PT.probabilities([0])
 
-            target_data=np.zeros(2)
-            target_data[y_test[i]]=1
-            
-            loss=optim.fraud_CE(target_data,p_QBM)
-            loss_list.append(loss)
-            #TODO: Rewrite for multiclass classification
-            #Appending predictions and compute
-            test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
+                target_data=np.zeros(2)
+                target_data[y_test[i]]=1
+                
+                loss=optim.fraud_CE(target_data,p_QBM)
+                loss_list.append(loss)
+                #TODO: Rewrite for multiclass classification
+                #Appending predictions and compute
+                test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
 
-            print(f'Sample: {i}/{len(X_test)}')
-            print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
-            print(f'p_QBM: {p_QBM}, target: {target_data}')
+                print(f'Sample: {i}/{len(X_test)}')
+                print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
+                print(f'p_QBM: {p_QBM}, target: {target_data}')
 
-        #Computes the test scores regarding the test set:
-        acc_score_test.append(accuracy_score(y_test,test_pred_epoch))
-        loss_mean_test.append(np.mean(loss_list))
+            #Computes the test scores regarding the test set:
+            acc_score_test.append(accuracy_score(y_test,test_pred_epoch))
+            loss_mean_test.append(np.mean(loss_list))
 
     
     del optim
@@ -373,10 +370,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
     #Save the scores
     if nickname is not None:
-        np.save('results/fraud/acc_test_5050'+nickname+'.npy', np.array(acc_score_test))
-        np.save('results/fraud/acc_train_5050'+nickname+'.npy', np.array(acc_score_train))
-        np.save('results/fraud/loss_test_5050'+nickname+'.npy', np.array(loss_mean_test))
-        np.save('results/fraud/loss_train_5050'+nickname+'.npy', np.array(loss_mean))
+        np.save('results/disc_learning/acc_test_5050'+nickname+'.npy', np.array(acc_score_test))
+        np.save('results/disc_learning/acc_train_5050'+nickname+'.npy', np.array(acc_score_train))
+        np.save('results/disc_learning/loss_test_5050'+nickname+'.npy', np.array(loss_mean_test))
+        np.save('results/disc_learning/loss_train_5050'+nickname+'.npy', np.array(loss_mean))
 
 
     return 
