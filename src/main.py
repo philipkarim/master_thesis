@@ -1061,9 +1061,15 @@ def main():
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff=[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
 
+    #TODO: Okay new plan:
+    #Reproduce the results with increasing learning rate
+    #Do the same computations as you did with finding the best optimizers, and then find the best learning rate
+    # Then Recompute the shit that is being computed right now, but with another thing instead
 
     
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
+
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
 
@@ -1076,7 +1082,7 @@ def main():
     #TODO: Make code with fraud regular- With bias variance?
 
     #TODO: Make code with network- With bias variance?
-    fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    #fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
 
     #TODO: 
     #   5 activations, (5)
@@ -1099,10 +1105,12 @@ def main():
 
     #Run with all 3 hamiltonians
 
-    #NOW:
-    # 
-    # With bias, different sizes and learning rates and activation functions
-
+    ###TASKS:
+    
+    # Start plot of franke function
+    # Run with MNIST 4 samples?
+    # Find best seed values
+    # Plot the results created
 
 
     """
@@ -1114,8 +1122,6 @@ def main():
     """
 
 
-    ###TASKS:
-    #Rerun the thing with seed, why is it bad? Try running on my own computer? Try running the old function which was much better
     
   
     """

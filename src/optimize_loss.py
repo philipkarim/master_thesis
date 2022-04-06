@@ -303,7 +303,7 @@ class optimize:
                 
                 trace_right=create_initialstate(params_right_shift)
                 trace_left=create_initialstate(params_left_shift)
-                #TODO: run this or just trace it?
+
                 DM_right=DensityMatrix.from_instruction(trace_right)
                 DM_left=DensityMatrix.from_instruction(trace_left)
 

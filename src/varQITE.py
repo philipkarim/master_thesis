@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-12,-4,9), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-12,-4,9), reg='ridge', symmetrix_matrices=False, plot_fidelity=False):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -71,12 +71,6 @@ class varQITE:
         self.plot_fidelity=plot_fidelity
         if self.plot_fidelity==True:
             self.plot_fidelity_list=[]
-
-        if alpha!=None:
-            self.alpha=alpha
-        else:
-            #0.0005 is good with Lasso
-            self.alpha=0.001
 
     
     def initialize_circuits(self):
@@ -190,12 +184,7 @@ class varQITE:
         C_vec=zeros_like(self.rot_indexes, dtype='float64')
 
         for t in np.linspace(self.time_step, self.maxTime, num=self.steps):
-            #print(f'VarQITE steps: {np.around(t, decimals=2)}/{self.maxTime}')
-
             #Expression A: Binds the parameters to the circuits
-            
-
-            #time_A=time.time()
             if self.symmetrix_matrices==True:
                 for i_a in range(len(self.rot_indexes)):
                     for j_a in range(i_a+1):
@@ -208,32 +197,16 @@ class varQITE:
                     for j_a in range(len(self.rot_indexes)):
                         #Just the circuits
                         A_mat[i_a][j_a]=run_circuit(self.A_init[i_a][j_a].bind_parameters\
-                            (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)            
-
-            #print(A_mat)
-            #exit()
-
-            #print(f'Matrix A symmetric?: {np.allclose(A_mat, A_mat.T, rtol=1e-5, atol=1e-8)}')
+                            (omega_w[self.rot_indexes][:len(self.A_init[i_a][j_a].parameters)]), statevector_test=True)
 
             A_mat*=0.25
-
-            #print(f'Time to prepare A: {time.time()-time_A}')
             
-            #time_C=time.time()
-
             for i_c in range(len(self.hamil)):
                 for j_c in range(len(self.rot_indexes)):
                     C_vec[j_c]+=self.hamil[i_c][0][0]*run_circuit(self.C_init[i_c][j_c].\
                     bind_parameters(omega_w[self.rot_indexes][:len(self.C_init[i_c][j_c].parameters)]), statevector_test=True)
             
-            #-1 gives higher than 1 fidelity 
             C_vec*=-0.5
-
-            #print(C_vec)
-            #exit()
-            #print(f'Time to prepare C: {time.time()-time_C}')
-            #print(A_mat)
-            #time_invert=time.time()
 
             if isinstance(self.lmbs, (np.ndarray, list)):
                 #Compute multiple lambdas, and choose the one wiht lowest loss
@@ -241,10 +214,8 @@ class varQITE:
                 #lambdas_list=np.logspace(-10,-4,7)
                 loss=1e8
 
-
                 for lmb in range(len(self.lmbs)):
                     #TODO: Fix this a bit more cool with max 1 if statement
-                    #model_R=globals()[reg_method]()
                     #model_R=globals()[reg_method](alpha=lambdas_list[lmb])()
                     model_R = Ridge(alpha=self.lmbs[lmb])
                     model_R.fit(A_mat, C_vec)
@@ -263,6 +234,8 @@ class varQITE:
                 model_R = Ridge(final_lmb)
                 model_R.fit(A_mat, C_vec)
                 omega_derivative_temp=model_R.coef_
+
+                del model_R
 
             elif self.reg_method=='ridge':
                 #Ridge regression
@@ -313,8 +286,9 @@ class varQITE:
                         model_R.fit(A_mat, rh_side)
                         w_dtheta_dt=model_R.coef_
 
-                        #print(f'Final lmb, grad:  {final_lmb}')
+                        del model_R
 
+                        #print(f'Final lmb, grad:  {final_lmb}')
 
                     elif self.reg_method=='ridge':
                         #Ridge regression
@@ -335,7 +309,7 @@ class varQITE:
                         
                     self.dwdth[i][self.rot_indexes]+=w_dtheta_dt*self.time_step
 
-            omega_w+=(omega_derivative*self.time_step)
+            omega_w+=omega_derivative*self.time_step
             
             if self.plot_fidelity==True:
                 self.plot_fidelity_list.append(np.copy(omega_w))
@@ -348,7 +322,7 @@ class varQITE:
     def update_H(self, new_H):
         self.hamil=new_H
 
-        return
+
     #@jit(nopython=True)
     def get_A_from_init(self):
 
@@ -547,7 +521,7 @@ class varQITE:
         
         getattr(temp_circ, 'c'+self.trial_circ[first][0][-1])(0,1+self.trial_circ[first][2])
 
-        if first==39.1:
+        if first==39.1: #<sec
             #Continue the U_i gate:
             for ii, jj in enumerate(self.rot_loop[first:sec], start=first):
                 if ii in self.rot_indexes:
@@ -578,9 +552,9 @@ class varQITE:
                 getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
 
         
-        #temp_circ.x(0)
+        temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
-        #temp_circ.x(0)
+        temp_circ.x(0)
 
         temp_circ.h(0)
         #TODO add this
@@ -644,9 +618,9 @@ class varQITE:
 
             getattr(temp_circ, self.trial_circ[k][0])(name, 1+self.trial_circ[k][2])
 
-        #temp_circ.x(0)
+        temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[fir][0][-1])(0,1+self.trial_circ[fir][2])
-        #temp_circ.x(0)
+        temp_circ.x(0)
 
         temp_circ.h(0)
         #temp_circ.measure(0, 0)
@@ -793,7 +767,8 @@ class varQITE:
         #da_run=time.time()
         
         """
-        This loop right here needs to be computed faster
+        This loop right here is what takes the most time, due to the time it takes to run all
+        the circuits
         """
         for p_da in range(len(self.rot_indexes)):
             for q_da in range(len(self.rot_indexes)):
@@ -825,7 +800,7 @@ class varQITE:
                             dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
         #TODO: Changed from negative to positive
-        dA*=0.125
+        dA*=-0.125
         #print(f'Time to compute dA circs{time.time()-da_compute}')
 
         return dA
@@ -838,6 +813,7 @@ class varQITE:
             dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].bind_parameters(binding_values[self.rot_indexes]\
                                                 [:len(self.C_init[i_th][j_p].parameters)]),statevector_test=True)
             
+            #Something changes inside the loop?
             for i_dc in range(len(self.hamil)):
                 for s_dc in range(len(self.rot_indexes)):
                     #This looks really ugly
@@ -848,9 +824,8 @@ class varQITE:
                     term2_temp=run_circuit(self.dC_init[i_dc][j_p][s_dc][1]\
                     .bind_parameters(binding_values[self.rot_indexes]\
                     [:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]), statevector_test=True)
+
                     dC_i[j_p]-=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
-        
-        #print(dC_i)
 
         return dC_i
 

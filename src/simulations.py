@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import torch.optim as optim_torch
 import torch
+import torch.nn.functional as F
 import os
 
 from varQITE import *
@@ -464,7 +465,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         H_coefficients = torch.tensor(init_coeff, requires_grad=True)
         #H_coefficients=init_coeff
     else:
-        H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
+        H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
 
         #H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
@@ -527,6 +528,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         print(f'P_QBM: {p_QBM}, Loss: {loss}')
         print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
+
         #Appending loss and epochs
         norm_list.append(norm)
         loss_list.append(loss)
