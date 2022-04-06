@@ -929,9 +929,9 @@ def find_hamiltonian(ansatz, steps, l_r, opt_met):
 
 
 def main():
-    np.random.seed(1357)
+    np.random.seed(2022)
     #np.random.seed(321)
-    torch.manual_seed(1357)
+    torch.manual_seed(2022)
     rz_add=False
 
     number_of_seeds=10
@@ -951,8 +951,8 @@ def main():
         Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
                     [[0., 'z', 0]], [[0., 'z', 1]]]
 
-        Ham2=       [[[-0.8089016, 'z', 0], [-0.8089016, 'z', 1]], 
-                    [[ 0.8500074, 'z', 0]], [[-0.31285315, 'z', 1]]]
+        #Ham2=       [[[ 0.9595, 'z', 0], [ 0.9595, 'z', 1]], 
+        #            [[ 0.0943, 'z', 0]], [[-0.0039, 'z', 1]]]
 
         ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
                     ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
@@ -1055,8 +1055,17 @@ def main():
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
+    
+
+    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff=[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+
+
+    
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
+
 
     #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
     #Run it again with real computer?
@@ -1067,7 +1076,7 @@ def main():
     #TODO: Make code with fraud regular- With bias variance?
 
     #TODO: Make code with network- With bias variance?
-    fraud_sim(1, ansatz2, 30, ite_steps, 0.1, optimizing_method)#000509_40_samples_both_sets')
+    fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
 
     #TODO: 
     #   5 activations, (5)
@@ -1079,6 +1088,7 @@ def main():
     #   different lr (4)
     #   different sizes and nodes (?)
     #   
+   
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
@@ -1090,8 +1100,11 @@ def main():
     #Run with all 3 hamiltonians
 
     #NOW:
-    #Compare with the old script
-    #Test with same Hcoeff
+    # 
+    # With bias, different sizes and learning rates and activation functions
+
+
+
     """
     Discriminative learning- Franke Function
     """

@@ -46,7 +46,7 @@ def bias_param(x, theta):
     return np.dot(x, theta)
 
 
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, bias_val=0.01, nickname=None):
+def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -133,13 +133,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train[9:19])
 
     #TODO: Remove this when the thing work
-    X_train=X_train[0:1]
-    y_train=y_train[0:1]
+    X_train=X_train[60:100]
+    y_train=y_train[60:100]
 
     #print(f'y_train: {y_train}')
-    X_test=X_test[0:1]
-    y_test=y_test[0:1]
+    X_test=X_test[20:60]
+    y_test=y_test[20:60]
 
+    #print(y_train, y_test)
 
     #print(y_train[0:20])
     #X_train=np.array([X_train[16]])
@@ -186,7 +187,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         #print(net)
         net.apply(init_weights)
 
-
         #Floating the network parameters
         net = net.float()
 
@@ -197,13 +197,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         elif opt_met=='Adam':
             optimizer = optim_torch.Adam(net.parameters(), lr=lr)
         elif opt_met=='Amsgrad':
-            optimizer = optim_torch.Adam(net.parameters(), lr=lr, amsgrad=True)
+            optimizer = optim_torch.Adam(net.parameters(), lr=lr, betas=[0.7, 0.99],amsgrad=True)
+
         else:
             print('optimizer not defined')
             exit()
 
         H_parameters=net(X_train[0])
-        print(f'Hamiltonian params: {H_parameters}')
+        #print(f'Hamiltonian params: {H_parameters}')
 
     else:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
@@ -224,7 +225,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
     for epoch in range(n_epochs):
         start_time=time.time()
-        print(f'Epoch: {epoch}/{n_epochs}')
+        #print(f'Epoch: {epoch}/{n_epochs}')
 
         #Lists to save the predictions of the epoch
         train_acc_epoch=[]
@@ -280,7 +281,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #loss=-np.sum(p_data*np.log(p_BM))
 
             #print(f'Sample: {i}/{len(X_train)}')
-            print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
+            #print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
             #print(f'p_QBM: {p_QBM}, target: {target_data}')
 
             #Appending loss and epochs
@@ -308,11 +309,11 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         loss_mean.append(np.mean(loss_list))
         acc_score_train.append(accuracy_score(y_train,train_pred_epoch))
 
-        print(f'Epoch complete: mean loss list= {loss_mean}')
-        print(f'Epoch complete: AS train list= {acc_score_train}')
-        print(f'Epoch complete: Hamiltomian= {hamiltonian}')
-        print(f'Train 1 sample: {time.time()-start_time}')
-        print('Testing model on test data')
+        #print(f'Epoch complete: mean loss list= {loss_mean}')
+        #print(f'Epoch complete: AS train list= {acc_score_train}')
+        #print(f'Epoch complete: Hamiltomian= {hamiltonian}')
+        #print(f'1 training epoch: {time.time()-start_time}')
+        #print('Testing model on test data')
 
         #Creating the correct hamiltonian with the input data as bias
         loss_list=[]
@@ -350,9 +351,9 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
                 #Appending predictions and compute
                 test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
 
-                print(f'Sample: {i}/{len(X_test)}')
-                print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
-                print(f'p_QBM: {p_QBM}, target: {target_data}')
+                #print(f'Sample: {i}/{len(X_test)}')
+                #print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
+                print(f'Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
             #Computes the test scores regarding the test set:
             acc_score_test.append(accuracy_score(y_test,test_pred_epoch))
@@ -364,10 +365,10 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
     #Save the scores
     if nickname is not None:
-        np.save('results/disc_learning/acc_test_5050'+nickname+'.npy', np.array(acc_score_test))
-        np.save('results/disc_learning/acc_train_5050'+nickname+'.npy', np.array(acc_score_train))
-        np.save('results/disc_learning/loss_test_5050'+nickname+'.npy', np.array(loss_mean_test))
-        np.save('results/disc_learning/loss_train_5050'+nickname+'.npy', np.array(loss_mean))
+        np.save('results/disc_learning/acc_test'+nickname+'.npy', np.array(acc_score_test))
+        np.save('results/disc_learning/acc_train'+nickname+'.npy', np.array(acc_score_train))
+        np.save('results/disc_learning/loss_test'+nickname+'.npy', np.array(loss_mean_test))
+        np.save('results/disc_learning/loss_train'+nickname+'.npy', np.array(loss_mean))
 
 
     return 

@@ -375,6 +375,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
 
     names='H2_real_new'
     
+    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
     pid = os.fork()
     if pid > 0 :
         pid=os.fork()
@@ -460,11 +461,15 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         rotational_indices=rotational_indices[:-1]
     
     if isinstance(init_coeff, (np.ndarray, list)):    
-        ##H_coefficients = torch.tensor(init_coeff, requires_grad=True)
-        H_coefficients=init_coeff
+        H_coefficients = torch.tensor(init_coeff, requires_grad=True)
+        #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
-        ##H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
+
+        #H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
+        H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
+
+        print(H_coefficients)
 
     if optim_method=='SGD':
         optimizer = optim_torch.SGD([H_coefficients], lr=lr)
@@ -472,8 +477,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     elif optim_method=='Adam':
         optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2])
     elif optim_method=='Amsgrad':
-        pass
-        ##optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2], amsgrad=True)
+        optimizer = optim_torch.Adam([H_coefficients], lr=lr, betas=[m1, m2], amsgrad=True)
     elif optim_method=='RMSprop':
         optimizer = optim_torch.RMSprop([H_coefficients], lr=lr, alpha=m1)
         m2=0
@@ -481,6 +485,8 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         print('optimizer not defined')
         exit()
     
+    #scheduler = optim_torch.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method)
     varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
     
@@ -495,14 +501,11 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #Updating the Hamiltonian parameters
         for term_H in range(len(H_operator)):
             for qub in range(len(H_operator[term_H])):
-                H_operator[term_H][qub][0]=H_coefficients[term_H]#.item()
+                H_operator[term_H][qub][0]=H_coefficients[term_H].item()
         varqite_train.update_H(H_operator)
         #print(f'H_op after paramchange {H_operator}')
-
-        #Updating the ansatz parameters
         
         ansatz=update_parameters(ansatz, init_params)
-        #print(ansatz)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
         ansatz=update_parameters(ansatz, omega)
 
@@ -533,15 +536,16 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         else:
             gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
 
+
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
-        ##optimizer.zero_grad()
-        #TODO: Maybe require grad here?
-        ##H_coefficients.backward(torch.tensor(gradient_loss, dtype=torch.float64))
-        ##optimizer.step()
+        optimizer.zero_grad()
+        H_coefficients.backward(torch.tensor(gradient_loss, dtype=torch.float64))
+        optimizer.step()
+        #scheduler.step()
 
-        
-        H_coefficients=optim.adam(H_coefficients, gradient_loss)
+
+        #H_coefficients=optim.adam(H_coefficients, gradient_loss)
 
 
     del optim
@@ -571,6 +575,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     for i in range(n_seeds):
         init_c[i]=np.random.uniform(low=-1.0, high=1.0, size=len(H_operator))
 
+    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
     pid=os.fork()
     if pid>0:
         pid=os.fork()
@@ -612,25 +617,26 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
 
 def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
     #Node, bias (bool), index in list
-    nc_relu=[[['relu'],[16,0],['relu'],[16,0],['relu']], [1, 3]]
-    nc=[[[16,1],[16,1]], [1, 3]]
 
     #fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=0.01, nickname='test')
+    
+    nc_sig_32_2=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid']], [1, 3]]
+    nc_sig_16_2=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid']], [1, 3]]
+    nc_sig_8_3=[[['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid']], [1, 3]]
+    nc_8_2=[[[8,1],[8,1]], [0,3]]
 
-    nc_leaky=[[['leakyrelu'],[16,0],['leakyrelu'],[16,0],['leakyrelu']], [1, 3]]
-    nc_sig=[[['sigmoid'],[16,0],['sigmoid'],[16,0],['sigmoid']], [1, 3]]
-    nc_elu=[[['elu'],[16,0],['elu'],[16,0],['elu']], [1, 3]]
-    nc_32_3=[[[32,0],[32,0],[32,0]], [1, 3]]
-    nc_16_3=[[[16,0],[16,0],[16,0]], [1, 3]]
-    nc_16_2=[[[16,0],[16,0]], [1, 3]]
-    nc_8_3=[[[8,0],[8,0], [8,0]], [1,3]]
-    nc_8_2=[[[8,0],[8,0]], [1, 3]]
+    nc_sig_8_2=[[['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid']], [1, 3]]
+    nc_sig_8_2_no_b=[[['sigmoid'],[8,0],['sigmoid'],[8,0],['sigmoid']], [1, 3]]
+    nc_sig_4_2=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid']], [1, 3]]
+    nc_sig_4_3=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid']], [1, 3]]
+    nc_sig_4_4=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'], [4,1],['sigmoid']], [1, 3]]
 
-    nc_8_3_1=[[[8,1],[8,1], [8,1]], [1,3]]
-    nc_8_4=[[[8,0],[8,0], [8,0],[8,0]], [1,3]]
-    nc_32_2=[[[32,0],[32,0]], [1, 3]]
+    nc_elu_8_2=[[['elu'],[8,1],['elu'],[8,1],['elu']], [1, 3]]
+    nc_leaky_8_2=[[['leakyrelu'],[8,1],['leakyrelu'],[8,1],['leakyrelu']], [1, 3]]
+    nc_relu_8_2=[[['relu'],[8,1],['relu'],[8,1],['relu']], [1, 3]]
 
 
+    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
     pid=os.fork()
     if pid>0:
         pid=os.fork()
@@ -657,31 +663,34 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
                                                 if pid>0:
                                                     pid=os.fork()
                                                     if pid>0:
-                                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=None, nickname='16_3act_I_no_bias')
+                                                        pid=os.fork()
+                                                        if pid>0:
+                                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_2, nickname='8_2_I_lr001')
+                                                        else:
+                                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_32_2, nickname='32_2_lr001')
                                                     else:
-                                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_leaky, bias_val=None, nickname='act_leaky')
+                                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_16_2,  nickname='16_2_lr001')
                                                 else:
-                                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_relu, bias_val=None, nickname='relu')
+                                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_3,  nickname='8_3_lr001')
                                             else:
-                                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig, bias_val=None, nickname='sig')
+                                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_sig_lr001')
                                         else:
-                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_elu, bias_val=None, nickname='elu')
+                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_2, nickname='4_2_lr001')
                                     else:
-                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_3, bias_val=None, nickname='8_3_no_bias')
+                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_3, nickname='4_3_lr001')
                                 else:
-                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_3_1, bias_val=0.01, nickname='8_3_001bias')
+                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_4, nickname='4_4_lr001')
                             else:
-                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_4, bias_val=None, nickname='8_4_no_bias')
+                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.1, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr01')
                         else:
-                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_32_2, bias_val=None, nickname='32_2_nobias')
+                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.05, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr005')
                     else:
-                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_32_3, bias_val=None, nickname='32_3_nobias')
+                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.5, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr05')
                 else:
-                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_16_3, bias_val=None, nickname='16_3_nobias')
+                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_2_no_b, nickname='8_2_nobias_lr001')
             else:
-                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_16_2, bias_val=None, nickname='16_2_nobias')
+                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_leaky_8_2, nickname='8_2_leaky_lr001')
         else:
-            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_3, bias_val=None, nickname='8_3_nobias')
+            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_relu_8_2, nickname='8_2_relu_lr001')
     else:
-        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_2, bias_val=None, nickname='8_2_nobias')
-    
+        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_elu_8_2, nickname='8_2_elu_lr001')

@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-12,-4,9), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, alpha=None):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -256,7 +256,7 @@ class varQITE:
                         loss=loss_temp
                 
 
-                #final_lmb=self.lmbs[0]
+                final_lmb=self.lmbs[0]
 
                 #print(f'Final lmb {final_lmb}')
                 #Using the final alpha
@@ -289,7 +289,7 @@ class varQITE:
                 #Preparing the gradient states
                 dA_mat=self.getdA_bound(omega_w)
 
-                for i in range(len(self.hamil)):                  
+                for i in range(len(self.hamil)):
                     dC_vec=self.getdC_bound(i, omega_w)
 
                     if isinstance(self.lmbs, (np.ndarray, list)):
@@ -307,7 +307,7 @@ class varQITE:
                                 final_lmb=self.lmbs[lmb]
                                 loss=loss_temp
                         
-                        #final_lmb=self.lmbs[0]
+                        final_lmb=self.lmbs[0]
 
                         model_R = Ridge(final_lmb)
                         model_R.fit(A_mat, rh_side)

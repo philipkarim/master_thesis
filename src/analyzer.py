@@ -455,7 +455,89 @@ def plot_finale_seeds():
     plt.savefig('results/generative_learning/loss_H2_10seeds.png')
     plt.clf()
 
-plot_finale_seeds()
+
+"""
+Discriminative learning plotter functions
+"""
+def plot_activation_functions():
+    labels=[['identity','Identity'],['sig','Sigmoid'],['relu','RELU'], ['leaky','Leaky RELU'],['elu','ELU']]
+    
+    loss_list=[]
+    name_start='losstrain_'
+    name_start='losstest_'
+    #name_start='acctrain_'
+
+    for i in range(len(labels)):
+        loss_list.append(np.load('results/disc_learning/activations_16_3/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+
+    epoch=range(len(loss_list[0]))
+    
+
+    plt.figure()
+    for j, i in enumerate(loss_list):
+        plt.plot(epoch, i, label=labels[j][1])
+        
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig('results/disc_learning/assets/activations_16_3_test.png')
+    plt.clf()
+
+def plot_bias():
+    
+    loss_list=[]
+    name_start='losstrain_'
+    #name_start='losstest_'
+    #name_start='acctrain_'
+
+    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'8_3_001bias.npy', allow_pickle=True))
+    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'8_3_nobias.npy', allow_pickle=True))
+
+    epoch=range(len(loss_list[0]))
+
+    plt.figure()
+    plt.plot(epoch, loss_list[0], label='Bias')    
+    plt.plot(epoch, loss_list[1], label='No bias')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig('results/disc_learning/assets/bias.png')
+    plt.clf()
+
+def plot_NN_sizes():
+    labels=[['8_2','[8, 8]'],['8_3','[8, 8, 8]'],['8_4','[8, 8, 8, 8]'], 
+            ['16_2','[16, 16]'],['16_3','[16, 16, 16]'], 
+            ['32_2','[32, 32]'],['32_3','[32, 32, 32]']]
+    
+    loss_list=[]
+    name_start='losstrain_'
+    #name_start='losstest_'
+    #name_start='acctrain_'
+
+    for i in range(len(labels)):
+        loss_list.append(np.load('results/disc_learning/NN_sizes/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+
+    epoch=range(len(loss_list[0]))
+    
+
+    plt.figure()
+    for j, i in enumerate(loss_list):
+        plt.plot(epoch, i, label=labels[j][1])
+        
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    plt.legend()
+    plt.savefig('results/disc_learning/assets/NN_sizes.png')
+    plt.clf()
+
+
+#plot_NN_sizes()
+plot_activation_functions()
+plot_bias()
+#plot_finale_seeds()
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
