@@ -13,13 +13,16 @@ import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
-import matplotlib.pyplot as plt
+
+#Import scikit learn modules
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.utils import shuffle
 
+#Import pytorch modules
 import torch.optim as optim_torch
+import torch
 
 # Import the other classes and functions
 from varQITE import *
@@ -42,11 +45,12 @@ def bias_param(x, theta):
 
         Return: (float): The dot producted parameter
     """
+    x=torch.tensor(x,dtype=torch.float64)
+    
+    return torch.dot(x, theta)
 
-    return np.dot(x, theta)
 
-
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_coeff=None, nickname=None):
+def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -121,7 +125,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         X=X[0]
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-        #Now it is time to scale the data   
+        #Now it is time to scale the data
     
     scaler=StandardScaler()
     scaler.fit(X_train)
@@ -143,11 +147,17 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
     #print(y_train, y_test)
 
     #print(y_train[0:20])
-    #X_train=np.array([X_train[16]])
-    #y_train=np.array([y_train[16]])
+    #X_train=np.array([X_train[15]])
+    #y_train=np.array([y_train[15]])
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
+    X_train=X_train[15:17]
+    y_train=y_train[15:17]
+    X_test=X_test[0:2]
+    y_test=y_test[0:2]
+
+    #print(y_train, y_test)
     #X_test=[]
     #y_test=[]
 
@@ -183,8 +193,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         #Initializing the network
         #TODO: Add activation function?
         net=Net(network_coeff, X_train[0], n_hamilParameters)
-
-        #print(net)
         net.apply(init_weights)
 
         #Floating the network parameters
@@ -194,11 +202,14 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         #to not insert every thing as arguments
         if opt_met=='SGD':
             optimizer = optim_torch.SGD(net.parameters(), lr=lr)
+            m1=0; m2=0
         elif opt_met=='Adam':
-            optimizer = optim_torch.Adam(net.parameters(), lr=lr)
+            optimizer = optim_torch.Adam(net.parameters(), lr=lr, betas=[m1, m2])
         elif opt_met=='Amsgrad':
-            optimizer = optim_torch.Adam(net.parameters(), lr=lr, betas=[0.7, 0.99],amsgrad=True)
-
+            optimizer = optim_torch.Adam(net.parameters(), lr=lr, betas=[m1, m2],amsgrad=True)
+        elif opt_met=='RMSprop':
+            optimizer = optim_torch.RMSprop(net.parameters(), lr=lr, alpha=m1)
+            m2=0
         else:
             print('optimizer not defined')
             exit()
@@ -206,9 +217,26 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         H_parameters=net(X_train[0])
         #print(f'Hamiltonian params: {H_parameters}')
 
-    else:
+    else:            
+        #Initializing the parameters:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
-            
+        H_parameters = torch.tensor(H_parameters, requires_grad=True)
+
+        if opt_met=='SGD':
+            optimizer = optim_torch.SGD([H_parameters], lr=lr)
+            m1=0; m2=0
+        elif opt_met=='Adam':
+            optimizer = optim_torch.Adam([H_parameters], lr=lr, betas=[m1, m2])
+        elif opt_met=='Amsgrad':
+            optimizer = optim_torch.Adam([H_parameters], lr=lr, betas=[m1, m2], amsgrad=True)
+        elif opt_met=='RMSprop':
+            optimizer = optim_torch.RMSprop([H_parameters], lr=lr, alpha=m1)
+            m2=0
+        else:
+            print('Optimizer not defined')
+            exit()
+    
+
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
@@ -240,7 +268,6 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
         for i,sample in enumerate(X_train):
             varqite_time=time.time()
             #Updating the Hamiltonian with the correct parameters
-            #print(f'Old hamiltonian {hamiltonian}')
             if network_coeff is not None:
                 #Network parameters
                 output_coef=net(sample)
@@ -255,17 +282,16 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
-            #print(f'New hamiltonian {hamiltonian}')
             ansatz=update_parameters(ansatz, init_params)
-            omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-            
+            omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)            
             ansatz=update_parameters(ansatz, omega)
             trace_circ=create_initialstate(ansatz)
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
             #TODO: Test with this thing
-            p_QBM = PT.probabilities([0])
+            visible_q=[0]
+            p_QBM = PT.probabilities(visible_q)
             #Both work I guess, but then use[1,2,3] as tracing qubits
             #p_QBM=np.diag(PT.data).real.astype(float)
 
@@ -282,7 +308,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
             #print(f'Sample: {i}/{len(X_train)}')
             #print(f'Current AS: {accuracy_score(y_train[:i+1],train_pred_epoch)}, Loss: {loss}')
-            #print(f'p_QBM: {p_QBM}, target: {target_data}')
+            print(f'Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
             #Appending loss and epochs
             loss_list.append(loss)
@@ -294,20 +320,28 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
             #print(f'gradient_loss: {gradient_loss}')        
 
             #TODO: fix when diagonal elemetns, also do not compute the
-            #gradient if there is no need inside the var qite loop 
+            #gradient if there is no need inside the var qite loop
+            optimizer.zero_grad()
             if network_coeff is not None:
-                optimizer.zero_grad()
                 output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
-                optimizer.step()
-            else:     
-                new_parameters=optim.adam(H_parameters, gradient_loss, discriminative=False, sample=sample)
-            
+            else:
+                gradient=np.zeros((len(gradient_loss),len(sample)))
+                for ii, grad in enumerate(gradient_loss):
+                    for jj, samp in enumerate (sample):
+                        gradient[ii][jj]=grad*samp
+                
+                H_parameters.backward(torch.tensor(gradient, dtype=torch.float64))
+
+            optimizer.step()
+
+
             #TODO: Time with and without if statement and check time
             print(f'1 sample run: {time.time()-varqite_time}')
 
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
         acc_score_train.append(accuracy_score(y_train,train_pred_epoch))
+        print(f'Train Epoch complete : mean loss list= {loss_mean}, AS: {acc_score_train}')
 
         #print(f'Epoch complete: mean loss list= {loss_mean}')
         #print(f'Epoch complete: AS train list= {acc_score_train}')
@@ -353,7 +387,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, network_c
 
                 #print(f'Sample: {i}/{len(X_test)}')
                 #print(f'Current AS: {accuracy_score(y_test[:i+1],test_pred_epoch)} Loss: {loss}')
-                print(f'Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
+                print(f'TEST: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
             #Computes the test scores regarding the test set:
             acc_score_test.append(accuracy_score(y_test,test_pred_epoch))

@@ -938,7 +938,7 @@ def main():
     learningRate=0.1
     ite_steps=10
     epochs=100
-    optimizing_method='RMSprop'
+    optimizing_method='Amsgrad'
 
     """
     [gate, value, qubit]
@@ -1009,9 +1009,13 @@ def main():
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
     #With neural network
     #Remember "with_grad()" for testing cases
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
+    layers=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid'], [32,1],['sigmoid']], [1, 3]]
 
-    #quantum_mnist(3, ansatz2, epochs, ite_steps, learningRate, optimizing_method)
+    #fraud_detection(1, ansatz2, 30, ite_steps, 0.1, optimizing_method, m1=0.7, m2=0.99)#000509_40_samples_both_sets')
+    fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, m1=0.7, m2=0.99, network_coeff=layers)#000509_40_samples_both_sets')
+
+    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
+    #quantum_mnist(1, ansatz2, epochs, ite_steps, learningRate, optimizing_method, network_coeff=[[[32,1],[32,1]], [0]])
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
@@ -1053,7 +1057,7 @@ def main():
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-    final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
+    #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
@@ -1111,6 +1115,11 @@ def main():
     # Run with MNIST 4 samples?
     # Find best seed values
     # Plot the results created
+    #Insert lots of results and write a bit on them and everything
+    #Then just write methods part asap, like, just write out 5 pages of methods all night
+    #should not take that long time since method part is just what I have been  doing during
+    #the implementation
+    #Preprocessing maybe?
 
 
     """

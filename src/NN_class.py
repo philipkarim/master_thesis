@@ -1,5 +1,6 @@
 import torch 
 import torch.nn as nn
+import torch.nn.functional as F
 
 torch.manual_seed(1324)
 
@@ -50,6 +51,7 @@ class Net(nn.Module):
         #x=torch.from_numpy(x).float()
         #TODO: Require grad=True?
         x=torch.tensor(x).float()
+        #or dtype=float64? Any difference?
         ##H_coefficients = torch.tensor(init_coeff, requires_grad=True)
 
 

@@ -454,7 +454,6 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     norm_list=[]
     pqbm_list=[]
 
-
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
 
     if rz_add==True:
@@ -466,8 +465,6 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-0.5, high=0.5, size=len(H_operator))
-        #H_coefficients=np.random.uniform(low=-0.5, high=0.5, size=len(H_operator))
-
         #H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 
@@ -492,9 +489,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method)
     varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
     
-    time_intit=time.time()
     varqite_train.initialize_circuits()
-    #print(f'initialization time: {time.time()-time_intit}')
     
     for epoch in range(n_epochs):
         print(f'epoch: {epoch}')
@@ -538,7 +533,6 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
             gradient_qbm=optim.gradient_ps(H_operator, ansatz[:-1], d_omega)
         else:
             gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-
 
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
