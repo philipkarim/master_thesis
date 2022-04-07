@@ -95,19 +95,16 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
-    #print(len(X_train))
-    #print(len(X_train[0]))
-
-    #TODO: Remove this when the model works
-    X_train=X_train[0:100]
-    y_train=y_train[0:100]
-    X_test=X_test[0:25]
-    y_test=y_test[0:25]
-
-    X_train=np.array([X_train[0]])
-    y_train=np.array([y_train[0]])
-    X_test=np.array([X_test[5]])
-    y_test=np.array([y_test[5]])
+    #TODO: 12 samples, 3x4 digits
+    X_train=np.concatenate((X_train[0:11], np.array([X_train[14]])), axis=0)
+    y_train=np.concatenate((y_train[0:11], np.array([y_train[14]])), axis=None)
+    X_test= np.concatenate((X_test[0:7], X_test[[8,9,13,16,17]]), axis=0)
+    y_test= np.concatenate((y_test[0:7], y_test[[8,9,13,16,17]]), axis=None)
+    
+    #X_train=np.array([X_train[0]])
+    #y_train=np.array([y_train[0]])
+    #X_test=np.array([X_test[5]])
+    #y_test=np.array([y_test[5]])
 
     #print(y_train)
     #print(y_test)
@@ -159,7 +156,7 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
     else:
         #Initializing the parameters:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
-        H_parameters = torch.tensor(H_parameters, requires_grad=True)
+        H_parameters = torch.tensor(H_parameters, dtype=torch.float64 ,requires_grad=True)#.float()
 
         #print(H_parameters)
 
@@ -330,10 +327,10 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
 
     #Save the scores
     if nickname is not None:
-        np.save('results/mnist/quantum_mnist/acc_test.npy', np.array(acc_score_test))
-        np.save('results/mnist/quantum_mnist/acc_train.npy', np.array(acc_score_train))
-        np.save('results/mnist/quantum_mnist/loss_test.npy', np.array(loss_mean_test))
-        np.save('results/mnist/quantum_mnist/loss_train.npy', np.array(loss_mean))
+        np.save('results/disc_learning/mnist/acc_test'+nickname+'.npy', np.array(acc_score_test))
+        np.save('results/disc_learning/mnist/acc_train'+nickname+'.npy', np.array(acc_score_train))
+        np.save('results/disc_learning/mnist/loss_test'+nickname+'.npy', np.array(loss_mean_test))
+        np.save('results/disc_learning/mnist/loss_train'+nickname+'.npy', np.array(loss_mean))
 
 
     return 

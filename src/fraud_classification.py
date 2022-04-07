@@ -220,7 +220,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
     else:            
         #Initializing the parameters:
         H_parameters=np.random.uniform(low=-1.0, high=1.0, size=((n_hamilParameters, len(X_train[0]))))
-        H_parameters = torch.tensor(H_parameters, requires_grad=True)
+        H_parameters = torch.tensor(H_parameters, dtype=torch.float64, requires_grad=True)
 
         if opt_met=='SGD':
             optimizer = optim_torch.SGD([H_parameters], lr=lr)
