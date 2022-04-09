@@ -937,7 +937,7 @@ def main():
     number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=30
+    epochs=50
     optimizing_method='Amsgrad'
 
     """
@@ -1017,7 +1017,7 @@ def main():
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.01, optimizing_method, network_coeff=layers, nickname='network_24_3_4samples')
-    quantum_mnist(1, ansatz2, epochs, ite_steps, 0.1, optimizing_method, nickname='reg_bias_4samples')
+    #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.1, optimizing_method, nickname='reg_bias_4samples')
 
     #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
@@ -1061,7 +1061,7 @@ def main():
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
-    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.2, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
 
@@ -1074,7 +1074,7 @@ def main():
 
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
+    train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
 
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
@@ -1112,7 +1112,7 @@ def main():
     #Run with all 3 hamiltonians
 
     ###TASKS:
-    
+    #Check out the date from when it worked results-> temptrash
     # Start plot of franke function
     # Run with MNIST 4 samples?
     # Find best seed values

@@ -425,121 +425,198 @@ def plot_three_sub():
     plt.savefig('results/generative_learning/loss_3_sub.png')
     plt.clf()
 
-def plot_finale_seeds():
+def plot_finale_seeds(std=False):
     """
     Plotting exhaustive search of optimap parameters and learning parameters
     """
-    keyw='H2_10seeds'
+    keyw='H2_ab'
+    dir='H2_ab'
 
-    labels=['Amsgrad','0.1','0.7','0.99']
     arrays_loss=[]
-    
+    array_norm=[]
     for i in range(10):
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+labels[0]+'loss_lr'+labels[1]+'m1'+labels[2]+'m2'+labels[3]+'lossH2_seed'+str(i)+'.npy', allow_pickle=True))
-
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20lossH2_ab_rmsseed'+str(i)+'.npy', allow_pickle=True))
+        array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20normH2_ab_rmsseed'+str(i)+'.npy', allow_pickle=True))
+    
     epoch=range(len(arrays_loss[0]))
     
-    colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
-    ticks = ["x","1",".","s", "D"]
+    #colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
+
+    if std==False:
+        plt.figure()
+        for j, i in enumerate(arrays_loss):
+            plt.plot(epoch, i)
+        plt.xlabel('Iterations')
+        plt.ylabel('Loss')
+        plt.tight_layout()
+        plt.savefig('results/generative_learning/'+keyw+'_loss_10seeds.png')
+        plt.clf()
+        
+        plt.figure()
+        for j, i in enumerate(array_norm):
+            plt.plot(epoch, i)
+        plt.xlabel('Iterations')
+        plt.ylabel('Loss')
+        plt.tight_layout()
+        plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds.png')
+        plt.clf()
+    else:
+        avg_list=np.mean(np.array(arrays_loss), axis=0)
+        std_list=np.std(np.array(arrays_loss), axis=0)
+
+        avg_list_norm=np.mean(np.array(array_norm), axis=0)
+        std_list_norm=np.std(np.array(array_norm), axis=0)
 
 
-    plt.figure()
-    for j, i in enumerate(arrays_loss):
-        plt.plot(epoch, i)
-        #axs[1].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
-        #axs[2].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
-    
-    plt.xlabel('Iterations')
-    plt.ylabel('Loss')
-    plt.tight_layout()
-    plt.savefig('results/generative_learning/loss_H2_10seeds.png')
-    plt.clf()
+        plt.figure()
+        plt.errorbar(epoch, avg_list, std_list)
+        plt.xlabel('Iterations')
+        plt.ylabel('Loss')
+        plt.tight_layout()
+        plt.savefig('results/generative_learning/'+keyw+'_loss_10seeds_w_std.png')
+        plt.clf()
+
+        plt.figure()
+        plt.errorbar(epoch, avg_list_norm, std_list_norm)
+        plt.xlabel('Iterations')
+        plt.ylabel('Norm L1')
+        plt.tight_layout()
+        plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds_w_std.png')
+        plt.clf()
+        
+
+        plt.figure()
+        fig, axs = plt.subplots(2, sharex=True)
+        axs[1].errorbar(epoch, avg_list, std_list)
+        axs[1].set(ylabel='Loss', xlabel='Iterations')
+        axs[0].errorbar(epoch, avg_list_norm, std_list_norm)
+        axs[0].set(ylabel='L1 Distance')
+        plt.tight_layout()
+        fig.savefig('results/generative_learning/'+keyw+'_sub_10seeds.png')
 
 
 """
 Discriminative learning plotter functions
 """
 def plot_activation_functions():
-    labels=[['identity','Identity'],['sig','Sigmoid'],['relu','RELU'], ['leaky','Leaky RELU'],['elu','ELU']]
+    labels=[['I','Identity'],['sig','Sigmoid'],['relu','RELU'], ['leaky','Leaky RELU'],['elu','ELU']]
     
     loss_list=[]
-    name_start='losstrain_'
-    name_start='losstest_'
-    #name_start='acctrain_'
+    name_start='loss_train8_2_'
+    #name_start='loss_test8_2_'
 
     for i in range(len(labels)):
-        loss_list.append(np.load('results/disc_learning/activations_16_3/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+        loss_list.append(np.load('results/disc_learning/activations/'+name_start+labels[i][0]+'_lr001.npy', allow_pickle=True))
 
     epoch=range(len(loss_list[0]))
     
-
     plt.figure()
     for j, i in enumerate(loss_list):
         plt.plot(epoch, i, label=labels[j][1])
         
-    plt.xlabel('Epochs')
+    plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    plt.savefig('results/disc_learning/assets/activations_16_3_test.png')
+    plt.savefig('results/disc_learning/assets/loss_activations_8_2.png')
     plt.clf()
 
 def plot_bias():
     
     loss_list=[]
-    name_start='losstrain_'
+    name_start='loss_train8_2_'
     #name_start='losstest_'
     #name_start='acctrain_'
 
-    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'8_3_001bias.npy', allow_pickle=True))
-    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'8_3_nobias.npy', allow_pickle=True))
+    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'sig_lr001.npy', allow_pickle=True))
+    loss_list.append(np.load('results/disc_learning/bias/'+name_start+'nobias_lr001.npy', allow_pickle=True))
 
     epoch=range(len(loss_list[0]))
 
     plt.figure()
     plt.plot(epoch, loss_list[0], label='Bias')    
     plt.plot(epoch, loss_list[1], label='No bias')
-    plt.xlabel('Epochs')
+    plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    plt.savefig('results/disc_learning/assets/bias.png')
+    plt.savefig('results/disc_learning/assets/bias_8_2_40samp_fraud.png')
     plt.clf()
 
 def plot_NN_sizes():
-    labels=[['8_2','[8, 8]'],['8_3','[8, 8, 8]'],['8_4','[8, 8, 8, 8]'], 
-            ['16_2','[16, 16]'],['16_3','[16, 16, 16]'], 
-            ['32_2','[32, 32]'],['32_3','[32, 32, 32]']]
+    labels=[['4_2','[4, 4]'],['4_3','[4, 4, 4]'], ['4_4','[4, 4, 4, 4]'],
+            ['8_2_sig','[8, 8]'],['8_3','[8, 8, 8]'],
+            ['16_2','[16, 16]'], ['32_2','[32, 32]']]
     
     loss_list=[]
-    name_start='losstrain_'
-    #name_start='losstest_'
-    #name_start='acctrain_'
+    name_start='loss_train'
+
 
     for i in range(len(labels)):
-        loss_list.append(np.load('results/disc_learning/NN_sizes/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+        loss_list.append(np.load('results/disc_learning/NN_sizes/'+name_start+labels[i][0]+'_lr001.npy', allow_pickle=True))
 
     epoch=range(len(loss_list[0]))
-    
 
     plt.figure()
     for j, i in enumerate(loss_list):
         plt.plot(epoch, i, label=labels[j][1])
         
-    plt.xlabel('Epochs')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    #plt.legend()
+    plt.legend(prop={'size': 8 }, loc="upper right", ncol=2)
+    plt.savefig('results/disc_learning/assets/NN_sizes_sig_001_40samp_fraud.png')
+    plt.clf()
+
+def plot_lr():
+    labels=[['lr05','0.5'],['lr01','0.1'],['lr005','0.05'], ['sig_lr001','0.01']]
+    
+
+    loss_list=[]
+    name_start='loss_train8_2_'
+
+    for i in range(len(labels)):
+        loss_list.append(np.load('results/disc_learning/lr/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+
+    epoch=range(len(loss_list[0]))
+    
+    plt.figure()
+    for j, i in enumerate(loss_list):
+        plt.plot(epoch, i, label=r'$\gamma=$'+labels[j][1])
+        
+    plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    plt.savefig('results/disc_learning/assets/NN_sizes.png')
+    plt.savefig('results/disc_learning/assets/lr_8_2_w_sig_40samp_fraud.png')
+    plt.clf()
+
+def genereal_plotter(location, name):
+    x=np.load(location, allow_pickle=True)
+
+    epoch=range(len(x))
+    
+    plt.figure()
+    plt.plot(epoch, x)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.tight_layout()
+    #plt.legend()
+    plt.savefig('results/disc_learning/assets/'+name+'.png')
     plt.clf()
 
 
+
+
 #plot_NN_sizes()
-plot_activation_functions()
-plot_bias()
-#plot_finale_seeds()
+#plot_activation_functions()
+#plot_bias()
+#plot_lr()
+#plot_finale_seeds(True)
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
 #plot_optim_search()
 #plot_three_sub()
+genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
