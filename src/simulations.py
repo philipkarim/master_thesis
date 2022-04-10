@@ -98,7 +98,7 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
     
     #print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=n_steps , symmetrix_matrices=True, plot_fidelity=True)
+    varqite2=varQITE(H2, params2, steps=n_steps , symmetrix_matrices=False, plot_fidelity=True)
     varqite2.initialize_circuits()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
     list_omegas_fielity2=varqite2.fidelity_omega_list()
@@ -487,7 +487,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
     #scheduler = optim_torch.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method)
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=False)
     
     varqite_train.initialize_circuits()
     

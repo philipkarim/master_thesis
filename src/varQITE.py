@@ -227,7 +227,7 @@ class varQITE:
                         loss=loss_temp
                 
 
-                final_lmb=self.lmbs[0]
+                #final_lmb=self.lmbs[0]
 
                 #print(f'Final lmb {final_lmb}')
                 #Using the final alpha
@@ -280,7 +280,7 @@ class varQITE:
                                 final_lmb=self.lmbs[lmb]
                                 loss=loss_temp
                         
-                        final_lmb=self.lmbs[0]
+                        #final_lmb=self.lmbs[0]
 
                         model_R = Ridge(final_lmb)
                         model_R.fit(A_mat, rh_side)
@@ -552,9 +552,9 @@ class varQITE:
                 getattr(temp_circ, self.trial_circ[jjj][0])(name, 1+self.trial_circ[jjj][2])
 
         
-        temp_circ.x(0)
+        #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[sec][0][-1])(0,1+self.trial_circ[sec][2])
-        temp_circ.x(0)
+        #temp_circ.x(0)
 
         temp_circ.h(0)
         #TODO add this
@@ -618,9 +618,9 @@ class varQITE:
 
             getattr(temp_circ, self.trial_circ[k][0])(name, 1+self.trial_circ[k][2])
 
-        temp_circ.x(0)
+        #temp_circ.x(0)
         getattr(temp_circ, 'c'+self.trial_circ[fir][0][-1])(0,1+self.trial_circ[fir][2])
-        temp_circ.x(0)
+        #temp_circ.x(0)
 
         temp_circ.h(0)
         #temp_circ.measure(0, 0)
@@ -800,7 +800,7 @@ class varQITE:
                             dA[i][p][q]+=self.dwdth[i][self.rot_indexes[s]]*(dA_mat_temp[p][q][s][0]+dA_mat_temp[p][q][s][1])
 
         #TODO: Changed from negative to positive
-        dA*=-0.125
+        dA*=0.125
         #print(f'Time to compute dA circs{time.time()-da_compute}')
 
         return dA

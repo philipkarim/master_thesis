@@ -250,7 +250,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=False)
     
     time_intit=time.time()
     varqite_train.initialize_circuits()
@@ -260,8 +260,8 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-        print(omega)
-        print(d_omega)
+        #print(omega)
+        #print(d_omega)
 
         ansatz=update_parameters(ansatz, omega)
 
@@ -1041,7 +1041,8 @@ def main():
     """
     Fidelity simulations
     """
-    #sim_plot_fidelity(ite_steps, rz_add=False, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #rz true and symmetric false gives best, 98.5 and 99.98
+    #sim_plot_fidelity(ite_steps, rz_add=False)#, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
 
     #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz')
@@ -1072,9 +1073,9 @@ def main():
 
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.25, optim_method='Amsgrad', m1=0.7, m2=0.99, rz_add=rz_add)
 
-    train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
+    #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
 
     #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
