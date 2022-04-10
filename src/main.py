@@ -260,8 +260,8 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-
-        optimize_time=time.time()
+        print(omega)
+        print(d_omega)
 
         ansatz=update_parameters(ansatz, omega)
 
@@ -275,7 +275,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         PT=partial_trace(DM,tracing_q)
         p_QBM=np.diag(PT.data).real.astype(float)
         
-        #print(f'p_QBM: {p_QBM}')
+        print(f'p_QBM: {p_QBM}')
         loss=optim.cross_entropy_new(target_data,p_QBM)
         print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
@@ -301,7 +301,7 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         new_parameters=optim.adam(H_coefficients, gradient_loss)
 
         #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        print(f'New params {new_parameters}')
+        #print(f'New params {new_parameters}')
         #TODO: Try this
         #gradient_descent_gradient_done(self, params, lr, gradient):
 
@@ -320,8 +320,6 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         plt.ylabel('Loss')
         plt.show()
     
-    print(f'Time to optimize: {time.time()-optimize_time}')
-
     return np.array(loss_list), np.array(norm_list), p_QBM
 
 
@@ -951,9 +949,9 @@ def main():
         Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
                     [[0., 'z', 0]], [[0., 'z', 1]]]
 
-        #Ham2=       [[[ 0.9595, 'z', 0], [ 0.9595, 'z', 1]], 
-        #            [[ 0.0943, 'z', 0]], [[-0.0039, 'z', 1]]]
-
+        Ham2=       [[[ -0.71513973, 'z', 0], [ -0.71513973, 'z', 1]], 
+                    [[ 0.49562183, 'z', 0]], [[-0.23914625, 'z', 1]]]
+        
         ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
                     ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
                     ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
@@ -1074,9 +1072,9 @@ def main():
 
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
-    train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
 
-    #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
+    train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
 
     #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
@@ -1090,18 +1088,6 @@ def main():
     #TODO: Make code with network- With bias variance?
     #fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
 
-    #TODO: 
-    #   5 activations, (5)
-
-    #   with bias and (3)
-    #   without bias  (1)
-    #   different biases, 
-
-    #   different lr (4)
-    #   different sizes and nodes (?)
-    #   
-   
-
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
     #TODO: Test for less samples?
@@ -1112,7 +1098,9 @@ def main():
     #Run with all 3 hamiltonians
 
     ###TASKS:
-    #Check out the date from when it worked results-> temptrash
+    # VC:
+        #Fix 1.10 on both train and old train
+        #Fix 1.10 on train_sim also
     # Start plot of franke function
     # Run with MNIST 4 samples?
     # Find best seed values

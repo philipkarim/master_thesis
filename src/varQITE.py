@@ -810,7 +810,7 @@ class varQITE:
 
         for j_p in range(len(self.rot_indexes)):
             #TODO- is the same?
-            dC_i[j_p]+=-0.5*run_circuit(self.C_init[i_th][j_p].bind_parameters(binding_values[self.rot_indexes]\
+            dC_i[j_p]-=0.5*run_circuit(self.C_init[i_th][j_p].bind_parameters(binding_values[self.rot_indexes]\
                                                 [:len(self.C_init[i_th][j_p].parameters)]),statevector_test=True)
             
             #Something changes inside the loop?
@@ -825,7 +825,7 @@ class varQITE:
                     .bind_parameters(binding_values[self.rot_indexes]\
                     [:len(self.dC_init[i_dc][j_p][s_dc][1].parameters)]), statevector_test=True)
 
-                    dC_i[j_p]+=-0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
+                    dC_i[j_p]-=0.25*self.hamil[i_dc][0][0]*self.dwdth[i_th][s_dc]*(term1_temp+term2_temp)
 
         return dC_i
 

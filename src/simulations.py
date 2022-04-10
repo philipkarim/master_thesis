@@ -465,7 +465,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-0.5, high=0.5, size=len(H_operator))
-        #H_coefficients=np.array([-0.8089016,0.8500074,-0.31285315])
+        H_coefficients=np.array([-0.71513973,0.49562183,-0.23914625])
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 
         print(H_coefficients)
