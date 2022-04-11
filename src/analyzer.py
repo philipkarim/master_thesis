@@ -91,11 +91,14 @@ def plot_multiple_samples():
     plt.show()
 
 def plot_lr_search():
-    loss=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20loss.npy', allow_pickle=True)
-    lr=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_exp.npy', allow_pickle=True)
+    """
+    Plots the search of the learning rate
+    """
+    loss=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossH2_ab.npy', allow_pickle=True)
+    lr=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expH2_ab.npy', allow_pickle=True)
 
-    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20loss_A2.npy', allow_pickle=True)
-    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_exp_A2.npy', allow_pickle=True)
+    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossab.npy', allow_pickle=True)
+    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expab.npy', allow_pickle=True)
 
 
     #print(lr)
@@ -123,7 +126,7 @@ def plot_lr_search():
     plt.plot(lr[skip:], derivatives[skip:])
     plt.xscale('log')
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDdLVSlr.png')
+    plt.savefig('results/generative_learning/SGDdLVSlr_ab.png')
     plt.clf
 
 
@@ -134,7 +137,7 @@ def plot_lr_search():
     plt.ylabel('Learning rate')
     #plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDitVSloss_hs.png')
+    plt.savefig('results/generative_learning/SGDitVSloss_hs_ab.png')
     #plt.show()
     plt.clf
 
@@ -146,7 +149,7 @@ def plot_lr_search():
     plt.xscale("log")
     plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDlrVSloss_exp_SGDitVSloss_hs.png')
+    plt.savefig('results/generative_learning/SGDlrVSloss_exp_SGDitVSloss_hs_ab.png')
     #plt.show()
 
 def plot_optim_search():
@@ -614,9 +617,9 @@ def genereal_plotter(location, name):
 #plot_bias()
 #plot_lr()
 #plot_finale_seeds(True)
-#plot_lr_search()
+plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
 #plot_optim_search()
 #plot_three_sub()
-genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
+#genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')

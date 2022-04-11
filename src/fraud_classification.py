@@ -242,7 +242,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
     
-    varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=True)
+    varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=False)
     varqite_train.initialize_circuits()
 
     loss_mean=[]

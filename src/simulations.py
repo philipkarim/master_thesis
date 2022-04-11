@@ -78,7 +78,7 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     fidelities1_list=[]
     fidelities2_list=[]
 
-    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=False, plot_fidelity=True)
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
@@ -172,7 +172,7 @@ def sim_lambda_fidelity_search(n_steps, lmbs, name=None, rz_add=False):
     plt.plot(lmbs,H1_ridge_fidelities, label=r'$H_1$- Ridge')
     plt.plot(lmbs,H2_ridge_fidelities, label=r'$H_2$- Ridge')
     plt.plot(lmbs,H1_lasso_fidelities, label=r'$H_1$- Lasso')
-    plt.plot(lmbs,H2_lasso_fidelities, label=r'$H_2$- Lass')
+    plt.plot(lmbs,H2_lasso_fidelities, label=r'$H_2$- Lasso')
     
     plt.xlabel(r'$\lambda$')
     plt.ylabel('Fidelity')#,fontsize=19)
@@ -233,8 +233,8 @@ def compute_fidelity(n_steps, lmb, regularizer, rz_add=False):
                             [0.01, -0.05, -0.05, 0.05]])
 
 
-    varqite1=varQITE(H1, params1, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=True, plot_fidelity=True)
-    varqite2=varQITE(H2, params2, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=False, plot_fidelity=True)
+    varqite2=varQITE(H2, params2, steps=n_steps, lmbs=lmb, reg=regularizer, symmetrix_matrices=False, plot_fidelity=True)
     
     varqite1.initialize_circuits()
     varqite2.initialize_circuits()
@@ -296,7 +296,7 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
         exit()
     
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=False)
     
     time_intit=time.time()
     varqite_train.initialize_circuits()
@@ -324,13 +324,11 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
         #TODO: Some better way to do this?
         p_QBM=np.diag(PT.data).real.astype(float)
         
-        print(f'p_QBM: {p_QBM}')
-
         #Computes the loss
         loss=optim.cross_entropy_new(target_data,p_QBM)
-
-        print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
+
+        print(f'p_QBM: {p_QBM}, Loss: {loss}')
         #Appending loss and epochs
         norm_list.append(norm)
         loss_list.append(loss)
@@ -464,7 +462,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         H_coefficients = torch.tensor(init_coeff, requires_grad=True)
         #H_coefficients=init_coeff
     else:
-        H_coefficients=np.random.uniform(low=-0.5, high=0.5, size=len(H_operator))
+        H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
         H_coefficients=np.array([-0.71513973,0.49562183,-0.23914625])
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 

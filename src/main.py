@@ -534,7 +534,7 @@ def plot_fidelity2(n_steps, name=None):
     fidelities2_list=[]
     
     print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=False, plot_fidelity=True)
     varqite1.initialize_circuits()
     omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
     list_omegas_fielity1=varqite1.fidelity_omega_list()
@@ -554,7 +554,7 @@ def plot_fidelity2(n_steps, name=None):
     print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
     
     print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=True, plot_fidelity=True)
+    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=False, plot_fidelity=True)
     varqite2.initialize_circuits()
     star=time.time()
     omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
@@ -726,12 +726,12 @@ def ite_gs(toy_example=True):
         #psi=create_initialstate(ansatz_supp)
         #print(psi) 
 
-        varqite_gs=varQITE(test_hamiltonian, ansatz_supp, steps=300, maxTime=4,symmetrix_matrices=True)
+        varqite_gs=varQITE(test_hamiltonian, ansatz_supp, steps=300, maxTime=4,symmetrix_matrices=False)
         varqite_gs.initialize_circuits()
         omega, trash=varqite_gs.state_prep(gradient_stateprep=True)
 
 
-        #varqite_gs=varQITE(hydrogen_ham, ansatz_supp, steps=10, symmetrix_matrices=True)
+        #varqite_gs=varQITE(hydrogen_ham, ansatz_supp, steps=10, symmetrix_matrices=False)
         #varqite_gs.initialize_circuits()
         #omega1, d_omega=varqite_gs.state_prep(gradient_stateprep=True)
         ansatz_supp=update_parameters(ansatz_supp, omega)
@@ -813,7 +813,7 @@ def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad', wit
 
     optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
 
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=True)
+    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=False)
     
     time_intit=time.time()
     varqite_train.initialize_circuits()
@@ -1042,38 +1042,35 @@ def main():
     Fidelity simulations
     """
     #rz true and symmetric false gives best, 98.5 and 99.98
-    #sim_plot_fidelity(ite_steps, rz_add=False)#, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #sim_plot_fidelity(ite_steps, rz_add=rz_add)#, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
 
-    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz')
-    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz')
+    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab')
+    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz_ab')
 
     """
     Generative learning
     """
     ## Remember to save all arrays in case i run it for a real quantum computer, then save.
-    #learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
-    #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name=False, optim_method=optimizing_method, plot=False)
+    #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name='H1_ab', optim_method='SGD', plot=False)
+    #learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name='H2_ab', optim_method='SGD', plot=False)
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
+    #TODO: Run these after finding appropriate learning rates
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
+    #TODO: Then run these two final seeds
     #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff=[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-
-    #TODO: Okay new plan:
-    #Reproduce the results with increasing learning rate
-    #Do the same computations as you did with finding the best optimizers, and then find the best learning rate
-    # Then Recompute the shit that is being computed right now, but with another thing instead
-
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.5, optim_method='Amsgrad', m1=0.7, m2=0.99)
-    train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.25, optim_method='Amsgrad', m1=0.7, m2=0.99, rz_add=rz_add)
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99, rz_add=rz_add)
 
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
@@ -1099,9 +1096,6 @@ def main():
     #Run with all 3 hamiltonians
 
     ###TASKS:
-    # VC:
-        #Fix 1.10 on both train and old train
-        #Fix 1.10 on train_sim also
     # Start plot of franke function
     # Run with MNIST 4 samples?
     # Find best seed values
