@@ -643,3 +643,18 @@ def apply_hamiltonian(psi, mini_max_cut=True):
         #print(f'Operator: {PT.to_operator}')
 
     return H
+
+def bias_param(x, theta):
+    """
+    Function which computes the Hamiltonian parameters with supervised fraud dataset
+    and datasample as bias
+
+        Args:   
+            x(list):        Data sample
+            theta(array):   Hamiltonian parameters for 1 parameter
+
+        Return: (float): The dot producted parameter
+    """
+    x=torch.tensor(x,dtype=torch.float64)
+    
+    return torch.dot(x, theta)

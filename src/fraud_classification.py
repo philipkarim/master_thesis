@@ -34,22 +34,6 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def bias_param(x, theta):
-    """
-    Function which computes the Hamiltonian parameters with supervised fraud dataset
-    and datasample as bias
-
-        Args:   
-            x(list):        Data sample
-            theta(array):   Hamiltonian parameters for 1 parameter
-
-        Return: (float): The dot producted parameter
-    """
-    x=torch.tensor(x,dtype=torch.float64)
-    
-    return torch.dot(x, theta)
-
-
 def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
     """
     Function to run fraud classification with the variational Boltzmann machine

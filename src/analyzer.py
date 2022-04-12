@@ -97,8 +97,8 @@ def plot_lr_search():
     loss=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossH2_ab.npy', allow_pickle=True)
     lr=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expH2_ab.npy', allow_pickle=True)
 
-    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossab.npy', allow_pickle=True)
-    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expab.npy', allow_pickle=True)
+    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossH1_ab.npy', allow_pickle=True)
+    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expH1_ab.npy', allow_pickle=True)
 
 
     #print(lr)
@@ -111,7 +111,7 @@ def plot_lr_search():
         derivative = (loss[i] - loss[i - sma]) / sma
         derivatives.append(derivative)
 
-    print(min(derivatives), derivatives.index(min(derivatives)), lr[77])
+    #print(min(derivatives), derivatives.index(min(derivatives)), lr[77])
 
     derivatives2 = [0] * (sma + 1)
     for i in range(1 + sma, len(lr_A1)):
@@ -608,8 +608,6 @@ def genereal_plotter(location, name):
     #plt.legend()
     plt.savefig('results/disc_learning/assets/'+name+'.png')
     plt.clf()
-
-
 
 
 #plot_NN_sizes()

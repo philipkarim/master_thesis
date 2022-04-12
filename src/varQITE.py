@@ -213,6 +213,7 @@ class varQITE:
     
                 #lambdas_list=np.logspace(-10,-4,7)
                 loss=1e8
+                final_lmb=1e-10
 
                 for lmb in range(len(self.lmbs)):
                     #TODO: Fix this a bit more cool with max 1 if statement

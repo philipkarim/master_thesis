@@ -17,6 +17,7 @@ from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 import matplotlib.pyplot as plt
 import torch
+from franke import franke
 
 
 # Import the other classes and functions
@@ -935,7 +936,7 @@ def main():
     number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=50
+    epochs=100
     optimizing_method='Amsgrad'
 
     """
@@ -949,8 +950,8 @@ def main():
         Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
                     [[0., 'z', 0]], [[0., 'z', 1]]]
 
-        Ham2=       [[[ -0.71513973, 'z', 0], [ -0.71513973, 'z', 1]], 
-                    [[ 0.49562183, 'z', 0]], [[-0.23914625, 'z', 1]]]
+        #Ham2=       [[[ -0.71513973, 'z', 0], [ -0.71513973, 'z', 1]], 
+        #            [[ 0.49562183, 'z', 0]], [[-0.23914625, 'z', 1]]]
         
         ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
                     ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
@@ -1110,6 +1111,8 @@ def main():
     """
     Discriminative learning- Franke Function
     """
+    #TODO: Fix the neural network thing with activation functions and number of neurons
+    franke(1, ansatz2, 30, ite_steps, 0.2, optimizing_method)
 
     """
     Discriminative learning- MNIST

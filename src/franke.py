@@ -33,6 +33,72 @@ from NN_class import *
 import seaborn as sns
 
 
+def franke_function(x, y, noise_sigma=0):
+    """
+    Frankes function
+    """
+    x_nine = 9 * x
+    y_nine = 9 * y
+    first = 0.75 * np.exp(-(x_nine - 2)**2 * 0.25 - (y_nine - 2)**2 * 0.25)
+    second = 0.75 * np.exp(-(x_nine + 1)**2 / 49 - (y_nine + 1)**2 * 0.1)
+    third = 0.5 * np.exp(-(x_nine - 7)**2 * 0.25 - (y_nine - 3)**2 * 0.25)
+    fourth = - 0.2 * np.exp(-(x_nine - 4)**2 - (y_nine - 7)**2)
+    if noise_sigma != 0:
+        rand = np.random.normal(0, noise_sigma)
+
+        return first + second + third + fourth + rand
+    else:
+        return first + second + third + fourth
+
+def design_matrix(x, y, d):
+    """Function for setting up a design X-matrix with rows [1, x, y, x², y², xy, ...]
+    Input: x and y mesh, argument d is the degree.
+    """
+
+    if len(x.shape) > 1:
+    # reshape input to 1D arrays (easier to work with)
+        x = np.ravel(x)
+        y = np.ravel(y)
+
+    N = len(x)
+    p = int((d+1)*(d+2)/2)	# number of elements in beta
+    X = np.ones((N,p))
+
+    for n in range(1,d+1):
+        q = int((n)*(n+1)/2)
+        for m in range(n+1):
+            X[:,q+m] = x**(n-m)*y**m
+
+    return X
+
+def plot_franke(N=20, file_title='real_franke'):
+    deg = 2
+    x = np.linspace(0, 1, N); y = np.linspace(0, 1, N)
+    x, y = np.meshgrid(x, y)
+    x = np.ravel(x); y = np.ravel(y)
+    X = design_matrix(x, y, deg)
+    Y = franke_function(x, y, noise_sigma=0.1)
+
+    fig = plt.figure() 
+    ax = plt.axes(projection ='3d') 
+    
+    # Creating color map
+    #my_cmap = plt.get_cmap('cividis')
+    #my_cmap = plt.get_cmap('magma')
+    my_cmap = plt.get_cmap('YlGnBu')
+    
+    # Creating plot
+    trisurf = ax.plot_trisurf(X[:,1], X[:,2], Y,cmap = my_cmap,
+                            linewidth = 0.2,antialiased = True,
+                            edgecolor = 'grey') 
+    
+    # Adding labels
+    ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
+    plt.tight_layout()
+    plt.savefig('results/disc_learning/franke/'+file_title+'.png')
+    plt.clf
+
+
 def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
@@ -48,16 +114,20 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     Returns:    Scores on how the BM performed
     """
     #Importing the data
+    N=20
 
-    #TODO: Load data in here
-    data_franke=np.load('datasets/time_amount_zip_mcc_1000_instances_5050.npy', allow_pickle=True)
-    X=np.hsplit(data_franke, (len(data_franke[0])-1,len(data_franke[0])))
-    y=X[1].astype('int')
-    X=X[0]
+    #Bias variance tradeoff with complexity?
+    deg = 5
+    x = np.linspace(0, 1, N); y = np.linspace(0, 1, N)
+    x, y = np.meshgrid(x, y)
+    x = np.ravel(x); y = np.ravel(y)
+    X = design_matrix(x, y, deg)
+    Y = franke_function(x, y, noise_sigma=0.1)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-    #Now it is time to scale the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     
+    #Now it is time to scale the data
+    #MinMax data due two the values of the qubits will give the target value
     scaler=MinMaxScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
@@ -69,6 +139,9 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     X_test = scaler.transform(y_test)
 
 
+    #TODO: The general function should start here
+
+    #Some 'default' Hamiltonians
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
@@ -86,12 +159,12 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     
     #Initializing the parameters:
     if network_coeff is not None:
-        #TODO: Remember net.eval() when testing
+        #TODO: Remember net.eval() when testing, or validating?
 
 
         #Initializing the network
-        #TODO: Add activation function?
         net=Net(network_coeff, X_train[0], n_hamilParameters)
+        #TODO: Might want to initialize the weights anohther method which reduces the values of the coefficients
         net.apply(init_weights)
 
         #Floating the network parameters
@@ -114,7 +187,6 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
             exit()
 
         H_parameters=net(X_train[0])
-        #print(f'Hamiltonian params: {H_parameters}')
 
     else:            
         #Initializing the parameters:
@@ -147,6 +219,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
 
     loss_mean=[]
     loss_mean_test=[]
+    H_coefficients=[]
 
     for epoch in range(n_epochs):
         start_time=time.time()
@@ -174,7 +247,6 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
             else:
                 for term_H in range(n_hamilParameters):
                     for qub in range(len(hamiltonian[term_H])):
-                        ##TODO: Add bias param func to utils
                         hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
             #Updating the hamitlonian
@@ -187,9 +259,11 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
             #TODO: visible_q should be another place, maybe utilities?
+            """
+            Continue here!
+            """
             visible_q=[0]
             p_QBM = PT.probabilities(visible_q)
-
 
             #TODO: Rewrite for regression, which loss?
             #Appending predictions and compute
