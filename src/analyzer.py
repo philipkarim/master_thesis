@@ -133,7 +133,7 @@ def plot_lr_search():
     plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
     plt.plot(range(0,len(lr_A1)), lr_A1)
     #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
-    plt.xlabel('Iterations')
+    plt.xlabel('Iteration')
     plt.ylabel('Learning rate')
     #plt.legend()
     plt.tight_layout()
@@ -158,8 +158,15 @@ def plot_optim_search():
     """
     arrays_loss=[]
     arrays_norm=[]
-    all='all'
-    keyw='H2_ab'
+    all='RMS'
+    keyw='H2_rms_search_ab'
+    folder='H2_rms'
+
+    half_size=False
+
+    if all!='RMS':
+        folder=keyw
+
     if all=='all':
         labels=[['Adam','0.2','0.9','0.999'], ['Adam','0.1','0.9','0.999'],['Adam','0.05','0.9','0.999'], 
                 ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
@@ -167,8 +174,9 @@ def plot_optim_search():
                 ['SGD','0.2','0','0'],  ['SGD','0.1','0','0'],  ['SGD','0.05','0','0']]
 
     elif all=='RMS':
-        labels=[['RMSprop','0.2','0.99','0'], ['RMSprop','0.05','0.99','0'],['RMSprop','0.1','0.99','0'],
-         ['RMSprop','0.1','0.9','0'], ['RMSprop','0.1','0.8','0'], ['RMSprop','0.1','0.7','0']]
+        lr='0.1'
+        labels=[['RMSprop',lr,'0.999','0'], ['RMSprop',lr,'0.99','0'],['RMSprop',lr,'0.9','0'],
+         ['RMSprop',lr,'0.8','0'], ['RMSprop',lr,'0.7','0'], ['RMSprop',lr,'0.6','0']]
 
     elif all=='RMS_vs_ams':
         labels=[['RMSprop','0.1','0.999','0'], ['RMSprop','0.1','0.99','0'],['RMSprop','0.1','0.9','0'],
@@ -187,8 +195,8 @@ def plot_optim_search():
 
     
     for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
-        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True)[0:50])
+        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True)[0:50])
 
     epoch=range(len(arrays_loss[0]))
 
@@ -197,7 +205,7 @@ def plot_optim_search():
 
     colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
     ticks = ["x","1",".","s", "D"]
-    linestyle=['solid','dashed','dotted']
+    linestyle=['solid','dashed','dotted', 'dashdot']
 
     cat=[]
 
@@ -226,14 +234,18 @@ def plot_optim_search():
     elif all=='RMS':
         for i in labels:
             temp=[]
-            if i[2]=='0.99':
+            if i[2]=='0.999':
                 temp.append(0)
-            elif i[2]=='0.9':
+            elif i[2]=='0.99':
                 temp.append(1)
-            elif i[2]=='0.8':
+            elif i[2]=='0.9':
                 temp.append(2)
-            elif i[2]=='0.7':
+            elif i[2]=='0.8':
                 temp.append(3)
+            elif i[2]=='0.7':
+                temp.append(4)
+            elif i[2]=='0.6':
+                temp.append(5)
 
             if i[1]=='0.2':
                 temp.append(0)
@@ -256,7 +268,7 @@ def plot_optim_search():
                 temp.append(3)
             
             if i[1]=='0.5':
-                temp.append(4)
+                temp.append(3)
             elif i[1]=='0.2':
                 temp.append(0)
             elif i[1]=='0.1':
@@ -267,49 +279,58 @@ def plot_optim_search():
 
     
     if all!='RMS_vs_ams':
-        plt.figure()
+        if half_size:
+            plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
+        else:
+            plt.figure()
         if all!='RMS':
             for j, i in enumerate(arrays_loss):
                 plt.plot(epoch, i, color=colors[cat[j][0]],linestyle=linestyle[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1])#, linewidth=1, ms=3)
         
         else:
             for j, i in enumerate(arrays_loss):
-                plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+                plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
+                #plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
         
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         #plt.yscale("log")
 
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/H2_ab_new_loss.png')
+        plt.savefig('results/generative_learning/'+keyw+'_loss.png')
         plt.clf
 
-        plt.figure()
+        if half_size:
+            plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
+        else:
+            plt.figure()
         if all!='RMS':
             for j,i in enumerate(arrays_norm):
-                plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=1, ms=2)
+                plt.plot(epoch, i, color=colors[cat[j][0]],linestyle=linestyle[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=1, ms=2)
         else:
             for j, i in enumerate(arrays_norm):
-                plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
+                plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
+                #plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
     
         #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
-        plt.xlabel('Iterations')
-        plt.ylabel('Norm')
+        plt.xlabel('Iteration')
+        plt.ylabel(r'L\textsubscript{1}-norm')
         #plt.yscale("log")
         #plt.legend(fontsize=4, prop={'size': 6})
-        plt.legend(prop={'size': 6})
+        #plt.legend(prop={'size': 6})
+        plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
 
         #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/H2_ab_new_norm.png')
+        plt.savefig('results/generative_learning/'+keyw+'_norm.png')
         plt.clf
     else:
         plt.figure()
         for j, i in enumerate(arrays_loss):
             if labels[j][0]=='RMSprop':
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
         #plt.legend()
@@ -321,8 +342,8 @@ def plot_optim_search():
         for j, i in enumerate(arrays_norm):
             if labels[j][0]=='RMSprop':
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
-        plt.xlabel('Iterations')
-        plt.ylabel('Norm')
+        plt.xlabel('Iteration')
+        plt.ylabel(r'L\textsubscript{1}-norm')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
         #plt.legend()
         plt.tight_layout()
@@ -333,7 +354,7 @@ def plot_optim_search():
         for j, i in enumerate(arrays_loss):
             if labels[j][0]=='Amsgrad':
                 plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+','+r'$m_2=$'+labels[j][3])
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
         #plt.legend()
@@ -345,8 +366,8 @@ def plot_optim_search():
         for j, i in enumerate(arrays_norm):
             if labels[j][0]=='Amsgrad':
                 plt.plot(epoch, i,label=r'$m_1=$'+labels[j][2]+','+r'$m_2=$'+labels[j][3])
-        plt.xlabel('Iterations')
-        plt.ylabel('Norm')
+        plt.xlabel('Iteration')
+        plt.ylabel(r'L\textsubscript{1}-norm')
         plt.legend(prop={'size': 6}, loc=0)
         #plt.legend(prop={'size': 6})
         #plt.legend()
@@ -415,7 +436,7 @@ def plot_three_sub():
     axs[1].set_title('$\gamma=$'+labels[1][1], fontsize=fontsz)
     axs[2].set_title('$\gamma=$'+labels[2][1], fontsize=fontsz)
 
-    plt.xlabel('Iterations')
+    plt.xlabel('Iteration')
     axs[0].set_ylabel('Loss')
     axs[1].set_ylabel('Loss')
     axs[2].set_ylabel('Loss')
@@ -450,7 +471,7 @@ def plot_finale_seeds(std=False):
         plt.figure()
         for j, i in enumerate(arrays_loss):
             plt.plot(epoch, i)
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_loss_10seeds.png')
@@ -459,7 +480,7 @@ def plot_finale_seeds(std=False):
         plt.figure()
         for j, i in enumerate(array_norm):
             plt.plot(epoch, i)
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds.png')
@@ -474,7 +495,7 @@ def plot_finale_seeds(std=False):
 
         plt.figure()
         plt.errorbar(epoch, avg_list, std_list)
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_loss_10seeds_w_std.png')
@@ -482,7 +503,7 @@ def plot_finale_seeds(std=False):
 
         plt.figure()
         plt.errorbar(epoch, avg_list_norm, std_list_norm)
-        plt.xlabel('Iterations')
+        plt.xlabel('Iteration')
         plt.ylabel('Norm L1')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds_w_std.png')
@@ -492,7 +513,7 @@ def plot_finale_seeds(std=False):
         plt.figure()
         fig, axs = plt.subplots(2, sharex=True)
         axs[1].errorbar(epoch, avg_list, std_list)
-        axs[1].set(ylabel='Loss', xlabel='Iterations')
+        axs[1].set(ylabel='Loss', xlabel='Iteration')
         axs[0].errorbar(epoch, avg_list_norm, std_list_norm)
         axs[0].set(ylabel='L1 Distance')
         plt.tight_layout()

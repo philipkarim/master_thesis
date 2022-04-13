@@ -569,7 +569,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     #e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H1_ab_rms'
+    names='H1_ab_10seed'
     n_seeds=10
     opt='RMSprop'
     m_1=0.99
@@ -577,7 +577,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
 
     init_c=np.zeros((n_seeds, len(H_operator)))
     for i in range(n_seeds):
-        init_c[i]=np.random.uniform(low=-0.5, high=0.5, size=len(H_operator))
+        init_c[i]=np.random.uniform(low=-1., high=1., size=len(H_operator))
 
     
     #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
