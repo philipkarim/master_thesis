@@ -158,12 +158,12 @@ def plot_optim_search():
     """
     arrays_loss=[]
     arrays_norm=[]
-    all='RMS_vs_ams2'
-    keyw='H2_real_new'
+    all='all'
+    keyw='H2_ab'
     if all=='all':
-        labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'], 
-                ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],['Amsgrad','0.1','0.7','0.99'],
-                ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'], ['RMSprop','0.1','0.7','0'],
+        labels=[['Adam','0.2','0.9','0.999'], ['Adam','0.1','0.9','0.999'],['Adam','0.05','0.9','0.999'], 
+                ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
+                ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'],
                 ['SGD','0.2','0','0'],  ['SGD','0.1','0','0'],  ['SGD','0.05','0','0']]
 
     elif all=='RMS':
@@ -197,6 +197,7 @@ def plot_optim_search():
 
     colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
     ticks = ["x","1",".","s", "D"]
+    linestyle=['solid','dashed','dotted']
 
     cat=[]
 
@@ -254,14 +255,14 @@ def plot_optim_search():
             elif i[0]=='SGD':
                 temp.append(3)
             
-            if i[1]=='0.2':
+            if i[1]=='0.5':
+                temp.append(4)
+            elif i[1]=='0.2':
                 temp.append(0)
             elif i[1]=='0.1':
                 temp.append(1)
             elif i[1]=='0.05':
                 temp.append(2)
-            elif i[1]=='0.01':
-                temp.append(3)
             cat.append(temp)
 
     
@@ -269,7 +270,7 @@ def plot_optim_search():
         plt.figure()
         if all!='RMS':
             for j, i in enumerate(arrays_loss):
-                plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1], linewidth=1, ms=2)
+                plt.plot(epoch, i, color=colors[cat[j][0]],linestyle=linestyle[cat[j][1]],label=labels[j][0]+', '+r'$\gamma=$'+labels[j][1])#, linewidth=1, ms=3)
         
         else:
             for j, i in enumerate(arrays_loss):
@@ -279,9 +280,9 @@ def plot_optim_search():
         plt.ylabel('Loss')
         #plt.yscale("log")
 
-        plt.legend(prop={'size': 4.5}, loc="upper left", ncol=4) #bbox_to_anchor=[0, 1]       #plt.legend()
+        plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/test_loss.png')
+        plt.savefig('results/generative_learning/H2_ab_new_loss.png')
         plt.clf
 
         plt.figure()
@@ -301,7 +302,7 @@ def plot_optim_search():
 
         #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/test_norm.png')
+        plt.savefig('results/generative_learning/H2_ab_new_norm.png')
         plt.clf
     else:
         plt.figure()
@@ -615,9 +616,9 @@ def genereal_plotter(location, name):
 #plot_bias()
 #plot_lr()
 #plot_finale_seeds(True)
-plot_lr_search()
+#plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-#plot_optim_search()
+plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')

@@ -372,7 +372,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
     #e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H2_ab'
+    names='H2_rms_search_ab'
     
     #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
     pid = os.fork()
@@ -405,37 +405,41 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
                                                         if pid>0:
                                                             pid=os.fork()
                                                             if pid>0:
-                                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.5, optim_method='SGD', m1=0.8, m2=0.999, name=names)
+                                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.999, m2=0.999, name=names)
                                                             else:
-                                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='SGD', m1=0.8, m2=0.999, name=names)
+                                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
                                                         else:
-                                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='SGD', m1=0.9, m2=0.999, name=names)
+                                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.9, m2=0.999, name=names)
                                                     else:
-                                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='SGD', m1=0.9, m2=0.99, name=names)
+                                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.8, m2=0.99, name=names)
                                                 else:
-                                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.5, optim_method='Adam', m1=0.9, m2=0.999, name=names)
+                                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.7, m2=0.999, name=names)
                                             else:
-                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Adam', m1=0.9, m2=0.999, name=names)
+                                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.6, m2=0.999, name=names)
                                         else:
-                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Adam', m1=0.9, m2=0.999, name=names)
+                                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.999, m2=0.999, name=names)
                                     else:
-                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Adam', m1=0.9, m2=0.999, name=names)
+                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
                                 else:
-                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.5, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names)
+                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.9, m2=0.999, name=names)
                             else:
-                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names)
+                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.8, m2=0.999, name=names)
                         else:
-                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names)
+                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.7, m2=0.999, name=names)
                     else:
-                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='Amsgrad', m1=0.9, m2=0.999, name=names)
+                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.6, m2=0.999, name=names)
                 else:
-                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.5, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
+                    pass
+                    #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.5, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
             else:
-                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
+                pass
+                #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
         else:
-            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.9, name=names)
+            pass
+            #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.9, name=names)
     else:
-        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
+        pass
+        #train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.05, optim_method='RMSprop', m1=0.99, m2=0.999, name=names)
     
     #print(f'Time paralell: {time.time()-e}')
     #print('Done!')
@@ -463,10 +467,12 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
+        H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
+
         #H_coefficients=np.array([-0.71513973,0.49562183,-0.23914625])
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 
-        print(H_coefficients)
+        #print(H_coefficients)
 
     if optim_method=='SGD':
         optimizer = optim_torch.SGD([H_coefficients], lr=lr)

@@ -220,6 +220,10 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     loss_mean=[]
     loss_mean_test=[]
     H_coefficients=[]
+    predictions_train=[]
+    targets_train=[]
+    predictions_test=[]
+    targets_test=[]
 
     for epoch in range(n_epochs):
         start_time=time.time()
@@ -230,6 +234,8 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
         train_pred_epoch=[]
         test_pred_epoch=[]
         loss_list=[]
+        pred=[]
+        target=[]
 
         #Loops over each sample
         X_train, y_train = shuffle(X_train, y_train, random_state=0)
@@ -252,7 +258,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             ansatz=update_parameters(ansatz, init_params)
-            omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)            
+            omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
             ansatz=update_parameters(ansatz, omega)
             trace_circ=create_initialstate(ansatz)
 
@@ -276,7 +282,10 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
 
             #Appending loss and epochs
             loss_list.append(loss)
-            
+            #TODO: Something like this?
+            pred.append(p_QBM[0])
+            target.append(target_data[0])
+
             #TODO: Remember to insert the visible qubit list, might do it
             #automaticly by changing the utilized variable function
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
@@ -301,11 +310,18 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
 
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
+        predictions_train.append(pred)
+        targets_train.append(target)
+
+        #TODO: Remember to append the coefficients to a list
+
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
 
  
         #Creating the correct hamiltonian with the input data as bias
         loss_list=[]
+        pred=[]
+        target=[]
         with torch.no_grad():
             for i,sample in enumerate(X_test):
                 if network_coeff is not None:
@@ -337,11 +353,17 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
 
                 #TODO: Rewrite for regression
                 test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
-
+                
+                #TODO: Something like this?
+                pred.append(p_QBM[0])
+                target.append(target_data[0])
+                
                 print(f'TEST: Loss: {loss}')
 
             #Computes the test scores regarding the test set:
             loss_mean_test.append(np.mean(loss_list))
+            predictions_test.append(pred)
+            targets_test.append(target)
 
     
     del optim
