@@ -937,7 +937,7 @@ def main():
     learningRate=0.1
     ite_steps=10
     epochs=100
-    optimizing_method='Amsgrad'
+    optimizing_method='RMSprop'
 
     """
     [gate, value, qubit]
@@ -1062,7 +1062,7 @@ def main():
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #TODO: Then run these two final seeds
     #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
-    final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
+    #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
@@ -1112,7 +1112,7 @@ def main():
     Discriminative learning- Franke Function
     """
     #TODO: Fix the neural network thing with activation functions and number of neurons
-    #franke(1, ansatz2, 30, ite_steps, 0.2, optimizing_method)
+    franke(1, ansatz2, 30, ite_steps, learningRate, optimizing_method)
 
     """
     Discriminative learning- MNIST

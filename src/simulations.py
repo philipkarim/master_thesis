@@ -569,7 +569,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     #e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H1_ab_10seed'
+    names='H2_ab_10seed'
     n_seeds=10
     opt='RMSprop'
     m_1=0.99

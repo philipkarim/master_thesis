@@ -99,7 +99,7 @@ def plot_franke(N=20, file_title='real_franke'):
     plt.clf
 
 
-def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
+def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=[0] ,m1=0.9, m2=0.999, network_coeff=None, nickname=None):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -117,14 +117,14 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     N=20
 
     #Bias variance tradeoff with complexity?
-    deg = 5
+    deg = 4
     x = np.linspace(0, 1, N); y = np.linspace(0, 1, N)
     x, y = np.meshgrid(x, y)
     x = np.ravel(x); y = np.ravel(y)
     X = design_matrix(x, y, deg)
     Y = franke_function(x, y, noise_sigma=0.1)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
     
     #Now it is time to scale the data
     #MinMax data due two the values of the qubits will give the target value
@@ -133,6 +133,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
     
+    """Continue here with scaling"""
     target_scaler=MinMaxScaler()
     target_scaler.fit(y_train)
     X_train = scaler.transform(y_train)
@@ -264,12 +265,13 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, n
 
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
-            #TODO: visible_q should be another place, maybe utilities?
-            """
-            Continue here!
-            """
-            visible_q=[0]
+
             p_QBM = PT.probabilities(visible_q)
+            print(f'PQBM: {p_QBM}')
+
+            exit()
+            #output=
+
 
             #TODO: Rewrite for regression, which loss?
             #Appending predictions and compute
