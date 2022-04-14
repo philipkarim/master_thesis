@@ -213,7 +213,6 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
-    #TODO: Should only trace visible qubit [0].. or [2]?
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
     optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
     
@@ -234,11 +233,9 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
         #Lists to save the predictions of the epoch
         #TODO: What to save?
-        train_pred_epoch=[]
-        test_pred_epoch=[]
+        pred_epoch=[]
         loss_list=[]
-        pred=[]
-        target=[]
+        targets=[]
 
         #Loops over each sample
         X_train, y_train = shuffle(X_train, y_train, random_state=0)
@@ -268,47 +265,34 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
 
+            p_QBM = PT.probabilities(visible_q_list)
+            
+            target_data=np.zeros(2**visible_q)
             if task=='classification':
-                p_QBM = PT.probabilities(visible_q_list)
                 loss=optim.cross_entropy(target_data,p_QBM)
+                target_data[y_train[i]]=1
+                if visible_q==1:
+                    pred_epoch.append(0) if p_QBM[0]>0.5 else pred_epoch.append(1)
+                else:
+                    pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
+                
+                targets.append(target_data)
+
             elif task=='regression':
-                p_QBM = PT.probabilities(visible_q_list)[0]
-                loss=optim.MSE(target_data,p_QBM)
+                loss=optim.MSE(y_train[i],p_QBM[0])
+                target_data[0]=y_train[i]; target_data[1]=1-target_data[0]
+                pred_epoch.append(p_QBM[0])
+                targets.append(target_data[0])
 
             else:
                 sys.exit('Task not defined (classification/regression)')
 
-
-            """Continue here"""
-            #TODO: Rewrite for regression, which loss?
-            #Appending predictions and compute
-            train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
-
-            #TODO: New loss function?
-
-            target_data=np.zeros(classes)
-            target_data[y_train[i]]=1
-
-            #print(f'Target vector: {target_data}, target sol: {y_train[i]}')
-            
-            #TODO: Rewrite for multiclass classification
-            #Appending predictions and compute
-
-            train_pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
-
-
-
             print(f'TRAIN: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
-            #Appending loss and epochs
+            #Add scores and predictions to lists
             loss_list.append(loss)
-            #TODO: Something like this?
-            pred.append(p_QBM[0])
-            target.append(target_data[0])
 
-            #TODO: Remember to insert the visible qubit list, might do it
-            #automaticly by changing the utilized variable function
-            gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, [0])
+            gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, visible_q_list)
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
             optimizer.zero_grad()
@@ -330,18 +314,16 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
-        predictions_train.append(pred)
-        targets_train.append(target)
-
-        #TODO: Remember to append the coefficients to a list
+        predictions_train.append(pred_epoch)
+        targets_train.append(targets)
+        H_coefficients.append(H_parameters.numpy())
 
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
 
- 
-        #Creating the correct hamiltonian with the input data as bias
+        #Testing stage
         loss_list=[]
-        pred=[]
-        target=[]
+        pred_epoch=[]
+        targets=[]
         with torch.no_grad():
             for i,sample in enumerate(X_test):
                 if network_coeff is not None:
@@ -364,27 +346,36 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
                 DM=DensityMatrix.from_instruction(trace_circ)
                 PT=partial_trace(DM,tracing_q)
-                #TODO: Insert correct variable [0]
-                p_QBM = PT.probabilities([0])
-                
-                #TODO: Which loss function?
-                loss=optim.fraud_CE(target_data,p_QBM)
-                loss_list.append(loss)
+                p_QBM = PT.probabilities(visible_q_list)
 
-                #TODO: Rewrite for regression
-                test_pred_epoch.append(0) if p_QBM[0]>0.5 else test_pred_epoch.append(1)
-                
-                #TODO: Something like this?
-                pred.append(p_QBM[0])
-                target.append(target_data[0])
+                target_data=np.zeros(2**visible_q)
+                if task=='classification':
+                    loss=optim.cross_entropy(target_data,p_QBM)
+                    target_data[y_test[i]]=1
+                    if visible_q==1:
+                        pred_epoch.append(0) if p_QBM[0]>0.5 else pred_epoch.append(1)
+                    else:
+                        pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
+                    
+                    targets.append(target_data)
+
+                elif task=='regression':
+                    loss=optim.MSE(y_train[i],p_QBM[0])
+                    target_data[0]=y_train[i]; target_data[1]=1-target_data[0]
+                    pred_epoch.append(p_QBM[0])
+                    targets.append(target_data[0])
+
+                else:
+                    sys.exit('Task not defined (classification/regression)')
+
+                loss_list.append(loss)
                 
                 print(f'TEST: Loss: {loss}')
 
             #Computes the test scores regarding the test set:
             loss_mean_test.append(np.mean(loss_list))
-            predictions_test.append(pred)
-            targets_test.append(target)
-
+            predictions_test.append(pred_epoch)
+            targets_test.append(targets)
     
     del optim
     del varqite_train
