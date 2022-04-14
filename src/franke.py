@@ -13,6 +13,7 @@ import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
+import sys
 
 #Import scikit learn modules
 from sklearn.preprocessing import MinMaxScaler
@@ -99,7 +100,7 @@ def plot_franke(N=20, file_title='real_franke'):
     plt.clf
 
 
-def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=[0] ,m1=0.9, m2=0.999, network_coeff=None, nickname=None):
+def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task='regression' ,m1=0.9, m2=0.999, network_coeff=None, nickname=None):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -115,6 +116,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=[0] ,m1=
     """
     #Importing the data
     N=20
+    visible_q_list=list(range(visible_q))
 
     #Bias variance tradeoff with complexity?
     deg = 4
@@ -136,8 +138,8 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=[0] ,m1=
     """Continue here with scaling"""
     target_scaler=MinMaxScaler()
     target_scaler.fit(y_train)
-    X_train = scaler.transform(y_train)
-    X_test = scaler.transform(y_test)
+    y_train = target_scaler.transform(y_train)
+    y_test = target_scaler.transform(y_test)
 
 
     #TODO: The general function should start here
@@ -266,19 +268,35 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=[0] ,m1=
             DM=DensityMatrix.from_instruction(trace_circ)
             PT=partial_trace(DM,tracing_q)
 
-            p_QBM = PT.probabilities(visible_q)
-            print(f'PQBM: {p_QBM}')
+            if task=='classification':
+                p_QBM = PT.probabilities(visible_q_list)
+                loss=optim.cross_entropy(target_data,p_QBM)
+            elif task=='regression':
+                p_QBM = PT.probabilities(visible_q_list)[0]
+                loss=optim.MSE(target_data,p_QBM)
 
-            exit()
-            #output=
+            else:
+                sys.exit('Task not defined (classification/regression)')
 
 
+            """Continue here"""
             #TODO: Rewrite for regression, which loss?
             #Appending predictions and compute
             train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
 
             #TODO: New loss function?
-            loss=optim.fraud_CE(target_data,p_QBM)
+
+            target_data=np.zeros(classes)
+            target_data[y_train[i]]=1
+
+            #print(f'Target vector: {target_data}, target sol: {y_train[i]}')
+            
+            #TODO: Rewrite for multiclass classification
+            #Appending predictions and compute
+
+            train_pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
+
+
 
             print(f'TRAIN: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 

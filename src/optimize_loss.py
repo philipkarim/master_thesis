@@ -5,6 +5,8 @@ import copy
 import numpy as np
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import torch
+from sklearn.metrics import mean_squared_error
+
 
 class optimize:
     """
@@ -63,7 +65,7 @@ class optimize:
 
         return -np.sum(p_data*np.log(p_BM))
 
-    def fraud_CE(self, p_data, p_BM):
+    def cross_entropy(self, p_data, p_BM):
         """
         Loss function(cross entropy) adapted to fit the fraud dataset
         classification.
@@ -74,22 +76,22 @@ class optimize:
 
         Return(float):      The computed loss
         """
-        
-        #Something wrong witht one of the things
-        #sum_x=0
-        #for x in range(len(p_data)):
-        #    sum_x+=p_data[x]*np.sum(p_data[x]*np.log(p_BM[x]))
-
         #TODO: Have to rewrite and add a sum if batch size are larger
         #than one
 
-        #print(p_data)
-        #print(p_data_vec)
-
-        #p_data_vec=np.zeros(2)
-        #p_data_vec[p_data]=1
-
         return -np.sum(p_data*np.log(p_BM))
+
+    def MSE(self, y_true, y_pred):
+        """
+        Function which computes the mean squared errors
+
+        Args:
+            y_true(ndarray):        Ground truth
+            y_pred(ndarray):        Prediction
+
+        Returns(float or ndarray):  loss 
+        """
+        return mean_squared_error(y_true, y_pred)
 
 
     # gradient descent algorithm with adam
@@ -211,7 +213,7 @@ class optimize:
 
         return loss
 
-    def cross_entropy(self, preds, targets, classes=2, epsilon=1e-12):
+    def cross_entropy_old(self, preds, targets, classes=2, epsilon=1e-12):
         """
         Computes cross entropy between the true labels and the predictions
         by using distributions. (Not used, binary cross entropy function beneath)
