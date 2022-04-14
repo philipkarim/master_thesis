@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import torch.optim as optim_torch
 import torch
-import torch.nn.functional as F
 import os
+import sys
 
 from varQITE import *
 from optimize_loss import optimize
@@ -374,7 +374,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
 
     names='H2_rms_search_ab'
     
-    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
+    #TODO: Fix this, it looks highly amateurish 
     pid = os.fork()
     if pid > 0 :
         pid=os.fork()
@@ -467,9 +467,9 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
-        H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
 
-        #H_coefficients=np.array([-0.71513973,0.49562183,-0.23914625])
+        H_coefficients=np.array([ 0.02436183, -0.83569173, 0.18270452])
+
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 
         #print(H_coefficients)
@@ -579,8 +579,14 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     for i in range(n_seeds):
         init_c[i]=np.random.uniform(low=-1., high=1., size=len(H_operator))
 
+    #Forking the code to run multiple seeds at the same time
+    for i in range(n_seeds):
+        pid = os.fork()
+        if pid == 0:
+            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed'+str(i), init_coeff=init_c[i])
+            sys.exit()
     
-    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
+    """
     pid=os.fork()
     if pid>0:
         pid=os.fork()
@@ -618,7 +624,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
             train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed8', init_coeff=init_c[8])
     else:
         train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed9', init_coeff=init_c[9])
-
+    """
 
 def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
     #Node, bias (bool), index in list
@@ -640,7 +646,15 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
     nc_leaky_8_2=[[['leakyrelu'],[8,1],['leakyrelu'],[8,1],['leakyrelu']], [1, 3]]
     nc_relu_8_2=[[['relu'],[8,1],['relu'],[8,1],['relu']], [1, 3]]
 
+    #TODO: Make list of input layers and nicnames
+    #fork_params=[]..
+    for i in range(len(fork_params)):
+        pid = os.fork()
+        if pid == 0:
+            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_2, nickname='8_2_I_lr001')
+            sys.exit()
 
+    """
     #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
     pid=os.fork()
     if pid>0:
@@ -699,3 +713,4 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
             fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_relu_8_2, nickname='8_2_relu_lr001')
     else:
         fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_elu_8_2, nickname='8_2_elu_lr001')
+    """

@@ -129,12 +129,6 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
     
 
-    y_train=y_train[0:2]
-    X_train=X_train[0:2]
-    y_test=y_test[0:2]
-    X_test=X_test[0:2]
-
-
     #Now it is time to scale the data
     #MinMax data due two the values of the qubits will give the target value
     scaler=MinMaxScaler()
@@ -154,6 +148,12 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
     y_train=np.ravel(y_train)
     y_test=np.ravel(y_test)
+
+    y_train=y_train[0:3]
+    X_train=X_train[0:3]
+    y_test=y_test[0:3]
+    X_test=X_test[0:3]
+
 
 
     #TODO: The general function should start here
@@ -331,7 +331,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
         loss_mean.append(np.mean(loss_list))
         predictions_train.append(pred_epoch)
         targets_train.append(targets)
-        H_coefficients.append(H_parameters.numpy())
+        H_coefficients.append(torch.clone(H_parameters).detach().numpy())
 
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
 
@@ -385,12 +385,12 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
                 loss_list.append(loss)
                 
-                print(f'TEST: Loss: {loss}')
 
             #Computes the test scores regarding the test set:
             loss_mean_test.append(np.mean(loss_list))
             predictions_test.append(pred_epoch)
             targets_test.append(targets)
+            print(f'TEST: Loss: {loss_mean_test[-1],loss_mean_test}')
     
     del optim
     del varqite_train
