@@ -136,6 +136,8 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
+    #TODO: this should be done after the scaling
+
     X_train=X_train[15:17]
     y_train=y_train[15:17]
     X_test=X_test[0:2]

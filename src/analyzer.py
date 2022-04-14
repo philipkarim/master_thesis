@@ -455,13 +455,13 @@ def plot_finale_seeds(std=False):
     Plotting exhaustive search of optimap parameters and learning parameters
     """
     keyw='H2_ab'
-    dir='H2_ab'
+    dir='H2_10seeds'
 
     arrays_loss=[]
     array_norm=[]
     for i in range(10):
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20lossH2_ab_rmsseed'+str(i)+'.npy', allow_pickle=True))
-        array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20normH2_ab_rmsseed'+str(i)+'.npy', allow_pickle=True))
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20loss'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
+        array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20norm'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
     
     epoch=range(len(arrays_loss[0]))
     
@@ -636,10 +636,10 @@ def genereal_plotter(location, name):
 #plot_activation_functions()
 #plot_bias()
 #plot_lr()
-#plot_finale_seeds(True)
+plot_finale_seeds(False)
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-plot_optim_search()
+#plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')

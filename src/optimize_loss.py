@@ -12,7 +12,7 @@ class optimize:
     """
     Class handling everything to do with optimization of parameters and loss computations
     """
-    def __init__(self, Hamil, rot_in, trace_list, learning_rate=0.1, method='Adam',fraud=False):
+    def __init__(self, Hamil, rot_in, trace_list,loss_func='classification', learning_rate=0.1, method='Adam',fraud=False):
         """
         This class is handling everything regarding optimizing the parameters 
         and loss
@@ -23,6 +23,7 @@ class optimize:
         """
         self.rot_in=rot_in
         self.method=method
+        self.loss_func=loss_func
 
         #print(type(Hamil)=='NN.Feedforward')
         #print(len))
@@ -91,7 +92,9 @@ class optimize:
 
         Returns(float or ndarray):  loss 
         """
-        return mean_squared_error(y_true, y_pred)
+        #return mean_squared_error(y_true, y_pred)
+
+        return (y_true-y_pred)**2
 
 
     # gradient descent algorithm with adam
@@ -351,10 +354,17 @@ class optimize:
         return w_k_sum.real.astype(float)
 
     def gradient_loss(self, data, p_QBM, w_k_sum2):
-        dL=data/p_QBM*w_k_sum2
-          
-        return -np.sum(dL, axis=1).real.astype(float)
+        if self.loss_func=='classification':
+            #Derivative of cross entropy loss function
+            dL=data/p_QBM*w_k_sum2  
+            return -np.sum(dL, axis=1).real.astype(float)
+        else:
+            #Derivative of MSE loss
+            dL=(data-p_QBM)*w_k_sum2
 
+            #Insert the correct one
+
+            return -2*np.sum(dL, axis=1).real.astype(float)
     
     def gradient_energy(self, gradient_qbm, H_energy):
         #dL=H_energy*gradient_qbm

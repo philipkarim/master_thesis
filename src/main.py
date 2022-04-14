@@ -1112,7 +1112,7 @@ def main():
     Discriminative learning- Franke Function
     """
     #TODO: Fix the neural network thing with activation functions and number of neurons
-    franke(1, ansatz2, 30, ite_steps, learningRate, optimizing_method)
+    franke(1, ansatz2, 30, ite_steps, learningRate, optimizing_method, task='regression', folder='test')
 
     """
     Discriminative learning- MNIST

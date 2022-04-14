@@ -100,7 +100,7 @@ def plot_franke(N=20, file_title='real_franke'):
     plt.clf
 
 
-def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task='regression' ,m1=0.9, m2=0.999, network_coeff=None, nickname=None):
+def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task='regression', folder='',m1=0.9, m2=0.999, network_coeff=None, nickname=None):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -128,6 +128,13 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
     
+
+    y_train=y_train[0:2]
+    X_train=X_train[0:2]
+    y_test=y_test[0:2]
+    X_test=X_test[0:2]
+
+
     #Now it is time to scale the data
     #MinMax data due two the values of the qubits will give the target value
     scaler=MinMaxScaler()
@@ -136,15 +143,22 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
     X_test = scaler.transform(X_test)
     
     """Continue here with scaling"""
+
+    y_train=np.reshape(y_train,(-1,1))
+    y_test=np.reshape(y_test,(-1,1))
+    
     target_scaler=MinMaxScaler()
-    target_scaler.fit(y_train)
+    target_scaler.fit(np.reshape(y_train,(-1,1)))
     y_train = target_scaler.transform(y_train)
     y_test = target_scaler.transform(y_test)
+
+    y_train=np.ravel(y_train)
+    y_test=np.ravel(y_test)
 
 
     #TODO: The general function should start here
 
-    #Some 'default' Hamiltonians
+    #Some default Hamiltonians
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
@@ -214,7 +228,8 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
 
     tracing_q, rotational_indices=getUtilityParameters(ansatz)
-    optim=optimize(H_parameters, rotational_indices, tracing_q, learning_rate=lr, method=opt_met, fraud=True)
+    #TODO: Remove some of the optimization parameters
+    optim=optimize(H_parameters, rotational_indices, tracing_q,loss_func=task,learning_rate=lr, method=opt_met, fraud=True)
     
     varqite_train=varQITE(hamiltonian, ansatz, steps=n_steps, symmetrix_matrices=False)
     varqite_train.initialize_circuits()
@@ -229,7 +244,7 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
 
     for epoch in range(n_epochs):
         start_time=time.time()
-        #print(f'Epoch: {epoch}/{n_epochs}')
+        print(f'Epoch: {epoch}/{n_epochs}')
 
         #Lists to save the predictions of the epoch
         #TODO: What to save?
@@ -383,11 +398,13 @@ def franke(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, visible_q=1, task=
     #Save the scores
     if nickname is not None:
         #TODO: Also save the best hamiltonian parameters
-        np.save('results/disc_learning/franke/loss_test'+nickname+'.npy', np.array(loss_mean_test))
-        np.save('results/disc_learning/franke/loss_train'+nickname+'.npy', np.array(loss_mean))
-
-
-    return 
+        np.save('results/disc_learning/'+folder+'/loss_test'+nickname+'.npy', np.array(loss_mean_test))
+        np.save('results/disc_learning/'+folder+'/loss_train'+nickname+'.npy', np.array(loss_mean))
+        np.save('results/disc_learning/'+folder+'/H_coeff'+nickname+'.npy', np.array(H_coefficients))
+        np.save('results/disc_learning/'+folder+'/predictions_train'+nickname+'.npy', np.array(predictions_train))
+        np.save('results/disc_learning/'+folder+'/predictions_test'+nickname+'.npy', np.array(predictions_test))
+        np.save('results/disc_learning/'+folder+'/targets_train'+nickname+'.npy', np.array(targets_train))
+        np.save('results/disc_learning/'+folder+'/targets_test'+nickname+'.npy', np.array(targets_test))
 
 
 
