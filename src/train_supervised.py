@@ -164,8 +164,8 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
             
             target_data=np.zeros(2**visible_q)
             if task=='classification':
-                loss=optim.cross_entropy(target_data,p_QBM)
                 target_data[y_train[i]]=1
+                loss=optim.cross_entropy(target_data,p_QBM)
                 if visible_q==1:
                     pred_epoch.append(0) if p_QBM[0]>0.5 else pred_epoch.append(1)
                 else:
@@ -246,8 +246,8 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
 
                 target_data=np.zeros(2**visible_q)
                 if task=='classification':
-                    loss=optim.cross_entropy(target_data,p_QBM)
                     target_data[y_test[i]]=1
+                    loss=optim.cross_entropy(target_data,p_QBM)
                     target_score_epoch.append(p_QBM[y_test[i]])
 
                     if visible_q==1:
