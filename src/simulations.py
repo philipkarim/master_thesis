@@ -467,9 +467,6 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #H_coefficients=init_coeff
     else:
         H_coefficients=np.random.uniform(low=-1., high=1., size=len(H_operator))
-
-        H_coefficients=np.array([ 0.02436183, -0.83569173, 0.18270452])
-
         H_coefficients = torch.tensor(H_coefficients, requires_grad=True)
 
         #print(H_coefficients)
@@ -523,7 +520,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         pqbm_list.append(p_QBM)
 
         #Computes the loss
-        loss=optim.cross_entropy_new(target_data,p_QBM)
+        loss=optim.cross_entropy(target_data,p_QBM)
 
         print(f'P_QBM: {p_QBM}, Loss: {loss}')
         print(f'Loss: {loss, loss_list}')

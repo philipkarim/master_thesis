@@ -450,16 +450,16 @@ def plot_three_sub():
     plt.savefig('results/generative_learning/loss_3_sub.png')
     plt.clf()
 
-def plot_finale_seeds(std=False):
+def plot_finale_seeds(std=False, plot_pbm=False):
     """
     Plotting exhaustive search of optimap parameters and learning parameters
     """
     keyw='H2_ab'
     dir='H2_10seeds'
-
+    n_seeds=10
     arrays_loss=[]
     array_norm=[]
-    for i in range(10):
+    for i in range(n_seeds):
         arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20loss'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
         array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20norm'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
     
@@ -467,7 +467,7 @@ def plot_finale_seeds(std=False):
     
     #colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
 
-    if std==False:
+    if std:
         plt.figure()
         for j, i in enumerate(arrays_loss):
             plt.plot(epoch, i)
@@ -481,7 +481,7 @@ def plot_finale_seeds(std=False):
         for j, i in enumerate(array_norm):
             plt.plot(epoch, i)
         plt.xlabel('Iteration')
-        plt.ylabel('Loss')
+        plt.ylabel(r'L\textsubscript{1}-norm')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds.png')
         plt.clf()
@@ -494,7 +494,7 @@ def plot_finale_seeds(std=False):
 
 
         plt.figure()
-        plt.errorbar(epoch, avg_list, std_list)
+        plt.errorbar(epoch, avg_list, std_list, ecolor='gray', capsize=5)
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.tight_layout()
@@ -504,7 +504,7 @@ def plot_finale_seeds(std=False):
         plt.figure()
         plt.errorbar(epoch, avg_list_norm, std_list_norm)
         plt.xlabel('Iteration')
-        plt.ylabel('Norm L1')
+        plt.ylabel(r'L\textsubscript{1}-norm')
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_10seeds_w_std.png')
         plt.clf()
@@ -512,12 +512,55 @@ def plot_finale_seeds(std=False):
 
         plt.figure()
         fig, axs = plt.subplots(2, sharex=True)
-        axs[1].errorbar(epoch, avg_list, std_list)
+        axs[1].errorbar(epoch, avg_list, std_list, ecolor='tab:red', capsize=1.2, capthick=0.5, elinewidth=0.7, barsabove=False, fmt = 'o', markersize=0.9)
         axs[1].set(ylabel='Loss', xlabel='Iteration')
-        axs[0].errorbar(epoch, avg_list_norm, std_list_norm)
-        axs[0].set(ylabel='L1 Distance')
+        axs[0].errorbar(epoch, avg_list_norm, std_list_norm, ecolor='tab:red', capsize=1.2, capthick=0.5, elinewidth=0.7, barsabove=False, fmt = 'o', markersize=0.9)
+        axs[0].set(ylabel=r'L\textsubscript{1}-norm')
         plt.tight_layout()
         fig.savefig('results/generative_learning/'+keyw+'_sub_10seeds.png')
+
+    if plot_pbm:
+        min_error=1000
+        max_error=0.0
+        pqbm_list=[]
+        for i in range(n_seeds):
+            pqbm_list.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20pqbm_list'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
+
+        for j in range(n_seeds):
+            if min_error>array_norm[j][-1]:
+                min_error=array_norm[j][-1]
+                best_pbm=pqbm_list[j][-1]
+
+            if max_error<array_norm[j][-1]:
+                worst_pbm=pqbm_list[j][-1]
+                max_error=array_norm[j][-1]
+
+        print(f'best_pbm {best_pbm}')
+        print(f'worst pbm {worst_pbm}')
+
+        bell_state=[0.5,0,0,0.5]
+        barWidth = 0.25
+    
+        # Set position of bar on X axis
+        br1 = np.arange(len(bell_state))
+        br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
+        
+        # Make the plot
+        plt.bar(br1, bell_state, color ='tab:red', width = barWidth,
+                edgecolor ='grey', label ='Bell state')
+        plt.bar(br2, worst_pbm, color ='tab:green', width = barWidth,
+                edgecolor ='grey', label ='Worst trained')
+        plt.bar(br3, best_pbm, color ='tab:blue', width = barWidth,
+                edgecolor ='grey', label ='Best trained')
+        plt.xlabel('Sample')
+        plt.ylabel('Probability')
+        plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
+        plt.legend(loc="upper center")
+        plt.tight_layout()
+        plt.savefig('results/generative_learning/'+keyw+'RMS_lr01m099bar_10seeds.png')
+        plt.clf()
+
 
 
 """
@@ -631,15 +674,14 @@ def genereal_plotter(location, name):
     plt.savefig('results/disc_learning/assets/'+name+'.png')
     plt.clf()
 
-
 #plot_NN_sizes()
 #plot_activation_functions()
 #plot_bias()
 #plot_lr()
-#plot_finale_seeds(False)
+plot_finale_seeds(True, True)
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-plot_optim_search()
+#plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
