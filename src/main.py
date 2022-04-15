@@ -936,7 +936,7 @@ def main():
     number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=100
+    epochs=50
     optimizing_method='RMSprop'
 
     """
@@ -1061,17 +1061,17 @@ def main():
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #TODO: Then run these two final seeds
-    #final_seed_sim(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps)
+    #final_seed_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
 
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff=[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     
-    train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.2, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
+    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
 
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
@@ -1112,7 +1112,10 @@ def main():
     Discriminative learning- Franke Function
     """
     #TODO: Fix the neural network thing with activation functions and number of neurons
-    #franke(1, ansatz2, 30, ite_steps, learningRate, optimizing_method, task='regression', folder='test')
+    direc='test_franke'
+    name_file='3_samples_3_epochs'
+
+    #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file)
 
     """
     Discriminative learning- MNIST

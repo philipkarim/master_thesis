@@ -522,7 +522,7 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         #Computes the loss
         loss=optim.cross_entropy(target_data,p_QBM)
 
-        print(f'P_QBM: {p_QBM}, Loss: {loss}')
+        print(f'P_QBM: {p_QBM}, Loss: {loss}, H_coeff: {H_coefficients}')
         print(f'Loss: {loss, loss_list}')
         norm=np.linalg.norm((target_data-p_QBM), ord=1)
 
@@ -566,7 +566,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
     #e=time.time()
     #print(f'Orig time: {e-s}')
 
-    names='H2_ab_10seed'
+    names='H2_ab_10_newfork'
     n_seeds=10
     opt='RMSprop'
     m_1=0.99

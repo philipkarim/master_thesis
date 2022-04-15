@@ -14,6 +14,8 @@ import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
 import time
 
+
+
 #Import scikit learn modules
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -29,12 +31,13 @@ from varQITE import *
 from utils import *
 from optimize_loss import optimize
 from NN_class import *
+from train_supervised import train_model
 
 import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, ml_task='classification', directory='fraud', layers=None, name=None):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -155,7 +158,15 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
     #y_val = scaler.transform(y_val)
 
     #print(X_train_scaled)
+    
+    data_franke=[X_train, y_train, X_test, y_test]
+    params_fraud=[n_epochs, opt_met, lr, m1, m2]
 
+    print(params_fraud)
+
+    train_model(data_franke, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name)
+
+    """
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
         n_hamilParameters=len(hamiltonian)
@@ -288,7 +299,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
             #Appending predictions and compute
             train_pred_epoch.append(0) if p_QBM[0]>0.5 else train_pred_epoch.append(1)
 
-            loss=optim.fraud_CE(target_data,p_QBM)
+            loss=optim.cross_entropy(target_data,p_QBM)
 
             #loss=-np.sum(p_data*np.log(p_BM))
 
@@ -365,7 +376,7 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
                 target_data=np.zeros(2)
                 target_data[y_test[i]]=1
                 
-                loss=optim.fraud_CE(target_data,p_QBM)
+                loss=optim.cross_entropy(target_data,p_QBM)
                 loss_list.append(loss)
                 #TODO: Rewrite for multiclass classification
                 #Appending predictions and compute
@@ -393,5 +404,5 @@ def fraud_detection(initial_H, ansatz, n_epochs, n_steps, lr, opt_met, m1=0.7, m
 
     return 
 
-
+    """
 

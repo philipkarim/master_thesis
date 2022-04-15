@@ -467,7 +467,7 @@ def plot_finale_seeds(std=False, plot_pbm=False):
     
     #colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
 
-    if std:
+    if std==False:
         plt.figure()
         for j, i in enumerate(arrays_loss):
             plt.plot(epoch, i)
