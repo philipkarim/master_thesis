@@ -1067,8 +1067,8 @@ def main():
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
-
-    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    test_layers=[['sigmoid'],[8,1],[4,1],['sigmoid'],[8,1],['sigmoid']]
+    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
     #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
