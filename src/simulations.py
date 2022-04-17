@@ -690,7 +690,7 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
     for i, j in enumerate(fork_params):
         pid = os.fork()
         if pid == 0:
-            fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_w=j[8])
+            fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
             sys.exit()
 
     """

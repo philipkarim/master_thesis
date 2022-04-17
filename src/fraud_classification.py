@@ -37,7 +37,7 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_w='xavier_normal'):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal'):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -171,7 +171,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     data_franke=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, opt_met, lr, m1, m2]
 
-    train_model(data_franke, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_w)
+    train_model(data_franke, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
 
     """
     if initial_H==1:

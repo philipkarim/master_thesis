@@ -67,10 +67,32 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         #Initializing the network
         net=Net(network_coeff, X_train[0], n_hamilParameters)
         #TODO: Might want to initialize the weights anohther method which reduces the values of the coefficients, 0.001?
-        net.apply(init_weights, init_w)
+        
+        if init_w=='xavier_normal':
+            net.apply(init_weights_XN)
+
+        elif init_w=='xavier_uniform':
+            net.apply(init_weights_XU)
+
+        elif init_w=='he_normal':
+            net.apply(init_weights_HN)
+
+        elif init_w=='he_uniform':
+            net.apply(init_weights_HU)
+
+        elif init_w=='normal':
+            net.apply(init_weights_N)
+
+        elif init_w=='uniform':
+            net.apply(init_weights_U)
+
+        else:
+            sys.exit('Neural network nitialization not known')
 
         #Floating the network parameters
         net = net.float()
+
+        #exit()
         
         if opt_met=='SGD':
             optimizer = optim_torch.SGD(net.parameters(), lr=lr)

@@ -59,32 +59,63 @@ class Net(nn.Module):
         return self.layers(x)
     
 
-def init_weights(model, initialization='xavier_normal'):
+def init_weights_XN(model):
     """
     Weight initialization, 
     """
     if isinstance(model, nn.Linear):
-        if initialization=='xavier_normal':
-            torch.nn.init.xavier_normal_(model.weight)
-
-        elif initialization=='xavier_uniform':
-            torch.nn.init.xavier_uniform_(model.weight)
-
-        elif initialization=='he_normal':
-            torch.nn.init.kaiming_normal_(model.weight)
-
-        elif initialization=='he_uniform':
-            torch.nn.init.kaiming_uniform_(model.weight)
-
-        elif initialization=='normal':
-            torch.nn.init.normal_(model.weight)
-
-        elif initialization=='uniform':
-            torch.nn.init.uniform_(model.weight)
-
-        else:
-            sys.exit('Neural network nitialization not known')
+        torch.nn.init.xavier_normal_(model.weight)
 
         #m.weight.data.fill_(0.1)
+        if model.bias!=None:
+            model.bias.data.fill_(0.01)
+
+def init_weights_XU(model):
+    """
+    Weight initialization, 
+    """
+    if isinstance(model, nn.Linear):
+        torch.nn.init.xavier_uniform_(model.weight)
+
+        if model.bias!=None:
+            model.bias.data.fill_(0.01)
+
+def init_weights_HN(model):
+    """
+    Weight initialization, 
+    """
+    if isinstance(model, nn.Linear):
+        torch.nn.init.kaiming_normal_(model.weight)
+
+        if model.bias!=None:
+            model.bias.data.fill_(0.01)
+
+def init_weights_HU(model):
+    """
+    Weight initialization, 
+    """
+    if isinstance(model, nn.Linear):
+        torch.nn.init.kaiming_uniform_(model.weight)
+
+        if model.bias!=None:
+            model.bias.data.fill_(0.01)
+
+def init_weights_N(model):
+    """
+    Weight initialization, 
+    """
+    if isinstance(model, nn.Linear):
+        torch.nn.init.normal_(model.weight)
+
+        if model.bias!=None:
+            model.bias.data.fill_(0.01)
+
+def init_weights_U(model):
+    """
+    Weight initialization, 
+    """
+    if isinstance(model, nn.Linear):
+        torch.nn.init.uniform_(model.weight)
+
         if model.bias!=None:
             model.bias.data.fill_(0.01)
