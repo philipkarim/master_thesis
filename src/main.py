@@ -936,7 +936,7 @@ def main():
     number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=50
+    epochs=30
     optimizing_method='RMSprop'
 
     """
@@ -1067,11 +1067,15 @@ def main():
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
-    test_layers=[['sigmoid'],[8,1],[4,1],['sigmoid'],[8,1],['sigmoid']]
-    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #test_layers=[['sigmoid'],[8,1],[4,1],['sigmoid'],[8,1],['sigmoid']]
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
-    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
+    
+    #TODO: I think this kind of actually works, but the learning rate have to be small enough/correct
+    #Ham22=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0, 'x', 0]],[[0, 'x', 1]]]
+
+    #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.01, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
 
     #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
 
@@ -1085,7 +1089,7 @@ def main():
     #TODO: Make code with fraud regular- With bias variance?
 
     #TODO: Make code with network- With bias variance?
-    #fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?

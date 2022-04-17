@@ -31,6 +31,8 @@ class Net(nn.Module):
                 self.layers.add_module('sigmoid'+str(i+1),nn.Sigmoid())
             elif layer[0]=='elu':
                 self.layers.add_module('elu'+str(i+1),nn.ELU())
+            elif layer[0]=='tanh':
+                self.layers.add_module('tanh'+str(i+1),nn.Tanh())
             elif layer[0]=='leakyrelu':
                 self.layers.add_module('leakyrelu'+str(i+1),nn.LeakyReLU())
             else:

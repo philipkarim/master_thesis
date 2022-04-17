@@ -628,27 +628,69 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
 
     #fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=0.01, nickname='test')
     
-    nc_sig_32_2=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid']], [1, 3]]
-    nc_sig_16_2=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid']], [1, 3]]
-    nc_sig_8_3=[[['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid']], [1, 3]]
-    nc_8_2=[[[8,1],[8,1]], [0,3]]
 
-    nc_sig_8_2=[[['sigmoid'],[8,1],['sigmoid'],[8,1],['sigmoid']], [1, 3]]
-    nc_sig_8_2_no_b=[[['sigmoid'],[8,0],['sigmoid'],[8,0],['sigmoid']], [1, 3]]
-    nc_sig_4_2=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid']], [1, 3]]
-    nc_sig_4_3=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid']], [1, 3]]
-    nc_sig_4_4=[[['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'],[4,1],['sigmoid'], [4,1],['sigmoid']], [1, 3]]
+    """
+    There are many rule-of-thumb methods for determining the correct number of neurons to use in the hidden layers, such as the following:
 
-    nc_elu_8_2=[[['elu'],[8,1],['elu'],[8,1],['elu']], [1, 3]]
-    nc_leaky_8_2=[[['leakyrelu'],[8,1],['leakyrelu'],[8,1],['leakyrelu']], [1, 3]]
-    nc_relu_8_2=[[['relu'],[8,1],['relu'],[8,1],['relu']], [1, 3]]
+    The number of hidden neurons should be between the size of the input layer and the size of the output layer.
+    The number of hidden neurons should be 2/3 the size of the input layer, plus the size of the output layer.
+    The number of hidden neurons should be less than twice the size of the input layer.
+    """
 
-    #TODO: Make list of input layers and nicnames
-    #fork_params=[]..
-    for i in range(len(fork_params)):
+    nc_12_2_identity=[[12,1],[12,1]]
+    sig_12_2_nobias=[[12,0],[12,0]]
+
+    nc_12_3_bias_identity=[[12,1],[12,1],[12,1]]
+    nc_12_1_bias_identity=[[12,1]]
+
+
+    #Out means the activation function is applied to the outer layer, only does this for the sigmoid and
+    #tanh since we need to allow negative output values also
+    sig_12_2_out=[['sigmoid'],[12,1],['sigmoid'],[12,1], ['sigmoid']]
+    tanh_12_2_out=[['tanh'],[12,1],['tanh'],[12,1], ['tanh']]
+
+    sig_12_2=[['sigmoid'],[12,1],['sigmoid'],[12,1]]
+    tanh_12_2=[['tanh'],[12,1],['tanh'],[12,1]]
+    relu_12_2=[['relu'],[12,1],['relu'],[12,1]]
+    leaky_12_2=[['leakyrelu'],[12,1],['leakyrelu'],[12,1]]
+
+
+    #lr: 0.1, 0.05, 0.01 lr is not really that important for adaptive optimizers
+    #Do the learning rate thingy with the other hamiltonian also
+
+    #should I test optimizers here also?
+
+    #Weight initialization:
+    #XU, XN, HU, HN
+    #Remember another H
+
+    fork_params=[[H_, l_r, o_m, 0.99, 0, nc_12_2_identity,'bias','12_2_bias_identity', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2_nobias,'bias','12_2_nobias_identity', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, nc_12_3_bias_identity,'NN_size_I','12_3_identity', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, nc_12_1_bias_identity,'NN_size_I','12_1_identity', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2_out,'activations','12_2_sig_out', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, tanh_12_2_out,'activations','12_2_tanh_out', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2,'activations','12_2_sig', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, tanh_12_2,'activations','12_2_tanh', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, relu_12_2,'activations','12_2_relu', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, leaky_12_2,'activations','12_2_leaky', 'xavier_normal'],
+                [H_, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01', 'xavier_normal'],
+                [H_, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005', 'xavier_normal'],
+                [H_, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001', 'xavier_normal'],
+                [H_, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_ams', 'xavier_normal'],
+                [3, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_H3_ams', 'xavier_normal'],
+                [3, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01_H3', 'xavier_normal'],
+                [3, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005_H3', 'xavier_normal'],
+                [3, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001_H3', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_XU', 'xavier_uniform'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HN', 'he_normal'],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HU', 'he_uniform']]
+    
+
+    for i, j in enumerate(fork_params):
         pid = os.fork()
         if pid == 0:
-            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_2, nickname='8_2_I_lr001')
+            fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_w=j[8])
             sys.exit()
 
     """

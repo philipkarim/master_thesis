@@ -25,7 +25,7 @@ from NN_class import *
 
 import seaborn as sns
 
-def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='regression', n_steps=10, folder='', network_coeff=None, nickname=None):
+def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='regression', n_steps=10, folder='', network_coeff=None, nickname=None, init_w='xavier_normal'):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -67,13 +67,10 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         #Initializing the network
         net=Net(network_coeff, X_train[0], n_hamilParameters)
         #TODO: Might want to initialize the weights anohther method which reduces the values of the coefficients, 0.001?
-        net.apply(init_weights)
+        net.apply(init_weights, init_w)
 
         #Floating the network parameters
         net = net.float()
-
-        print(net)
-        exit()
         
         if opt_met=='SGD':
             optimizer = optim_torch.SGD(net.parameters(), lr=lr)
@@ -208,6 +205,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
 
             print(f'1 sample run: {time.time()-varqite_time}')
 
+        
         #Computes the test scores regarding the test set:
         loss_mean.append(np.mean(loss_list))
         predictions_train.append(pred_epoch)

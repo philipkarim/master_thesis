@@ -37,7 +37,7 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, ml_task='classification', directory='fraud', layers=None, name=None):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_w='xavier_normal'):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -76,9 +76,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         train_false_samples=400
         test_false_samples=200
 
-        #CV
-        #Liste med kretser, paralellisering, gpu, cluster?
-
         #Makes sure that each set of data contains the wanted number of true samples
         train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
         true_indices = np.delete(true_indices, np.where(np.in1d(true_indices, train_indices)))
@@ -114,6 +111,15 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
         #Now it is time to scale the data
     
+
+    #TODO: Remove this when the thing work
+    X_train=X_train[50:100]
+    y_train=y_train[50:100]
+
+    #print(f'y_train: {y_train}')
+    X_test=X_test[10:60]
+    y_test=y_test[10:60]
+    
     scaler=StandardScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
@@ -122,7 +128,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         X_val = scaler.transform(X_val)
 
     #print(y_train[9:19])
-
+    """
     #TODO: Remove this when the thing work
     X_train=X_train[60:100]
     y_train=y_train[60:100]
@@ -130,6 +136,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #print(f'y_train: {y_train}')
     X_test=X_test[20:60]
     y_test=y_test[20:60]
+    """
 
     #print(y_train, y_test)
 
@@ -141,10 +148,12 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     
     #TODO: this should be done after the scaling
 
+    """
     X_train=X_train[15:17]
     y_train=y_train[15:17]
     X_test=X_test[0:2]
     y_test=y_test[0:2]
+    """
 
     #print(y_train, y_test)
     #X_test=[]
@@ -162,9 +171,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     data_franke=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, opt_met, lr, m1, m2]
 
-    print(params_fraud)
-
-    train_model(data_franke, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name)
+    train_model(data_franke, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_w)
 
     """
     if initial_H==1:
