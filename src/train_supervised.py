@@ -173,6 +173,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
                     for qub in range(len(hamiltonian[term_H])):
                         hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
+
             #Updating the hamitlonian
             varqite_train.update_H(hamiltonian)
             ansatz=update_parameters(ansatz, init_params)
@@ -212,6 +213,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, visible_q_list)
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
+            print(f'Ham before optimizer: {hamiltonian}')
             optimizer.zero_grad()
             if network_coeff is not None:
                 output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
@@ -232,7 +234,17 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         loss_mean.append(np.mean(loss_list))
         predictions_train.append(pred_epoch)
         targets_train.append(targets)
-        H_coefficients.append(torch.clone(H_parameters).detach().numpy())
+
+        #H_coefficients.append(np.array(torch.clone(H_parameters).detach()))
+
+        temp=[]
+        if network_coeff is not None:
+            for i in range(len(output_coef)):            
+                temp.append(output_coef[i].item())
+        else:
+            for i in range(len(H_parameters)):            
+                temp.append(H_parameters[i].item())
+        H_coefficients.append(np.array(temp))
 
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
 
