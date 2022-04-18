@@ -7,6 +7,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from scipy.ndimage import convolve
+from sklearn.preprocessing import binarize
+
 
 
 def train_rbm3(dataset, learning_rate):
@@ -101,15 +103,20 @@ def train_rbm(dataset, lr):
     """
 
     # Load Data
-    digits = datasets.load_digits(n_class=4)
-    X = np.asarray(digits.data, 'float32')
-    #X, Y = nudge_dataset(X, digits.target)
-    Y=digits.target
-    X = (X - np.min(X, 0)) / (np.max(X, 0) + 0.0001)  # 0-1 scaling
-
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y,
-                                                        test_size=0.2,
+    #digits = datasets.load_digits(n_class=4)
+    #X = np.asarray(digits.data, 'float32')
+    #Y=digits.target
+    #X = (X - np.min(X, 0)) / (np.max(X, 0) + 0.0001)  # 0-1 scaling
+    """
+    X_train, X_test, y_train, y_test = train_test_split(X, Y,
+                                                        test_size=0.25,
                                                         random_state=0)
+    """
+    X_train=dataset[0]; y_train=dataset[1]; X_test=dataset[2];  y_test=dataset[3]
+
+    #Binarizing the input
+    X_train=binarize(X_train, threshold=0.5)
+    X_test=binarize(X_test, threshold=0.5)
 
     # Models we will use
     logistic = linear_model.LogisticRegression()
@@ -131,11 +138,11 @@ def train_rbm(dataset, lr):
     logistic.C = 6000.0
 
     # Training RBM-Logistic Pipeline
-    classifier.fit(X_train, Y_train)
+    classifier.fit(X_train, y_train)
 
     # Training Logistic regression
     logistic_classifier = linear_model.LogisticRegression(C=100.0)
-    logistic_classifier.fit(X_train, Y_train)
+    logistic_classifier.fit(X_train, y_train)
 
     ###############################################################################
     # Evaluation
@@ -143,26 +150,35 @@ def train_rbm(dataset, lr):
     print()
     print("Logistic regression using RBM features:\n%s\n" % (
         metrics.classification_report(
-            Y_test,
+            y_test,
             classifier.predict(X_test))))
 
     print("Logistic regression using raw pixel features:\n%s\n" % (
         metrics.classification_report(
-            Y_test,
+            y_test,
             logistic_classifier.predict(X_test))))
     
 
+def gridsearch_params(dataset):
+    """
+    Function to grid search parameters using rbm
+    """
+    X_train=dataset[0]; y_train=dataset[1]; X_test=dataset[2];  y_test=dataset[3]
+
+    logistic = linear_model.LogisticRegression()
+    rbm = BernoulliRBM(random_state=0, verbose=True)
+
     classifier = Pipeline(steps=[('rbm', rbm), ('clf', logistic)])
 
-    parameters = {'rbm__learning_rate': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
-                  'rbm__n_components': [50, 100, 200, 500],
+    parameters = {'rbm__learning_rate': [0.001, 0.01, 0.1, 1, 10],
+                  'rbm__n_components': [10, 50, 100, 200, 500],
                   #'rbm__n_iter': [20, 50,100],
-                  'clf__C': [1.0,5.0]
+                  'clf__C': [0.5,1.0,5.0,50]
                   }
 
 
     clf = GridSearchCV (classifier, parameters, n_jobs=-1, verbose=1)
-    clf.fit(X_train,Y_train)
+    clf.fit(X_train,y_train)
     print (f'Grid search best: {clf.best_estimator_}')
     #bestParams = gsc.best_estimator_.get_params()
 
@@ -173,3 +189,6 @@ def train_rbm(dataset, lr):
     #TODO: How to run on validation set
 
     #TODO: Test on fraud, why are the predictions so bad?
+
+    #TODO: What to check: iterations as function of loss train, test and validation
+    #

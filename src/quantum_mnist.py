@@ -37,6 +37,8 @@ from utils import *
 from varQITE import *
 from NN_class import *
 
+from train_supervised import train_model
+from BM import *
 
 
 #sns.set_style("darkgrid")
@@ -57,7 +59,9 @@ def bias_param(x, theta):
     return torch.dot(x, theta)
 
 
-def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7, m2=0.99, network_coeff=None, nickname=None):
+def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99, \
+                v_q=2,layers=None, ml_task='classification', directory='mnist_classification',\
+                name=None, init_ww='xavier_normal',QBM=True):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -86,8 +90,12 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
 
     X=digits.data
     y=digits.target
-    
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+    #X = np.asarray(digits.data, 'float32')
+    #Y=digits.target
+    #X = (X - np.min(X, 0)) / (np.max(X, 0) + 0.0001)  # 0-1 scaling
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
     #Now it is time to scale the data
     scaler=MinMaxScaler()
     scaler.fit(X_train)
@@ -96,10 +104,10 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
     X_test = scaler.transform(X_test)
 
     #TODO: 12 samples, 3x4 digits
-    X_train=np.concatenate((X_train[0:11], np.array([X_train[14]])), axis=0)
-    y_train=np.concatenate((y_train[0:11], np.array([y_train[14]])), axis=None)
-    X_test= np.concatenate((X_test[0:7], X_test[[8,9,13,16,17]]), axis=0)
-    y_test= np.concatenate((y_test[0:7], y_test[[8,9,13,16,17]]), axis=None)
+    #X_train=np.concatenate((X_train[0:11], np.array([X_train[14]])), axis=0)
+    #y_train=np.concatenate((y_train[0:11], np.array([y_train[14]])), axis=None)
+    #X_test= np.concatenate((X_test[0:7], X_test[[8,9,13,16,17]]), axis=0)
+    #y_test= np.concatenate((y_test[0:7], y_test[[8,9,13,16,17]]), axis=None)
     
     #X_train=np.array([X_train[0]])
     #y_train=np.array([y_train[0]])
@@ -111,6 +119,18 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
 
     #X_test=[]
     #y_test=[]
+
+    
+    data_franke=[X_train, y_train, X_test, y_test]
+    params_fraud=[n_epochs, optim_method, lr, m1, m2]
+
+    if QBM==True:
+        train_model(data_franke, initial_H, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
+    else:
+        train_rbm(data_franke, params_fraud)
+
+    """
+
 
     if initial_H==1:
         hamiltonian=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]]]
@@ -334,6 +354,6 @@ def quantum_mnist(initial_H, ansatz, n_epochs, n_steps, lr, optim_method, m1=0.7
 
 
     return 
-
+    """
 
 
