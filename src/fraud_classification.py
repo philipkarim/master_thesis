@@ -25,7 +25,7 @@ from sklearn.utils import shuffle
 #Import pytorch modules
 import torch.optim as optim_torch
 import torch
-from BM import train_rbm, gridsearch_params
+from BM import *
 
 # Import the other classes and functions
 from varQITE import *
@@ -177,5 +177,8 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if QBM==True:
         train_model(data_fraud, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
+        test_data=[X_test, y_test]
+        best_params=None
         best_params=gridsearch_params(data_fraud, 10)
-        train_rbm(data_fraud, best_params)
+        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=150, name='fraud')
+        #rbm_plot_scores(data_fraud, name='fraud2')

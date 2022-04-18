@@ -25,6 +25,7 @@ from utils import *
 from varQITE import *
 from fraud_classification import fraud_detection
 from quantum_mnist import quantum_mnist
+from franke import franke
 
 import multiprocessing as mp
 #import seaborn as sns
@@ -1131,6 +1132,7 @@ def main():
     """
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
 
 
     

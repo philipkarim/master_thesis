@@ -120,9 +120,11 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     if QBM==True:
         train_model(data_mnist, initial_H, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
-        #best_params=gridsearch_params(data_mnist, 10)
         best_params=None
-        train_rbm(data_mnist, best_params)
+        test_data=[X_test, y_test]
+        #best_params=gridsearch_params(data_mnist, 10)
+        train_rbm(data_mnist, best_params, plot_acc_vs_epoch=150, name='mnist')
+        #rbm_plot_scores(data_mnist, name='digit2')
 
     """
 

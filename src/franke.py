@@ -19,6 +19,7 @@ from varQITE import *
 from utils import *
 from NN_class import *
 from train_supervised import train_model
+from BM import *
 
 
 def franke_function(x, y, noise_sigma=0):
@@ -90,7 +91,7 @@ def plot_franke(N=20, file_title='real_franke'):
 def franke(H_num, ansatz, n_epochs, lr, 
             opt_met, v_q=1, ml_task='regression', 
             m1=0.9, m2=0.999, layers=None, 
-            directory='', name=None):
+            directory='', name=None, QBM='True'):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -145,8 +146,14 @@ def franke(H_num, ansatz, n_epochs, lr,
     data_franke=[X_train, y_train, X_test, y_test]
     params_franke=[n_epochs, opt_met, lr, m1, m2]
 
-    train_model(data_franke, H_num, ansatz, params_franke, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name)
-
+    if QBM ==True:
+        train_model(data_franke, H_num, ansatz, params_franke, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name)
+    else:
+        #Does not work
+        best_params=None
+        #best_params=gridsearch_params(data_fraud, 10)
+        train_rbm(data_franke, best_params)
+        #rbm_plot_scores(data_fraud, name='fraud2')
 
 """
 
