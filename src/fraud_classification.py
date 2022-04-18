@@ -17,7 +17,7 @@ import time
 
 
 #Import scikit learn modules
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.utils import shuffle
@@ -122,7 +122,8 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #y_test=y_test[10:60]
 
     print(len(X_train), len(X_test))
-    scaler=StandardScaler()
+    scaler=MinMaxScaler()
+    #scaler=StandardScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
