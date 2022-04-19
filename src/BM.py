@@ -66,11 +66,11 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
     else:
         #pass
         #Set best values
-        rbm.learning_rate = 0.05
+        rbm.learning_rate = 0.1
         #rbm.n_iter = 20
         #rbm.n_components = 30
         rbm.batch_size=2
-        logistic.C = 5.0
+        logistic.C = 5
 
     if plot_acc_vs_epoch==0:
         # Training RBM-Logistic Pipeline

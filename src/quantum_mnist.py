@@ -123,7 +123,7 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
         best_params=None
         test_data=[X_test, y_test]
         #best_params=gridsearch_params(data_mnist, 10)
-        train_rbm(data_mnist, best_params, plot_acc_vs_epoch=150, name='mnist')
+        train_rbm(data_mnist, best_params, plot_acc_vs_epoch=200, name='mnist')
         #rbm_plot_scores(data_mnist, name='digit2')
 
     """
