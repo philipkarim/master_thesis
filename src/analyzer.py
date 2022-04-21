@@ -196,8 +196,8 @@ def plot_optim_search():
 
     
     for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True)[0:50])
-        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True)[0:50])
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
+        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
 
     epoch=range(len(arrays_loss[0]))
 
@@ -459,14 +459,14 @@ def plot_finale_seeds(std=False, plot_pbm=False):
     """
     Plotting exhaustive search of optimap parameters and learning parameters
     """
-    keyw='H2_ab'
-    dir='H2_10seeds'
+    keyw='H1_ab'
+    dir='H1_10seeds'
     n_seeds=10
     arrays_loss=[]
     array_norm=[]
     for i in range(n_seeds):
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20loss'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
-        array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20norm'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True))
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20loss'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True)[:21])
+        array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20norm'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True)[:21])
     
     epoch=range(len(arrays_loss[0]))
     
@@ -523,6 +523,8 @@ def plot_finale_seeds(std=False, plot_pbm=False):
         axs[0].set(ylabel=r'L\textsubscript{1}-norm')
         plt.tight_layout()
         fig.savefig('results/generative_learning/'+keyw+'_sub_10seeds.pdf')
+        plt.clf()
+
 
     if plot_pbm:
         min_error=1000
@@ -545,7 +547,8 @@ def plot_finale_seeds(std=False, plot_pbm=False):
 
         bell_state=[0.5,0,0,0.5]
         barWidth = 0.25
-    
+
+        plt.figure()
         # Set position of bar on X axis
         br1 = np.arange(len(bell_state))
         br2 = [x + barWidth for x in br1]
@@ -725,11 +728,11 @@ def format_labels(x, pos):
 #plot_activation_functions()
 #plot_bias()
 #plot_lr()
-#plot_finale_seeds(True, True)
+plot_finale_seeds(True, False)
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-plot_optim_search()
+#plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
