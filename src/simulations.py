@@ -24,7 +24,7 @@ params = {'text.usetex' : True,
           'font.size' : 10,
           'font.family' : 'lmodern',
           'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
-          'figure.dpi' : 1000.0,
+          #'figure.dpi' : 1000.0,
           #'text.latex.unicode': True,
           }
 plt.rcParams.update(params)
@@ -131,7 +131,7 @@ def sim_plot_fidelity(n_steps, name=None, rz_add=False):
     plt.tight_layout()
 
     if name is not None:
-        plt.savefig('results/generative_learning/'+name+'.png')
+        plt.savefig('results/generative_learning/'+name+'.pdf')
     else:
         plt.show()
         #pass
@@ -181,7 +181,7 @@ def sim_lambda_fidelity_search(n_steps, lmbs, name=None, rz_add=False):
     plt.tight_layout()
 
     if name is not None:
-        plt.savefig('results/generative_learning/'+name+'.png')
+        plt.savefig('results/generative_learning/'+name+'.pdf')
     else:
         plt.show()
         #pass

@@ -26,7 +26,7 @@ params = {'text.usetex' : True,
           'font.size' : 10,
           'font.family' : 'lmodern',
           'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
-          'figure.dpi' : 1000.0,
+          #'figure.dpi' : 1000.0,
           #'text.latex.unicode': True,
           }
 plt.rcParams.update(params)
@@ -109,7 +109,7 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
 
         ## Display the visualization of the Confusion Matrix.
         plt.tight_layout()
-        plt.savefig('results/disc_learning/assets/CM'+name+'.png')
+        plt.savefig('results/disc_learning/assets/CM'+name+'.pdf')
         plt.clf()
 
 
@@ -140,7 +140,7 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
         plt.ylabel('Loss')
         plt.tight_layout()
         plt.legend()
-        plt.savefig('results/disc_learning/assets/rbm_acc_vs_epoch'+name+'.png')
+        plt.savefig('results/disc_learning/assets/rbm_acc_vs_epoch'+name+'.pdf')
         plt.clf()
 
 
@@ -248,7 +248,7 @@ def rbm_plot_scores(dataset, best_params=None, name=''):
     plt.ylabel('Accuracy')
     plt.tight_layout()
     #plt.legend()
-    plt.savefig('results/disc_learning/assets/rbm_h_vs_acc_'+name+'.png')
+    plt.savefig('results/disc_learning/assets/rbm_h_vs_acc_'+name+'.pdf')
     plt.clf()
 
 

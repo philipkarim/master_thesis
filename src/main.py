@@ -400,7 +400,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.xticks([r + barWidth for r in range(len(bell_state))],['00', '01', '10', '11'])
         plt.legend()
         plt.tight_layout()
-        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_bar.png')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_bar.pdf')
         plt.clf()
         #plt.show()
 
@@ -408,7 +408,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     #plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
-    plt.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_mean.png')
+    plt.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_mean.pdf')
     plt.clf()
 
     #plt.show()
@@ -417,7 +417,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         #plt.title('Bell state: Best of 10 seeds')
-        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_best.png')
+        plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_best.pdf')
         plt.clf()
 
     #plt.show()
@@ -427,7 +427,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.xlabel('Epoch')
     plt.ylabel('L1 norm')
     #plt.title('Bell state: Random seeds')
-    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
+    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.pdf')
     plt.clf()
 
 
@@ -437,7 +437,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     #plt.title('Bell state: Random seeds')
-    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.png')
+    plt.savefig(str(l_r*1000)+str(len(target_data))+names+'_all.pdf')
     plt.clf()
 
         # Plot the subplots
@@ -451,7 +451,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     axs[1].set(ylabel='Loss', xlabel='Epoch')
     axs[0].errorbar(epochs_list, avg_list_norm, std_list_norm)
     axs[0].set(ylabel='L1 Distance')
-    fig.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_both.png')
+    fig.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_both.pdf')
 
     """
     plt.subplot(2, sharex=True)
@@ -596,7 +596,7 @@ def plot_fidelity2(n_steps, name=None):
     plt.legend()
 
     if name!=None:
-        plt.savefig('results/fidelity/'+name+'.png')
+        plt.savefig('results/fidelity/'+name+'.pdf')
     else:
         plt.show()
         #pass
@@ -660,7 +660,7 @@ def find_best_alpha(n_steps, alpha_space, name=None):
     plt.legend()
 
     if name!=None:
-        plt.savefig('results/fidelity/'+name+'.png')
+        plt.savefig('results/fidelity/'+name+'.pdf')
     else:
         plt.show()
 
@@ -1042,10 +1042,10 @@ def main():
     Fidelity simulations
     """
     #rz true and symmetric false gives best, 98.5 and 99.98
-    #sim_plot_fidelity(ite_steps, rz_add=rz_add)#, name='Fidelity_dynamic_lmb_without_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    sim_plot_fidelity(ite_steps, rz_add=rz_add, name='Fidelity_dynamic_lmb_without_rz_new')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
 
-    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab')
+    sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab_new')
     #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz_ab')
 
     """
@@ -1131,7 +1131,7 @@ def main():
     Classical Boltzmann machine
     """
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
 
 

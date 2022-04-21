@@ -180,5 +180,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         test_data=[X_test, y_test]
         best_params=None
         best_params=gridsearch_params(data_fraud, 10)
+        #TODO: Maybe not binary values? between 0 and 1? test with 80 and 5050
         train_rbm(data_fraud, best_params, plot_acc_vs_epoch=150, name='fraud')
         #rbm_plot_scores(data_fraud, name='fraud2')

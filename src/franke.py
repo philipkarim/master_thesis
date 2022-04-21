@@ -84,7 +84,7 @@ def plot_franke(N=20, file_title='real_franke'):
     # Adding labels
     ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
     plt.tight_layout()
-    plt.savefig('results/disc_learning/franke/'+file_title+'.png')
+    plt.savefig('results/disc_learning/franke/'+file_title+'.pdf')
     plt.clf
 
 
