@@ -4,7 +4,7 @@ from random import sample
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib.ticker as tick
+#import matplotlib.ticker as tick
 #sns.set_style("darkgrid")
 #plt.style.use('science')
 #x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
@@ -101,7 +101,7 @@ def plot_lr_search():
     print(len(loss_A1))
     print(loss_A1[:len(loss_A1)])
     print(loss[:len(loss)])
-    exit()
+    #exit()
 
     sma=1
     skip=0
@@ -158,10 +158,11 @@ def plot_optim_search():
     """
     arrays_loss=[]
     arrays_norm=[]
-    all='RMS'
-    keyw='H2_rms_search_ab'
-    folder='H2_rms'
-
+    all='all'
+    #keyw='H2_rms_search_ab'
+    #folder='H2_rms'
+    folder='H1_ab_new'
+    keyw='H1_ab_new'
     half_size=False
 
     if all!='RMS':
@@ -294,10 +295,14 @@ def plot_optim_search():
         
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        #plt.yscale("log")
+        #fig, ax = plt.subplots()
 
+        #plt.yscale('log')
+        #plt.yticks(np.arange(0.5, 2, 0.1))
+        plt.legend()
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
+        #plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(format_labels))
         plt.savefig('results/generative_learning/'+keyw+'_loss.pdf')
         plt.clf
 
@@ -602,7 +607,7 @@ def plot_bias():
     epoch=range(len(loss_list[0]))
 
     plt.figure()
-    plt.plot(epoch, loss_list[0], label='Bias')    
+    plt.plot(epoch, loss_list[0], label='Bias')
     plt.plot(epoch, loss_list[1], label='No bias')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -712,7 +717,8 @@ def plot_gen_sub(name_start, labels, end):
     plt.tight_layout()
     plt.savefig('results/disc_learning/assets/'+name_start+end+'.pdf')
 
-
+def format_labels(x, pos):
+    return "e$^{%i}$" % np.log(x)
 
 
 #plot_NN_sizes()
@@ -720,11 +726,12 @@ def plot_gen_sub(name_start, labels, end):
 #plot_bias()
 #plot_lr()
 #plot_finale_seeds(True, True)
-plot_lr_search()
+#plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-#plot_optim_search()
+plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
+
