@@ -935,7 +935,7 @@ def main():
     number_of_seeds=10
     learningRate=0.1
     ite_steps=10
-    epochs=30
+    epochs=150
     optimizing_method='RMSprop'
 
     """
@@ -1042,18 +1042,18 @@ def main():
     Fidelity simulations
     """
     #rz true and symmetric false gives best, 98.5 and 99.98
-    sim_plot_fidelity(ite_steps, rz_add=rz_add, name='Fidelity_dynamic_lmb_without_rz_new')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
+    #sim_plot_fidelity(ite_steps, rz_add=rz_add, name='Fidelity_dynamic_lmb_without_rz_new')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
 
-    sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab_new')
+    #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab_new')
     #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz_ab')
 
     """
     Generative learning
     """
     ## Remember to save all arrays in case i run it for a real quantum computer, then save.
-    #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name='H1_ab', optim_method='SGD', plot=False)
-    #learning_rate_search(Ham2, ansatz_gen_dis, epochs, p_data2, n_steps=ite_steps, lr=0.1, name='H2_ab', optim_method='SGD', plot=False)
+    #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name='H1_ab_new', optim_method='SGD', plot=False)
+    #learning_rate_search(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, name='H2_ab_new', optim_method='SGD', plot=False)
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
     #TODO: Run these after finding appropriate learning rates

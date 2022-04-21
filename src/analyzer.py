@@ -92,15 +92,17 @@ def plot_lr_search():
     """
     Plots the search of the learning rate
     """
-    loss=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossH2_ab.npy', allow_pickle=True)
-    lr=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expH2_ab.npy', allow_pickle=True)
+    loss=np.load('results/generative_learning/arrays/older/SGDloss_lr0.1m10m20loss_A2.npy', allow_pickle=True)
+    lr=np.load('results/generative_learning/arrays/older/SGDloss_lr0.1m10m20lr_exp_A2.npy', allow_pickle=True)
 
-    loss_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lossH1_ab.npy', allow_pickle=True)
-    lr_A1=np.load('results/generative_learning/arrays/SGDloss_lr0.1m10m20lr_expH1_ab.npy', allow_pickle=True)
+    loss_A1=np.load('results/generative_learning/arrays/older/SGDloss_lr0.1m10m20loss_A1.npy', allow_pickle=True)
+    lr_A1=np.load('results/generative_learning/arrays/older/SGDloss_lr0.1m10m20lr_exp_A1.npy', allow_pickle=True)
 
+    print(len(loss_A1))
+    print(loss_A1[:len(loss_A1)])
+    print(loss[:len(loss)])
+    exit()
 
-    #print(lr)
-    #print(lr_A1)
     sma=1
     skip=0
 
@@ -124,7 +126,7 @@ def plot_lr_search():
     plt.plot(lr[skip:], derivatives[skip:])
     plt.xscale('log')
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDdLVSlr_ab.pdf')
+    plt.savefig('results/generative_learning/SGDdLVSlr_ab_new.pdf')
     plt.clf
 
 
@@ -135,7 +137,7 @@ def plot_lr_search():
     plt.ylabel('Learning rate')
     #plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDitVSloss_hs_ab.pdf')
+    plt.savefig('results/generative_learning/SGDitVSloss_hs_ab_new.pdf')
     #plt.show()
     plt.clf
 
@@ -147,7 +149,7 @@ def plot_lr_search():
     plt.xscale("log")
     plt.legend()
     plt.tight_layout()
-    plt.savefig('results/generative_learning/SGDlrVSloss_exp_SGDitVSloss_hs_ab.pdf')
+    plt.savefig('results/generative_learning/SGDlrVSloss_exp_SGDitVSloss_hs_ab_new.pdf')
     #plt.show()
 
 def plot_optim_search():
@@ -718,7 +720,7 @@ def plot_gen_sub(name_start, labels, end):
 #plot_bias()
 #plot_lr()
 #plot_finale_seeds(True, True)
-#plot_lr_search()
+plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
 #plot_optim_search()
