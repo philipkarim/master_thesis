@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import qiskit as qk
 import torch
-
+import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace
 from qiskit.quantum_info.operators import Operator, Pauli
 
@@ -653,3 +653,41 @@ def bias_param(x, theta):
     x=torch.tensor(x,dtype=torch.float64)
     
     return torch.dot(x, theta)
+
+def compute_NN_nodes(input, output, layers):
+    """
+    Computes an estimate of the size of hidden layers according
+    to the pyramid rule in the book of Timothy Masters
+    """
+    hidden_layers=np.zeros(layers, dtype='int')
+    if layers==1:
+        hidden_layers[0]=round(np.sqrt(input*output))
+
+    elif layers==2:
+        r=np.cbrt(input/output)
+        hidden_layers[0]=round(output*r*r)
+        hidden_layers[1]=round(output*r)
+    elif layers==3:
+        """
+        3 layer rule not reliable, this is not from the book
+        """
+        base=input/(output**3)
+        r=np.power(base,(1/4))
+
+        hidden_layers[0]=round(output*r**3)
+        hidden_layers[1]=round(output*r**2)
+        hidden_layers[2]=round(output*r)
+    else:
+        sys.exit('Numbers of hidden layers not defined')
+
+    return hidden_layers
+
+def NN_nodes(*argv, act='tanh'):
+    layers_nodes=[]
+
+    for arg in argv:
+        layers_nodes.append(act)
+        layers_nodes.append([arg, 1])
+    
+    return layers_nodes
+

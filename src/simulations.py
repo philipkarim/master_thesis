@@ -623,7 +623,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
         train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed9', init_coeff=init_c[9])
     """
 
-def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
+def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     #Node, bias (bool), index in list
 
     #fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=0.01, nickname='test')
@@ -637,51 +637,45 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m):
     The number of hidden neurons should be less than twice the size of the input layer.
     """
 
-    nc_12_2_identity=[[12,1],[12,1]]
-    sig_12_2_nobias=[[12,0],[12,0]]
+    tanh_8_5= NN_nodes(8,5)
+    tanh_9_7= NN_nodes(9,7)
 
-    nc_12_3_bias_identity=[[12,1],[12,1],[12,1]]
-    nc_12_1_bias_identity=[[12,1]]
+    fork_params=[[H_, l_r, o_m, 0.99, 0, tanh_8_5,'NN_sizes_fraud','H1_8_5_001', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(6),'NN_sizes_fraud','H1_6', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4,4', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6,6', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_fraud','H1_12,12', init, 0],
+                
+                [3, l_r, o_m, 0.99, 0, tanh_9_7,'NN_sizes_fraud','H3_9_7', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(8),'NN_sizes_fraud','H3_8', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H3_4,4', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_fraud','H3_8,8', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_fraud','H3_16,16', init, 0],
 
+                [H_, 0.1, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_01', init, 0],
+                [H_, 0.001, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_0001', init, 0],
+                
+                [H_, 0.1, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_01', init, 0],
+                [H_, 0.001, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_0001', init, 0],
 
-    #Out means the activation function is applied to the outer layer, only does this for the sigmoid and
-    #tanh since we need to allow negative output values also
-    sig_12_2_out=[['sigmoid'],[12,1],['sigmoid'],[12,1], ['sigmoid']]
-    tanh_12_2_out=[['tanh'],[12,1],['tanh'],[12,1], ['tanh']]
+                """CONTINUE HERE"""
 
-    sig_12_2=[['sigmoid'],[12,1],['sigmoid'],[12,1]]
-    tanh_12_2=[['tanh'],[12,1],['tanh'],[12,1]]
-    relu_12_2=[['relu'],[12,1],['relu'],[12,1]]
-    leaky_12_2=[['leakyrelu'],[12,1],['leakyrelu'],[12,1]]
-
-
-    #lr: 0.1, 0.05, 0.01 lr is not really that important for adaptive optimizers
-    #Do the learning rate thingy with the other hamiltonian also
-
-    #should I test optimizers here also?
-
-    #Weight initialization:
-    #XU, XN, HU, HN
-    #Remember another H
-
-    fork_params=[[H_, l_r, o_m, 0.99, 0, nc_12_2_identity,'bias','12_2_bias_identity', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2_nobias,'bias','12_2_nobias_identity', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, nc_12_3_bias_identity,'NN_size_I','12_3_identity', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, nc_12_1_bias_identity,'NN_size_I','12_1_identity', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2_out,'activations','12_2_sig_out', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, tanh_12_2_out,'activations','12_2_tanh_out', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2,'activations','12_2_sig', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, tanh_12_2,'activations','12_2_tanh', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, relu_12_2,'activations','12_2_relu', 'xavier_normal'],
-                [H_, l_r, o_m, 0.99, 0, leaky_12_2,'activations','12_2_leaky', 'xavier_normal'],
-                [H_, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01', 'xavier_normal'],
-                [H_, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005', 'xavier_normal'],
-                [H_, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001', 'xavier_normal'],
-                [H_, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_ams', 'xavier_normal'],
-                [3, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_H3_ams', 'xavier_normal'],
-                [3, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01_H3', 'xavier_normal'],
-                [3, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005_H3', 'xavier_normal'],
-                [3, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001_H3', 'xavier_normal'],
+                [H_, l_r, o_m, 0.99, 0, nc_12_3_bias_identity,'NN_size_I','12_3_identity', init],
+                [H_, l_r, o_m, 0.99, 0, nc_12_1_bias_identity,'NN_size_I','12_1_identity', init],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2_out,'activations','12_2_sig_out', init],
+                [H_, l_r, o_m, 0.99, 0, tanh_12_2_out,'activations','12_2_tanh_out', init],
+                [H_, l_r, o_m, 0.99, 0, sig_12_2,'activations','12_2_sig', init],
+                [H_, l_r, o_m, 0.99, 0, tanh_12_2,'activations','12_2_tanh', init],
+                [H_, l_r, o_m, 0.99, 0, relu_12_2,'activations','12_2_relu', init],
+                [H_, l_r, o_m, 0.99, 0, leaky_12_2,'activations','12_2_leaky', init],
+                [H_, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01', init],
+                [H_, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005', init],
+                [H_, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001', init],
+                [H_, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_ams', init],
+                [3, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_H3_ams', init],
+                [3, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01_H3', init],
+                [3, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005_H3', init],
+                [3, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001_H3', init],
                 [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_XU', 'xavier_uniform'],
                 [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HN', 'he_normal'],
                 [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HU', 'he_uniform']]

@@ -92,7 +92,10 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         #Floating the network parameters
         net = net.float()
 
-        #exit()
+        #TODO: Save these
+        print(np.array(list(net.named_parameters())))
+
+        exit()
         
         if opt_met=='SGD':
             optimizer = optim_torch.SGD(net.parameters(), lr=lr)

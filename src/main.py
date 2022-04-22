@@ -933,9 +933,9 @@ def main():
     rz_add=False
 
     number_of_seeds=10
-    learningRate=0.1
+    learningRate=0.01
     ite_steps=10
-    epochs=150
+    epochs=50
     optimizing_method='RMSprop'
 
     """
@@ -1090,7 +1090,10 @@ def main():
     #TODO: Make code with fraud regular- With bias variance?
 
     #TODO: Make code with network- With bias variance?
-    #fraud_sim(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    #print(compute_NN_nodes(64, 3, 1))
+    #print(compute_NN_nodes(64, 3, 2))
+    
+    fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
@@ -1130,7 +1133,7 @@ def main():
     """
     Classical Boltzmann machine
     """
-    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
 
