@@ -53,7 +53,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     Returns:    Scores on how the BM performed
     """
     #Importing the data
-    fraud_20=False
+    fraud_20=True
 
     if fraud_20==True:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)

@@ -173,6 +173,8 @@ def gridsearch_params(dataset, n_iterations):
 
     rbm.n_iter = n_iterations
     rbm.n_components=30
+    
+    #Components 
 
     parameters = {'rbm__learning_rate': [0.001, 0.005, 0.01, 0.05, 0.1],
                   #'rbm__learning_rate': [0.001, 0.01],                  
