@@ -1066,10 +1066,14 @@ def main():
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
     
-    test_layers=[['sigmoid'],[8,1],[4,1],['sigmoid'],[8,1],['sigmoid']]
+    test_layers=[['tanh'],[2,1],['tanh'],[1,1]]
+    #print(NN_nodes(2,1))
+    #print(test_layers)
+
+    #exit()
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
 
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
     
@@ -1092,8 +1096,9 @@ def main():
     #TODO: Make code with network- With bias variance?
     #print(compute_NN_nodes(64, 3, 1))
     #print(compute_NN_nodes(64, 3, 2))
-    
-    fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    """This is the one"""
+    #fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?

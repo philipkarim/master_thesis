@@ -686,7 +686,7 @@ def NN_nodes(*argv, act='tanh'):
     layers_nodes=[]
 
     for arg in argv:
-        layers_nodes.append(act)
+        layers_nodes.append([act])
         layers_nodes.append([arg, 1])
     
     return layers_nodes

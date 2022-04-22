@@ -41,24 +41,6 @@ from train_supervised import train_model
 from BM import *
 
 
-#sns.set_style("darkgrid")
-
-def bias_param(x, theta):
-    """
-    Function which computes the Hamiltonian parameters with supervised fraud dataset
-    and datasample as bias
-
-        Args:   
-            x(list):        Data sample
-            theta(array):   Hamiltonian parameters for 1 parameter
-
-        Return: (float): The dot producted parameter
-    """
-    x=torch.tensor(x,dtype=torch.float64)
-    
-    return torch.dot(x, theta)
-
-
 def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99, \
                 v_q=2,layers=None, ml_task='classification', directory='mnist_classification',\
                 name=None, init_ww='xavier_normal',QBM=True):
@@ -91,13 +73,17 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     X=digits.data
     y=digits.target
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
+    X=X[0:150]
+    y=y[0:150]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=2)
     #Now it is time to scale the data
     scaler=MinMaxScaler()
     scaler.fit(X_train)
     #print(scaler.data_max_, scaler.data_min_)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
+
 
     ###12 samples, 3x4 digits
     #X_train=np.concatenate((X_train[0:11], np.array([X_train[14]])), axis=0)

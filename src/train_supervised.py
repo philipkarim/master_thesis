@@ -93,9 +93,27 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         net = net.float()
 
         #TODO: Save these
-        print(np.array(list(net.named_parameters())))
+        #print(list(net.named_parameters()))
+        #print('------------------------------------------')
 
-        exit()
+        """
+        weights_and_bias=[]
+        for name, param in net.named_parameters():
+            print(name)
+            for i in param.data:
+                temp_weight=[]
+                #print(len(i))
+                try:
+                    for j in i:
+                        temp_weight.append(np.array(j.item(), dtype=object))
+                        print(j.item())
+                    weights_and_bias.append(np.array(temp_weight, dtype=object))
+                except:
+                    pass
+                    #temp_weight.append(np.array(i.item()))
+
+        print(np.array(weights_and_bias,dtype=object))
+        """
         
         if opt_met=='SGD':
             optimizer = optim_torch.SGD(net.parameters(), lr=lr)
@@ -313,6 +331,8 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
             if task=='classification':
                 target_score.append(np.array(target_score_epoch))
             print(f'TEST: Loss: {loss_mean_test[-1],loss_mean_test}')
+        
+        print(f'Time of epoch: {time.time()-start_time}')
     
     del optim
     del varqite_train

@@ -9,6 +9,7 @@ import sys
 from varQITE import *
 from optimize_loss import optimize
 from fraud_classification import fraud_detection
+from quantum_mnist import quantum_mnist
 import seaborn as sns
 import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -640,110 +641,50 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     tanh_8_5= NN_nodes(8,5)
     tanh_9_7= NN_nodes(9,7)
 
+    tanh_23_8= NN_nodes(23,8)
+    tanh_27_12= NN_nodes(27,12)
+
     fork_params=[[H_, l_r, o_m, 0.99, 0, tanh_8_5,'NN_sizes_fraud','H1_8_5_001', init, 0],
                 [H_, l_r, o_m, 0.99, 0, NN_nodes(6),'NN_sizes_fraud','H1_6', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4,4', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6,6', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_fraud','H1_12,12', init, 0],
-                
-                [3, l_r, o_m, 0.99, 0, tanh_9_7,'NN_sizes_fraud','H3_9_7', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4_4', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6_6', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_fraud','H1_12_12', init, 0],
+                [3, l_r, o_m, 0.99, 0, tanh_9_7,'NN_sizes_fraud','H3_9_7_001', init, 0],
                 [3, l_r, o_m, 0.99, 0, NN_nodes(8),'NN_sizes_fraud','H3_8', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H3_4,4', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_fraud','H3_8,8', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_fraud','H3_16,16', init, 0],
-
+                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H3_4_4', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_fraud','H3_8_8', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_fraud','H3_16_16', init, 0],
                 [H_, 0.1, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_01', init, 0],
                 [H_, 0.001, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_0001', init, 0],
-                
-                [H_, 0.1, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_01', init, 0],
-                [H_, 0.001, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_0001', init, 0],
+                [3, 0.1, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_01', init, 0],
+                [3, 0.001, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_0001', init, 0],
+                [H_, l_r, o_m, 0.99, 0, tanh_23_8,'NN_sizes_mnist','H1_23_8_001_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_mnist','H1_8_8_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H1_16_16_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H1_4_4_m', init, 1],
+                [3, l_r, o_m, 0.99, 0, tanh_27_12,'NN_sizes_mnist','H3_27_12_001', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_mnist','H3_12_12', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H3_16_16', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H3_4_4', init, 1],
+                [H_, 0.1, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_01_m', init, 1],
+                [H_, 0.001, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_0001_m', init, 1],
+                [3, 0.1, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_01_m', init, 1],
+                [3, 0.001, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_0001_m', init, 1],
+                [H_, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_01', init, 0],
+                [H_, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_001', init, 0],
+                [3, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_01', init, 0],
+                [3, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_001', init, 0],
+                [H_, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_01_m', init, 1],
+                [H_, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_001_m', init, 1],
+                [3, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_01_m', init, 1],
+                [3, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_001_m', init, 1]]
 
-                """CONTINUE HERE"""
-
-                [H_, l_r, o_m, 0.99, 0, nc_12_3_bias_identity,'NN_size_I','12_3_identity', init],
-                [H_, l_r, o_m, 0.99, 0, nc_12_1_bias_identity,'NN_size_I','12_1_identity', init],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2_out,'activations','12_2_sig_out', init],
-                [H_, l_r, o_m, 0.99, 0, tanh_12_2_out,'activations','12_2_tanh_out', init],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2,'activations','12_2_sig', init],
-                [H_, l_r, o_m, 0.99, 0, tanh_12_2,'activations','12_2_tanh', init],
-                [H_, l_r, o_m, 0.99, 0, relu_12_2,'activations','12_2_relu', init],
-                [H_, l_r, o_m, 0.99, 0, leaky_12_2,'activations','12_2_leaky', init],
-                [H_, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01', init],
-                [H_, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005', init],
-                [H_, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001', init],
-                [H_, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_ams', init],
-                [3, 0.01, 'Amsgrad', 0.9, 0.999, sig_12_2,'optimizer','sig_12_2_lr001_H3_ams', init],
-                [3, 0.1, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr01_H3', init],
-                [3, 0.05, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr005_H3', init],
-                [3, 0.01, o_m, 0.99, 0, sig_12_2,'lr','sig_12_2_lr001_H3', init],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_XU', 'xavier_uniform'],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HN', 'he_normal'],
-                [H_, l_r, o_m, 0.99, 0, sig_12_2,'initialisation','12_2_sig_HU', 'he_uniform']]
-    
-
-    for i, j in enumerate(fork_params):
+    for j in fork_params:
         pid = os.fork()
         if pid == 0:
-            fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
-            sys.exit()
-
-    """
-    #TODO: Need to fix this, but was too late to figure out how to stopp the forks from forking when time
-    pid=os.fork()
-    if pid>0:
-        pid=os.fork()
-        if pid>0:
-            pid=os.fork()
-            if pid>0:
-                pid=os.fork()
-                if pid>0:
-                    pid=os.fork()
-                    if pid>0:
-                        pid=os.fork()
-                        if pid>0:
-                            pid=os.fork()
-                            if pid>0:
-                                pid=os.fork()
-                                if pid>0:
-                                    pid=os.fork()
-                                    if pid>0:
-                                        pid=os.fork()
-                                        if pid>0:
-                                            pid=os.fork()
-                                            if pid>0:
-                                                pid=os.fork()
-                                                if pid>0:
-                                                    pid=os.fork()
-                                                    if pid>0:
-                                                        pid=os.fork()
-                                                        if pid>0:
-                                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_8_2, nickname='8_2_I_lr001')
-                                                        else:
-                                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_32_2, nickname='32_2_lr001')
-                                                    else:
-                                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_16_2,  nickname='16_2_lr001')
-                                                else:
-                                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_3,  nickname='8_3_lr001')
-                                            else:
-                                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_sig_lr001')
-                                        else:
-                                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_2, nickname='4_2_lr001')
-                                    else:
-                                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_3, nickname='4_3_lr001')
-                                else:
-                                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_4_4, nickname='4_4_lr001')
-                            else:
-                                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.1, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr01')
-                        else:
-                            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.05, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr005')
-                    else:
-                        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=0.5, opt_met=o_m, network_coeff=nc_sig_8_2, nickname='8_2_lr05')
-                else:
-                    fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_sig_8_2_no_b, nickname='8_2_nobias_lr001')
+            if j[-1]==0:
+                fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
             else:
-                fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_leaky_8_2, nickname='8_2_leaky_lr001')
-        else:
-            fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_relu_8_2, nickname='8_2_relu_lr001')
-    else:
-        fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=30, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc_elu_8_2, nickname='8_2_elu_lr001')
-    """
+                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
+
+            sys.exit()

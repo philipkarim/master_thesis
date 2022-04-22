@@ -71,11 +71,19 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         true_indices=np.where(y==1)[0]
         false_indices=np.where(y==0)[0]
 
+        """
         #Train: 20% 100/500
         train_true_samples=100
         test_true_samples=50
         train_false_samples=400
         test_false_samples=200
+        """
+
+        #Parameter search 100 samples
+        train_true_samples=20
+        test_true_samples=10
+        train_false_samples=80
+        test_false_samples=40
 
         #Makes sure that each set of data contains the wanted number of true samples
         train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
@@ -121,9 +129,13 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #X_test=X_test[10:60]
     #y_test=y_test[10:60]
 
-    print(len(X_train), len(X_test))
-    scaler=MinMaxScaler()
-    #scaler=StandardScaler()
+    #print(len(X_train), len(X_test))
+
+    #print(np.count_nonzero(y_train==0))
+    #print(np.count_nonzero(y_test==0))
+
+    #scaler=MinMaxScaler()
+    scaler=StandardScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
@@ -170,6 +182,10 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #y_val = scaler.transform(y_val)
 
     #print(X_train_scaled)
+
+    #Remove this after test run
+    #X_train=X_train[[0]]
+    #y_train=y_train[[0]]
     
     data_fraud=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, opt_met, lr, m1, m2]
