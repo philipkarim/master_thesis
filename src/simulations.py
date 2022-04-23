@@ -685,6 +685,6 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
             if j[-1]==0:
                 fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
             else:
-                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
+                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
 
             sys.exit()

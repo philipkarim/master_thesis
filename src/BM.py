@@ -38,8 +38,8 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
     X_train=dataset[0]; y_train=dataset[1]; X_test=dataset[2];  y_test=dataset[3]
 
     #Binarizing the input
-    X_train=binarize(X_train, threshold=0.5)
-    X_test=binarize(X_test, threshold=0.5)
+    #X_train=binarize(X_train, threshold=0.5)
+    #X_test=binarize(X_test, threshold=0.5)
 
     # Models we will use
     logistic = linear_model.LogisticRegression()
@@ -58,8 +58,14 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
     #print(f'Bias hidden: {rbm.intercept_hidden_}')
     #print(f'Bias hidden: {rbm.intercept_visible_}')
 
+    #TODO: Test with and without, run hidden nodes function again
+    #This is better??
+    X_train=binarize(X_train, threshold=0.5)
+    X_test=binarize(X_test, threshold=0.5)
+
+
     rbm.n_components = 30
-    rbm.n_iter = 20
+    rbm.n_iter = 30
 
     if best_params is not None:
         model.set_params(**best_params)
@@ -70,7 +76,7 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name=''):
         #rbm.n_iter = 20
         #rbm.n_components = 30
         rbm.batch_size=2
-        logistic.C = 5
+        logistic.C = 5000
 
     if plot_acc_vs_epoch==0:
         # Training RBM-Logistic Pipeline

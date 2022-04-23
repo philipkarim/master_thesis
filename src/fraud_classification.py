@@ -71,19 +71,19 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         true_indices=np.where(y==1)[0]
         false_indices=np.where(y==0)[0]
 
-        """
+        
         #Train: 20% 100/500
         train_true_samples=100
         test_true_samples=50
         train_false_samples=400
         test_false_samples=200
-        """
+        
 
         #Parameter search 100 samples
-        train_true_samples=20
-        test_true_samples=10
-        train_false_samples=80
-        test_false_samples=40
+        #train_true_samples=20
+        #test_true_samples=10
+        #train_false_samples=80
+        #test_false_samples=40
 
         #Makes sure that each set of data contains the wanted number of true samples
         train_indices=np.random.choice(true_indices, train_true_samples, replace=False)
@@ -134,11 +134,15 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #print(np.count_nonzero(y_train==0))
     #print(np.count_nonzero(y_test==0))
 
-    #scaler=MinMaxScaler()
-    scaler=StandardScaler()
+    if QBM==False:
+        scaler=MinMaxScaler()
+    else:
+        scaler=StandardScaler()
+
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
+
     if fraud_20==True:
         X_val = scaler.transform(X_val)
 
@@ -193,9 +197,9 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if QBM==True:
         train_model(data_fraud, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
-        test_data=[X_test, y_test]
+        #test_data=[X_test, y_test]
         best_params=None
-        best_params=gridsearch_params(data_fraud, 10)
+        #best_params=gridsearch_params(data_fraud, 10)
         #TODO: Maybe not binary values? between 0 and 1? test with 80 and 5050
-        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=150, name='fraud')
+        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=0, name='fraud')
         #rbm_plot_scores(data_fraud, name='fraud2')
