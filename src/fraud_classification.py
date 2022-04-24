@@ -188,9 +188,13 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #print(X_train_scaled)
 
     #Remove this after test run
-    #X_train=X_train[[0]]
-    #y_train=y_train[[0]]
+    X_train=X_train[[0]]
+    y_train=y_train[[0]]
     
+    X_test=X_test[[0]]
+    y_test=y_test[[0]]
+
+
     data_fraud=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, opt_met, lr, m1, m2]
 

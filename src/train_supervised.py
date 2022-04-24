@@ -259,13 +259,22 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         #H_coefficients.append(np.array(torch.clone(H_parameters).detach()))
 
         temp=[]
+        print(H_parameters)
         if network_coeff is not None:
             for i in range(len(output_coef)):            
                 temp.append(output_coef[i].item())
         else:
-            for i in range(len(H_parameters)):            
-                temp.append(H_parameters[i].item())
+            for i in H_parameters:
+                temp2=[]
+                for j in i:
+                    temp2.append(j.item())
+                temp.append(np.array(temp2))
         H_coefficients.append(np.array(temp))
+
+        print(H_coefficients)
+
+        np.save('H_coeff_letest.npy', np.array(H_coefficients))
+
 
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
 
