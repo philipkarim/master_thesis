@@ -1098,7 +1098,7 @@ def main():
     #print(compute_NN_nodes(64, 3, 2))
     """This is the one"""
     #fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
 
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
@@ -1138,7 +1138,7 @@ def main():
     """
     Classical Boltzmann machine
     """
-    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
 
