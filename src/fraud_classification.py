@@ -134,6 +134,9 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #print(np.count_nonzero(y_train==0))
     #print(np.count_nonzero(y_test==0))
 
+    #print(X_train[0:3])
+    #exit()
+
     if QBM==False:
         scaler=MinMaxScaler()
     else:
