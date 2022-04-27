@@ -25,7 +25,7 @@ from utils import *
 from varQITE import *
 from fraud_classification import fraud_detection
 from quantum_mnist import quantum_mnist
-from franke import franke
+from franke import franke, plot_franke
 
 import multiprocessing as mp
 #import seaborn as sns
@@ -1098,8 +1098,8 @@ def main():
     #print(compute_NN_nodes(64, 3, 2))
     """This is the one"""
     #fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
-    fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    plot_franke()
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
     #TODO: Test for less samples?

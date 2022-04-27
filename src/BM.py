@@ -1,5 +1,3 @@
-from cProfile import label
-from docutils import Component
 from sklearn import linear_model, metrics
 from sklearn.neural_network import BernoulliRBM
 from sklearn.pipeline import Pipeline
