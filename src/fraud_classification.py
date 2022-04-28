@@ -9,6 +9,7 @@ xrandr --query to find the name of the monitors
 """
 import copy
 from dataclasses import replace
+from operator import truediv
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace
@@ -149,7 +150,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if fraud_20==True:
         X_val = scaler.transform(X_val)
 
-    #print(y_train[9:19])
+    print(len(y_train), len(y_val), len(y_test))
     """
     #TODO: Remove this when the thing work
     X_train=X_train[60:100]
@@ -191,12 +192,19 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #print(X_train_scaled)
 
     #Remove this after test run
-    X_train=X_train[[0]]
-    y_train=y_train[[0]]
+    #X_train=X_train[[0]]
+    #y_train=y_train[[0]]
     
-    X_test=X_test[[0]]
-    y_test=y_test[[0]]
+    #X_test=X_test[[0]]
+    #y_test=y_test[[0]]
 
+    y_test=np.ravel(y_test)
+    y_train=np.ravel(y_train)
+
+    binar=False
+    plot_cm=True
+    acc=True
+    n_epoc=20
 
     data_fraud=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, opt_met, lr, m1, m2]
@@ -204,9 +212,10 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if QBM==True:
         train_model(data_fraud, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
-        #test_data=[X_test, y_test]
+        test_data=[X_val, y_val]
         best_params=None
-        #best_params=gridsearch_params(data_fraud, 10)
-        #TODO: Maybe not binary values? between 0 and 1? test with 80 and 5050
-        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=0, name='fraud')
-        #rbm_plot_scores(data_fraud, name='fraud2')
+        best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
+        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
+        #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
+
+        #Binary values?
