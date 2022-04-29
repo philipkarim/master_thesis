@@ -91,7 +91,7 @@ def plot_franke(N=20, file_title='real_franke'):
 def franke(H_num, ansatz, n_epochs, lr, 
             opt_met, v_q=1, ml_task='regression', 
             m1=0.9, m2=0.999, layers=None, 
-            directory='', name=None, QBM='True'):
+            directory='', name=None, QBM=True, init_ww='xavier_normal'):
     """
     Function to run regression of the franke function with the variational Boltzmann machine
 
@@ -138,16 +138,11 @@ def franke(H_num, ansatz, n_epochs, lr,
     y_train=np.ravel(y_train)
     y_test=np.ravel(y_test)
 
-    y_train=[y_train[2]]
-    X_train=[X_train[2]]
-    y_test=[y_test[2]]
-    X_test=[X_test[2]]
-
     data_franke=[X_train, y_train, X_test, y_test]
     params_franke=[n_epochs, opt_met, lr, m1, m2]
 
     if QBM ==True:
-        train_model(data_franke, H_num, ansatz, params_franke, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name)
+        train_model(data_franke, H_num, ansatz, params_franke, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
         #Does not work
         best_params=None

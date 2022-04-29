@@ -39,7 +39,7 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True, samp_400=False):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -55,7 +55,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     """
     #Importing the data
     fraud_20=True
-
+    #Ensures 400 samples
     if fraud_20==True:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances.npy', allow_pickle=True)
         #Start by normalizing the dataset by subtracting the mean and dividing by the deviation:
@@ -111,6 +111,9 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         y_test=y[y_test_indices]
         y_val=y[y_val_indices]
 
+        if samp_400:
+            X_train=X_train[:400]; y_train=y_train[:400]
+
     else:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances_5050.npy', allow_pickle=True)
 
@@ -119,24 +122,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         X=X[0]
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-        #Now it is time to scale the data
     
-
-    #TODO: Remove this when the thing work
-    #X_train=X_train[50:100]
-    #y_train=y_train[50:100]
-
-    #print(f'y_train: {y_train}')
-    #X_test=X_test[10:60]
-    #y_test=y_test[10:60]
-
-    #print(len(X_train), len(X_test))
-
-    #print(np.count_nonzero(y_train==0))
-    #print(np.count_nonzero(y_test==0))
-
-    #print(X_train[0:3])
-    #exit()
 
     if QBM==False:
         scaler=MinMaxScaler()
@@ -151,15 +137,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         X_val = scaler.transform(X_val)
 
     print(len(y_train), len(y_val), len(y_test))
-    """
-    #TODO: Remove this when the thing work
-    X_train=X_train[60:100]
-    y_train=y_train[60:100]
 
-    #print(f'y_train: {y_train}')
-    X_test=X_test[20:60]
-    y_test=y_test[20:60]
-    """
 
     #print(y_train, y_test)
 
@@ -169,8 +147,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #X_test=np.array([X_test[1]])
     #y_test=np.array([y_test[1]])
     
-    #TODO: this should be done after the scaling
-
     """
     X_train=X_train[15:17]
     y_train=y_train[15:17]

@@ -644,7 +644,7 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     tanh_23_8= NN_nodes(23,8)
     tanh_27_12= NN_nodes(27,12)
 
-    fork_params=[[H_, l_r, o_m, 0.99, 0, tanh_8_5,'NN_sizes_fraud','H1_8_5_001', init, 0],
+    fork_params=[[l_r, 50,tanh_8_5,'network','H1_8_5_001', False, 0],
                 [H_, l_r, o_m, 0.99, 0, NN_nodes(6),'NN_sizes_fraud','H1_6', init, 0],
                 [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4_4', init, 0],
                 [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6_6', init, 0],
@@ -683,10 +683,16 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
         pid = os.fork()
         if pid == 0:
             if j[-1]==0:
-                fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
+                fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory='final_run_fraud_'+j[6], name=j[7], init_ww=j[8])
+            elif j[-1]==1:
+                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory='final_run_digit_'+j[6], name=j[7], init_ww=j[8])
+            elif j[-1]==2:
+                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory='final_run_mnist_'+j[6], name=j[7], init_ww=j[8], big_mnist=True)
+            elif j[-1]==3:
+                franke(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='regression', directory='final_run_franke_'+j[6], name=j[7], init_ww=j[8])
             else:
-                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
-
+                sys.exit('No function defined for simulation')
+                
             sys.exit()
 
 

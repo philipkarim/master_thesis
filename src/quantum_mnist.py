@@ -26,6 +26,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.datasets import load_digits
 from sklearn.utils import shuffle
+from sklearn.datasets import fetch_openml
 
 #Importing pytorch modules
 import torch.optim as optim_torch
@@ -36,14 +37,12 @@ from optimize_loss import optimize
 from utils import *
 from varQITE import *
 from NN_class import *
-
-from train_supervised import train_model
 from BM import *
-
+from train_supervised import train_model
 
 def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99, \
                 v_q=2,layers=None, ml_task='classification', directory='mnist_classification',\
-                name=None, init_ww='xavier_normal',QBM=True):
+                name=None, init_ww='xavier_normal',QBM=True, samp_400=False, big_mnist=False):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -59,7 +58,23 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
 
     #Load the digits 0,1,2,3
     classes=4
-    digits = load_digits(n_class=classes)
+    if big_mnist is not True:
+        digits = load_digits(n_class=classes)
+        X=digits.data
+        y=digits.target
+    else:
+        #mnist = fetch_openml('mnist_784')
+        X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
+        #image= mnist.data.to_numpy()
+        #x1,y1=mnist.data.loc[index_number],mnist.target.loc[index_number]
+        #x1.reset_index(drop=True,inplace=True)
+        #y1.reset_index(drop=True,inplace=True)
+        #X , y = x1[:500], x1[500:700]
+        X , y = X[:700], y[:700].astype('int')
+
+    print(np.shape(X), np.shape(y))
+
+
     """
     _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
     for ax, image, label in zip(axes, digits.images, digits.target):
@@ -69,10 +84,6 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     
     plt.show()
     """
-
-    X=digits.data
-    y=digits.target
-
     """
     classes=len(np.unique(y))
     instances=np.zeros(classes)
@@ -86,30 +97,24 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=461)
 
+    #400 samples
+    if samp_400==True:
+        X_train=X_train[0:400];  y_train=y_train[0:400]
 
+    #print(y_train[0:3])
+    #print(X_train[0])
+    print(len(np.where(y_test==0)[0]))
+    print(len(np.where(y_test==1)[0]))
+    print(len(np.where(y_test==2)[0]))
+    print(len(np.where(y_test==3)[0]))
+    exit()
+    
     #Scale the data
     scaler=MinMaxScaler()
     scaler.fit(X_train)
-    #print(scaler.data_max_, scaler.data_min_)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
-
-    ###12 samples, 3x4 digits
-    #X_train=np.concatenate((X_train[0:11], np.array([X_train[14]])), axis=0)
-    #y_train=np.concatenate((y_train[0:11], np.array([y_train[14]])), axis=None)
-    #X_test= np.concatenate((X_test[0:7], X_test[[8,9,13,16,17]]), axis=0)
-    #y_test= np.concatenate((y_test[0:7], y_test[[8,9,13,16,17]]), axis=None)
-    
-    #X_train=np.array([X_train[0]])
-    #y_train=np.array([y_train[0]])
-    #X_test=np.array([X_test[5]])
-    #y_test=np.array([y_test[5]])
-
-    #X_test=[]
-    #y_test=[]
-
-    
     data_mnist=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, optim_method, lr, m1, m2]
     data_test=[X_test, y_test]
