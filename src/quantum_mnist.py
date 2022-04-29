@@ -65,12 +65,22 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     else:
         #mnist = fetch_openml('mnist_784')
         X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
+
+        index=[]
+
+        if samp_400==False:
+            n_each_class=175
+        else:
+            n_each_class=150
+
+        for i in range(classes):
+            index.append(np.where(y==1)[0][:n_each_class])
         #image= mnist.data.to_numpy()
         #x1,y1=mnist.data.loc[index_number],mnist.target.loc[index_number]
         #x1.reset_index(drop=True,inplace=True)
         #y1.reset_index(drop=True,inplace=True)
         #X , y = x1[:500], x1[500:700]
-        X , y = X[:700], y[:700].astype('int')
+        X , y = X[index], y[index].astype('int')
 
     print(np.shape(X), np.shape(y))
 
