@@ -634,7 +634,7 @@ def plot_NN_sizes():
 
     #labels=[['12_1_identity', '1 layer'], ['12_2_identity', '2 layers'],['12_3_identity', '3 layers']]
     name_start='loss_trainH1_'
-    name_start='loss_testH1_'
+    #name_start='loss_testH1_'
 
     loss_list=[]
 
@@ -651,22 +651,22 @@ def plot_NN_sizes():
     plt.ylabel('Loss')
     plt.tight_layout()
     #plt.legend()
-    plt.legend(prop={'size': 8.75 }, loc="upper right", ncol=1)
+    plt.legend(prop={'size': 8.25}, loc="upper right", ncol=1)
     plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
 def plot_lr():
-    labels=[['01_m','0.1'],['001_m','0.01'],['0001_m','0.001']]
+    labels=[['01','0.1'],['001','0.01'],['0001','0.001']]
     #switch between two colors, different forms of lines on H1 and H2
-    fraud=False
+    fraud=True
     if fraud:
         name_start='loss_trainH1_8_5_'
-        #name_start='loss_testH1_8_5_'
+        name_start='loss_testH1_8_5_'
         nickname='H2_fraud/H2_lr_fraud'
         folder='lr_fraud'
     else:
         name_start='loss_trainH1_23_8_'
-        name_start='loss_testH1_23_8_'
+        #name_start='loss_testH1_23_8_'
         nickname='H2_mnist/H2_lr_mnist'
         folder='lr_mnist'
 
@@ -684,7 +684,7 @@ def plot_lr():
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    #plt.legend(prop={'size': 8.25}, loc="center right")
+    plt.legend(prop={'size': 8.25})#, loc="center right")
     plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
