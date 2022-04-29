@@ -621,17 +621,25 @@ def plot_bias():
     plt.clf()
 
 def plot_NN_sizes():
-    labels=[['4_2','[4, 4]'],['4_3','[4, 4, 4]'], ['4_4','[4, 4, 4, 4]'],
-            ['8_2_sig','[8, 8]'],['8_3','[8, 8, 8]'],
-            ['16_2','[16, 16]'], ['32_2','[32, 32]']]
+    
+    fraud=True
+    if fraud:
+        labels=[['8_5_001','[8, 5]'], ['4_4','[4, 4]'],['6','[6]'], ['6_6','[6, 6]'],['12_12','[12, 12]']]
+        folder='NN_sizes_fraud'
+        nickname='H2_fraud/H2_NNsizes'
+    else:
+        labels=[['23_8_001_m','[23, 8]'], ['4_4_m','[4, 4]'], ['8_8_m','[8, 8]'],['16_16_m','[16, 16]']]
+        folder='NN_sizes_mnist'
+        nickname='H2_mnist/H2_NNsizes'
 
-    labels=[['12_1_identity', '1 layer'], ['12_2_identity', '2 layers'],['12_3_identity', '3 layers']]
-    name_start='loss_train'
+    #labels=[['12_1_identity', '1 layer'], ['12_2_identity', '2 layers'],['12_3_identity', '3 layers']]
+    name_start='loss_trainH1_'
+    name_start='loss_testH1_'
+
     loss_list=[]
 
-
     for i in range(len(labels)):
-        loss_list.append(np.load('results/disc_learning/fraud/NN_size_I/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+        loss_list.append(np.load('results/disc_learning/'+folder+'/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
 
     epoch=range(len(loss_list[0]))
 
@@ -642,21 +650,29 @@ def plot_NN_sizes():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
-    plt.legend()
-    #plt.legend(prop={'size': 8 }, loc="upper right", ncol=2)
-    plt.savefig('results/disc_learning/assets/NN_sizes_I_50samp_fraud.pdf')
+    #plt.legend()
+    plt.legend(prop={'size': 8.75 }, loc="upper right", ncol=1)
+    plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
 def plot_lr():
-    labels=[['01','0.1'],['005','0.05'],['001','0.01']]
-
+    labels=[['01_m','0.1'],['001_m','0.01'],['0001_m','0.001']]
     #switch between two colors, different forms of lines on H1 and H2
+    fraud=False
+    if fraud:
+        name_start='loss_trainH1_8_5_'
+        #name_start='loss_testH1_8_5_'
+        nickname='H2_fraud/H2_lr_fraud'
+        folder='lr_fraud'
+    else:
+        name_start='loss_trainH1_23_8_'
+        name_start='loss_testH1_23_8_'
+        nickname='H2_mnist/H2_lr_mnist'
+        folder='lr_mnist'
 
     loss_list=[]
-    name_start='loss_trainsig_12_2_lr'
-
     for i in range(len(labels)):
-        loss_list.append(np.load('results/disc_learning/fraud/lr/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
+        loss_list.append(np.load('results/disc_learning/'+folder+'/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
 
     epoch=range(len(loss_list[0]))
     
@@ -667,9 +683,9 @@ def plot_lr():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
-    #plt.legend()
-    plt.legend(prop={'size': 8 }, loc="upper right")
-    plt.savefig('results/disc_learning/assets/lr_12_2_w_sig_lr.pdf')
+    plt.legend()
+    #plt.legend(prop={'size': 8.25}, loc="center right")
+    plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
 def plot_gen(name_start, labels, end):
@@ -724,11 +740,11 @@ def format_labels(x, pos):
     return "e$^{%i}$" % np.log(x)
 
 
-#plot_NN_sizes()
+plot_NN_sizes()
+#plot_lr()
 #plot_activation_functions()
 #plot_bias()
-#plot_lr()
-plot_finale_seeds(True, False)
+#plot_finale_seeds(True, False)
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
