@@ -656,14 +656,16 @@ def plot_NN_sizes():
     plt.clf()
 
 def plot_lr():
-    labels=[['01','0.1'],['001','0.01'],['0001','0.001']]
+    labels=[['01','0.1'],['001','0.01']]#,['0001','0.001']]
     #switch between two colors, different forms of lines on H1 and H2
     fraud=True
     if fraud:
         name_start='loss_trainH1_8_5_'
-        name_start='loss_testH1_8_5_'
-        nickname='H2_fraud/H2_lr_fraud'
-        folder='lr_fraud'
+        #name_start='loss_testH1_8_5_'
+        nickname='H2_fraud/H2_lr_fraud_no_network'
+        folder='lr_fraud_no_network'
+
+        name_start=name_start[:-4]+'no_network_'
     else:
         name_start='loss_trainH1_23_8_'
         #name_start='loss_testH1_23_8_'
@@ -684,7 +686,7 @@ def plot_lr():
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    plt.legend(prop={'size': 8.25})#, loc="center right")
+    #plt.legend(prop={'size': 8.25})#, loc="center right")
     plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
@@ -740,8 +742,8 @@ def format_labels(x, pos):
     return "e$^{%i}$" % np.log(x)
 
 
-plot_NN_sizes()
-#plot_lr()
+#plot_NN_sizes()
+plot_lr()
 #plot_activation_functions()
 #plot_bias()
 #plot_finale_seeds(True, False)
