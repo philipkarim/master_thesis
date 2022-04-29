@@ -122,7 +122,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         X=X[0]
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-    
 
     if QBM==False:
         scaler=MinMaxScaler()
@@ -135,9 +134,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
 
     if fraud_20==True:
         X_val = scaler.transform(X_val)
-
-    print(len(y_train), len(y_val), len(y_test))
-
 
     #print(y_train, y_test)
 
@@ -170,7 +166,6 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     #Remove this after test run
     #X_train=X_train[[0]]
     #y_train=y_train[[0]]
-    
     #X_test=X_test[[0]]
     #y_test=y_test[[0]]
 

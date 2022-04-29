@@ -10,6 +10,7 @@ from varQITE import *
 from optimize_loss import optimize
 from fraud_classification import fraud_detection
 from quantum_mnist import quantum_mnist
+from franke import franke
 import seaborn as sns
 import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -584,45 +585,6 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
             train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed'+str(i), init_coeff=init_c[i])
             sys.exit()
     
-    """
-    pid=os.fork()
-    if pid>0:
-        pid=os.fork()
-        if pid>0:
-            pid=os.fork()
-            if pid>0:
-                pid=os.fork()
-                if pid>0:
-                    pid=os.fork()
-                    if pid>0:
-                        pid=os.fork()
-                        if pid>0:
-                            pid=os.fork()
-                            if pid>0:
-                                pid=os.fork()
-                                if pid>0:
-                                    pid=os.fork()
-                                    if pid>0:
-                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed0', init_coeff=init_c[0])
-                                    else:
-                                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed1', init_coeff=init_c[1])
-                                else:
-                                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed2', init_coeff=init_c[2])
-                            else:
-                                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed3', init_coeff=init_c[3])
-                        else:
-                            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed4', init_coeff=init_c[4])
-                    else:
-                        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed5', init_coeff=init_c[5])
-                else:
-                    train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed6', init_coeff=init_c[6])
-            else:
-                train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed7', init_coeff=init_c[7])
-        else:
-            train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed8', init_coeff=init_c[8])
-    else:
-        train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=n_steps,lr=0.1, optim_method=opt, m1=m_1, m2=m_2, name=names+'seed9', init_coeff=init_c[9])
-    """
 
 def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     #Node, bias (bool), index in list
@@ -639,62 +601,56 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     """
 
     tanh_8_5= NN_nodes(8,5)
-    tanh_9_7= NN_nodes(9,7)
-
     tanh_23_8= NN_nodes(23,8)
-    tanh_27_12= NN_nodes(27,12)
+    tanh_123_19=NN_nodes(123, 19)
+    tanh_11_6= NN_nodes(11,6)
+    tanh_32_32= NN_nodes(32,32)
 
-    fork_params=[[l_r, 50,tanh_8_5,'network','H1_8_5_001', False, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(6),'NN_sizes_fraud','H1_6', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4_4', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6_6', init, 0],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_fraud','H1_12_12', init, 0],
-                [3, l_r, o_m, 0.99, 0, tanh_9_7,'NN_sizes_fraud','H3_9_7_001', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(8),'NN_sizes_fraud','H3_8', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H3_4_4', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_fraud','H3_8_8', init, 0],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_fraud','H3_16_16', init, 0],
-                [H_, 0.1, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_01', init, 0],
-                [H_, 0.001, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_0001', init, 0],
-                [3, 0.1, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_01', init, 0],
-                [3, 0.001, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_0001', init, 0],
-                [H_, l_r, o_m, 0.99, 0, tanh_23_8,'NN_sizes_mnist','H1_23_8_001_m', init, 1],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_mnist','H1_8_8_m', init, 1],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H1_16_16_m', init, 1],
-                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H1_4_4_m', init, 1],
-                [3, l_r, o_m, 0.99, 0, tanh_27_12,'NN_sizes_mnist','H3_27_12_001', init, 1],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_mnist','H3_12_12', init, 1],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H3_16_16', init, 1],
-                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H3_4_4', init, 1],
-                [H_, 0.1, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_01_m', init, 1],
-                [H_, 0.001, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_0001_m', init, 1],
-                [3, 0.1, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_01_m', init, 1],
-                [3, 0.001, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_0001_m', init, 1],
-                [H_, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_01', init, 0],
-                [H_, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_001', init, 0],
-                [3, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_01', init, 0],
-                [3, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_001', init, 0],
-                [H_, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_01_m', init, 1],
-                [H_, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_001_m', init, 1],
-                [3, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_01_m', init, 1],
-                [3, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_001_m', init, 1]]
+    #TODO:
+    #-Fix mnist
+    #-Time samples and comput time
+    #Start 0.05 on the other cluster
+
+    fork_params=[[0.01, 40,tanh_8_5,'network','H1_8_5_500_40_f', False, 0],
+                [0.01, 50,tanh_8_5,'network','H1_8_5_400_50_f', True, 0],
+                [0.01, 40,tanh_8_5,'network','H1_8_5_400_40_f', True, 0],
+                [0.001, 40,tanh_8_5,'network','H1_8_5_500_40_f_001', False, 0],
+                [0.001, 50,tanh_8_5,'network','H1_8_5_400_50_f_001', True, 0],
+                [0.001, 40,tanh_8_5,'network','H1_8_5_400_40_f_001', True, 0],
+                [0.01, 40,None,'no_network','H1_nonet_500_40_f', False, 0],
+                [0.01, 50,None,'no_network','H1_nonet_400_50_f', True, 0],
+                [0.01, 40,None,'no_network','H1_nonet_400_40_f', True, 0],
+                [0.01, 40,tanh_23_8,'network','H1_23_8_500_40_d', False, 1],
+                [0.01, 50,tanh_23_8,'network','H1_23_8_400_50_d', True, 1],
+                [0.01, 40,tanh_23_8,'network','H1_23_8_400_40_d', True, 1],
+                [0.01, 40,None,'no_network','H1_nonet_500_40_d', False, 1],
+                [0.01, 50,None,'no_network','H1_nonet_400_50_d', True, 1],
+                [0.01, 40,None,'no_network','H1_nonet_400_40_d', True, 1],
+                [0.01, 40,tanh_123_19,'network','H1_123_19_500_40_mnist', False, 2],
+                [0.01, 50,tanh_123_19,'network','H1_123_19_400_50_mnist', True, 2],
+                [0.01, 40,tanh_123_19,'network','H1_123_19_400_40_mnist', True, 2],
+                [0.01, 40,tanh_32_32,'network','H1_32_32_500_40_mnist', False, 2],
+                [0.01, 50,tanh_32_32,'network','H1_32_32_400_50_mnist', True, 2],
+                [0.01, 40,tanh_32_32,'network','H1_32_32_400_40_mnist', True, 2],
+                [0.01, 50,tanh_11_6,'network','H1_11_6_400_50_franke_001', False, 3],
+                [0.001, 50,tanh_11_6,'network','H1_11_6_400_50_franke_0001', True, 3],
+                [0.005, 50,tanh_11_6,'network','H1_11_6_400_50_franke_0005', True, 3]]
 
     for j in fork_params:
         pid = os.fork()
         if pid == 0:
             if j[-1]==0:
-                fraud_detection(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='classification', directory='final_run_fraud_'+j[6], name=j[7], init_ww=j[8])
+                fraud_detection(H_, ansatz, j[1], j[0], o_m, 0.99, 0, v_q=1, layers=j[2], ml_task='classification', directory='final_run_fraud_'+j[3], name=j[4], samp_400=j[5])
             elif j[-1]==1:
-                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory='final_run_digit_'+j[6], name=j[7], init_ww=j[8])
+                quantum_mnist(H_, ansatz, j[1], j[0], o_m, 0.99, 0, v_q=2, layers=j[2], ml_task='classification', directory='final_run_digit_'+j[3], name=j[4], samp_400=j[5])
             elif j[-1]==2:
-                quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory='final_run_mnist_'+j[6], name=j[7], init_ww=j[8], big_mnist=True)
+                quantum_mnist(H_, ansatz, j[1], j[0], o_m, 0.99, 0, v_q=2, layers=j[2], ml_task='classification', directory='final_run_mnist_'+j[3], name=j[4], samp_400=j[5], big_mnist=True)
             elif j[-1]==3:
-                franke(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=1, layers=j[5], ml_task='regression', directory='final_run_franke_'+j[6], name=j[7], init_ww=j[8])
+                franke(H_, ansatz, j[1], j[0], o_m, m1=0.99, m2=0, v_q=1, layers=j[2], ml_task='regression', directory='final_run_franke_'+j[3], name=j[4])
             else:
                 sys.exit('No function defined for simulation')
                 
             sys.exit()
-
 
 """
     fork_params=[[H_, l_r, o_m, 0.99, 0, tanh_8_5,'NN_sizes_fraud','H1_8_5_001', init, 0],

@@ -234,7 +234,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
             gradient_qbm=optim.fraud_grad_ps(hamiltonian, ansatz, d_omega, visible_q_list)
             gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
 
-            print(f'Ham before optimizer: {hamiltonian}')
+            #print(f'Ham before optimizer: {hamiltonian}')
             optimizer.zero_grad()
             if network_coeff is not None:
                 output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
@@ -248,7 +248,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
 
             optimizer.step()
 
-            print(f'1 sample run: {time.time()-varqite_time}')
+            print(f'1 sample run train: {time.time()-varqite_time}')
 
         
         #Computes the test scores regarding the test set:
@@ -259,7 +259,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
         #H_coefficients.append(np.array(torch.clone(H_parameters).detach()))
 
         temp=[]
-        print(H_parameters)
+        #print(H_parameters)
         if network_coeff is not None:
             for i in range(len(output_coef)):            
                 temp.append(output_coef[i].item())
@@ -271,9 +271,9 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
                 temp.append(np.array(temp2))
         H_coefficients.append(np.array(temp))
 
-        print(H_coefficients)
+        #print(H_coefficients)
 
-        np.save('H_coeff_letest.npy', np.array(H_coefficients))
+        #np.save('H_coeff_letest.npy', np.array(H_coefficients))
 
 
         print(f'Train Epoch complete : mean loss list= {loss_mean}')
@@ -287,6 +287,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
 
         with torch.no_grad():
             for i,sample in enumerate(X_test):
+                test_samp_time=time.time()
                 if network_coeff is not None:
                     #Network parameters
                     output_coef=net(sample)
@@ -332,6 +333,8 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
                     sys.exit('Task not defined (classification/regression)')
 
                 loss_list.append(loss)
+
+                print(f'Test sample time: {time.time()-test_samp_time}')
                 
             #Computes the test scores regarding the test set:
             loss_mean_test.append(np.mean(loss_list))

@@ -8,11 +8,9 @@ xrandr --output DP-1 --rotate normal
 xrandr --query to find the name of the monitors
 
 """
-import random
 import copy
 import numpy as np
 import qiskit as qk
-from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 import matplotlib.pyplot as plt
@@ -25,9 +23,8 @@ from utils import *
 from varQITE import *
 from fraud_classification import fraud_detection
 from quantum_mnist import quantum_mnist
-from franke import franke, plot_franke
+from franke import franke
 
-import multiprocessing as mp
 #import seaborn as sns
 
 #sns.set_style("darkgrid")
@@ -36,207 +33,6 @@ import multiprocessing as mp
 both=True
 
 plot_fidelity=True
-
-if both==False:
-    Hamiltonian=2
-    p_data=np.array([0.12, 0.88])
-
-    #Trying to reproduce fig2- Now we know that these params produce a bell state
-    if Hamiltonian==1:
-        params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                    #[gate, value, qubit]
-        H=        [[1., 'z', 0]]
-    elif Hamiltonian==2:
-        params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-                #[gate, value, qubit]
-
-        #Write qk.z instead of str? then there is no need to use get.atr?
-        H=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-                [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
-
-    elif Hamiltonian==3:
-        params= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                    #[gate, value, qubit]
-        H_init=np.random.uniform(low=-1.0, high=1.0, size=1)
-        H=        [[H_init[0], 'z', 0]]
-
-    elif Hamiltonian==4:
-        params=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-        
-        p_data=np.array([0.5,0, 0, 0.5])
-        H_init=np.random.uniform(low=-1.0, high=1.0, size=3)
-        print(H_init)
-        H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
-
-
-    #make_varQITE object
-    start=time.time()
-    varqite=varQITE(H, params, steps=10)
-    #varqite.initialize_circuits()
-
-    #Testing
-    omega, d_omega=varqite.state_prep(gradient_stateprep=True)
-    #print(d_omega)
-    end=time.time()
-    print(f'Time used: {np.around(end-start, decimals=1)} seconds')
-
-    #varqite.dC_circ0(4,0)
-    #varqite.dC_circ1(5,0,0)
-    #varqite.dC_circ2(4,1,0)
-
-    """
-    Investigating the tracing of subsystem b
-    """
-    params=update_parameters(params, omega)
-
-    #Dansity matrix measure, measure instead of computing whole DM
-    trace_circ=create_initialstate(params)
-    DM=DensityMatrix.from_instruction(trace_circ)
-
-
-    #Rewrite this to an arbitrary amount of qubits
-    if Hamiltonian==1 or Hamiltonian==2:
-        if Hamiltonian==1:
-            PT=partial_trace(DM,[1])
-            H_analytical=np.array([[0.12, 0],[0, 0.88]])
-
-        elif Hamiltonian==2:
-            #What even is this partial trace? thought it was going to be [1,3??]
-            #PT=partial_trace(DM,[0,3])=80%
-            PT=partial_trace(DM,[2,3])
-            
-            H_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                                    [-0.06, 0.43, 0.02, -0.05], 
-                                    [-0.06, 0.02, 0.43, -0.05], 
-                                    [0.01, -0.05, -0.05, 0.05]])
-
-        print('---------------------')
-        print('Analytical Gibbs state:')
-        print(H_analytical)
-        print('Computed Gibbs state:')
-        print(PT.data)
-        print('---------------------')
-
-        H_fidelity=state_fidelity(PT.data, H_analytical, validate=False)
-
-        print(f'Fidelity: {H_fidelity}')
-elif both==True:
-    pass
-
-else:
-    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-                #[gate, value, qubit]
-    #H1=        [[1., 'z', 0]]
-    H1=        [[[1., 'z', 0]]]
-
-    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-            #[gate, value, qubit]
-
-    #Write qk.z instead of str? then there is no need to use get.atr?
-    #H2=     [[1., 'z', 0], [1., 'z', 1], [-0.2, 'z', 0], 
-    #        [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
-    
-    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-    
-    #H2=     [[[1., 'z', 0]], [[1., 'z', 1]], [[-0.2, 'z', 0]], 
-    #    [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-
-
-    """
-    Testing
-    """
-    print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=10)
-    varqite1.initialize_circuits()
-    start1=time.time()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
-    end1=time.time()
-
-
-    print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=10)
-    varqite2.initialize_circuits()
-    start2=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
-    end2=time.time()
-    #print(d_omega)
-
-    print(f'Time used H1: {np.around(end1-start1, decimals=1)} seconds')
-    print(f'Time used H2: {np.around(end2-start2, decimals=1)} seconds')
-
-    print(f'omega: {omega2}')
-
-    """
-    Investigating the tracing of subsystem b
-    """
-    params1=update_parameters(params1, omega1)
-    params2=update_parameters(params2, omega2)
-
-    #Dansity matrix measure, measure instead of computing whole DM
-    trace_circ1=create_initialstate(params1)
-    trace_circ2=create_initialstate(params2)
-
-    print(trace_circ2)
-
-    DM1=DensityMatrix.from_instruction(trace_circ1)
-    DM2=DensityMatrix.from_instruction(trace_circ2)
-
-    PT1 =partial_trace(DM1,[1])
-    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
-
-    PT2=partial_trace(DM2,[2,3])
-    #Just to check that the correct parts are subtraced
-    PT2_2=partial_trace(DM2,[1,3])
-    PT2_3=partial_trace(DM2,[0,1])
-    PT2_4=partial_trace(DM2,[0,2])
-
-    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                            [-0.06, 0.43, 0.02, -0.05], 
-                            [-0.06, 0.02, 0.43, -0.05], 
-                            [0.01, -0.05, -0.05, 0.05]])
-
-    print('---------------------')
-    print('Analytical Gibbs state:')
-    print(H1_analytical)
-    print('Computed Gibbs state:')
-    print(np.real(PT1.data))
-    print('---------------------')
-
-    
-    print('---------------------')
-    print('Analytical Gibbs state:')
-    print(H2_analytical)
-    print('Computed Gibbs state:')
-    print(np.real(PT2.data))
-    print('---------------------')
-
-    H_fidelity1=state_fidelity(PT1.data, H1_analytical, validate=False)
-    H_fidelity2=state_fidelity(PT2.data, H2_analytical, validate=False)
-    H_fidelity2_2=state_fidelity(PT2_2.data, H2_analytical, validate=False)
-    H_fidelity2_3=state_fidelity(PT2_3.data, H2_analytical, validate=False)
-    H_fidelity2_4=state_fidelity(PT2_4.data, H2_analytical, validate=False)
-
-    print(f'Fidelity: H1: {np.around(H_fidelity1, decimals=2)}, H2: '
-                        f'{np.around(H_fidelity2, decimals=2)}, '
-                        f'{np.around(H_fidelity2_2, decimals=2)}, '
-                        f'{np.around(H_fidelity2_3, decimals=2)}, '
-                        f'{np.around(H_fidelity2_4, decimals=2)}')
-
-
-
 
 def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
     print('------------------------------------------------------')
@@ -453,156 +249,9 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     axs[0].set(ylabel='L1 Distance')
     fig.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_both.pdf')
 
-    """
-    plt.subplot(2, sharex=True)
-    ax1._label('Loss')
-
-    plt.plot(x, y1, 'g', linewidth=2)
-    plt.title('Plot 1: 1st Degree curve')
-
-    # Plot 2
-    plt.subplot(2, 2, 2)
-    plt.scatter(x, y2, color='k')
-    plt.title('Plot 2: 2nd Degree curve')
-
-    # Plot 3
-    plt.subplot(2, 2, 3)
-    plt.plot(x, y3, '-.y', linewidth=3)
-    plt.title('Plot 3: 3rd Degree curve')
-
-    # Plot 4
-    plt.subplot(2, 2, 4)
-    plt.plot(x, y4, '--b', linewidth=3)
-    plt.title('Plot 4: 4th Degree curve')
-
-    plt.show()
-
-
-    fig, (ax1, ax2) = plt.subplots(2, sharex=True)
-    ax1.errorbar(epochs_list, avg_list, std_list)
-    ax1._label('Loss')
-    plt.xlabel('Epoch')
-
-    ax2.errorbar(epochs_list, avg_list_norm, std_list_norm)
-    #ax2.xlabel('Epoch')
-    ax2._label('L1 norm')
-
-    #plt.title('Bell state: Mean loss with standard deviation using 10 seeds')
-    plt.clf()
-    """
 
     return 
 
-"""
-def plot_fidelity2(n_steps, name=None):
-    rz_add=False
-
-    if rz_add==True:
-        params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rz',0, 2]]
-        H1=        [[[1., 'z', 0]]]
-
-        params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3], ['rz',0, 4]]
-
-        H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-
-    else:
-        params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                    ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-        H1=        [[[1., 'z', 0]]]
-
-        params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-                ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-                ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-                ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-
-        H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-            [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-
-    
-    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
-    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                            [-0.06, 0.43, 0.02, -0.05], 
-                            [-0.06, 0.02, 0.43, -0.05], 
-                            [0.01, -0.05, -0.05, 0.05]])
-
-    fidelities1_list=[]
-    fidelities2_list=[]
-    
-    print('VarQite 1')
-    varqite1=varQITE(H1, params1, steps=n_steps, symmetrix_matrices=False, plot_fidelity=True)
-    varqite1.initialize_circuits()
-    omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
-    list_omegas_fielity1=varqite1.fidelity_omega_list()
-        
-    for i in range(len(list_omegas_fielity1)):
-        params1=update_parameters(params1, list_omegas_fielity1[i])
-        if rz_add==True:
-            trace_circ1=create_initialstate(params1[:-1])
-        else:
-            trace_circ1=create_initialstate(params1)
-
-        DM1=DensityMatrix.from_instruction(trace_circ1)
-        PT1 =partial_trace(DM1,[1])
-        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
-        PT1_2 =partial_trace(DM1,[0])
-    
-    print(f'H1: {fidelities1_list[-1]}, H1_sec:{state_fidelity(PT1_2.data, H1_analytical, validate=False)}')
-    
-    print('VarQite 2')
-    varqite2=varQITE(H2, params2, steps=n_steps, symmetrix_matrices=False, plot_fidelity=True)
-    varqite2.initialize_circuits()
-    star=time.time()
-    omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
-    print(time.time()-star)
-    list_omegas_fielity2=varqite2.fidelity_omega_list()
-
-    for j in range(len(list_omegas_fielity2)):
-        params2=update_parameters(params2, list_omegas_fielity2[j])
-        if rz_add==True:
-            trace_circ2=create_initialstate(params2[:-1])
-        else:
-            trace_circ2=create_initialstate(params2)
-
-        DM2=DensityMatrix.from_instruction(trace_circ2)
-        #Switched to 0,1 instead of 2,3
-        PT2 =partial_trace(DM2,[2,3])
-        fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
-        
-        PT2_2=np.around(state_fidelity(partial_trace(DM2,[0,1]).data, H2_analytical, validate=False), decimals=4)
-        PT2_5=np.around(state_fidelity(partial_trace(DM2,[0,3]).data, H2_analytical, validate=False), decimals=4)
-        PT2_6=np.around(state_fidelity(partial_trace(DM2,[1,2]).data, H2_analytical, validate=False), decimals=4)
-
-    print(f'H2: {fidelities2_list[-1]}, H2_2: {PT2_2}, H2_5: {PT2_5}, H2_6: {PT2_6}')
-
-    #print(PT2.data, PT2_2.data)
-
-    #print(PT2.data)
-    #print(np.linalg.norm(H2_analytical, 2))
-    #print(PT2.data/np.linalg.norm(PT2.data))
-
-    plt.plot(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
-    plt.plot(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
-    
-    #plt.scatter(list(range(0, len(fidelities1_list))),fidelities1_list, label='H1')
-    #plt.scatter(list(range(0, len(fidelities2_list))),fidelities2_list, label='H2')
-   
-    plt.xlabel('Step')
-    plt.ylabel('Fidelity')
-    plt.legend()
-
-    if name!=None:
-        plt.savefig('results/fidelity/'+name+'.pdf')
-    else:
-        plt.show()
-        #pass
-    
-    return
-"""
 
 def find_best_alpha(n_steps, alpha_space, name=None):
     params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -980,38 +629,29 @@ def main():
     #print(create_initialstate(ansatz_gen_dis))
     #exit()
 
-    ansatz3=getAnsatz(3)
-    ansatz4=getAnsatz(4)
+    #ansatz3=getAnsatz(3)
+    #ansatz4=getAnsatz(4)
 
-    Ham3=get_Hamiltonian(3)
-    Ham4=get_Hamiltonian(4)
+    #Ham3=get_Hamiltonian(3)
+    #Ham4=get_Hamiltonian(4)
 
-    p_data1=np.array([0.5, 0.5])
-    p_data2=np.array([0.5, 0, 0, 0.5])
-    p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
-    p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
-    p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
+    #p_data1=np.array([0.5, 0.5])
+    #p_data2=np.array([0.5, 0, 0, 0.5])
+    #p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
+    #p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
+    #p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
 
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
 
-    start=time.time()
+    #start=time.time()
     
     #ite_gs(toy_example=False)
     #Takning  a break again with the ising thingy
     #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
-    #network_coeff=[[10,1], [5,1],[3,1],[4,0]] 
-    
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
-    #With neural network
-    #Remember "with_grad()" for testing cases
-    layers=[[['sigmoid'],[32,1],['sigmoid'],[32,1],['sigmoid'], [32,1],['sigmoid']], [1, 3]]
-    layers=[[[24,1],[24,1],[24,1]], [1, 3]]
-
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.1, optimizing_method, m1=0.7, m2=0.99)#000509_40_samples_both_sets')
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, m1=0.7, m2=0.99, network_coeff=layers)#000509_40_samples_both_sets')
-
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.01, optimizing_method, network_coeff=layers, nickname='network_24_3_4samples')
     #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.1, optimizing_method, nickname='reg_bias_4samples')
@@ -1055,20 +695,16 @@ def main():
     #learning_rate_search(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, name='H2_ab_new', optim_method='SGD', plot=False)
     
     #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
-    #TODO: Run these after finding appropriate learning rates
+
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-    #TODO: Then run these two final seeds
+
     #final_seed_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
 
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
     #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
-    
-    test_layers=[['tanh'],[2,1],['tanh'],[1,1]]
-    #print(NN_nodes(2,1))
-    #print(test_layers)
-
+ 
     #exit()
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
@@ -1097,6 +733,13 @@ def main():
     #print(compute_NN_nodes(64, 3, 2))
     """This is the one"""
     #fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=1, layers=NN_nodes(8,2), ml_task='classification', directory='test', name='more_test', samp_400=False)
+    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=NN_nodes(8,2), ml_task='classification', directory='test2', name='more_test2', samp_400=True)
+    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=None, ml_task='classification', directory='test3', name='more_test3', samp_400=True)
+    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=NN_nodes(123,19), ml_task='classification', directory='test4', name='more_test4', samp_400=False, big_mnist=True)
+    #franke(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=1, layers=NN_nodes(11,6), directory='test5', name='more_test5')
+
+
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #TODO: What to do about the learning rates and stuff like that?
     #TODO: Layers and node tests?
@@ -1123,8 +766,6 @@ def main():
     Discriminative learning- Franke Function
     """
     #TODO: Fix the neural network thing with activation functions and number of neurons
-    direc='test_franke'
-    name_file='3_samples_3_epochs'
 
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file)
 
@@ -1137,54 +778,9 @@ def main():
     Classical Boltzmann machine
     """
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.1, opt_met=optimizing_method, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, big_mnist=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, samp_400=True, big_mnist=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
 
-
-    
-  
-    """
-    pid = os.fork()
-
-    if pid > 0 :
-        pid=os.fork()
-        if pid>0:
-            list3=[]
-            start1=time.time()
-            for i in range(int(5e8)):
-                list3.append(i)
-            print(f'time1: {time.time()-start1}')
-
-            print("\nI am child process:")
-            print("Process ID:", os.getpid())
-            print("Parent's process ID:", os.getppid())
-        else:
-            list1=[]
-            start2=time.time()
-            for i in range(int(5e8)):
-                list1.append(i)
-            print(f'time2: {time.time()-start2}')
-
-            print("I am parent process:")
-            print("Process ID:", os.getpid())
-            print("Child's process ID:", pid)
-    else:
-        list2=[]
-        start3=time.time()
-        for i in range(int(5e8)):
-            list2.append(i)
-        print(f'time3: {time.time()-start3}')
-        print("\nI am child process:")
-        print("Process ID:", os.getpid())
-        print("Parent's process ID:", os.getppid())
-    """
-    
-    #50 epochs
-
-    #end_time=time.time()
-    #print(f'Final time: {end_time-start}')
-
-    #find_best_alpha(10, np.logspace(-4,1,5))
 
 
 if __name__ == "__main__":

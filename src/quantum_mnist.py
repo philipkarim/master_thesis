@@ -64,8 +64,8 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
         y=digits.target
     else:
         #mnist = fetch_openml('mnist_784')
-        X, y = fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
-
+        X, y= fetch_openml("mnist_784", version=1, return_X_y=True, as_frame=False)
+        y=y.astype('int')
         index=[]
 
         if samp_400==False:
@@ -74,15 +74,9 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
             n_each_class=150
 
         for i in range(classes):
-            print()
-            index+=list(np.where(y==1)[0][:n_each_class])
-        #image= mnist.data.to_numpy()
-        #x1,y1=mnist.data.loc[index_number],mnist.target.loc[index_number]
-        #x1.reset_index(drop=True,inplace=True)
-        #y1.reset_index(drop=True,inplace=True)
-        #X , y = x1[:500], x1[500:700]
-        print(index)
-        X , y = X[index], y[index].astype('int')
+            index+=list(np.where(y==i)[0][:n_each_class])
+
+        X , y = X[index], y[index]
 
     print(np.shape(X), np.shape(y))
 
@@ -113,19 +107,17 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     if samp_400==True:
         X_train=X_train[0:400];  y_train=y_train[0:400]
 
-    #print(y_train[0:3])
-    #print(X_train[0])
-    print(len(np.where(y_test==0)[0]))
-    print(len(np.where(y_test==1)[0]))
-    print(len(np.where(y_test==2)[0]))
-    print(len(np.where(y_test==3)[0]))
-    exit()
     
     #Scale the data
     scaler=MinMaxScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
+
+    #X_train=X_train[[0]]
+    #y_train=y_train[[0]]
+    #X_test=X_test[[0]]
+    #y_test=y_test[[0]]
 
     data_mnist=[X_train, y_train, X_test, y_test]
     params_fraud=[n_epochs, optim_method, lr, m1, m2]
