@@ -688,3 +688,41 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
                 quantum_mnist(j[0], ansatz, n_ep, j[1], j[2], j[3], j[4], v_q=2, layers=j[5], ml_task='classification', directory=j[6], name=j[7], init_ww=j[8])
 
             sys.exit()
+
+
+"""
+    fork_params=[[H_, l_r, o_m, 0.99, 0, tanh_8_5,'NN_sizes_fraud','H1_8_5_001', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(6),'NN_sizes_fraud','H1_6', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H1_4_4', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(6,6),'NN_sizes_fraud','H1_6_6', init, 0],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_fraud','H1_12_12', init, 0],
+                [3, l_r, o_m, 0.99, 0, tanh_9_7,'NN_sizes_fraud','H3_9_7_001', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(8),'NN_sizes_fraud','H3_8', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_fraud','H3_4_4', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_fraud','H3_8_8', init, 0],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_fraud','H3_16_16', init, 0],
+                [H_, 0.1, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_01', init, 0],
+                [H_, 0.001, o_m, 0.99, 0, tanh_8_5,'lr_fraud','H1_8_5_0001', init, 0],
+                [3, 0.1, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_01', init, 0],
+                [3, 0.001, o_m, 0.99, 0, tanh_9_7,'lr_fraud','H3_9_7_0001', init, 0],
+                [H_, l_r, o_m, 0.99, 0, tanh_23_8,'NN_sizes_mnist','H1_23_8_001_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(8,8),'NN_sizes_mnist','H1_8_8_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H1_16_16_m', init, 1],
+                [H_, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H1_4_4_m', init, 1],
+                [3, l_r, o_m, 0.99, 0, tanh_27_12,'NN_sizes_mnist','H3_27_12_001', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(12,12),'NN_sizes_mnist','H3_12_12', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(16,16),'NN_sizes_mnist','H3_16_16', init, 1],
+                [3, l_r, o_m, 0.99, 0, NN_nodes(4,4),'NN_sizes_mnist','H3_4_4', init, 1],
+                [H_, 0.1, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_01_m', init, 1],
+                [H_, 0.001, o_m, 0.99, 0, tanh_23_8,'lr_mnist','H1_23_8_0001_m', init, 1],
+                [3, 0.1, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_01_m', init, 1],
+                [3, 0.001, o_m, 0.99, 0, tanh_27_12,'lr_mnist','H3_27_12_0001_m', init, 1],
+                [H_, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_01', init, 0],
+                [H_, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H1_no_network_001', init, 0],
+                [3, 0.1, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_01', init, 0],
+                [3, 0.01, o_m, 0.99, 0, None,'lr_fraud_no_network','H3_no_network_001', init, 0],
+                [H_, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_01_m', init, 1],
+                [H_, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H1_no_network_001_m', init, 1],
+                [3, 0.1, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_01_m', init, 1],
+                [3, 0.01, o_m, 0.99, 0, None,'lr_mnist_no_network','H3_no_network_001_m', init, 1]]
+"""
