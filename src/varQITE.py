@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error
 
 #@jitclass
 class varQITE:
-    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False):
+    def __init__(self, hamil, trial_circ, maxTime=0.5, steps=10, lmbs=np.logspace(-10,-4,7), reg='ridge', symmetrix_matrices=False, plot_fidelity=False, gs_computations=False):
         """
         Class handling the variational quantum imaginary time evolution
         
@@ -48,6 +48,7 @@ class varQITE:
         self.steps=steps
         self.time_step=self.maxTime/self.steps
         self.rot_loop=np.zeros(len(trial_circ), dtype=int)
+        self.gs_computations=gs_computations
 
         #TODO: It is called indices not indexes
         rotational_indices1=[]
@@ -314,9 +315,12 @@ class varQITE:
             
             if self.plot_fidelity==True:
                 self.plot_fidelity_list.append(np.copy(omega_w))
-
+                
             #TODO: Is this automaticly changed?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
+
+            if self.gs_computations==True:
+                compute_gs_energy(self.trial_circ)
 
         return omega_w, self.dwdth
 

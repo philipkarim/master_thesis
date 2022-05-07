@@ -691,3 +691,16 @@ def NN_nodes(*argv, act='tanh'):
     
     return layers_nodes
 
+def compute_gs_energy(circuit):
+    """
+    Function to compute the energy using the evolved parameters in VarITE
+    
+    Circuit(object):    The trial circuit containing the evolved parameters
+    """
+
+    circ=create_initialstate(circuit)
+
+    print(circ)
+    
+    
+

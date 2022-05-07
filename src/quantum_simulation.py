@@ -132,18 +132,25 @@ def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
 
 
 
+def gs_VarITE(initial_H, ansatz, steps, final_time, names):
+    #Initialising the ansatz with uniform parameters
+    for gate in ansatz:
+        if gate[0][0]=='r':
+            gate[1]=random.uniform(-1, 1)
+
+    varqite=varQITE(initial_H, ansatz, maxTime=final_time, steps=steps, gs_computations=True)
+    varqite.initialize_circuits()
+    omega, d_omega=varqite.state_prep(gradient_stateprep=True)
+
     return 
 
 
 def main():
     np.random.seed(1111)
 
-    number_of_seeds=1
-    learningRate=0.1
-    ite_steps=10
-    epochs=2
-    optimizing_method='Amsgrad'
-
+    #time_step=0.225
+    ite_steps=19
+    maxTime=4.275
     """
     [gate, value, qubit]
     """
@@ -158,6 +165,8 @@ def main():
                 [[g4, 'y', 0], [g4, 'y', 1]], 
                 [[g5, 'x', 0], [g5, 'x', 1]]]
 
+    hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
+
     
     Ham1=       [[[1., 'z', 0]]]
     ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
@@ -170,24 +179,10 @@ def main():
                 ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
                 ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
-    Ham2_fidelity=      [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-                        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-
-
-    p_data1=np.array([0.5, 0.5])
-    p_data2=np.array([0.5, 0, 0, 0.5])
-
-
-
-    Ham1=np.array(Ham1, dtype=object)
-    Ham2=np.array(Ham2, dtype=object)
     hydrogen_ham=np.array(hydrogen_ham, dtype=object)
-    start=time.time()
-
     
-    computeGS(number_of_seeds, hydrogen_ham, ansatz2, epochs, optimizing_method,l_r=0.1, steps=ite_steps, names='hydrogen_testing')
+    gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime, names='hydrogen_testing')
 
 
 if __name__ == "__main__":
-    #TODO: Not close to done
     main()
