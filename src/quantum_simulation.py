@@ -149,8 +149,8 @@ def main():
     np.random.seed(1111)
 
     #time_step=0.225
-    ite_steps=19
-    maxTime=4.275
+    ite_steps=400
+    maxTime=4
     """
     [gate, value, qubit]
     """

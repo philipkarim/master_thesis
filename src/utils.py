@@ -75,7 +75,7 @@ def plotter(*args, x_axis,x_label, y_label):
 
     return
 
-def run_circuit(qc_circ, statevector_test=False,shots=1024, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
+def run_circuit(qc_circ, statevector_test=True,shots=1024, multiple_circuits=False ,parallel=False, backend="statevector_simulator", histogram=False): #backend="qasm_simulator"
     
     if parallel==True:
         #Read at this jobmanager thing https://quantumcomputing.stackexchange.com/questions/13707/how-many-shots-are-executed-when-using-the-ibmqjobmanager
@@ -691,16 +691,28 @@ def NN_nodes(*argv, act='tanh'):
     
     return layers_nodes
 
-def compute_gs_energy(circuit):
+def compute_gs_energy(circuit, backend="statevector_simulator"):
     """
     Function to compute the energy using the evolved parameters in VarITE
     
     Circuit(object):    The trial circuit containing the evolved parameters
     """
-
+    compute_gs_energy.counter += 1
+    #print(compute_gs_energy.counter)
     circ=create_initialstate(circuit)
 
-    print(circ)
-    
+    backendtest = qk.Aer.get_backend(backend)
+    result = backendtest.run(circ).result()
+    psi=result.get_statevector()
+    probs_qubit_0 = psi.probabilities([0])
+    probs_qubit_1 = psi.probabilities([1])
+
+    print(f'{compute_gs_energy.counter}__________________________')
+    print(f'Qubit 1 {probs_qubit_0[1]}')
+    print(f'Qubit 2 {probs_qubit_1[1]}')
+
+
+    #print(circ)
     
 
+   

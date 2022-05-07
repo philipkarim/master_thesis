@@ -49,6 +49,7 @@ class varQITE:
         self.time_step=self.maxTime/self.steps
         self.rot_loop=np.zeros(len(trial_circ), dtype=int)
         self.gs_computations=gs_computations
+        compute_gs_energy.counter=0
 
         #TODO: It is called indices not indexes
         rotational_indices1=[]
