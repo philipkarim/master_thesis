@@ -146,6 +146,9 @@ def gs_VarITE(initial_H, ansatz, steps, final_time, names):
 
 
 def main():
+    """
+    Main function
+    """
     np.random.seed(1111)
 
     #time_step=0.225

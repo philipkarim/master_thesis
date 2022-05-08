@@ -703,6 +703,7 @@ def compute_gs_energy(circuit, backend="statevector_simulator"):
 
     backendtest = qk.Aer.get_backend(backend)
     result = backendtest.run(circ).result()
+    #print(result)
     psi=result.get_statevector()
     probs_qubit_0 = psi.probabilities([0])
     probs_qubit_1 = psi.probabilities([1])
@@ -717,6 +718,10 @@ def compute_gs_energy(circuit, backend="statevector_simulator"):
         plt.show()
         #exit()
 
+    """
+    10 or 01 is the ground state
+    Make Boltzmann distribution the configuration search array
+    """
     #print(circ)
     
 
