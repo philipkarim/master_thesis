@@ -134,6 +134,7 @@ def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
 
 def gs_VarITE(initial_H, ansatz, steps, final_time, names):
     #Initialising the ansatz with uniform parameters
+    random.seed(1111)
     for gate in ansatz:
         if gate[0][0]=='r':
             gate[1]=random.uniform(-1, 1)
@@ -189,3 +190,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+###Questions:
+"""
+-Kjørt det på Hamiltonian, men hvordan tyde resultatet
+- Hvordan gå fra quantum state til Hartree? Siden de har regnet det ut, Er det ikke bare 4 nivåer? Styrken av hvert nivå?
+- Hva betyr rotation of measurement?
+
+"""

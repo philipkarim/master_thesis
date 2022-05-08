@@ -712,7 +712,7 @@ def compute_gs_energy(circuit, backend="statevector_simulator"):
     print(f'Qubit 1 {probs_qubit_0[1]}')
     print(f'Qubit 2 {probs_qubit_1[1]}')
 
-    if compute_gs_energy.counter==400:
+    if compute_gs_energy.counter==400: 
         results = result.get_counts(circ)
         qk.visualization.plot_histogram(results)
         plt.show()

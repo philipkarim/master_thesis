@@ -96,7 +96,7 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
 
 
 #To match the result of the fys4480 slides use interaction g_interact=2 and d=0-->gs=-6
-FCI_mat=ci_matrix_pairing(2, 4, 1, 0)
+FCI_mat=ci_matrix_pairing(2, 2, 1, 1)
 lam, eigv=np.linalg.eig(FCI_mat)
 print(FCI_mat)
 print(lam)
