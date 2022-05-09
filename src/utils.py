@@ -718,28 +718,57 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
             copy_circ=copy.deepcopy(circ)
             for i in h_gate:
                 getattr(copy_circ, i[1])(i[2])
-            
+            """
+            if h_gate[0][1]=='x':
+                copy_circ.h(0)
+                copy_circ.h(1)
+            elif h_gate[0][1]=='y':
+                copy_circ.sdg(0)
+                copy_circ.sdg(1)
+                copy_circ.h(0)
+                copy_circ.h(1)
+            """
+            #copy_circ.h(0)
+            #copy_circ.h(1)
+
             result = backendtest.run(copy_circ).result()
-            psi=result.get_statevector()
-            if len(h_gate)!=3:
-                result_dict=result.get_counts(copy_circ)
-                #print(result_dict)
-                #print(result_dict['00'])
 
-                temp_E=0
-                for state in range(0,int(len(states)),2):
-                    #print(f'State: {state}')
-                    temp_E+=(result_dict[states[state]]*states[state+1])
-                    #print(temp_E)
-                
-                #prob_0=psi.probabilities([0])
-                #prob_1=psi.probabilities([1])
-                E_final+=h_gate[0][0]*temp_E
+            #TODO:
+            #Pinv
+            #rotation
+            #Measure 1 or 2 qubits
+            #MEasure probabilities or histogram?
+            #What about probabilities in 2 qubit case??
+                        
+            if len(h_gate)==2:
+                if h_gate[0][0]!=0.2252:
+                    result_dict=result.get_counts(copy_circ)
+                    temp_E=0
+                    for state in range(0,int(len(states)),2):
+                        temp_E+=(result_dict[states[state]]*states[state+1])
+
+                    E_final+=h_gate[0][0]*temp_E
+            elif len(h_gate)==10:
+                psi=result.get_statevector()
+                prob = psi.probabilities([h_gate[0][2]])
+                E_final+=h_gate[0][0]*(prob[0]-prob[1])
+
             else:
-                prob_0=psi.probabilities([h_gate[0][2]])
-                prob_1= [0,0]
+                temp_E=0
+                result_dict=result.get_counts(copy_circ)
 
-                E_final+=h_gate[0][0]*(prob_0[1]+prob_1[1])
+                if h_gate[0][0]==0:
+                    state_1q=['00', 1, '01', -1]
+                else:
+                    state_1q=['11', 1, '10', -1]
+
+                for state in range(0,int(len(state_1q)),2):
+                    temp_E+=(result_dict[state_1q[state]]*state_1q[state+1])
+
+                E_final+=h_gate[0][0]*temp_E
+
+
+                #exit()
 
     print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}')
     #exit()

@@ -134,7 +134,7 @@ def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
 
 def gs_VarITE(initial_H, ansatz, steps, final_time, names):
     #Initialising the ansatz with uniform parameters
-    #random.seed(1111)
+    random.seed(1)
     for gate in ansatz:
         if gate[0][0]=='r':
             gate[1]=random.uniform(-1, 1)
@@ -153,8 +153,8 @@ def main():
     np.random.seed(1111)
 
     #time_step=0.225
-    ite_steps=400
-    maxTime=4
+    ite_steps=1000
+    maxTime=10
     """
     [gate, value, qubit]
     """
@@ -162,11 +162,11 @@ def main():
     g0=0.2252;  g1=0.3435;  g2=-0.4347
     g3=0.5716;  g4=0.0910;  g5=0.0910
 
-    hydrogen_ham=[[[g0, 'z', 0], [g0, 'z', 0]], 
+    hydrogen_ham=[[[g0, 'z', 0], [g0, 'z', 0]],
                 [[g1, 'z', 0]],
-                [[g2, 'z', 1]], 
-                [[g3, 'z', 0], [g3, 'z', 1]], 
-                [[g4, 'y', 0], [g4, 'y', 1]], 
+                [[g2, 'z', 1]],
+                [[g3, 'z', 0], [g3, 'z', 1]],
+                [[g4, 'y', 0], [g4, 'y', 1]],
                 [[g5, 'x', 0], [g5, 'x', 1]]]
 
     hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
@@ -190,12 +190,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-###Questions:
-"""
--Kjørt det på Hamiltonian, men hvordan tyde resultatet
-- Hvordan gå fra quantum state til Hartree? Siden de har regnet det ut, Er det ikke bare 4 nivåer? Styrken av hvert nivå?
-- Hva betyr rotation of measurement?
-
-"""
