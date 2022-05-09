@@ -705,7 +705,7 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
     #Create the circuit with th eHamiltonian also
     backendtest = qk.Aer.get_backend(backend)
 
-    print(H_final)
+    #print(circ)
 
     energy_computations=True
     if energy_computations:
@@ -719,9 +719,13 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
             
             result = backendtest.run(copy_circ).result()
             psi=result.get_statevector()
-            prob_0=psi.probabilities([0])
-            prob_1=psi.probabilities([1])
-            
+            if len(h_gate)==2:
+                prob_0=psi.probabilities([0])
+                prob_1=psi.probabilities([1])
+            else:
+                prob_0=psi.probabilities([h_gate[0][2]])
+                prob_1= [0,0]
+
             E_final+=h_gate[0][0]*(prob_0[1]+prob_1[1])
 
     print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}')
