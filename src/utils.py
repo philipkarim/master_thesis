@@ -10,6 +10,7 @@ import torch
 import sys
 from qiskit.quantum_info import DensityMatrix, partial_trace
 from qiskit.quantum_info.operators import Operator, Pauli
+import copy
 
 
 #from qiskit.compiler import assemble
@@ -691,7 +692,7 @@ def NN_nodes(*argv, act='tanh'):
     
     return layers_nodes
 
-def compute_gs_energy(circuit, backend="statevector_simulator"):
+def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
     """
     Function to compute the energy using the evolved parameters in VarITE
     
@@ -701,9 +702,34 @@ def compute_gs_energy(circuit, backend="statevector_simulator"):
     #print(compute_gs_energy.counter)
     circ=create_initialstate(circuit)
 
+    #Create the circuit with th eHamiltonian also
+    backendtest = qk.Aer.get_backend(backend)
+
+    print(H_final)
+
+    energy_computations=True
+    if energy_computations:
+        E_final=0
+        #print(H_final)
+
+        for h_gate in H_final:
+            copy_circ=copy.deepcopy(circ)
+            for i in h_gate:
+                getattr(copy_circ, i[1])(i[2])
+            
+            result = backendtest.run(copy_circ).result()
+            psi=result.get_statevector()
+            prob_0=psi.probabilities([0])
+            prob_1=psi.probabilities([1])
+            
+            E_final+=h_gate[0][0]*(prob_0[1]+prob_1[1])
+
+    print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}')
+    #exit()
+    
+    """
     backendtest = qk.Aer.get_backend(backend)
     result = backendtest.run(circ).result()
-    #print(result)
     psi=result.get_statevector()
     probs_qubit_0 = psi.probabilities([0])
     probs_qubit_1 = psi.probabilities([1])
@@ -717,7 +743,7 @@ def compute_gs_energy(circuit, backend="statevector_simulator"):
         qk.visualization.plot_histogram(results)
         plt.show()
         #exit()
-
+    """
     """
     10 or 01 is the ground state
     Make Boltzmann distribution the configuration search array

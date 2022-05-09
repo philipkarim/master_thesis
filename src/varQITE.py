@@ -321,7 +321,7 @@ class varQITE:
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
             if self.gs_computations==True:
-                compute_gs_energy(self.trial_circ)
+                compute_gs_energy(self.trial_circ, self.hamil)
 
         return omega_w, self.dwdth
 
