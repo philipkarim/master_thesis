@@ -710,6 +710,7 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
     energy_computations=True
     if energy_computations:
         E_final=0
+        E_exact=-1.13728
         #states and their corresponding eigenvalue
         states=['00', 1, '01', -1, '10', -1, '11', 1]
         #print(H_final)
@@ -787,7 +788,7 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
 
                 #exit()
 
-    print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}')
+    print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}, Error: {E_final/E_exact}')
     #exit()
     
     """

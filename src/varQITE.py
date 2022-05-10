@@ -212,7 +212,7 @@ class varQITE:
 
             #TODO: remember to remove:
             #self.lmbs=1e-2#; self.reg_method='pinv'
-            self.lmbs=np.logspace(-10,-4,7)
+            self.lmbs=np.logspace(-4,-2,7)
 
             if isinstance(self.lmbs, (np.ndarray, list)):
                 #Compute multiple lambdas, and choose the one wiht lowest loss

@@ -28,12 +28,28 @@ psi4.core.set_output_file('output.dat', False)
 # Memory for numpy in GB
 numpy_memory = 2
 
+#mol = psi4.geometry("""
+#O
+#H 1 1.1
+#H 1 1.1 2 104
+#symmetry c1
+#""")
+
 mol = psi4.geometry("""
-O
-H 1 1.1
-H 1 1.1 2 104
-symmetry c1
+H 1 0.74
 """)
+#mol = psi4.molecule("""
+#H2 r
+#r = 0.75
+#""")
+
+#mol = psi4.geometry("""
+#O
+#H 1 0.96
+#H 1 0.96 2 104.5
+#""")
+
+
 
 
 psi4.set_options({'basis': 'sto-3g',
@@ -106,6 +122,8 @@ Hamiltonian_matrix = Hamiltonian_generator.generateMatrix(detList)
 print('..finished generating Matrix in %.3f seconds.\n' % (time.time() - t))
 
 print('Diagonalizing Hamiltonian Matrix...')
+
+#print(Hamiltonian_matrix)
 
 t = time.time()
 
