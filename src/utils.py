@@ -717,7 +717,14 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
         for h_gate in H_final:
             copy_circ=copy.deepcopy(circ)
             for i in h_gate:
-                getattr(copy_circ, i[1])(i[2])
+                #getattr(copy_circ, i[1])(i[2])
+                if i[1]=='x':
+                    copy_circ.h(i[2])
+                
+                elif i[1]=='y':
+                    copy_circ.sdg(i[2])
+                    copy_circ.h(i[2])
+                    
             """
             if h_gate[0][1]=='x':
                 copy_circ.h(0)
@@ -739,6 +746,9 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
             #Measure 1 or 2 qubits
             #MEasure probabilities or histogram?
             #What about probabilities in 2 qubit case??
+            # rz_gate??
+            #MEasurement of rotation before and after Hamiltonian
+            #toration by theta
                         
             if len(h_gate)==2:
                 if h_gate[0][0]!=0.2252:
@@ -746,9 +756,16 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
                     temp_E=0
                     for state in range(0,int(len(states)),2):
                         temp_E+=(result_dict[states[state]]*states[state+1])
+                    
+                    E_final+=h_gate[0][0]*temp_E#*1.20798902854
 
-                    E_final+=h_gate[0][0]*temp_E
-            elif len(h_gate)==10:
+                else:
+                    E_final+=0.2252
+
+                    #print(temp_E)
+                    #exit()
+
+            elif len(h_gate)==1:
                 psi=result.get_statevector()
                 prob = psi.probabilities([h_gate[0][2]])
                 E_final+=h_gate[0][0]*(prob[0]-prob[1])
@@ -765,7 +782,7 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
                 for state in range(0,int(len(state_1q)),2):
                     temp_E+=(result_dict[state_1q[state]]*state_1q[state+1])
 
-                E_final+=h_gate[0][0]*temp_E
+                E_final+=h_gate[0][0]*temp_E#*1.20798902854
 
 
                 #exit()

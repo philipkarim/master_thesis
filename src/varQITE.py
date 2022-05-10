@@ -210,6 +210,9 @@ class varQITE:
             
             C_vec*=-0.5
 
+            #TODO: remember to remove:
+            self.lmbs=1e-2#; self.reg_method='pinv'
+
             if isinstance(self.lmbs, (np.ndarray, list)):
                 #Compute multiple lambdas, and choose the one wiht lowest loss
     
@@ -245,6 +248,7 @@ class varQITE:
                 model_R = Ridge(alpha=self.lmbs)
                 model_R.fit(A_mat, C_vec)
                 omega_derivative_temp=model_R.coef_
+                #print('It worked')
 
             elif self.reg_method=='lasso':
                 #LASSO regression
@@ -256,6 +260,7 @@ class varQITE:
                 #Using the pseudo inverse
                 A_inv=np.linalg.pinv(A_mat, hermitian=False)
                 omega_derivative_temp=A_inv@C_vec
+                #print('It worked')
             
             omega_derivative[self.rot_indexes]=omega_derivative_temp
 

@@ -134,7 +134,7 @@ def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
 
 def gs_VarITE(initial_H, ansatz, steps, final_time, names):
     #Initialising the ansatz with uniform parameters
-    random.seed(1)
+    random.seed(2)
     for gate in ansatz:
         if gate[0][0]=='r':
             gate[1]=random.uniform(-1, 1)
