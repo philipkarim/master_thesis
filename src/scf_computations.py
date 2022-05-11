@@ -36,8 +36,20 @@ numpy_memory = 2
 #""")
 
 mol = psi4.geometry("""
-H 1 0.74
+H
+H2 1 1.1 2 104
+symmetry c1
 """)
+
+mol = psi4.geometry("""
+H 0.0 0.0 -r
+H 0.0 0.0 r
+r = 0.75
+""")
+
+#mol = psi4.geometry("""
+#H 1 0.74
+#""")
 #mol = psi4.molecule("""
 #H2 r
 #r = 0.75
@@ -49,8 +61,10 @@ H 1 0.74
 #H 1 0.96 2 104.5
 #""")
 
-
-
+#mol = psi4.geometry("""
+#H 
+#H 1 0.75
+#""")
 
 psi4.set_options({'basis': 'sto-3g',
                   'scf_type': 'pk',

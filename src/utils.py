@@ -692,7 +692,7 @@ def NN_nodes(*argv, act='tanh'):
     
     return layers_nodes
 
-def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
+def compute_gs_energy(circuit, H_final,backend="statevector_simulator", rz_add=True):
     """
     Function to compute the energy using the evolved parameters in VarITE
     
@@ -700,95 +700,74 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator"):
     """
     compute_gs_energy.counter += 1
     #print(compute_gs_energy.counter)
-    circ=create_initialstate(circuit)
+    if rz_add:
+        circ=create_initialstate(circuit[:-1])
+    else:
+        circ=create_initialstate(circuit)
 
     #Create the circuit with th eHamiltonian also
     backendtest = qk.Aer.get_backend(backend)
 
     #print(circ)
 
-    energy_computations=True
-    if energy_computations:
-        E_final=0
-        E_exact=-1.13728
-        #states and their corresponding eigenvalue
-        states=['00', 1, '01', -1, '10', -1, '11', 1]
-        #print(H_final)
+    E_final=0
+    E_exact= -1.13711706733
+    #states and their corresponding eigenvalue
+    states=['00', 1, '01', -1, '10', -1, '11', 1]
+    #print(H_final)
 
-        for h_gate in H_final:
-            copy_circ=copy.deepcopy(circ)
-            for i in h_gate:
-                #getattr(copy_circ, i[1])(i[2])
-                if i[1]=='x':
-                    copy_circ.h(i[2])
-                
-                elif i[1]=='y':
-                    copy_circ.sdg(i[2])
-                    copy_circ.h(i[2])
-                    
-            """
-            if h_gate[0][1]=='x':
-                copy_circ.h(0)
-                copy_circ.h(1)
-            elif h_gate[0][1]=='y':
-                copy_circ.sdg(0)
-                copy_circ.sdg(1)
-                copy_circ.h(0)
-                copy_circ.h(1)
-            """
-            #copy_circ.h(0)
-            #copy_circ.h(1)
+    for h_gate in H_final:
+        copy_circ=copy.deepcopy(circ)
+        for i in h_gate:
+            #getattr(copy_circ, i[1])(i[2])
+            if i[1]=='x':
+                copy_circ.h(i[2])
+            
+            elif i[1]=='y':
+                copy_circ.sdg(i[2])
+                copy_circ.h(i[2])
 
-            result = backendtest.run(copy_circ).result()
+        result = backendtest.run(copy_circ).result()
 
-            #TODO:
-            #Pinv
-            #rotation
-            #Measure 1 or 2 qubits
-            #MEasure probabilities or histogram?
-            #What about probabilities in 2 qubit case??
-            # rz_gate??
-            #MEasurement of rotation before and after Hamiltonian
-            #toration by theta
-                        
-            if len(h_gate)==2:
-                if h_gate[0][0]!=0.2252:
-                    result_dict=result.get_counts(copy_circ)
-                    temp_E=0
-                    for state in range(0,int(len(states)),2):
-                        temp_E+=(result_dict[states[state]]*states[state+1])
-                    
-                    E_final+=h_gate[0][0]*temp_E#*1.20798902854
-
-                else:
-                    E_final+=0.2252
-
-                    #print(temp_E)
-                    #exit()
-
-            elif len(h_gate)==1:
-                psi=result.get_statevector()
-                prob = psi.probabilities([h_gate[0][2]])
-                E_final+=h_gate[0][0]*(prob[0]-prob[1])
-
-            else:
-                temp_E=0
+        if len(h_gate)==2:
+            if h_gate[0][0]!=0.2252:
                 result_dict=result.get_counts(copy_circ)
-
-                if h_gate[0][0]==0:
-                    state_1q=['00', 1, '01', -1]
-                else:
-                    state_1q=['11', 1, '10', -1]
-
-                for state in range(0,int(len(state_1q)),2):
-                    temp_E+=(result_dict[state_1q[state]]*state_1q[state+1])
-
+                temp_E=0
+                for state in range(0,int(len(states)),2):
+                    temp_E+=(result_dict[states[state]]*states[state+1])
+            
                 E_final+=h_gate[0][0]*temp_E#*1.20798902854
+            else:
+                E_final+=0.2252
+
+                #print(temp_E)
+                #exit()
+            
+            #Test without rz also, then with and without addind 0.22
+
+        elif len(h_gate)==1:
+            psi=result.get_statevector()
+            prob = psi.probabilities([h_gate[0][2]])
+            E_final+=h_gate[0][0]*(prob[0]-prob[1])
+
+        else:
+            temp_E=0
+            result_dict=result.get_counts(copy_circ)
+
+            if h_gate[0][0]==0:
+                state_1q=['00', 1, '01', -1]
+            else:
+                state_1q=['11', 1, '10', -1]
+
+            for state in range(0,int(len(state_1q)),2):
+                temp_E+=(result_dict[state_1q[state]]*state_1q[state+1])
+
+            E_final+=h_gate[0][0]*temp_E#*1.20798902854
 
 
                 #exit()
 
-    print(f'Iteration: {compute_gs_energy.counter}, Energy: {E_final}, Error: {E_final/E_exact}')
+    print(f'Iteration: {compute_gs_energy.counter}, Energy: {round(E_final, 4)}, Error: {round(abs((E_exact-E_final)/E_exact)*100, 2)}')
     #exit()
     
     """
