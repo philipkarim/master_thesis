@@ -2,19 +2,35 @@
 Expressions utilized throughout the scripts
 """
 # Common imports
+from xml.etree import ElementInclude
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import qiskit as qk
 import torch
 import sys
-from qiskit.quantum_info import DensityMatrix, partial_trace
 from qiskit.quantum_info.operators import Operator, Pauli
 import copy
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+import matplotlib
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-#from qiskit.compiler import assemble
-#from qiskit.backends.jobstatus import JOB_FINAL_STATES
+sns.set_style("darkgrid")
+
+FIGWIDTH=4.71935 #From latex document
+FIGHEIGHT=FIGWIDTH/1.61803398875
+
+params = {'text.usetex' : True,
+          'font.size' : 10,
+          'font.family' : 'lmodern',
+          'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
+          #'text.latex.unicode': True,
+          }
+plt.rcParams.update(params)
+
 
 def accuracy_score(y, y_pred):
     """
@@ -692,7 +708,7 @@ def NN_nodes(*argv, act='tanh'):
     
     return layers_nodes
 
-def compute_gs_energy(circuit, H_final,backend="statevector_simulator", rz_add=True):
+def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", rz_add=True):
     """
     Function to compute the energy using the evolved parameters in VarITE
     
@@ -764,34 +780,23 @@ def compute_gs_energy(circuit, H_final,backend="statevector_simulator", rz_add=T
 
             E_final+=h_gate[0][0]*temp_E#*1.20798902854
 
+    compute_gs_energy.computed_E.append(E_final)
+    compute_gs_energy.energy_diff.append(abs(E_exact-E_final))
+    compute_gs_energy.time_t.append(time)
 
-                #exit()
-
-    print(f'Iteration: {compute_gs_energy.counter}, Energy: {round(E_final, 4)}, Error: {round(abs((E_exact-E_final)/E_exact)*100, 2)}')
+    #print(f'Iteration: {compute_gs_energy.counter}, Energy: {round(E_final, 4)}, Error: {round(abs((E_exact-E_final)/E_exact)*100, 2)}')
     #exit()
-    
     """
-    backendtest = qk.Aer.get_backend(backend)
-    result = backendtest.run(circ).result()
-    psi=result.get_statevector()
-    probs_qubit_0 = psi.probabilities([0])
-    probs_qubit_1 = psi.probabilities([1])
-
-    print(f'{compute_gs_energy.counter}__________________________')
-    print(f'Qubit 1 {probs_qubit_0[1]}')
-    print(f'Qubit 2 {probs_qubit_1[1]}')
-
-    if compute_gs_energy.counter==400: 
-        results = result.get_counts(circ)
-        qk.visualization.plot_histogram(results)
-        plt.show()
-        #exit()
+    if compute_gs_energy.counter==4:
+        plt.figure()
+        plt.plot(compute_gs_energy.time_t, compute_gs_energy.computed_E)
+        plt.ylabel('Energy (Hartree)')
+        plt.xlabel(r'Imaginary time $\tau$')
+        plt.tight_layout()
+        #plt.legend()
+        plt.savefig('results/quantum_systems/energy_H2.pdf')
+        plt.clf()
+        exit()
     """
-    """
-    10 or 01 is the ground state
-    Make Boltzmann distribution the configuration search array
-    """
-    #print(circ)
-    
 
    

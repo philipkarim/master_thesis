@@ -1,6 +1,3 @@
-
-from cProfile import label
-from random import sample
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns

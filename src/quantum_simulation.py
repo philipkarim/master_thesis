@@ -1,3 +1,4 @@
+from importlib.metadata import distribution
 import random
 import copy
 import numpy as np
@@ -132,12 +133,19 @@ def computeGS(n_sims, initial_H, ans, epochs,opt_met , l_r, steps, names):
 
 
 
-def gs_VarITE(initial_H, ansatz, steps, final_time, names):
+def gs_VarITE(initial_H, ansatz, steps, final_time, distribution=['U', 1],):
     #Initialising the ansatz with uniform parameters
     random.seed(3)
     for gate in ansatz:
         if gate[0][0]=='r':
-            gate[1]=random.uniform(-1, 1)
+            if distribution[0]=='U':
+                gate[1]=random.uniform(-distribution[1], distribution[1])
+            else:
+                gate[1]=random.gauss(0, distribution[1])
+
+
+
+
 
     varqite=varQITE(initial_H, ansatz, maxTime=final_time, steps=steps, gs_computations=True)
     varqite.initialize_circuits()
@@ -145,6 +153,26 @@ def gs_VarITE(initial_H, ansatz, steps, final_time, names):
 
     return 
 
+def plot_qe(maxTime=10):
+    """
+    Function to plot energy of quantum system
+    """
+    distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+    steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+
+    plt.figure()
+    for d in distribution_list:
+        for s in steps_list:
+            temp_t_e=np.load('results/quantum_systems/H2_MT_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')
+            plt.plot(temp_t_e[0], temp_t_e[1], label=d[0]+'- '+str(d[1])+', '+r'$\delta=$'+str(s))
+
+    plt.ylabel('Energy (Hartree)')
+    plt.xlabel(r'Imaginary time $\tau$')
+    plt.tight_layout()
+    plt.legend(prop={'size': 6})   #plt.legend()
+    #plt.legend()
+    plt.savefig('results/quantum_systems/energy_H2_search.pdf')
+    plt.clf()
 
 def main():
     """
@@ -153,9 +181,16 @@ def main():
     np.random.seed(1111)
 
     #time_step=0.225
-    ite_steps=1100
-    maxTime=11
+    ite_steps=1000
+    maxTime=10
     rz_add=True
+
+    search_params=True
+    
+    compute_gs_energy.counter=0
+    compute_gs_energy.computed_E=[]
+    compute_gs_energy.energy_diff=[]
+    compute_gs_energy.time_t=[]
 
     g0=0.2252;  g1=0.3435;  g2=-0.4347
     g3=0.5716;  g4=0.0910;  g5=0.0910
@@ -183,8 +218,24 @@ def main():
                 ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
 
     hydrogen_ham=np.array(hydrogen_ham, dtype=object)
-    
-    gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime, names='hydrogen_testing')
+    if search_params is not True:
+        gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime)
+    else:
+        distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+        steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+        
+        compute_gs_energy.energies_array=np.zeros((len(distribution_list), len(steps_list)))
+        compute_gs_energy.final_t=[]
+
+        for dist in distribution_list:
+            for del_step in steps_list:
+                compute_gs_energy.counter=0
+                compute_gs_energy.time_t=[]
+                compute_gs_energy.computed_E=[]
+                gs_VarITE(hydrogen_ham, hydrogen_ans, int(maxTime/del_step), final_time=maxTime, distribution=dist)
+
+                np.save('results/quantum_systems/H2_MT_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
     main()
+    plot_qe(10)

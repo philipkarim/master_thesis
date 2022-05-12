@@ -90,7 +90,7 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
         for k, levels_2 in enumerate(permuted_levels):
             if np.all(levels_1==levels_2):
                 #0.5 or 0.25?
-                fci_matrix[i][k]-=0.5*int_e*n_pairs
+                fci_matrix[i][k]-=0.25*int_e*n_pairs
             else:
                 fci_matrix[i][k]-=0.5*int_e*len(np.intersect1d(levels_1, levels_2))
     
@@ -98,6 +98,7 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
 
 
 #To match the result of the fys4480 slides use interaction g_interact=2 and d=0-->gs=-6
+#Works compared to the matrix from Mortens book
 FCI_mat=ci_matrix_pairing(1, 2, 1, 1)
 lam, eigv=np.linalg.eig(FCI_mat)
 print(FCI_mat)
