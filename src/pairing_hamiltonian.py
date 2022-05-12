@@ -81,6 +81,8 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
 
     #Makes lists of possible ways the energy orbitals can be filled
     permuted_levels=np.array(list(it.combinations(range(0,n_levels),n_pairs)))
+
+    #print(permuted_levels)
     
     #Computing the energy/FCI elements
     for i, levels_1 in enumerate(permuted_levels):
@@ -96,11 +98,11 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
 
 
 #To match the result of the fys4480 slides use interaction g_interact=2 and d=0-->gs=-6
-FCI_mat=ci_matrix_pairing(2, 2, 1, 1)
+FCI_mat=ci_matrix_pairing(1, 2, 1, 1)
 lam, eigv=np.linalg.eig(FCI_mat)
 print(FCI_mat)
 print(lam)
 
 JW_Ham=pairing_hamiltonian(2,1,1)
 
-print(JW_Ham)
+#print(JW_Ham)
