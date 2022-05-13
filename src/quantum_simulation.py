@@ -1,12 +1,14 @@
 from importlib.metadata import distribution
 import random
 import copy
+from turtle import color
 import numpy as np
 import qiskit as qk
 from qiskit.circuit import Parameter, ParameterVector
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Import the other classes and functions
 from optimize_loss import optimize
@@ -157,22 +159,79 @@ def plot_qe(maxTime=10):
     """
     Function to plot energy of quantum system
     """
-    distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+    #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
     steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
 
-    plt.figure()
-    for d in distribution_list:
-        for s in steps_list:
-            temp_t_e=np.load('results/quantum_systems/H2_MT_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')
-            plt.plot(temp_t_e[0], temp_t_e[1], label=d[0]+'- '+str(d[1])+', '+r'$\delta=$'+str(s))
+    #distribution_list=[['U', 0.5], ['N', 0.5]]
+    #distribution_list=[['U', 1], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.1], ['N', 0.01]]
+    distribution_list=[['N', 0.1]]
 
-    plt.ylabel('Energy (Hartree)')
-    plt.xlabel(r'Imaginary time $\tau$')
-    plt.tight_layout()
-    plt.legend(prop={'size': 6})   #plt.legend()
-    #plt.legend()
-    plt.savefig('results/quantum_systems/energy_H2_search.pdf')
-    plt.clf()
+    #steps_list=[0.1]
+
+    plt.figure()
+    plt.axhline(y=-1.13711706733, color='black', label='Exact GS', linestyle='--')
+    energy_plot=True
+    if energy_plot:
+        for d in distribution_list:
+            for s in steps_list:
+                temp_t_e=np.load('results/quantum_systems/H2_MT_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')
+                #plt.plot(temp_t_e[0], temp_t_e[1], label=d[0]+'- '+str(d[1])+', '+r'$\delta=$'+str(s))
+                if len(steps_list)==1:
+                    if d[0]=='U':
+                        label_n=r'$\mathcal{U}$[-'+str(d[1])+', '+str(d[1])+']'
+                    else:
+                        label_n=r'$\mathcal{N}$(0,$\sigma=$'+str(d[1])+')'
+                else:
+                    label_n=r'$\mathcal{\delta}=$'+str(s)
+
+                plt.plot(temp_t_e[0], temp_t_e[1], label=label_n)#label=d[0]+'- '+str(d[1])+', '+r'$\delta=$'+str(s))
+           
+        plt.ylabel('Energy (Hartree)')
+        plt.xlabel(r'Imaginary time $\tau$')
+        plt.tight_layout()
+        plt.legend(loc="center left")   #plt.legend()
+        #plt.legend()
+        plt.savefig('results/quantum_systems/energy_H2_search_N01.pdf')
+        plt.clf()
+    
+    else:
+        data=[]
+        coloumn=[]
+        rows=[]
+
+        #for i, s in enumerate(steps_list):
+            #data_temp=[]
+            #rows.append(r'\delta='+str(s))
+
+            #if distribution_list[i][0]=='U':
+                #coloumn.append(r'$\u$[-'+str(distribution_list[i][1])+', '+str(str(distribution_list[i][1]))+']')
+            #else:
+                #coloumn.append(r'$\N$(0,1)')
+                #coloumn.append(r'$\N$(0, r$\sigma$='+str(distribution_list[i][1])+')')
+
+            #for d in distribution_list:
+                #data_temp.append(np.load('results/quantum_systems/H2_MT_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')[1][-1])
+            #data.append(data_temp)
+        
+        print(coloumn)
+        print(rows)
+        print(data)
+
+        data = [[1, 5, 10], [2, 6, 9], [3, 7, 8]]
+
+        # Create the pandas DataFrame
+        df = pd.DataFrame(data)
+        
+        # specifying column names
+        df.columns = ['Col_1', 'Col_2', 'Col_3']
+        
+        # print dataframe.
+        print(df, "\n")
+        
+        # transpose of dataframe
+        df = df.transpose()
+        print("Transpose of above dataframe is-\n", df)
+        
 
 def main():
     """
@@ -237,5 +296,5 @@ def main():
                 np.save('results/quantum_systems/H2_MT_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
-    main()
+    #main()
     plot_qe(10)
