@@ -31,20 +31,20 @@ void learning_rate_and_nodes(int lr_part, int lr_dim, double learning_rate, int 
 }
 int main() {
 
-    int numberOfSteps       = (int) pow(2,20); //Amount of metropolis steps
-    int cycles_RBM          = 100;
+    int numberOfSteps       = (int) pow(2,18); //Amount of metropolis steps
+    int cycles_RBM          = 50;
     int numberOfDimensions  = 1;            // Set amount of dimensions
     int numberOfParticles   = 1;            // Set amount of particles
     int hidden_nodes        = 2;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
-    int sampler_method      = 0;            //0=BF, 1=IS, 2=GS
+    int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
     bool uniform_distr      = false;        //Normal=false, Uniform=true
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.5;          // Metropolis step length.
     double timeStep         = 0.4;          // Metropolis time step (Importance sampling)
     double equilibration    = 0.2;          // Amount of the total steps used for equilibration.
     bool interaction        = false;        // True-> interaction, False->Not interaction
-    double sigma_val        = 1;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
+    double sigma_val        = 0.7;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
     double initialization   = 0.001;        //Initialisation values of the distributions 
     double learningRate     = 0.001;        //Learning rate
     
