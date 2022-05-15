@@ -31,13 +31,15 @@ double HarmonicOscillator::computeLocalEnergy() {
     interactionEnergy=computeInteractingEnergy(X_visible);
   }
 
-  return kineticEnergy+potentialEnergy+interactionEnergy;
+  return kineticEnergy+potentialEnergy+0.5*interactionEnergy;
   }
    
 double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
+  
   //Potential energy
   //Defining some variables to be used
   double potentialEnergy2=0;
+  /*
   int dimension=m_system->getNumberOfDimensions();
     for (int i=0; i<m_system->getNumberOfVN(); i+=dimension){
         for (int j=0; j<dimension; j++){
@@ -45,7 +47,36 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
         }
     }
     potentialEnergy2 *= m_omega*m_omega*0.5;
-    return potentialEnergy2;
+    */
+  
+  //Nuclear -electron energy
+  int dimension=m_system->getNumberOfDimensions();
+  double bondlength=0.75;
+  int nuclei=2;
+  
+  //Remove this
+  for (int x=0; x<6; x++){
+    X_visible[x]=x;
+  }
+
+  for (int h=0; h<nuclei; h+=1){
+    for (int i=0; i<m_system->getNumberOfVN(); i+=dimension){
+      for (int j=0; j<dimension; j++){
+
+        cout << "e, dim" << i+j<< endl;
+        cout << "X" << X_visible[i+j]<< endl;
+
+        potentialEnergy2 += X_visible[i+j];
+
+
+
+      }
+    }exit(0);
+  }
+
+  
+  
+  return -potentialEnergy2;
 
 }
 

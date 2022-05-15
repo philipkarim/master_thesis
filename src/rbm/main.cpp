@@ -33,7 +33,9 @@ int main() {
 
     int numberOfSteps       = (int) pow(2,18); //Amount of metropolis steps
     int cycles_RBM          = 50;
-    int numberOfDimensions  = 2;            // Set amount of dimensions
+    int nuclei              = 2;
+    double bondlength       = 0.75;         // bondlength in 
+    int numberOfDimensions  = 3;            // Set amount of dimensions
     int numberOfParticles   = 2;            // Set amount of particles
     int hidden_nodes        = 2;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
