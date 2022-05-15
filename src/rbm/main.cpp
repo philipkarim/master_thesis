@@ -33,8 +33,8 @@ int main() {
 
     int numberOfSteps       = (int) pow(2,18); //Amount of metropolis steps
     int cycles_RBM          = 50;
-    int numberOfDimensions  = 1;            // Set amount of dimensions
-    int numberOfParticles   = 1;            // Set amount of particles
+    int numberOfDimensions  = 2;            // Set amount of dimensions
+    int numberOfParticles   = 2;            // Set amount of particles
     int hidden_nodes        = 2;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
     int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
@@ -43,10 +43,10 @@ int main() {
     double stepLength       = 0.5;          // Metropolis step length.
     double timeStep         = 0.4;          // Metropolis time step (Importance sampling)
     double equilibration    = 0.2;          // Amount of the total steps used for equilibration.
-    bool interaction        = false;        // True-> interaction, False->Not interaction
+    bool interaction        = true;        // True-> interaction, False->Not interaction
     double sigma_val        = 0.7;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
     double initialization   = 0.001;        //Initialisation values of the distributions 
-    double learningRate     = 0.001;        //Learning rate
+    double learningRate     = 0.051;        //Learning rate
     
     //Write to file, these values decides
     //which part of the investigation is going
