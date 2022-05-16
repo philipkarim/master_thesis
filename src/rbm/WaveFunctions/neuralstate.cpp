@@ -30,12 +30,25 @@ double NeuralState::evaluate(vec X_visible) {
         exponent_one+=((X_visible[i]-m_a[i])*(X_visible[i]-m_a[i]))/(2*m_sigma*m_sigma);
     }
 
+    /*
     for (int j=0; j<m_system->getNumberOfHN(); j++){
         for (int ii=0; ii<m_system->getNumberOfVN(); ii++){
             sum_in_product+=(X_visible[ii]*m_w(ii, j))/(m_sigma*m_sigma);
             product_term*=(1+exp(m_b[j]+sum_in_product));
         }
     }
+    */
+
+    for (int j=0; j<m_system->getNumberOfHN(); j++){
+        sum_in_product=0;
+        for (int ii=0; ii<m_system->getNumberOfVN(); ii++){
+            sum_in_product+=(X_visible[ii]*m_w(ii, j))/(m_sigma*m_sigma);
+        }
+        product_term*=(1+exp(m_b[j]+sum_in_product));
+    }
+
+
+
     psi_value=exp(-exponent_one)*product_term;
 
     return psi_value;
