@@ -32,7 +32,7 @@ double HarmonicOscillator::computeLocalEnergy() {
   }
 
   //0.5*interacting
-  return kineticEnergy+potentialEnergy+0.5*interactionEnergy;
+  return kineticEnergy+potentialEnergy+0.5*interactionEnergy;//+(1/0.75);
   }
    
 double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
@@ -81,7 +81,7 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
     }
   }
 
-  return -potentialEnergy2;
+  return -1/(potentialEnergy2);
 
 }
 
@@ -100,25 +100,27 @@ double HarmonicOscillator::computeKineticEnergy(vec X_visible){
   return -0.5*(derivative*derivative+double_derivative);
   //return -1*(derivative*derivative+double_derivative);
 
-
 }
 
-double HarmonicOscillator::computeInteractingEnergy( vec X_visible){
+double HarmonicOscillator::computeInteractingEnergy(vec X_visible){
   //Computing the interacting energy, sends in two particles
   int dimension = m_system->getNumberOfDimensions();
-  double interactingEnergy2, product_term;
+  double interactingEnergy2=0;
+  double product_term=0;
   double norm = 0;
-
+  
   //Interacting term, looping through the particles keeping the different dimensions in mind
   for (int i=1; i<m_system->getNumberOfParticles(); i++){
     for (int j=0; j<i; j++){
+      norm=0;
       for (int dim=0; dim<dimension; dim++){
         product_term=X_visible[dimension*i + dim] - X_visible[dimension*j + dim];
         norm += product_term*product_term;
       }
-        interactingEnergy2 += 1/sqrt(norm);
+      interactingEnergy2 += 1/sqrt(norm);
     }
   }
+  
   return interactingEnergy2;
 }
 
