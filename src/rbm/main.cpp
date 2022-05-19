@@ -31,18 +31,18 @@ void learning_rate_and_nodes(int lr_part, int lr_dim, double learning_rate, int 
 }
 int main() {
 
-    cout<<'----DAILY TASKS LEFT:----'<<endl;
-    cout<<'RBM results:'<<endl;
-    cout<<'  - Test with 2 separate hydrogen atoms to see if it works'<<endl;
-    cout<<'  - Plot 2 separate hydrogen atoms'<<endl;
-    cout<<'  - Compare with analytical result? in table with the other instance?'<<endl;
-    cout<<'  - Sigma plot'<<endl;
-    cout<<'  - Plot distributions?'<<endl;
-    cout<<'  - Plot hidden nodes and learning rate'<<endl;
-    cout<<'  - Make final computations and compare with analytical and std with citation, plot as E vs R?'<<endl;
-    cout<<'QBM results:'<<endl;
-    cout<<'  - 10 seeds'<<endl;
-    cout<<'Write about entanglement'<<endl;
+    cout<<"----DAILY TASKS LEFT:----"<<endl;
+    cout<<"RBM results:"<<endl;
+    cout<<"  - Test with 2 separate hydrogen atoms to see if it works"<<endl;
+    cout<<"  - Plot 2 separate hydrogen atoms"<<endl;
+    cout<<"  - Compare with analytical result? in table with the other instance?"<<endl;
+    cout<<"  - Sigma plot"<<endl;
+    cout<<"  - Plot distributions?"<<endl;
+    cout<<"  - Plot hidden nodes and learning rate"<<endl;
+    cout<<"  - Make final computations and compare with analytical and std with citation, plot as E vs R?"<<endl;
+    cout<<"QBM results:"<<endl;
+    cout<<"  - 10 seeds"<<endl;
+    cout<<"Write about entanglement"<<endl;
 
     int numberOfSteps       = (int) pow(2,18); //Amount of metropolis steps
     int cycles_RBM          = 50;
@@ -52,7 +52,7 @@ int main() {
     int numberOfParticles   = 2;            // Set amount of particles
     int hidden_nodes        = 4;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
-    int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
+    int sampler_method      = 0;            //0=BF, 1=IS, 2=GS
     bool uniform_distr      = false;        //Normal=false, Uniform=true
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.5;          // Metropolis step length.

@@ -739,8 +739,37 @@ def format_labels(x, pos):
     return "e$^{%i}$" % np.log(x)
 
 
+
+def plot_temp():
+    """
+    TODO: Remove this
+    """
+    l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+    l_tr2=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
+    l_tr3=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
+
+    l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+    l_te2=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
+    l_te3=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
+
+    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train, 0.01')
+    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train, 0.001')
+    plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 0.005')
+
+    plt.plot(list(range(len(l_te1))), l_te1, label='Test, 0.01')
+    plt.plot(list(range(len(l_te2))), l_te2, label='Test, 0.001')
+    plt.plot(list(range(len(l_te3))), l_te3, label='Test, 0.005')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig('check_results.pdf')
+    #plt.show()
+
+
+
 #plot_NN_sizes()
-plot_lr()
+#plot_lr()
 #plot_activation_functions()
 #plot_bias()
 #plot_finale_seeds(True, False)
@@ -753,3 +782,4 @@ plot_lr()
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
 
+plot_temp()
