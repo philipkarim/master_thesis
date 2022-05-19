@@ -50,18 +50,18 @@ int main() {
     double bondlength       = 0.75;         // bondlength in 
     int numberOfDimensions  = 3;            // Set amount of dimensions
     int numberOfParticles   = 2;            // Set amount of particles
-    int hidden_nodes        = 4;            // Set amount of hidden nodes
+    int hidden_nodes        = 2;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
-    int sampler_method      = 0;            //0=BF, 1=IS, 2=GS
+    int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
     bool uniform_distr      = false;        //Normal=false, Uniform=true
     double omega            = 1.0;          // Oscillator frequency.
-    double stepLength       = 0.5;          // Metropolis step length.
+    double stepLength       = 0.4;          // Metropolis step length.
     double timeStep         = 0.4;          // Metropolis time step (Importance sampling)
     double equilibration    = 0.2;          // Amount of the total steps used for equilibration.
     bool interaction        = true;        // True-> interaction, False->Not interaction
     double sigma_val        = 1.3;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
-    double initialization   = 0.01;        //Initialisation values of the distributions 
-    double learningRate     = 0.01;        //Learning rate
+    double initialization   = 0.001;        //Initialisation values of the distributions 
+    double learningRate     = 0.001;        //Learning rate
     
     //Write to file, these values decides
     //which part of the investigation is going
