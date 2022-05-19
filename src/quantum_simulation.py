@@ -296,5 +296,26 @@ def main():
                 np.save('results/quantum_systems/H2_MT_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
+    print('----DAILY TASKS LEFT:----')
+    print('RBM results:')
+    print('  - Test with 2 separate hydrogen atoms to see if it works')
+    print('  - Plot 2 separate hydrogen atoms')
+    print('  - Compare with analytical result? in table with the other instance?')
+    print('  - Sigma plot')
+    print('  - Plot distributions?')
+    print('  - Plot hidden nodes and learning rate')
+    print('  - Make final computations and compare with analytical and std with citation, plot as E vs R?')
+    print('QBM results:')
+    print('  - 10 seeds')
+    print('Write about entanglement')
+
+
+
+
+
+
+
+
     #main()
-    plot_qe(10)
+    #plot_qe(10)
+
