@@ -59,7 +59,7 @@ double NeuralState::computeDoubleDerivative() {
         sum_M+=sum_N;
     }
     */
-
+    
 
     for (int i=0; i<m_system->getNumberOfVN(); i++){
         sum_M-=0.5/(m_sigma*m_sigma);
@@ -79,6 +79,8 @@ double NeuralState::computeDerivative(vec X_visible) {
 //Computes the value of the analytically first derivative used to compute the local energy
     double first_sum=0;
     double sec_sum=0;
+    double final_sum=0;
+
     
     /*
     for (int i =0; i<m_system->getNumberOfVN(); i++){
@@ -87,19 +89,20 @@ double NeuralState::computeDerivative(vec X_visible) {
             sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
         }
         first_sum+=sec_sum;
-    }
+    } final_sum=first_sum;
     */
 
-    double final_sum=0;
+    
     for (int i =0; i<m_system->getNumberOfVN(); i++){
-        first_sum=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
+        first_sum=(m_a[i]-X_visible[i])/(2*m_sigma*m_sigma);
         
         sec_sum=0;
         for (int j=0; j<m_system->getNumberOfHN(); j++){
-            sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
+            sec_sum+=m_w(i,j)/(2*m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
         }
-        final_sum+=0.25*(first_sum+sec_sum)*(first_sum+sec_sum);
+        final_sum+=(first_sum+sec_sum)*(first_sum+sec_sum);
     }
+    
     
     return final_sum;
   }
