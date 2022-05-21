@@ -132,22 +132,30 @@ bool System::GibbsSampling() {
     vec hh = m_waveFunction->get_h();
     vec aa = m_waveFunction->get_a();
     mat ww = m_waveFunction->get_w();
-    weight_and_HN = ww*hh;
 
     //Defining the distribution
     uniform_real_distribution<double> UniformNumberGenerator(0.0,1.0);
+    normal_distribution<double> Normaldistribution(0.0,1.0);
     
     for (int i=0; i < m_numberOfHN; i++){
-        random_uniform =UniformNumberGenerator(gen);
+        //random_uniform =UniformNumberGenerator(gen);
+        random_uniform =Normaldistribution(gen);
+
         sigmoid_probabillity=m_waveFunction->sigmoid(m_waveFunction->sigmoid_input(i));
-        //cout<<sigmoid_probabillity;
-        if (sigmoid_probabillity >= random_uniform){
-            hh[i] = 1;}
-        else{
-            hh[i] = 0;}
+
+        hh[i]=sigmoid_probabillity;
+
+        //cout<<"Sig prob"<<sigmoid_probabillity<<endl;
+
+        //if (sigmoid_probabillity >= 0.5){
+        //    hh[i] = 1;}
+        //else{
+        //    hh[i] = 0;}
     }
 
     //New positions
+    weight_and_HN = ww*hh;
+
     for (int j=0; j<m_numberOfVN; j++){
         x_avg = aa[j] + weight_and_HN[j];
         normal_distribution<double> Normaldistribution(x_avg, m_waveFunction->getSigma());
@@ -197,7 +205,6 @@ void System::runBoltzmannMachine(int RBMCycles, int numberOfMetropolisSteps){
                 m_sampler->writeToFile_lr_nodes();
             }
         }
-
     }
 
 }

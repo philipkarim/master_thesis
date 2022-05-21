@@ -32,6 +32,8 @@ double HarmonicOscillator::computeLocalEnergy() {
   }
 
   //0.5*interacting
+//cout<<"Energy terms: "<<kineticEnergy<<"__"<<potentialEnergy<<"__"<<interactionEnergy;
+
   return kineticEnergy+potentialEnergy+0.5*interactionEnergy;//+(1/0.75);
   //return kineticEnergy+potentialEnergy;+interactionEnergy;//+(1/0.75);
   }
@@ -43,9 +45,7 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
   double potentialEnergy2=0;
   
   int dimension=m_system->getNumberOfDimensions();
-  //double bondlength=0.75;
-  double bondlength=1.40;
-  //double bondlength=1.9971934;
+  double bondlength=m_system->getBondlength();
 
   for (int nuc=0; nuc<m_system->getNumberOfParticles(); nuc++){
     if (dimension==3){
@@ -53,7 +53,6 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
       //cout<<pow((X_visible[nuc*3]+bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)<<endl;
       
       //potentialEnergy2+=sqrt(pow((X_visible[nuc*3]),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2));
-
       potentialEnergy2+=1/(sqrt(pow((X_visible[nuc*3]-bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)));
       potentialEnergy2+=1/(sqrt(pow((X_visible[nuc*3]+bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)));
     }
@@ -68,23 +67,22 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
   }
 
   return -potentialEnergy2;
-
 }
 
 double HarmonicOscillator::computeKineticEnergy(vec X_visible){
   double double_derivative, derivative;
   if(m_system->getSampleMethod()==2){
     //Gibbs wavefunction has a bit different energy derivate than the two others
-    double_derivative=0.5*m_system->getWaveFunction()->computeDoubleDerivative();
-    derivative       =0.5*m_system->getWaveFunction()->computeDerivative(X_visible);
+    double_derivative=m_system->getWaveFunction()->computeDoubleDerivative();
+    derivative       =m_system->getWaveFunction()->computeDerivative(X_visible);
   }
   else{
     double_derivative=m_system->getWaveFunction()->computeDoubleDerivative();
     derivative       =m_system->getWaveFunction()->computeDerivative(X_visible);
   }
 
-  //return -0.5*(derivative*derivative+double_derivative);
-  return -1*(derivative*derivative+double_derivative);
+  return -0.5*(derivative+double_derivative);
+  //return -1*(derivative*derivative+double_derivative);
 
 }
 

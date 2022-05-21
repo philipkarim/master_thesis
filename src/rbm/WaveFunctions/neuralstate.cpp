@@ -30,15 +30,6 @@ double NeuralState::evaluate(vec X_visible) {
         exponent_one+=((X_visible[i]-m_a[i])*(X_visible[i]-m_a[i]))/(2*m_sigma*m_sigma);
     }
 
-    /*
-    for (int j=0; j<m_system->getNumberOfHN(); j++){
-        for (int ii=0; ii<m_system->getNumberOfVN(); ii++){
-            sum_in_product+=(X_visible[ii]*m_w(ii, j))/(m_sigma*m_sigma);
-            product_term*=(1+exp(m_b[j]+sum_in_product));
-        }
-    }
-    */
-
     for (int j=0; j<m_system->getNumberOfHN(); j++){
         sum_in_product=0;
         for (int ii=0; ii<m_system->getNumberOfVN(); ii++){
@@ -46,8 +37,6 @@ double NeuralState::evaluate(vec X_visible) {
         }
         product_term*=(1+exp(m_b[j]+sum_in_product));
     }
-
-
 
     psi_value=exp(-exponent_one)*product_term;
 
@@ -59,6 +48,8 @@ double NeuralState::computeDoubleDerivative() {
     double sum_M=0;
     double sum_N=0;
     double sig_inp;
+
+    /*
     for (int i=0; i<m_system->getNumberOfVN(); i++){
         sum_M-=1/(m_sigma*m_sigma);
         for (int j=0; j<m_system->getNumberOfHN(); j++){
@@ -67,6 +58,19 @@ double NeuralState::computeDoubleDerivative() {
         }
         sum_M+=sum_N;
     }
+    */
+
+
+    for (int i=0; i<m_system->getNumberOfVN(); i++){
+        sum_M-=0.5/(m_sigma*m_sigma);
+        sum_N=0;
+        for (int j=0; j<m_system->getNumberOfHN(); j++){
+            sig_inp=sigmoid_input(j);
+            sum_N+=(0.5*m_w(i,j)*m_w(i,j))/(pow(m_sigma, 4))*sigmoid(sig_inp)*sigmoid(-sig_inp);
+        }
+        sum_M+=sum_N;
+    }
+    
 
     return sum_M;
 }
@@ -76,15 +80,28 @@ double NeuralState::computeDerivative(vec X_visible) {
     double first_sum=0;
     double sec_sum=0;
     
+    /*
     for (int i =0; i<m_system->getNumberOfVN(); i++){
-        first_sum-=(X_visible[i]-m_a[i])/(m_sigma*m_sigma);
+        first_sum+=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
         for (int j=0; j<m_system->getNumberOfHN(); j++){
             sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
         }
         first_sum+=sec_sum;
     }
+    */
+
+    double final_sum=0;
+    for (int i =0; i<m_system->getNumberOfVN(); i++){
+        first_sum=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
+        
+        sec_sum=0;
+        for (int j=0; j<m_system->getNumberOfHN(); j++){
+            sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
+        }
+        final_sum+=0.25*(first_sum+sec_sum)*(first_sum+sec_sum);
+    }
     
-    return first_sum;
+    return final_sum;
   }
 
 
@@ -95,7 +112,7 @@ double NeuralState::sigmoid(double x){
 
 //Computes the input of the sigmoid function
 double NeuralState::sigmoid_input(int x){
-    double sum=1.;
+    double sum=0;
     for (int i=0; i<m_system->getNumberOfVN(); i++){
         sum+=m_x(i)*m_w(i,x)/(m_sigma*m_sigma);
     }

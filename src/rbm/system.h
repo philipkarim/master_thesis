@@ -42,6 +42,7 @@ public:
     void setWtfDistibution          (bool distribution_wtf){m_wtfDistribution=distribution_wtf;}
     void setWtfLrNodes              (bool lr_and_nodes){m_lr_and_nodes=lr_and_nodes;}
     void setInitialization          (double initialization2){m_initialization=initialization2;}
+    void setBondlength              (double bondlength){m_bondlength=bondlength;}
 
     //Get value-functions
     int getNumberOfVN()             { return m_numberOfVN;}
@@ -57,7 +58,9 @@ public:
     double getStepLength()          { return m_stepLength;}
     double getInteraction()         { return m_interaction;}
     bool getDistribution()          { return m_uniform_distr;}
-    double getInitialization()      {return m_initialization;}
+    double getInitialization()      { return m_initialization;}
+    double getBondlength()          { return m_bondlength;}
+
     vector<double> Getdistribution_energy(){return distribution_energy;}
 
 private:
@@ -68,6 +71,7 @@ private:
     int                             m_numberOfMetropolisSteps = 0;
     int                             m_RBMCycles = 0;
     double                          m_equilibrationFraction = 0.0;
+    double                          m_bondlength = 0.0;
     double m_initialization;
     int m_sampleMethod;
     double m_stepLength;

@@ -59,6 +59,8 @@ void RandomUniform::setupInitialState() {
 
     // Set up the distribution for x \in [[x, x],(can use multiple configurations)
     uniform_real_distribution<double> UniformNumberGenerator(-0.5,0.5);
+    //uniform_real_distribution<double> UniformNumberGenerator(-m_system->getBondlength(), m_system->getBondlength());
+
     //Uniform distributions
     uniform_real_distribution<double> uniform_weights(-initialization2, initialization2);
     //Gaussian distriubution
@@ -83,9 +85,9 @@ void RandomUniform::setupInitialState() {
     // initializing gaussian values
     else if (m_system->getDistribution()==false){
         for (int i=0; i<numberOfVN; i++){
-            initial_a[i] = normal_weights(gen);
+            initial_a[i] = 0;//normal_weights(gen);
             for (int j=0; j<numberOfHN; j++){
-                initial_b[j] = normal_weights(gen);
+                initial_b[j] = 0;//normal_weights(gen);
                 initial_w(i, j) = normal_weights(gen);
             }
         }
