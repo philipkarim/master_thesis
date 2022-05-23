@@ -752,18 +752,32 @@ def plot_temp():
     l_te2=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
     l_te3=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
 
-    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train, 0.01')
-    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train, 0.001')
-    plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 0.005')
+    l_tr1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f_001.npy', allow_pickle=True)
+    l_tr2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f.npy', allow_pickle=True)
+    l_tr3=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_no_network/loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
 
-    plt.plot(list(range(len(l_te1))), l_te1, label='Test, 0.01')
-    plt.plot(list(range(len(l_te2))), l_te2, label='Test, 0.001')
-    plt.plot(list(range(len(l_te3))), l_te3, label='Test, 0.005')
+    l_te1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f_001.npy', allow_pickle=True)
+    l_te2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f.npy', allow_pickle=True)
+    l_te3=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_no_network/loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
+
+    l_tr1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_network/loss_trainH1_23_8_400_40_d.npy', allow_pickle=True)
+    l_tr2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_no_network/loss_trainH1_nonet_400_40_d.npy', allow_pickle=True)
+    l_te1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_network/loss_testH1_23_8_400_40_d.npy', allow_pickle=True)
+    l_te2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_no_network/loss_testH1_nonet_400_40_d.npy', allow_pickle=True)
+
+
+    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train net, 0.001')
+    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train no net, 0.01')
+    #plt.plot(list(range(len(l_tr3))), l_tr3, label='No net Train, 0.01')
+
+    plt.plot(list(range(len(l_te1))), l_te1, label='Test net, 0.001')
+    plt.plot(list(range(len(l_te2))), l_te2, label='Test no net, 0.01')
+    #plt.plot(list(range(len(l_te3))), l_te3, label='No net Test, 0.01')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('check_results.pdf')
+    plt.savefig('check_results_f.pdf')
     #plt.show()
 
 

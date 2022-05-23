@@ -94,13 +94,13 @@ double NeuralState::computeDerivative(vec X_visible) {
 
     
     for (int i =0; i<m_system->getNumberOfVN(); i++){
-        first_sum=(m_a[i]-X_visible[i])/(2*m_sigma*m_sigma);
+        first_sum=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
         
         sec_sum=0;
         for (int j=0; j<m_system->getNumberOfHN(); j++){
-            sec_sum+=m_w(i,j)/(2*m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
+            sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
         }
-        final_sum+=(first_sum+sec_sum)*(first_sum+sec_sum);
+        final_sum+=0.25*(first_sum+sec_sum)*(first_sum+sec_sum);
     }
     
     
