@@ -32,9 +32,9 @@ double HarmonicOscillator::computeLocalEnergy() {
   }
 
   //0.5*interacting
-//cout<<"Energy terms: "<<kineticEnergy<<"__"<<potentialEnergy<<"__"<<interactionEnergy;
+  //cout<<"Energy terms: "<<kineticEnergy<<"__"<<potentialEnergy<<"__"<<interactionEnergy;
 
-  return kineticEnergy+potentialEnergy+2*0.5*interactionEnergy+2*(0.5/1.4);
+  return kineticEnergy+potentialEnergy+interactionEnergy+1/m_system->getBondlength();
   //return kineticEnergy+potentialEnergy;+interactionEnergy;//+(1/0.75);
   }
    

@@ -48,31 +48,19 @@ double NeuralState::computeDoubleDerivative() {
     double sum_M=0;
     double sum_N=0;
     double sig_inp;
-
-    /*
+   
     for (int i=0; i<m_system->getNumberOfVN(); i++){
-        sum_M-=1/(m_sigma*m_sigma);
-        for (int j=0; j<m_system->getNumberOfHN(); j++){
-            sig_inp=sigmoid_input(j);
-            sum_N+=(m_w(i,j)*m_w(i,j))/(pow(m_sigma, 4))*sigmoid(sig_inp)*sigmoid(-sig_inp);
-        }
-        sum_M+=sum_N;
-    }
-    */
-    
-
-    for (int i=0; i<m_system->getNumberOfVN(); i++){
-        sum_M-=0.5/(m_sigma*m_sigma);
+        sum_M-=1;
         sum_N=0;
         for (int j=0; j<m_system->getNumberOfHN(); j++){
             sig_inp=sigmoid_input(j);
-            sum_N+=(0.5*m_w(i,j)*m_w(i,j))/(pow(m_sigma, 4))*sigmoid(sig_inp)*sigmoid(-sig_inp);
+            sum_N+=m_w(i,j)*m_w(i,j)*sigmoid(sig_inp)*sigmoid(-sig_inp);
         }
-        sum_M+=sum_N;
+        sum_M+=sum_N/pow(m_sigma, 2);
     }
     
 
-    return sum_M;
+    return sum_M*0.5/(m_sigma*m_sigma);
 }
 
 double NeuralState::computeDerivative(vec X_visible) {
@@ -80,32 +68,19 @@ double NeuralState::computeDerivative(vec X_visible) {
     double first_sum=0;
     double sec_sum=0;
     double final_sum=0;
-
-    
-    /*
-    for (int i =0; i<m_system->getNumberOfVN(); i++){
-        first_sum+=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
-        for (int j=0; j<m_system->getNumberOfHN(); j++){
-            sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
-        }
-        first_sum+=sec_sum;
-    } final_sum=first_sum;
-    */
-
     
     for (int i =0; i<m_system->getNumberOfVN(); i++){
-        first_sum=(m_a[i]-X_visible[i])/(m_sigma*m_sigma);
-        
+        first_sum=(m_a[i]-X_visible[i]);
+
         sec_sum=0;
         for (int j=0; j<m_system->getNumberOfHN(); j++){
-            sec_sum+=m_w(i,j)/(m_sigma*m_sigma)*sigmoid(sigmoid_input(j));
+            sec_sum+=m_w(i,j)*sigmoid(sigmoid_input(j));
         }
-        final_sum+=0.25*(first_sum+sec_sum)*(first_sum+sec_sum);
+        final_sum+=(first_sum+sec_sum)*(first_sum+sec_sum);
     }
     
-    
-    return final_sum;
-  }
+    return final_sum*0.25/(pow(m_sigma,4));
+    }
 
 
 //Just the sigmoid function to be used in the derivative functions
