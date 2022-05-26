@@ -33,14 +33,12 @@ int main() {
 
     cout<<"----DAILY TASKS LEFT:----"<<endl;
     cout<<"RBM results:"<<endl;
-    cout<<"  - Any restrictions on sigma? check article"<<endl;
-    cout<<"  - Test with 2 separate hydrogen atoms to see if it works"<<endl;
-    cout<<"  - Plot 2 separate hydrogen atoms"<<endl;
     cout<<"  - Compare with analytical result? in table with the other instance?"<<endl;
     cout<<"  - Sigma plot"<<endl;
     cout<<"  - Plot distributions?"<<endl;
     cout<<"  - Plot hidden nodes and learning rate"<<endl;
     cout<<"  - Make final computations and compare with analytical and std with citation, plot as E vs R?"<<endl;
+    cout<<"  - Change names on files, harmonic oscillator??"<<endl;
     cout<<"QBM results:"<<endl;
     cout<<"  - 10 seeds"<<endl;
     cout<<"  - Hydrogen with JW transformation"<<endl;
@@ -51,7 +49,7 @@ int main() {
     double bondlength       = 1.4; //1.4~-1.17, 1.9971934=H2+-->~0.61;     // bondlength in 
     int numberOfDimensions  = 3;            // Set amount of dimensions
     int numberOfParticles   = 2;            // Set amount of particles
-    int hidden_nodes        = 5;            // Set amount of hidden nodes
+    int hidden_nodes        = 10;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
     int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
     bool uniform_distr      = false;        //Normal=false, Uniform=true
@@ -60,8 +58,8 @@ int main() {
     double timeStep         = 0.4;          // Metropolis time step (Importance sampling)
     double equilibration    = 0.2;          // Amount of the total steps used for equilibration.
     bool interaction        = true;        // True-> interaction, False->Not interaction
-    double sigma_val        = 0.85;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
-    double initialization   = 0.01;        //Initialisation values of the distributions 
+    double sigma_val        = 1;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
+    double initialization   = 0.001;        //Initialisation values of the distributions 
     double learningRate     = 0.001;        //Learning rate
     
     //Write to file, these values decides
@@ -95,7 +93,7 @@ int main() {
         //Uniform distribution, initialization value=0.25
           system->setHamiltonian              (new HarmonicOscillator(system, omega));
           system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.25)); 
+          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.1)); 
           system->setWtfDistibution           (explore_distribution);
           system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -127,7 +125,7 @@ int main() {
       else{pid4=fork(); if(pid4==0){
         system->setHamiltonian              (new HarmonicOscillator(system, omega));
         system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.25)); 
+        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.1)); 
         system->setWtfDistibution           (explore_distribution);
         system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 

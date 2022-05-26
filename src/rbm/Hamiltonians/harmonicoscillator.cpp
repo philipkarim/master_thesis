@@ -49,10 +49,6 @@ double HarmonicOscillator::computePotentialEnergy(vec X_visible) {
 
   for (int nuc=0; nuc<m_system->getNumberOfParticles(); nuc++){
     if (dimension==3){
-      //cout<<pow((X_visible[nuc*3]-bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)<<endl;
-      //cout<<pow((X_visible[nuc*3]+bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)<<endl;
-      
-      //potentialEnergy2+=sqrt(pow((X_visible[nuc*3]),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2));
       potentialEnergy2+=1/(sqrt(pow((X_visible[nuc*3]-bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)));
       potentialEnergy2+=1/(sqrt(pow((X_visible[nuc*3]+bondlength*0.5),2)+pow(X_visible[nuc*3+1],2)+pow(X_visible[nuc*3+2],2)));
     }
@@ -92,6 +88,8 @@ double HarmonicOscillator::computeInteractingEnergy(vec X_visible){
   double interactingEnergy2=0;
   double product_term=0;
   double norm = 0;
+
+  //interactingEnergy2+=1/(sqrt(pow((X_visible[0]-X_visible[3]),2)+pow((X_visible[1]-X_visible[4]),2)+pow((X_visible[2]-X_visible[5]),2)));
   
   //Interacting term, looping through the particles keeping the different dimensions in mind
   for (int i=1; i<m_system->getNumberOfParticles(); i++){
@@ -104,6 +102,7 @@ double HarmonicOscillator::computeInteractingEnergy(vec X_visible){
       interactingEnergy2 += 1/sqrt(norm);
     }
   }
+  
   
   return interactingEnergy2;
 }
