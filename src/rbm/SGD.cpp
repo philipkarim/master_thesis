@@ -36,11 +36,9 @@ int SGD::SGDOptimize(int cycle, vec parameters_derivative){
     for (int j=0; j<numberOfHN; j++){
         index_b=numberOfVN + j;
         b_hidden[j] -= lr*parameters_derivative[index_b];
-
     }
     // Computes new weights by looping over the last elements in the parameter vector
     index_w = numberOfHN + numberOfVN;
-    //Not sure if the loops actually breaks or gets all elements, test when I get home
     for (int k=0; k<numberOfVN; k++){
         for (int l=0; l<numberOfHN; l++){
             w_weight(k, l) -= lr*parameters_derivative[index_w];

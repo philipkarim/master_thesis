@@ -134,15 +134,14 @@ bool System::GibbsSampling() {
     mat ww = m_waveFunction->get_w();
 
     //Defining the distribution
-    uniform_real_distribution<double> UniformNumberGenerator(0.0,1.0);
-    normal_distribution<double> Normaldistribution(0.0,1.0);
+    //uniform_real_distribution<double> UniformNumberGenerator(0.0,1.0);
+    //normal_distribution<double> Normaldistribution(0.0,1.0);
     
     for (int i=0; i < m_numberOfHN; i++){
         //random_uniform =UniformNumberGenerator(gen);
-        random_uniform =Normaldistribution(gen);
+        //random_uniform =Normaldistribution(gen);
 
         sigmoid_probabillity=m_waveFunction->sigmoid(m_waveFunction->sigmoid_input(i));
-
         hh[i]=sigmoid_probabillity;
 
         //cout<<"Sig prob"<<sigmoid_probabillity<<endl;
@@ -157,8 +156,24 @@ bool System::GibbsSampling() {
     //New positions
     weight_and_HN = ww*hh;
 
+    /*
     for (int j=0; j<m_numberOfVN; j++){
         x_avg = aa[j] + weight_and_HN[j];
+        normal_distribution<double> Normaldistribution(x_avg, m_waveFunction->getSigma());
+        random_normal=Normaldistribution(gen);
+        //Filling up the new X with positions
+        X_new_2[j] = random_normal;
+    }
+    */
+
+    double sum;
+    for (int j=0; j<m_numberOfVN; j++){
+        sum=0;
+        for (int k=0; k<m_numberOfHN; k++){
+            sum+=hh[k]*ww(j,k);
+        }    
+        x_avg = aa[j] + sum;
+
         normal_distribution<double> Normaldistribution(x_avg, m_waveFunction->getSigma());
         random_normal=Normaldistribution(gen);
         //Filling up the new X with positions

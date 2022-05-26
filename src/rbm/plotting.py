@@ -126,9 +126,10 @@ def plot_distributions():
     folder= ["Results/distribution_investigation/normal_distribution/", "Results/distribution_investigation/uniform_distribution/"]
     
     #Filenames
-    fn_bf=['HN=5lr=10100', 'HN=5lr=1010', 'HN=5lr=105', 'HN=5lr=101']
+    fn_bf=['HN=2lr=11', 'HN=5lr=11', 'HN=10lr=11', 'HN=20lr=11']
+    fn_bf2=['HN=2lr=110', 'HN=5lr=110', 'HN=10lr=110', 'HN=20lr=110']
 
-    #infile1 = np.loadtxt(data_path(folder[0], fn_bf[0]))
+    infile1 = np.loadtxt(data_path(folder[0], fn_bf[0]))
     infile2 = np.loadtxt(data_path(folder[0], fn_bf[1]))
     infile3 = np.loadtxt(data_path(folder[0], fn_bf[2]))
     infile4 = np.loadtxt(data_path(folder[0], fn_bf[3]))
@@ -136,7 +137,7 @@ def plot_distributions():
     #print((infile1[:,0]).size())
     x=np.linspace(0,len(infile2), len(infile2))
 
-    #plt.plot(x, infile1, label='(0, 0.1)')
+    plt.plot(x, infile1, label='(0, 0.1)')
     plt.plot(x, infile2, label='(0, 0.01)')
     plt.plot(x, infile3, label='(0, 0.05)')
     plt.plot(x, infile4, label='(0, 0.001)')
@@ -145,13 +146,13 @@ def plot_distributions():
     plt.ylabel(r'$\langle E_L \rangle(a.u.) $')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('Results/assets/ND.pdf')
+    plt.savefig('Results/assets/ND_2.pdf')
     plt.clf()
 
-    infile5 = np.loadtxt(data_path(folder[1], fn_bf[0]))
-    infile6 = np.loadtxt(data_path(folder[1], fn_bf[1]))
-    infile7 = np.loadtxt(data_path(folder[1], fn_bf[2]))
-    infile8 = np.loadtxt(data_path(folder[1], fn_bf[3]))
+    infile5 = np.loadtxt(data_path(folder[0], fn_bf2[0]))
+    infile6 = np.loadtxt(data_path(folder[0], fn_bf2[1]))
+    infile7 = np.loadtxt(data_path(folder[0], fn_bf2[2]))
+    infile8 = np.loadtxt(data_path(folder[0], fn_bf2[3]))
     
     plt.plot(x, infile5, label='[-0.1, 0.1]')
     plt.plot(x, infile6, label='[-0.01, 0.01]')
@@ -162,7 +163,7 @@ def plot_distributions():
     plt.ylabel(r'$\langle E_L \rangle(a.u.) $')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('Results/assets/UD.pdf')
+    plt.savefig('Results/assets/UD_2.pdf')
     plt.clf()
     
     return
@@ -252,26 +253,16 @@ def plot_lr_nodes():
 
 def computefinalresults():
     #Folders
-    folder_noint= ["Results/no_interaction/bruteforce/normal_distribution/", "Results/no_interaction/importance/normal_distribution/", "Results/no_interaction/gibbs/normal_distribution/"]
-    folder_int= ["Results/interaction/bruteforce/normal_distribution/", "Results/interaction/importance/normal_distribution/", "Results/interaction/gibbs/normal_distribution/"]
+    folder_int= ["Results/final_runs/"]
 
     #Filenames
-    fn=['N=1D=1', 'N=1D=2', 'N=1D=3', 'N=2D=2']
+    fn=['HN=2LR=10', 'HN=5LR=10', 'HN=10LR=10', 'HN=20LR=10']
 
     #No interaction
-    bf_noint_1d= data_path(folder_noint[0], fn[0])
-    is_noint_1d= data_path(folder_noint[1], fn[0])
-    gibbs_noint_1d= data_path(folder_noint[2], fn[0])
-    bf_noint_2d= data_path(folder_noint[0], fn[1])
-    is_noint_2d= data_path(folder_noint[1], fn[1])
-    gibbs_noint_2d= data_path(folder_noint[2], fn[1])
-    bf_noint_3d= data_path(folder_noint[0], fn[2])
-    is_noint_3d= data_path(folder_noint[1], fn[2])
-    gibbs_noint_3d= data_path(folder_noint[2], fn[2])
-    #Interaction
-    bf_int= data_path(folder_int[0], fn[3])
-    is_int= data_path(folder_int[1], fn[3])
-    gibbs_int= data_path(folder_int[2], fn[3])
+    bf_noint_1d= data_path(folder_int[0], fn[0])
+    is_noint_1d= data_path(folder_int[0], fn[1])
+    gibbs_noint_1d= data_path(folder_int[0], fn[2])
+    bf_noint_2d= data_path(folder_int[0], fn[3])
     
     #Can be plotted much more elegantly, fix this if it is time    
     mean_e, std_v=block(np.loadtxt(bf_noint_1d))
@@ -282,31 +273,16 @@ def computefinalresults():
     print(mean_e, std_v)
     mean_e, std_v=block(np.loadtxt(bf_noint_2d))
     print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(is_noint_2d))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(gibbs_noint_2d))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(bf_noint_3d))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(is_noint_3d))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(gibbs_noint_3d))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(bf_int))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(is_int))
-    print(mean_e, std_v)
-    mean_e, std_v=block(np.loadtxt(gibbs_int))
-    print(mean_e, std_v)
+    
 
     
     return
 
-plottsigma()
+#plottsigma()
 #plot_distributions()
 #plottsteps()
 #plot_lr_nodes()
-#computefinalresults()
+computefinalresults()
 
 
 

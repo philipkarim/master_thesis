@@ -141,37 +141,13 @@ void Sampler::writeToFile(){
 
   int sample_method=m_system->getSampleMethod();
 
-  if(m_system->getInteraction()){
-    interaction_part="interaction";
-  }
-  else{
-    interaction_part="no_interaction";
-  }
+  folderpart1 ="Results/final_runs/";
 
-  if(m_system->getDistribution()){
-    distribution_part="uniform_distribution";
-  }
-  else{
-    distribution_part="normal_distribution";
-  }
+  int parti= m_system->getNumberOfHN();
+  int dimen= 1000*m_system->getLearningRate();
 
-  if (sample_method==0){
-    method="bruteforce";
-  }
-  else if (sample_method==1){
-    method="importance";
-  }
-  else{
-    method="gibbs";
-  }
-
-  folderpart1 ="Results/"+interaction_part+"/"+method+"/"+distribution_part+"/";
-
-  int parti= m_system->getNumberOfParticles();
-  int dimen= m_system->getNumberOfDimensions();
-
-  string filename=folderpart1+"N="+to_string(parti)+"D="+to_string(dimen);
-  string filenametime=folderpart1+"time/"+"N="+to_string(parti)+"D="+to_string(dimen)+"new";
+  string filename=folderpart1+"HN="+to_string(parti)+"LR="+to_string(dimen);
+  string filenametime=folderpart1+"time/"+"HN="+to_string(parti)+"LR="+to_string(dimen)+"new";
 
   myfile.open(filename);
   myfiletime.open(filenametime);

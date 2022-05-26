@@ -44,12 +44,12 @@ int main() {
     cout<<"  - Hydrogen with JW transformation"<<endl;
     cout<<"Write about entanglement"<<endl;
 
-    int numberOfSteps       = (int) pow(2,14); //Amount of metropolis steps
+    int numberOfSteps       = (int) pow(2,18); //Amount of metropolis steps
     int cycles_RBM          = 50;
     double bondlength       = 1.4; //1.4~-1.17, 1.9971934=H2+-->~0.61;     // bondlength in 
     int numberOfDimensions  = 3;            // Set amount of dimensions
     int numberOfParticles   = 2;            // Set amount of particles
-    int hidden_nodes        = 10;            // Set amount of hidden nodes
+    int hidden_nodes        = 20;            // Set amount of hidden nodes
     int visible_nodes       = numberOfDimensions*numberOfParticles;
     int sampler_method      = 2;            //0=BF, 1=IS, 2=GS
     bool uniform_distr      = false;        //Normal=false, Uniform=true
@@ -60,12 +60,12 @@ int main() {
     bool interaction        = true;        // True-> interaction, False->Not interaction
     double sigma_val        = .9;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
     double initialization   = 0.01;        //Initialisation values of the distributions 
-    double learningRate     = 0.001;        //Learning rate
+    double learningRate     = 0.01;        //Learning rate
     
     //Write to file, these values decides
     //which part of the investigation is going
     //to be written to file
-    bool generalwtf        =false;          // Final results
+    bool generalwtf        =true;          // Final results
     bool explore_distribution=false;        // Different distributions
     bool find_optimal_step =false;          //Investigating the step sizes and time steps
     bool nodes_lr          =false;          //Computing various values of hidden nodes vs learning rate
@@ -82,7 +82,8 @@ int main() {
     system->setSampleMethod             (sampler_method);
     system->setInteraction              (interaction);
     system->setgeneralwtf               (generalwtf);
-    
+    generalwtf=false;
+
     //From here on it is just various simulations ready to run in parallel
     if(explore_distribution==true){
       int pid, pid1, pid2, pid3, pid4, pid5, pid6;
@@ -92,7 +93,7 @@ int main() {
         //Uniform distribution, initialization value=0.25
           system->setHamiltonian              (new HarmonicOscillator(system, omega));
           system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.1)); 
+          system->setInitialState             (new RandomUniform(system, 2, visible_nodes,false, 0.01)); 
           system->setWtfDistibution           (explore_distribution);
           system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -100,7 +101,7 @@ int main() {
       else{pid1=fork(); if(pid1==0){
           system->setHamiltonian              (new HarmonicOscillator(system, omega));
           system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.01)); 
+          system->setInitialState             (new RandomUniform(system, 5, visible_nodes,false, 0.01)); 
           system->setWtfDistibution           (explore_distribution);
           system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -108,7 +109,7 @@ int main() {
       else{pid2=fork(); if(pid2==0){
           system->setHamiltonian              (new HarmonicOscillator(system, omega));
           system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.001)); 
+          system->setInitialState             (new RandomUniform(system, 10, visible_nodes,false, 0.01)); 
           system->setWtfDistibution           (explore_distribution);
           system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -116,7 +117,7 @@ int main() {
       else{pid3=fork(); if(pid3==0){
         system->setHamiltonian              (new HarmonicOscillator(system, omega));
         system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,true, 0.005)); 
+        system->setInitialState             (new RandomUniform(system, 20, visible_nodes,false, 0.01)); 
         system->setWtfDistibution           (explore_distribution);
         system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -124,21 +125,21 @@ int main() {
       else{pid4=fork(); if(pid4==0){
         system->setHamiltonian              (new HarmonicOscillator(system, omega));
         system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.1)); 
+        system->setInitialState             (new RandomUniform(system, 2, visible_nodes,false, 0.001)); 
         system->setWtfDistibution           (explore_distribution);
         system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
       else{pid5=fork(); if(pid5==0){
         system->setHamiltonian              (new HarmonicOscillator(system, omega));
         system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.01)); 
+        system->setInitialState             (new RandomUniform(system, 5, visible_nodes,false, 0.001)); 
         system->setWtfDistibution           (explore_distribution);
         system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
       else{pid6=fork(); if(pid6==0){
         system->setHamiltonian              (new HarmonicOscillator(system, omega));
         system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-        system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.001)); 
+        system->setInitialState             (new RandomUniform(system, 10, visible_nodes,false, 0.001)); 
         system->setWtfDistibution           (explore_distribution);
         system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);}
 
@@ -146,7 +147,7 @@ int main() {
       else{
           system->setHamiltonian              (new HarmonicOscillator(system, omega));
           system->setWaveFunction             (new NeuralState(system, numberOfParticles, numberOfDimensions, sigma_val));
-          system->setInitialState             (new RandomUniform(system, hidden_nodes, visible_nodes,false, 0.005)); 
+          system->setInitialState             (new RandomUniform(system, 20, visible_nodes,false, 0.001)); 
           system->setWtfDistibution           (explore_distribution);
           system->runBoltzmannMachine         (cycles_RBM, numberOfSteps);
         }}}}}}}}

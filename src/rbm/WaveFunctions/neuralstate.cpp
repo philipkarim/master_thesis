@@ -55,6 +55,7 @@ double NeuralState::computeDoubleDerivative() {
         for (int j=0; j<m_system->getNumberOfHN(); j++){
             sig_inp=sigmoid_input(j);
             sum_N+=m_w(i,j)*m_w(i,j)*sigmoid(sig_inp)*sigmoid(-sig_inp);
+
         }
         sum_M+=sum_N/pow(m_sigma, 2);
     }
