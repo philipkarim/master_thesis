@@ -27,7 +27,7 @@ void learning_rate_and_nodes(int lr_part, int lr_dim, double learning_rate, int 
           system->setInteraction              (interacting_lrn);
           system->setWtfLrNodes               (true);
           system->setgeneralwtf               (false);
-          system->runBoltzmannMachine         (40, (int) pow(2,18));
+          system->runBoltzmannMachine         (50, (int) pow(2,14));
 }
 int main() {
 
@@ -44,7 +44,7 @@ int main() {
     cout<<"  - Hydrogen with JW transformation"<<endl;
     cout<<"Write about entanglement"<<endl;
 
-    int numberOfSteps       = (int) pow(2,15); //Amount of metropolis steps
+    int numberOfSteps       = (int) pow(2,14); //Amount of metropolis steps
     int cycles_RBM          = 50;
     double bondlength       = 1.4; //1.4~-1.17, 1.9971934=H2+-->~0.61;     // bondlength in 
     int numberOfDimensions  = 3;            // Set amount of dimensions
@@ -58,8 +58,8 @@ int main() {
     double timeStep         = 0.4;          // Metropolis time step (Importance sampling)
     double equilibration    = 0.2;          // Amount of the total steps used for equilibration.
     bool interaction        = true;        // True-> interaction, False->Not interaction
-    double sigma_val        = 1;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
-    double initialization   = 0.001;        //Initialisation values of the distributions 
+    double sigma_val        = .9;            //Value of sigma, switch to 0.7 when using gibbs sampling for optimal results
+    double initialization   = 0.01;        //Initialisation values of the distributions 
     double learningRate     = 0.001;        //Learning rate
     
     //Write to file, these values decides
@@ -83,7 +83,6 @@ int main() {
     system->setInteraction              (interaction);
     system->setgeneralwtf               (generalwtf);
     
-
     //From here on it is just various simulations ready to run in parallel
     if(explore_distribution==true){
       int pid, pid1, pid2, pid3, pid4, pid5, pid6;

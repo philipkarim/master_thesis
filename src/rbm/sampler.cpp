@@ -278,7 +278,7 @@ void Sampler::writeToFiles_distribution(){
     method="gibbs";
   }
 
-  folderpart1 ="Results/"+interaction_part+"/distribution_investigation/"+distribution_part+"/";
+  folderpart1 ="Results/distribution_investigation/"+distribution_part+"/";
 
   int HN= m_system->getNumberOfHN();
   double lr=m_system->getLearningRate();

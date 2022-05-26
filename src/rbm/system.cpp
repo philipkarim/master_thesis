@@ -146,11 +146,12 @@ bool System::GibbsSampling() {
         hh[i]=sigmoid_probabillity;
 
         //cout<<"Sig prob"<<sigmoid_probabillity<<endl;
-
-        //if (sigmoid_probabillity >= 0.5){
-        //    hh[i] = 1;}
-        //else{
-        //    hh[i] = 0;}
+        /*
+        if (sigmoid_probabillity >= UniformNumberGenerator(gen)){
+            hh[i] = 1;}
+        else{
+            hh[i] = 0;}
+        */
     }
 
     //New positions

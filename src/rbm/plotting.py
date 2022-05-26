@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.ticker import ScalarFormatter
 from statisticalhandling import block
+import matplotlib
 
+"""
 sns.set_style("darkgrid")
 
 CB91_Blue = '#2CBDFE'
@@ -20,23 +22,45 @@ CB91_Amber = '#F5B14C'
 color_list = [CB91_Blue, CB91_Pink, CB91_Green, CB91_Amber, CB91_Violet]
 #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
 
+"""
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
+sns.set_style("darkgrid")
+#print(plt.rcParams.keys())
+
+FIGWIDTH=4.71935 #From latex document
+FIGHEIGHT=FIGWIDTH/1.61803398875
+
+params = {'text.usetex' : True,
+          'font.size' : 10,
+          'font.family' : 'lmodern',
+          'figure.figsize' : [FIGWIDTH, FIGHEIGHT],
+          #'text.latex.unicode': True,
+          }
+plt.rcParams.update(params)
+
+
 def data_path(DATA_ID, dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 def plottsigma():    
     #Filenames
-    fn_noint=['N=1D=1HN=4lr=100']
+    fn_noint=['lr0001HN5214']
 
     #Folders
-    folder= ["Results/no_interaction/step_size/gibbs/normal_distribution/"]
+    folder= ["Results/sigma_investigation/"]
 
     file = np.loadtxt(data_path(folder[0], fn_noint[0]))
 
- 
-    plt.plot(file[:,1], file[:,0])
-    plt.xlabel(r'$\sigma$',fontsize=12)
-    plt.ylabel(r'$\langle E_L \rangle (a.u.)$',fontsize=12)
-    plt.show()
+    plt.plot(file[:,0], file[:,1])
+    #plt.plot(file[:,0], file[:,2])
+    plt.xlabel(r'$\sigma$')
+    plt.ylabel(r'$\langle E_L \rangle(a.u.) $')
+    #plt.legend()
+    plt.tight_layout()
+    plt.savefig('Results/assets/sigma.pdf')
+    plt.clf()
 
     return
 
@@ -99,47 +123,47 @@ def plottsteps():
 
 def plot_distributions():
     #Folders
-    folder= ["Results/no_interaction/distribution_investigation/normal_distribution/", "Results/no_interaction/distribution_investigation/uniform_distribution/"]
+    folder= ["Results/distribution_investigation/normal_distribution/", "Results/distribution_investigation/uniform_distribution/"]
     
     #Filenames
-    fn_bf=['HN=2lr=11', 'HN=2lr=15', 'HN=2lr=110', 'HN=2lr=1250']
+    fn_bf=['HN=5lr=10100', 'HN=5lr=1010', 'HN=5lr=105', 'HN=5lr=101']
 
-    infile1 = np.loadtxt(data_path(folder[0], fn_bf[0]))
+    #infile1 = np.loadtxt(data_path(folder[0], fn_bf[0]))
     infile2 = np.loadtxt(data_path(folder[0], fn_bf[1]))
     infile3 = np.loadtxt(data_path(folder[0], fn_bf[2]))
     infile4 = np.loadtxt(data_path(folder[0], fn_bf[3]))
 
     #print((infile1[:,0]).size())
-    x=np.linspace(0,len(infile1), len(infile1))
+    x=np.linspace(0,len(infile2), len(infile2))
 
-    plt.plot(x, infile1, label='(0, 0.001)')
-    plt.plot(x, infile2, label='(0, 0.005)')
-    plt.plot(x, infile3, label='(0, 0.01)')
-    #plt.plot(x, infile4, label='(0, 0.25)')
+    #plt.plot(x, infile1, label='(0, 0.1)')
+    plt.plot(x, infile2, label='(0, 0.01)')
+    plt.plot(x, infile3, label='(0, 0.05)')
+    plt.plot(x, infile4, label='(0, 0.001)')
 
-    #plt.plot(infile3[:,0], x, label='(0, 0.25)')
-    plt.xlabel('RBM cycles',fontsize=12)
-    plt.ylabel(r'$\langle E_L \rangle (a.u.)$',fontsize=12)
-    #plt.grid()
+    plt.xlabel('RBM cycle')
+    plt.ylabel(r'$\langle E_L \rangle(a.u.) $')
     plt.legend()
-    plt.show()
+    plt.tight_layout()
+    plt.savefig('Results/assets/ND.pdf')
+    plt.clf()
 
     infile5 = np.loadtxt(data_path(folder[1], fn_bf[0]))
     infile6 = np.loadtxt(data_path(folder[1], fn_bf[1]))
     infile7 = np.loadtxt(data_path(folder[1], fn_bf[2]))
     infile8 = np.loadtxt(data_path(folder[1], fn_bf[3]))
     
-    plt.plot(x, infile5, label='(-0.001, 0.001)')
-    plt.plot(x, infile6, label='(-0.005, 0.005)')
-    plt.plot(x, infile7, label='(-0.01, 0.01)')
-    plt.plot(x, infile8, label='(-0.25, 0.25)')
+    plt.plot(x, infile5, label='[-0.1, 0.1]')
+    plt.plot(x, infile6, label='[-0.01, 0.01]')
+    plt.plot(x, infile7, label='[-0.005, 0.005]')
+    plt.plot(x, infile8, label='[-0.001, 0.001]')
    
-    plt.xlabel('RBM cycles',fontsize=12)
-    plt.ylabel(r'$\langle E_L \rangle(a.u.) $',fontsize=12)
-    #plt.grid()
+    plt.xlabel('RBM cycle')
+    plt.ylabel(r'$\langle E_L \rangle(a.u.) $')
     plt.legend()
-    #plt.legend(loc=(0.67, 0.67))
-    plt.show()
+    plt.tight_layout()
+    plt.savefig('Results/assets/UD.pdf')
+    plt.clf()
     
     return
 
@@ -278,11 +302,11 @@ def computefinalresults():
     
     return
 
-#plottsigma()
+plottsigma()
 #plot_distributions()
 #plottsteps()
 #plot_lr_nodes()
-computefinalresults()
+#computefinalresults()
 
 
 
