@@ -738,12 +738,10 @@ def plot_gen_sub(name_start, labels, end):
 def format_labels(x, pos):
     return "e$^{%i}$" % np.log(x)
 
+def final_fraud():
 
-
-def plot_temp():
-    """
-    TODO: Remove this
-    """
+def fina_digit():
+    #Franke
     l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
     l_tr2=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
     l_tr3=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
@@ -752,33 +750,68 @@ def plot_temp():
     l_te2=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
     l_te3=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
 
-    l_tr1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f_001.npy', allow_pickle=True)
-    l_tr2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f.npy', allow_pickle=True)
-    l_tr3=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_no_network/loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
+    #Digit
+    l_tr1=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_trainH1_23_8_400_40_d.npy', allow_pickle=True)
+    l_tr2=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_trainH1_23_8_400_50_d.npy', allow_pickle=True)
+    l_tr3=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_trainH1_23_8_500_40_d.npy', allow_pickle=True)
+    l_tr4=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_trainH1_nonet_400_40_d.npy', allow_pickle=True)
+    l_tr5=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_trainH1_nonet_400_50_d.npy', allow_pickle=True)
+    l_tr6=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_trainH1_nonet_500_40_d.npy', allow_pickle=True)
 
-    l_te1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f_001.npy', allow_pickle=True)
-    l_te2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f.npy', allow_pickle=True)
-    l_te3=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_fraud_no_network/loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
+    l_te1=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_testH1_23_8_400_40_d.npy', allow_pickle=True)
+    l_te2=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_testH1_23_8_400_50_d.npy', allow_pickle=True)
+    l_te3=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/loss_testH1_23_8_500_40_d.npy', allow_pickle=True)
+    l_te4=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_testH1_nonet_400_40_d.npy', allow_pickle=True)
+    l_te5=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
+    l_te6=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_no_network/loss_testH1_nonet_500_40_d.npy', allow_pickle=True)
 
-    l_tr1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_network/loss_trainH1_23_8_400_40_d.npy', allow_pickle=True)
-    l_tr2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_no_network/loss_trainH1_nonet_400_40_d.npy', allow_pickle=True)
-    l_te1=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_network/loss_testH1_23_8_400_40_d.npy', allow_pickle=True)
-    l_te2=np.load('results/temp_results_final_runs/temp_disc_learning/final_run_digit_no_network/loss_testH1_nonet_400_40_d.npy', allow_pickle=True)
+    #Fraud
+    l_tr1=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f_001.npy', allow_pickle=True)
+    l_tr2=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_trainH1_8_5_500_40_f_001.npy', allow_pickle=True)
+    l_tr3=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_trainH1_8_5_400_40_f.npy', allow_pickle=True)
+    l_tr4=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_trainH1_8_5_500_40_f.npy', allow_pickle=True)
+    
+    l_te1=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f_001.npy', allow_pickle=True)
+    l_te2=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_testH1_8_5_500_40_f_001.npy', allow_pickle=True)
+    l_te3=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_testH1_8_5_400_40_f.npy', allow_pickle=True)
+    l_te4=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_network/loss_testH1_8_5_500_40_f.npy', allow_pickle=True)
 
+    l_tr5=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
+    l_tr6=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_trainH1_nonet_400_50_f.npy', allow_pickle=True)
+    l_tr7=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_trainH1_nonet_500_40_f.npy', allow_pickle=True)
 
-    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train net, 0.001')
-    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train no net, 0.01')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='No net Train, 0.01')
+    l_te5=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
+    l_te6=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_testH1_nonet_400_50_f.npy', allow_pickle=True)
+    l_te7=np.load('results/temp_results_final_runs/disc_learning/final_run_fraud_no_network/loss_testH1_nonet_500_40_f.npy', allow_pickle=True)
 
-    plt.plot(list(range(len(l_te1))), l_te1, label='Test net, 0.001')
-    plt.plot(list(range(len(l_te2))), l_te2, label='Test no net, 0.01')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='No net Test, 0.01')
+    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train 44, 001')
+    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 45 001')
+    plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 44')
+    plt.plot(list(range(len(l_tr4))), l_tr4, label='Train  54')
+
+    plt.plot(list(range(len(l_te1))), l_te1, label='Test 44 001')
+    plt.plot(list(range(len(l_te2))), l_te2, label='Test 45 001')
+    plt.plot(list(range(len(l_te3))), l_te3, label='Test 44')
+    plt.plot(list(range(len(l_te4))), l_te4, label='Test 54')
+    
+    plt.plot(list(range(len(l_tr5))), l_tr5, label='Train no 44')
+    plt.plot(list(range(len(l_tr6))), l_tr6, label='Train no 45')
+    plt.plot(list(range(len(l_tr7))), l_tr7, label='Train, no 54')
+
+    plt.plot(list(range(len(l_te5))), l_te5, label='Test no 44')
+    plt.plot(list(range(len(l_te6))), l_te6, label='Test no 45')
+    plt.plot(list(range(len(l_te7))), l_te7, label='Test, no 54')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('check_results_f.pdf')
+    plt.savefig('check_results_fr.pdf')
     #plt.show()
+
+    #test_loss=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/predictions_trainH1_23_8_500_40_d.npy', allow_pickle=True)
+
+    #print(test_loss)
+    #print(np.shape(test_loss))
 
 
 
@@ -796,4 +829,4 @@ def plot_temp():
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
 
-#plot_temp()
+plot_temp()
