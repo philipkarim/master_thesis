@@ -146,8 +146,53 @@ def franke(H_num, ansatz, n_epochs, lr,
     params_franke=[n_epochs, opt_met, lr, m1, m2]
 
     if QBM ==True:
+
+
         train_model(data_franke, H_num, ansatz, params_franke, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
+
+        path='results/disc_learning/final_runs/'
+        net='final_run_franke_network/'
+
+        train=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+        test=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+
+        pred_test=np.load(path+net+'predictions_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+        targ_test=np.load(path+net+'targets_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+        
+        pred_train=np.load(path+net+'predictions_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+        targ_train=np.load(path+net+'targets_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+
+        pred_test=pred_test[np.where(test == np.amin(test))[0]][0]
+        targ_test=targ_test[np.where(test == np.amin(test))[0]][0]
+        
+        pred_train=pred_train[np.where(train == np.amin(train))[0]][0]
+        targ_train=targ_train[np.where(train == np.amin(train))[0]][0]
+        
+        train_in=np.where(train == np.amin(train))[0][0]
+        
+        print(train_in)
+        from sklearn.utils import shuffle
+        for i in range(train_in):
+            X_train, y_train = shuffle(X_train, y_train, random_state=0)
+
+        X=X_train
+        Y=pred_train
+
+        fig = plt.figure() 
+        ax = plt.axes(projection ='3d')
+        my_cmap = plt.get_cmap('YlGnBu')
+        # Creating plot
+        trisurf = ax.plot_trisurf(X[:,1], X[:,2], Y,cmap = my_cmap,
+                                linewidth = 0.2,antialiased = True,
+                                edgecolor = 'grey')
+        # Adding labels
+        ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
+        plt.tight_layout()
+        plt.savefig('results/disc_learning/assets/final_runs/franke_test.pdf')
+        plt.clf
+
+        exit()
         #Does not work
         best_params=None
         #best_params=gridsearch_params(data_fraud, 10)

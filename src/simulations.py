@@ -606,11 +606,6 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     tanh_11_6= NN_nodes(11,6)
     tanh_32_32= NN_nodes(32,32)
 
-    #TODO:
-    #-Fix mnist
-    #-Time samples and comput time
-    #Start 0.05 on the other cluster
-
     fork_params=[[0.01, 40,tanh_8_5,'network','H1_8_5_500_40_f', False, 0],
                 [0.01, 50,tanh_8_5,'network','H1_8_5_400_50_f', True, 0],
                 [0.01, 40,tanh_8_5,'network','H1_8_5_400_40_f', True, 0],

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix
 
 #import matplotlib.ticker as tick
 #sns.set_style("darkgrid")
@@ -740,14 +740,38 @@ def plot_gen_sub(name_start, labels, end):
 def format_labels(x, pos):
     return "e$^{%i}$" % np.log(x)
 
-def final_scores(prediction, target):
+def final_scores(prediction, target, CM, name):
     precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='weighted')
 
     print(precision, recal, beta)
     print(f'Accuracy {accuracy_score(target, prediction)}')
 
+    if CM: 
+        cf_matrix = confusion_matrix(target, prediction, normalize='all')
+        cf_matrix/=100
+        plt.figure()
+        ax = sns.heatmap(cf_matrix, annot=True,
+            fmt='.2%', cmap='Blues', cbar=False)
 
-def final_fraud():
+        ## Ticket labels - List must be in alphabetical order
+        if name[0]=='m' or name[0]=='d':
+            ax.set_xlabel('\nPredicted labels')
+            ax.set_ylabel('True labels ')
+            ax.xaxis.set_ticklabels(['0','1', '2', '3'])
+            ax.yaxis.set_ticklabels(['0','1', '2', '3'])
+        else:
+            ax.set_xlabel('\nPredicted labels')
+            ax.set_ylabel('True labels ')
+            ax.xaxis.set_ticklabels(['False','True'])
+            ax.yaxis.set_ticklabels(['False','True'])
+
+        ## Display the visualization of the Confusion Matrix.
+        plt.tight_layout()
+        plt.savefig('results/disc_learning/assets/final_runs/CM'+name+'.pdf')
+        plt.clf()
+
+
+def final_fraud(CM=False):
     #Fraud
     path='results/disc_learning/final_runs/'
     net='final_run_fraud_network/'
@@ -757,13 +781,13 @@ def final_fraud():
     l_tr2=np.load(path+net+'loss_trainH1_8_5_400_50_f_001.npy', allow_pickle=True)
     #l_tr3=np.load(path+net+'loss_trainH1_8_5_500_40_f_001.npy', allow_pickle=True)
     
-    l_tr4=np.load(path+nonet+'loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
+    #l_tr4=np.load(path+nonet+'loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
     l_tr5=np.load(path+nonet+'loss_trainH1_nonet_400_50_f.npy', allow_pickle=True)
-    l_tr6=np.load(path+nonet+'loss_trainH1_nonet_500_40_f.npy', allow_pickle=True)
+    #l_tr6=np.load(path+nonet+'loss_trainH1_nonet_500_40_f.npy', allow_pickle=True)
     
-    l_te4=np.load(path+nonet+'loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
+    #l_te4=np.load(path+nonet+'loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
     l_te5=np.load(path+nonet+'loss_testH1_nonet_400_50_f.npy', allow_pickle=True)
-    l_te6=np.load(path+nonet+'loss_testH1_nonet_500_40_f.npy', allow_pickle=True)
+    #l_te6=np.load(path+nonet+'loss_testH1_nonet_500_40_f.npy', allow_pickle=True)
 
     #l_te1=np.load(path+net+'loss_testH1_8_5_400_40_f_001.npy', allow_pickle=True)
     l_te2=np.load(path+net+'loss_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
@@ -793,141 +817,145 @@ def final_fraud():
     plt.ylabel('Loss')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('check_results_fr_nonet.pdf')
+    #plt.savefig('check_results_fr_nonet.pdf')
+    plt.clf()
 
-    pred=np.load(path+net+'predictions_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
-    targ=np.load(path+net+'targets_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
-
+    pred_net=np.load(path+net+'predictions_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
+    targ_net=np.load(path+net+'targets_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
     
-    pred=np.load(path+nonet+'predictions_testH1_nonet_400_50_f.npy', allow_pickle=True)
-    targ=np.load(path+nonet+'targets_testH1_nonet_400_50_f.npy', allow_pickle=True)
-    print(targ)
+    pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_f.npy', allow_pickle=True)
+    targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_f.npy', allow_pickle=True)
    
-    target_list=[]
+    target_list_net=[]
+    target_list_nonet=[]
 
-    #pred=pred[np.where(l_te2 == np.amin(l_te2))[0]][0]
-    #targ=targ[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
 
-    pred=pred[np.where(l_te5 == np.amin(l_te5))[0]][0]
-    targ=targ[np.where(l_te5 == np.amin(l_te5))[0]][0]
+    pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
+    targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
     
-    for i in targ:
+    for i in targ_net:
         if i[0]==1:
-            target_list.append(0)
+            target_list_net.append(0)
         else:
-            target_list.append(1)
+            target_list_net.append(1)
 
-    target_list=np.array(target_list)
-    #print(pred)
-    #print(target_list)
+    for i in targ_nonet:
+        if i[0]==1:
+            target_list_nonet.append(0)
+        else:
+            target_list_nonet.append(1)
 
-    final_scores(pred, target_list)
+    target_list_net=np.array(target_list_net)
+    target_list_nonet=np.array(target_list_nonet)
+
+    final_scores(pred_net, target_list_net, CM, 'f_net')
+    final_scores(pred_nonet, target_list_nonet, CM, 'f_nonet')
 
 
-def franke():
+def final_franke():
     l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
-    l_tr2=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
-    l_tr3=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
-
     l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
-    l_te2=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
-    l_te3=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0005.npy', allow_pickle=True)
 
-def fina_digit():
+    print(np.amin(l_te1))
+    exit()
+
+    plt.figure()
+    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train')
+    plt.plot(list(range(len(l_te1))), l_te1, label='Test')
+    #plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 0001')
+    #plt.plot(list(range(len(l_te2))), l_te2, label='Test 0001')
+    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Train 0005')
+    #plt.plot(list(range(len(l_te3))), l_te3, label='Test 0005')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('franke_loss_final.pdf')
+    plt.clf()
+
+
+    fig = plt.figure() 
+    ax = plt.axes(projection ='3d') 
+
+    my_cmap = plt.get_cmap('YlGnBu')
+    
+    # Creating plot
+    trisurf = ax.plot_trisurf(X[:,1], X[:,2], Y,cmap = my_cmap,
+                            linewidth = 0.2,antialiased = True,
+                            edgecolor = 'grey') 
+    
+    # Adding labels
+    ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
+    #plt.tight_layout()
+    #plt.savefig('results/disc_learning/franke/'+file_title+'.pdf')
+    plt.clf
+
+
+def final_digit(CM=False):
     path='results/disc_learning/final_runs/'
     net='final_run_digit_network/'
     nonet='final_run_digit_no_network/'
     
-    #l_tr1=np.load(path+net+'loss_trainH1_23_8_400_40_d.npy', allow_pickle=True)
     l_tr2=np.load(path+net+'loss_trainH1_23_8_400_50_d.npy', allow_pickle=True)
-    #l_tr3=np.load(path+net+'loss_trainH1_23_8_500_40_d.npy', allow_pickle=True)
-        
-    #l_te1=np.load(path+net+'loss_testH1_23_8_400_40_d.npy', allow_pickle=True)
     l_te2=np.load(path+net+'loss_testH1_23_8_400_50_d.npy', allow_pickle=True)
-    #l_te3=np.load(path+net+'loss_testH1_23_8_500_40_d.npy', allow_pickle=True)
 
-    #plt.plot(list(range(len(l_tr1))), l_tr1, label='Train 44')
+    l_tr5=np.load(path+nonet+'loss_trainH1_nonet_400_50_d.npy', allow_pickle=True)
+    l_te5=np.load(path+nonet+'loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
+
     plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 45')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 54')
-
-    #plt.plot(list(range(len(l_te1))), l_te1, label='Test 44')
     plt.plot(list(range(len(l_te2))), l_te2, label='Test 45')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='Test 54')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('check_results_di.pdf')
-    plt.clf
+    #plt.savefig('check_results_di.pdf')
+    plt.clf()
 
-
-    #pred=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
-    #targ=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
+    pred_net=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
+    targ_net=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
     
-    pred=np.load(path+nonet+'predictions_testH1_nonet_400_50_d.npy', allow_pickle=True)
-    targ=np.load(path+nonet+'targets_testH1_nonet_400_50_d.npy', allow_pickle=True)
-    target_list=[]
+    pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_d.npy', allow_pickle=True)
+    targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_d.npy', allow_pickle=True)
+    
+    target_list_net=[]
+    target_list_nonet=[]
 
-    l_te2=np.load(path+nonet+'loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
+    pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
+    targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
 
-    pred=pred[np.where(l_te2 == np.amin(l_te2))[0]][0]
-    targ=targ[np.where(l_te2 == np.amin(l_te2))[0]][0]
-
-    #print(pred)
-    #print(targ)
-
-    for i in targ:
+    for i in targ_net:
         if i[0]==1:
-            target_list.append(0)
+            target_list_net.append(0)
         elif i[1]==1:
-            target_list.append(1)
+            target_list_net.append(1)
         elif i[2]==1:
-            target_list.append(2)
+            target_list_net.append(2)
         else:
-            target_list.append(3)
+            target_list_net.append(3)
 
-    target_list=np.array(target_list)
-    #print(pred)
-    #print(target_list)
+    for i in targ_nonet:
+        if i[0]==1:
+            target_list_nonet.append(0)
+        elif i[1]==1:
+            target_list_nonet.append(1)
+        elif i[2]==1:
+            target_list_nonet.append(2)
+        else:
+            target_list_nonet.append(3)
 
-    final_scores(pred, target_list)
+    target_list_net=np.array(target_list_net)
+    target_list_nonet=np.array(target_list_nonet)
 
-    exit()
-
-    #pred=pred[np.where(l_te5 == np.amin(l_te5))[0]][0]
-    #targ=targ[np.where(l_te5 == np.amin(l_te5))[0]][0]
-
-    #l_tr1=np.load(path+nonet+'loss_trainH1_nonet_400_40_d.npy', allow_pickle=True)
-    l_tr2=np.load(path+nonet+'loss_trainH1_nonet_400_50_d.npy', allow_pickle=True)
-    #l_tr3=np.load(path+nonet+'loss_trainH1_nonet_500_40_d.npy', allow_pickle=True)
-        
-    #l_te1=np.load(path+nonet+'loss_testH1_nonet_400_40_d.npy', allow_pickle=True)
-    l_te2=np.load(path+nonet+'loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
-    #l_te3=np.load(path+nonet+'loss_testH1_nonet_500_40_d.npy', allow_pickle=True)
-
-    plt.figure()
-    #plt.plot(list(range(len(l_tr1))), l_tr1, label='Train 44')
-    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 45')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 54')
-
-    #plt.plot(list(range(len(l_te1))), l_te1, label='Test 44')
-    plt.plot(list(range(len(l_te2))), l_te2, label='Test 45')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='Test 54')
-
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.savefig('check_results_di_nonet.pdf')
-
-    #plt.show()
-
-    #test_loss=np.load('results/temp_results_final_runs/disc_learning/final_run_digit_network/predictions_trainH1_23_8_500_40_d.npy', allow_pickle=True)
-
-    #print(test_loss)
-    #print(np.shape(test_loss))
+    final_scores(pred_net, target_list_net, CM, 'd_net')
+    final_scores(pred_nonet, target_list_nonet, CM, 'd_nonet')
 
 
-def final_mnist():
+def final_mnist(CM):
     path='results/disc_learning/final_runs/'
     net='final_run_mnist_network/'
     
@@ -946,8 +974,8 @@ def final_mnist():
     plt.ylabel('Loss')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('check_results_mnist.pdf')
-    plt.clf
+    #plt.savefig('check_results_mnist.pdf')
+    plt.clf()
 
     #pred=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
     #targ=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
@@ -976,7 +1004,8 @@ def final_mnist():
     #print(pred)
     #print(target_list)
 
-    final_scores(pred, target_list)
+    final_scores(pred, target_list, CM, 'm_net')
+
 
     exit()
 
@@ -1021,6 +1050,7 @@ def final_mnist():
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
 
-#final_fraud()
-#fina_digit()
-final_mnist()
+#final_fraud(True)
+#final_digit(True)
+#final_mnist(True)
+final_franke()

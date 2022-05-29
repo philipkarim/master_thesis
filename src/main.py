@@ -9,6 +9,7 @@ xrandr --query to find the name of the monitors
 
 """
 import copy
+from pickle import FALSE
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
@@ -777,9 +778,9 @@ def main():
     """
     Classical Boltzmann machine
     """
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.1, opt_met=optimizing_method, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.1, opt_met=optimizing_method, samp_400=True, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, samp_400=True, big_mnist=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file, QBM=False)
+    franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory='frank_plot', name='frank_plot', QBM=False)
 
 
 

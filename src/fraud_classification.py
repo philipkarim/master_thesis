@@ -135,40 +135,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if fraud_20==True:
         X_val = scaler.transform(X_val)
 
-    #print(y_train, y_test)
-
-    #print(y_train[0:20])
-    #X_train=np.array([X_train[15]])
-    #y_train=np.array([y_train[15]])
-    #X_test=np.array([X_test[1]])
-    #y_test=np.array([y_test[1]])
-    
-    """
-    X_train=X_train[15:17]
-    y_train=y_train[15:17]
-    X_test=X_test[0:2]
-    y_test=y_test[0:2]
-    """
-
-    #print(y_train, y_test)
-    #X_test=[]
-    #y_test=[]
-
-
-    #scaler=StandardScaler()
-    #scaler.fit(y_train)
-    #y_train = scaler.transform(y_train)
-    #y_test = scaler.transform(y_test)
-    #y_val = scaler.transform(y_val)
-
-    #print(X_train_scaled)
-
-    #Remove this after test run
-    #X_train=X_train[[0]]
-    #y_train=y_train[[0]]
-    #X_test=X_test[[0]]
-    #y_test=y_test[[0]]
-
+ 
     y_test=np.ravel(y_test)
     y_train=np.ravel(y_train)
 
@@ -185,7 +152,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     else:
         test_data=[X_val, y_val]
         best_params=None
-        best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
+        #best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
         train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
         #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
 
