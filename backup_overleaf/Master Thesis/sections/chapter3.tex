@@ -1,0 +1,220 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\chapter{Quantum mechanics}
+\label{sec:third}
+\section{Basics of Quantum Mechanics}
+To understand quantum computing and naturally many-body methods as well, one should know a bit of quantum mechanics. Therefore it is natural to have a short summary of some basic principles of quantum mechanics for an easier grasp of the exciting topics unveiled in the thesis. The summary of the basics of quantum mechanics is quiet shallow and more focused on the mathematical essence. For a more in depth explanation please have a look at \cite{griffiths_schroeter_2018} and \cite{10.5555/1972505} which will be the sources representing the overview in this section.
+
+\subsection{Bra-ket notation and wave functions}
+Before going into further details of quantum mechanics, it is worth mentioning a couple of words about the notation that will be used. A wave function $\Psi$ is a function that describes a quantum mechanical system at all times. To describe an isolated physical system a more mathematical way, bra-ket notation is used. Since $\Psi$ is an abstract vector describing a quantum state, this is written as a ket $\ket{\Psi}$. 
+All wave functions are represented in the complex vector space called Hilbert space $\mathcal{H}$, which not necessarily consists of a finite number of dimensions \cite[ch.~6]{hemmer2005kvantemekanikk}. All wave functions can be written as a sum of basis vectors the following way:
+
+\begin{equation}
+    \ket{\Psi}=\sum_i c_i\ket{\psi_i}
+    \label{eq:statevector_PSI}
+\end{equation}
+
+Where $\psi_i$ is a basis vector and $c_i$ is some complex number.
+
+To find the probability of finding a quantum system in state $\ket{\psi_i}$, the inner product between the two are squared:
+
+\begin{equation*}
+    |\bra{\psi_i}\ket{\Psi}|^2=|c_i|^2
+\end{equation*}
+
+Which is the square product of the expansion coefficient form equation \autoref{eq:statevector_PSI}
+
+It is assumed that the unit norm of $\Psi$ equals 1, due to the fact that $|c_i|^2$ translates to the probability of finding the system in state $\psi_i$ and the system must take place in one of the possible quantum states $\psi$. 
+
+In the dual space of a ket vector $\ket{\Psi}$, lays a bra vector $\bra{\Psi}$. Bra vectors is mapped to the dual space the following way:
+
+\begin{equation*}
+|\Psi\rangle \rightarrow\langle\Psi|=\sum_{i} c_{i}^{*}\left\langle\psi_{i}\right|
+\end{equation*}
+
+Where the inner product between two basis vectors are given as follows:
+\begin{equation*}
+    \bra{\psi_i}\ket{\psi_j}=\delta_{ij}
+\end{equation*}
+Where $\delta_{ij}$ is the Kronecker delta product:
+
+Knowing that inner products between normalized vectors from the same orthogonal basis set, either equals 0 or 1 gives the so called Kronecker delta product:
+
+\begin{equation*}
+    \delta_{i j}= \begin{cases}1 & \text { if } i=j \\ 0 & \text { if } i \neq j\end{cases}
+\end{equation*}
+
+Another property of wave functions living in the abstract vector space $\mathcal{H}$ worth mentioning is that the Hilbert space is complete, which means that any $\Psi$ in the Hilbert space can be constructed as a linear combination of the basis vectors $\{\psi_1, \psi_2$ ... $\psi_n\}$. Writing the wave function as follows:
+
+\begin{equation*}
+    |\Psi\rangle=\sum_{i}\left\langle\psi_{i} \mid \Psi\right\rangle\left|\psi_{i}\right\rangle=\sum_{i}\left|\psi_{i}\right\rangle\left\langle\psi_{i} \mid \Psi\right\rangle
+\end{equation*}
+
+Where the coefficient of $\psi_i$ is given by:
+\begin{equation*}
+    c_i=\left\langle\psi_{i} \mid \Psi\right\rangle
+\end{equation*}
+
+Which means that the identity matrix $I$ must be the following for a complete set of basis vectors:
+
+\begin{equation*}
+    \sum_{k}\left|\psi_{k}\right\rangle\left\langle\psi_{k}\right|=I
+\end{equation*}
+
+This is also called the completeness relation.
+
+\subsection{Quantum operators and evolution of quantum systems}
+A quantum operator $\hat{A}$ being applied to a vector in Hilbert space is a mapping onto itself \cite[ch.~6.3]{hemmer2005kvantemekanikk}. The mapping and relation between a ket- and bra vector can be written as follows:
+
+\begin{align*}
+\hat{A}|\Psi\rangle=\left|\Psi^{\prime}\right\rangle && \left\langle\Psi^{\prime}\right|=\langle\Psi| \hat{A}^{\dagger}
+\end{align*}
+Where $\ket{\Psi^\prime}$ is the new quantum state. To the right the same quantum state $\ket{\Psi^\prime}$ is written as a bra vector by applying the adjoint operator $\hat{A}^\dagger$.
+
+Sometimes operators commute, which is quiet usefull in quantum mechanics. Comuttation of operators can be written as follows:
+
+\begin{equation*}
+[\hat{A}, \hat{B}]=0
+\end{equation*}
+
+Which means that the order the operators are applied to some eigenstate is irrelevant the following way:
+
+\begin{equation*}
+\hat{A} \hat{B}|\Psi\rangle=\hat{B} \hat{A}|\Psi\rangle
+\end{equation*}
+
+It is also worth mentioning that the Schrödinger equation is written as follows:
+
+\begin{equation*}
+    \hat{H}\ket{\Psi}=E\ket{\Psi}
+\end{equation*}
+Where $\hat{H}$ is the Hamiltonian operator and $E$ is the eigenvalue of $\Psi$ also known as the total energy.
+
+Because measuring the energy $E$ gives real physical values, this is called an observable. In quantum mechanical systems there are a lot of variables and specification which can be measured. These measurable quantities are called observables, and could for instance be the energy, momentum, position or spin of a quantum system \cite[ch.~13]{lecturenotes:cresser}. For an operator to represent observable information from a quantum system, the operator needs to equal its own conjugate transpose as follows:
+
+\begin{equation*}
+       \hat{A}=\hat{A}^\dagger
+\end{equation*}
+
+So how does a quantum system evolve? Or expressed differently, how is evolution in quantum systems expressed mathematically? One of the so called quantum mechanical postulates is stated as follows in \cite[ch.~2.2]{10.5555/1972505}:
+
+\begin{displayquote}
+The evolution of a closed quantum system is described by a unitary transformation. That is, the state $\ket{\psi}$ of the system at time $t_1$ is related to the state $\ket{\psi^\prime}$ of the system at time $t_2$ by a unitary operator U which depends only on the times t1 and $t_2$,
+\begin{equation*}
+\left|\psi^{\prime}\right\rangle=U|\psi\rangle
+\end{equation*}
+\end{displayquote}
+
+Basically what this means is that the new state of a quantum system can be described by applying some unitary operator on the current wave function, which redeems a wave function describing the new quantum system after the evolution has taken place.
+
+\section{Measurement in quantum mechanics}
+Talking about measurements in quantum mechanics, a good place to start is with a quantum mechanical postulate also stated in \cite[ch.~2.2]{10.5555/1972505}:
+
+\begin{displayquote}
+Quantum measurements are described by a collection $\left\{M_{m}\right\}$ of measurement operators. These are operators acting on the state space of the system being measured. The index $m$ refers to the measurement outcomes that may occur in the experiment. If the state of the quantum system is $|\psi\rangle$ immediately before the measurement then the probability that result $m$ occurs is given by
+$$
+p(m)=\left\langle\psi\left|M_{m}^{\dagger} M_{m}\right| \psi\right\rangle
+$$
+and the state of the system after the measurement is
+$$
+\frac{M_{m}|\psi\rangle}{\sqrt{\left\langle\psi\left|M_{m}^{\dagger} M_{m}\right| \psi\right\rangle}}
+$$
+The measurement operators satisfy the completeness equation,
+$$
+\sum_{m} M_{m}^{\dagger} M_{m}=I
+$$
+The completeness equation expresses the fact that probabilities sum to one:
+$$
+1=\sum_{m} p(m)=\sum_{m}\left\langle\psi\left|M_{m}^{\dagger} M_{m}\right| \psi\right\rangle
+$$
+\end{displayquote}
+
+Which is more of a postulate which describes how an experimentalist affects a quantum mechanical system during a measurement, due to the fact that a closed system is no longer closed when it interacts with the 'world of the experimentalist' giving away information when it is measured. This explains a quiet general way of measuring quantum states, but there is also a more special case related way of measuring quantum states when measuring observables called projective measurements.
+
+\subsection{Projective measurements}
+An observable $M$ being a Hermitian operator, which is observed on the state space of the system. The observable can be represented as a spectral decomposition:
+
+\begin{equation*}
+    M=\sum_{m} m \hat{P_{m}}
+\end{equation*}
+
+With $M$ being the eigenspace with $m$ eigenvalues and $\hat{P_m}$ being a projector which projects into eigenspace $M$. The probability of measuring the observable $m$ when measuring $\ket{\psi}$ is then given by the following:
+
+\begin{equation*}
+p(m)=\left\langle\psi\left|P_{m}\right| \psi\right\rangle .
+\end{equation*}
+
+Which gives the following state of the quantum state immediately after the measurement:
+
+\begin{equation*}
+\frac{P_{m}|\psi\rangle}{\sqrt{p(m)}}
+\end{equation*}
+
+\subsection{Global and relative phases}
+It is worth mentioning global and relative phases in quantum mechanics. A global phase factor of $e^{i \theta}$ where $\theta$ is a real number, applied to a quantum state $|\psi\rangle$ the following way: $e^{i \theta}|\psi\rangle$ is equal to $\ket{\psi}$ up to the global phase factor $e^{i \theta}$.
+
+Carrying out a measurement as done in the postulate, shows that the probability of measuring eigenvalue $m$ is the same with and without the global phase factor.
+\begin{equation*}
+    p(m)=\left\langle\psi\left|e^{-i \theta} M_{m}^{\dagger} M_{m} e^{i \theta}\right| \psi\right\rangle=\left\langle\psi\left|M_{m}^{\dagger} M_{m}\right| \psi\right\rangle
+\end{equation*}
+
+Which shows that global phase factors can be ignored from an observers standpoint.
+
+Relative phases on the other hand are dependent of the basis. Having two quantum states with amplitudes $\alpha$ and $\beta$ differ by a relative phase in the basis if there is a real number $\theta$ which is able to make the following relation true $\alpha=\exp (i \theta) \beta$. Even though two states differ by a relative phase, the observable quantities can be different due to the fact that they only differ by some phase in that specific basis, compared to quantum states that differ by global phase factors which shows the same observables.
+
+\section{Entangled states}
+As mentioned earlier wave functions of quantum systems live in the complex vector space called a Hilbert space. But what if we have two separate quantum systems hence two separate Hilbert spaces. Normally one would describe one of the systems, without having the necessity of referring to the other system, this is called a pure state when the exact quantum state is known and a mixed state when holding a superposition. But what if a quantum state depends on the state of both quantum systems? Such systems are called composite systems and brings a quantum property called entanglement\cite[ch.~3]{10.5555/3309066}.
+
+Entanglement of quantum systems are the cornerstone of why quantum computing embodies such quantities of being more efficient than classical computers when solving certain problems. The reason for this is that quantum states (also called qubits in quantum computers) can entangle with each other, making the state of a quantum sub-system affect the quantum state of another sub-system. A quantum state $\ket{\psi}$ consisting of sub-states $\ket{\psi_A}$ and $\ket{\psi_B}$ with $\ket{\psi_A}\in \mathcal{H}_A$ and $\ket{\psi_B}\in \mathcal{H}_B$ having the Hilbert space being expressed as a tensor product of the Hilbert spaces of the sub-systems:
+
+\begin{equation*}
+    \mathcal{H}=\mathcal{H}_{A} \otimes \mathcal{H}_{B}
+\end{equation*}
+
+With the following states in the composed Hilbert space:
+
+\begin{equation*}
+    \sum_{i=1}^{N_{A}} \sum_{j=1}^{N_{B}} c_{i j}\left|e_{i}^{A}\right\rangle \otimes\left|e_{j}^{B}\right\rangle
+\end{equation*}
+
+With $e^x_k$ being the orthonormal basis vectors of $\mathcal{H}_x$ in dimension $k$, $N_A$ and $N_B$ represent the number of dimensions in $\mathcal{H}_A$ and $\mathcal{H}_B$ respectively. With the wave functions being normalized, hence the amplitudes of the complex coefficients $c_{ij}$ sum up to $1$. To conclude if a quantum state $\ket{\psi}$ is separable or entangled, it suffice to observe that a quantum state expressed as a tensor product of the sub-states on the following form is separable, hence not entangled \cite[ch.~3]{10.5555/3309066}:
+
+\begin{equation}
+|\psi\rangle=\left|\psi_{A}\right\rangle \otimes\left|\psi_{B}\right\rangle
+\label{eq:separable}
+\end{equation}
+
+Now imagine two individuals, Alice and Bob holding each their quantum state called a qubit which can take two distinctive states, $\ket{0}$ and $\ket{1}$(qubits will be explained in more detail in \autoref{sec:basic_qc}). The following state is separable, hence unentangled:
+
+\begin{equation*}
+|0\rangle_{A}|0\rangle_{B}
+\end{equation*}
+
+Where the first qubit held by Alice is in state $0$ and the same with Bob. Now imagine the following quantum state:
+
+\begin{equation}
+\left|\Phi\right\rangle_{A B} = \frac{1}{\sqrt{2}}\left(|0\rangle_{A}|0\rangle_{B}+|1\rangle_{A}|1\rangle_{B}\right)
+\label{eq:Bell_allice_bob}
+\end{equation}
+
+Which can be shown to be entangled due to not being able to write the state on the form of \autoref{eq:separable} using each component separately\cite[ch.~3]{gentle_intro_qc}:
+
+\begin{equation}
+\left(a_{1}|0\rangle_A+b_{1}|1\rangle_B\right) \otimes\left(a_{2}|0\rangle_A+b_{2}|1\rangle_B\right)=\frac{1}{\sqrt{2}}\left(|0\rangle_{A}|0\rangle_{B}+|1\rangle_{A}|1\rangle_{B}\right)
+\label{eq:bell_separabel}
+\end{equation}
+
+Which gives the following:
+\begin{equation*}
+\begin{split}
+    \left(a_{1}|0\rangle_A+b_{1}|1\rangle_B\right) \otimes\left(a_{2}|0\rangle_A+b_{2}|1\rangle_B\right)=& a_{1} a_{2}(|0\rangle_A |0\rangle_B)+a_{1} b_{2}(|0\rangle_A |1\rangle_B)\\+&b_{1} a_{2}(|1\rangle_A |0\rangle_B)+b_{1} b_{2}(|1\rangle_A |1\rangle_B)
+\end{split}
+\end{equation*}
+
+There is no values for $a_1$, $a_2$, $b_1$ and $b_2$ that can make \autoref{eq:bell_separabel} come true, since having $a_1b_2=0$ or $a_2 b_1=0$ would make $a_1a_2$ or $b_1b_2$ also equal $0$, hence the state is not able to be written as separable terms and is therefore entangled. Nevertheless, this specific state were chosen on purpose, the reason being that this state is one of the most popular states representing entanglement in quantum mechanics, also called a Bell state.
+
+Now back to the Bell state in \autoref{eq:Bell_allice_bob}. Imagine Alice measures her qubit, which by random chance measures it to be in state 0, now since the wave function of Alice and Bobs qubits only gives room for measuring $|0\rangle_{A}|0\rangle_{B}$ or $|1\rangle_{A}|1\rangle_{B}$ means that Bobs qubit also have to be in state 0. This is because they are entangled. If Bob measures his qubit before Alice it would be 0 or 1 by a 50\% chance, but the state of Alices qubit will be the same as Bobs, by a 100\%. Which shows some of the impressive characteristics of quantum mechanics, and that it is possible to know the properties of a system by only measuring its entangled sub-system.
+
+
+\end{document}

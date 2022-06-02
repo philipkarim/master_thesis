@@ -1,0 +1,124 @@
+% Documentation for front page:
+% https://github.com/martinhelso/mnfrontpage
+
+\documentclass[oneside, a4paper, british]{memoir}
+% Add [final] to remove marginal notes and comments
+
+%\checkandfixthelayout% or perhaps \checkandfixthelayout[lines]
+%\setlength{\evensidemargin}{\oddsidemargin}% after \checkandfix..
+%\usepackage{blindtext}
+
+\usepackage{style}       % Custom style
+\usepackage{mnfrontpage} % Front page
+\usepackage{kantlipsum}  % Dummy text
+\usepackage{subfiles}   % Include subfiles
+\usepackage{hyperref}
+%\usepackage[style=ieee]{biblatex}   % Citations
+\usepackage{titlecaps}
+\let\svsection\section
+\Addlcwords{to for an and the a
+and as but if nor or so yet at 
+by in of off on per up via}
+
+\usepackage{amsmath,bm}
+\usepackage{qcircuit}
+\usepackage{physics}
+\usepackage{url}
+\usepackage{placeins}
+
+\usepackage{csquotes}
+\usepackage{comment}
+
+%\usepackage[demo]{graphicx}
+\usepackage{subfig}
+\usepackage{acro}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{array}
+\usepackage{tabulary}
+\usepackage{lastpage}
+
+%\usepackage{cleveref}
+
+
+\setsecnumdepth{subsection}
+\settocdepth{subsection}
+
+%\setsecnumdepth{subsubsection}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+%\renewcommand{\baselinestretch}{1.5}
+
+\title{Quantum Computing}
+\subtitle{Machine Learning with Emphasis on Quantum Boltzmann Machines}
+\author{Philip K. Sørli Niane}
+\kind{Master's Thesis \hfill\the\year} % Optional
+
+
+\begin{document}
+
+    \frontmatter        % Folios in Roman numerals, unnumbered chapters.
+
+    \mnfrontpage
+    
+    \subfile{sections/abstract}
+    \subfile{sections/acknowledgements}
+    \subfile{sections/abbreviations}
+
+
+    \cleartorecto
+    \microtypesetup{protrusion = false}
+    \tableofcontents    % Or \tableofcontents*
+    
+    \renewcommand\section[2][\relax]{%
+        \ifx\relax#1%
+        \svsection{\titlecap{#2}}%
+        \else%
+        \svsection[\titlecap{#1}]{\titlecap{#2}}%
+        \fi%
+    }
+    
+    \cleartorecto
+    \listoffigures      % Or \listoffigures*
+    \cleartorecto
+    \listoftables       % Or \listoftables*
+    \microtypesetup{protrusion = true}
+
+    \mainmatter         % Folios in Arabic numerals, numbered chapters.
+
+    \subfile{sections/introduction}
+
+    \part{Machine Learning}
+
+    \subfile{sections/chapter2}
+    \part{Quantum Mechanics and Many-Body Methods}
+
+    \subfile{sections/chapter3}
+    \subfile{sections/chapter4}
+    
+    \part{Quantum Computing:Machine Learning}
+    \subfile{sections/chapter5}
+    
+    \part{Method}
+    \subfile{sections/chapter6}
+    
+    \part{Results and Discussion}
+    \subfile{sections/chapter7}
+    \subfile{sections/chapter75}
+
+    \subfile{sections/chapter8}
+
+    
+    \appendix           % "Chapter" is renamed "Appendix"
+    \appendixpage       % Similar to \part*{Appendices}, but appears in TOC.
+
+    \subfile{sections/appendixA}
+    \subfile{sections/appendixB}
+    \subfile{sections/appendixC}
+
+    \backmatter         % Folios in Arabic numerals, unnumbered chapters.
+
+    \printbibliography
+
+\end{document}

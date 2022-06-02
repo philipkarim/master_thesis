@@ -1,0 +1,139 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Quantum Mechanics}
+\label{sec:second-app}
+\section{Hydrogen molecule}
+\subsection{Analytical expression of the local energy}
+\subsubsection{Local energy}
+To derive the analytical expression for the local energy, an intuitive place to start is by the expression for the local energy and inserting the Hamiltonian expression:
+
+The local energy is given by the following:
+
+\begin{equation}
+	E_L=\frac{1}{\Psi}\hat{H}\Psi= \sum_{i=1}^M \left(-\frac{1}{2\Psi}\nabla_i^2 \Psi + \frac{1}{2}\omega^2 r_i^2\right)+\sum_{i<j} \frac{1}{r_{ij}},
+	\label{eq:ap_LE}
+\end{equation}
+
+where the heavy-lifting of the computations will be deriving the second derivative of the wave function:
+
+\begin{equation*}
+	\frac{1}{\Psi}\nabla_i^2 \Psi,
+\end{equation*}
+
+which can be rewritten as:
+
+\begin{equation*}
+	\left(\frac{1}{\Psi}\nabla \Psi\right)^2+\nabla \left(\frac{1}{\Psi}\nabla \Psi \right)=\left[\nabla \log \Psi\right]^2 + \nabla^2 \log \Psi,
+	\label{eq:letre}
+\end{equation*}
+
+which is easier to compute. Now defining a quantity $\Psi^{\prime}=\Psi^2$ and differentiating $\Psi^{\prime}$ will make calculations easier to grasp at a later point. The logarithm of $\Psi^{\prime}$ can be written as the follow:
+
+\begin{equation*}
+	\log \Psi^{\prime} = -\log Z -\sum_{i=1}^M \left(\frac{(X_i-a_i)^2}{2\sigma^2}\right)+\sum_{j=1}^N \log \left(1+\exp \left(b_j+\sum_{i=1}^{M} \frac{X_iw_{ij}}{\sigma^2}\right)\right).
+	\label{eq:logpsi}
+\end{equation*}
+
+Then using the sigmoid function,
+
+\begin{equation*}
+    \delta(x)=\frac{1}{1+e^{-x}}=\frac{e^x}{1+e^x},
+\end{equation*}
+
+and defining the following quantity which is used at a later point as input of the sigmoid function:
+
+\begin{equation*}
+    \delta_j^{input}=b_j+\sum_{i=1}^M \frac{X_i w_{ij}}{\sigma^2}.
+\end{equation*}
+
+When differentiating the logarithm of \ensuremath{\Psi^{\prime}} with respect to the visible nodes the result goes as follows:
+
+\begin{equation}
+	\begin{split}
+	\frac{\partial \log \Psi^{\prime}}{\partial X_i}=\frac{(a_i-X_i)}{\sigma^2}+\sum_{j=1}^N \frac{w_{ij} \exp \left(b_j+\sum_{i=1}^{M} \frac{X_iw_{ij}}{\sigma^2}\right)}{\sigma^2 \left(1+\exp \left(b_j+\sum_{i=1}^{M} \frac{X_iw_{ij}}{\sigma^2}\right)\right)},\\
+	=\frac{a_i-X_i}{\sigma^2}+\frac{1}{\sigma^2}\sum_{j=1}^N w_{ij}\delta(\delta_j^{input}).
+	\end{split}
+	\label{eq:first_der_wfrbm}
+\end{equation}
+
+Now that the first derivative is defined, the next derivative can be written as follows by differentiating one more time:
+
+\begin{equation}
+	\frac{\partial^2 \log \Psi^{\prime}}{\partial X_i^2}=-\frac{1}{\sigma^2}+\frac{1}{\sigma^4}\sum_{j=1}^N w_{ij}^2 \delta(\delta_j^{input})\delta(-\delta_j^{input}),
+	\label{eq:sec_der_wfrbm}
+\end{equation}
+
+Now that the first and second derivative of $\log \Psi^{\prime}$ is known, the derivative of the real trial function can be found:
+
+\begin{equation*}
+    \log \Psi=\log \sqrt{\Psi^{\prime}} = \frac{1}{2} \log \Psi^{\prime}.
+\end{equation*}
+
+This shows that the derivatives of \autoref{eq:first_der_wfrbm} and \autoref{eq:sec_der_wfrbm} only needs to be multiplied by a factor of $\frac{1}{2}$ to find the correct terms. Everything is then inserted into  \autoref{eq:ap_LE} which gives the the final expression for the local energy of the system:
+
+\begin{align*}
+	E_{L,Gibbs}=& -\frac{1}{2}\sum_{i=1}^M \biggl[\frac{1}{4\sigma^4}\left(     a_i-X_i+\sum_{j=1}^N w_{ij}\delta(\delta_j^{input})\right)^2\\
+	& -\frac{1}{2\sigma^2}+\sum_{j=1}^N \frac{w_{ij}^2 }{2\sigma^4}\delta(\delta_j^{input})\delta(-\delta_j^{input} ) \biggr]+\sum_{i, I} \frac{Z_{I}}{\left|\mathbf{r}_{i}-\mathbf{R}_{I}\right|}+\sum_{i<j} \frac{1}{r_{ij}}
+\end{align*}
+
+Where M is the number of visible nodes, and N is the number of hidden nodes.
+
+\subsection{Derivatives of the free parameters}
+The derivatives used in the stochastic gradient decent method are the derivatives of the wave function with respect to the parameters. The same way the local energy was computed by defining $\Psi^{\prime}=\Psi^2$ will make the calculations easier. The gradient of the local energy is defined as follow:
+
+\begin{equation*}
+    \frac{\partial\left\langle E_{L}\right\rangle}{\partial \alpha_{i}}=2\left(\left\langle E_{L} \frac{1}{\Psi} \frac{\partial \Psi}{\partial \alpha_{i}}\right\rangle-\left\langle E_{L}\right\rangle\left\langle\frac{1}{\Psi} \frac{\partial \Psi}{\partial \alpha_{i}}\right\rangle\right),
+\end{equation*}
+
+Which uses the following expression in the first term:
+
+\begin{equation}
+	\frac{1}{\Psi^{\prime}}\frac{\partial \Psi^{\prime}}{\partial \alpha_k}=\frac{\partial }{\partial \alpha_k}\log \Psi^{\prime}
+\end{equation}
+
+Then by inserting equation \eqref{eq:logpsi} into the equation and differentiate with respect to the different free parameters leaves the following expression:
+
+\begin{equation}
+	\frac{\partial \log \Psi^{\prime} }{\partial a_k}=\frac{X_k-a_k}{\sigma^2}\\
+\end{equation}
+
+\begin{equation}
+	    \frac{\partial \log \Psi^{\prime}}{\partial b_k}=\frac{\exp \left(b_k+\sum_{i=1}^M \frac{X_iw_{ik}}{\sigma^2}\right)}{1+\exp \left(b_k+\sum_{i=1}^M \frac{X_iw_{ik}}{\sigma^2}\right)}
+	    =\delta(\delta^{input})
+\end{equation}
+
+\begin{equation}
+	    \frac{\partial \log \Psi^{\prime}}{\partial w_{kl}}=\frac{X_k\exp\left(b_l+\sum_{i=1}^M \frac{X_iw_{il}}{\sigma^2}\right)}{\sigma^2\left(1+\exp \left( b_l + \sum_{i=1}^M \frac{X_iw_{il}}{\sigma^2}\right)\right)}=
+	\frac{X_k}{\sigma^2}\delta(\delta^{input})
+\end{equation}
+
+Now it is time to switch $\Psi^{\prime}$ with the real trial function $\Psi$. Because of the following relation
+
+\begin{equation*}
+    log \sqrt{\Psi}=\frac{1}{2}log\Psi,
+\end{equation*}
+
+the derivatives with respect to the free parameters will follow the same result as for $\Psi^{\prime}$, but with a factor \ensuremath{\frac{1}{2}}, which gives the following results:
+
+\begin{equation*}
+	\frac{\partial \log \Psi_T }{\partial a_k}=\frac{X_k-a_k}{2\sigma^2},
+\end{equation*}
+
+\begin{equation*}
+	    \frac{\partial \log \Psi_T}{\partial b_k}=\frac{1}{2}\delta(\delta^{input}),
+\end{equation*}
+
+\begin{equation*}
+	    \frac{\partial \log \Psi_T}{\partial w_{kl}}=
+	\frac{X_k}{2\sigma^2}\delta(\delta^{input}),
+\end{equation*}
+
+Which is the final gradients of the local energy with respect to the free parameters of the trial function.
+
+\section{Rewriting the pairing Hamiltonian using Jordan-Wigner transformation}
+To rewrite the pairing Hamiltonian to an Hamiltonian fit for a quantum computer the first step is to:
+
+CONTINUE HERE!
+
+
+\end{document}

@@ -1,0 +1,135 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Introduction}
+\label{sec:intro}
+
+Quantum computing is getting an increasing recognition all over the world, due to the fact that quantum computers have the possibility of changing the world of mathematical computations within almost all fields of science as we know. Due to the increasing acknowledgment of quantum computers, it is only natural to try to combine the field with one of the most popular fields within classical computing, machine learning.
+Combining classical- and quantum computing making a hybrid machine learning model sounds like a good idea at first thinking one could achieve the best of both worlds, but can this hybrid approach challenge the spectacular advancements in machine learning that have been constructed with just classical computing?
+
+\todo[inline]{Write about the varQBM and why it is good compared to a regular BM, divergence problem and such.}
+
+\todo[inline]{Write about history of quantum machine learning and such. Have a look at pp.91 in Schuld}
+
+
+In this article parameterized quantum circuits containing arbitrary amounts of variational parameters will be used to classify the iris dataset[1]. Two different ansatzes will be investigated as the building blocks of the circuits, and the well known optimization method gradient descent will be used to optimize the variational parameters.
+The article is built up by starting off with some basics of quantum computing including having a look at some quantum gates and explanation of quantum circuits. The article then follows by having a look at parameterized quantum circuits, and how these works. In addition a couple of ansatzes will be proposed. The way to optimize the parameters of the PQCs will then be explained. The datasets will be discussed which is later followed by the details of the imple- mentation. Then comes the analysis part unveiling the results and discussion of them, naturally followed by a conclusion summing up the article.
+
+
+Machine learning is a field that just gets more and more attention within all fields of science. Naturally machine learning has been used to solve problems within all these fields of science. In recent past machine learning has also been finding its way into the world of quantum mechanical system simulations, by finding ground state energies, particle positions and other quantum mechanical specifications in various systems.
+\todo[noline]{Moved this from the introduction?}
+
+
+\begin{comment}
+% Booktabs:
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Correct}               & \textbf{Incorrect}      \\
+        \midrule
+        \( \varphi \colon X \to Y \)   & \( \varphi : X \to Y \) \\[0.5ex]
+        \( \varphi(x) \coloneqq x^2 \) & \( \varphi(x) := x^2 \) \\
+        \bottomrule
+    \end{tabular}
+    \caption[Colons]{Proper colon usage.}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Correct}     & \textbf{Incorrect}         \\
+        \midrule
+        \( A \implies B \)   & \( A \Rightarrow B \)      \\
+        \( A \impliedby B \) & \( A \Leftarrow B \)       \\
+        \( A \iff B \)       & \( A \Leftrightarrow B \)  \\
+        \bottomrule
+    \end{tabular}
+    \caption[Arrows]{Proper arrow usage.}
+\end{table}
+
+% Tablefootnote and multirow:
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+        \toprule
+        \textbf{Correct}
+        & 
+        \textbf{Incorrect}
+        \\
+        \midrule
+        \( -1 \) 
+        & 
+        -1
+        \\[0.3ex]
+        1--10
+        &
+        1-10
+        \\[0.3ex]
+        Birch--Swinnerton-Dyer\tablefootnote{It is now easy to tell that Birch and Swinnerton-Dyer are two people.} conjecture
+        &
+        Birch-Swinnerton-Dyer conjecture
+        \\[0.3ex]
+        The ball \dash which is blue \dash is round.
+        &
+        \multirow{ 2}{*}{The ball - which is blue - is round.}
+        \\[0.3ex]
+        The ball---which is blue---is round. 
+        &
+        \\
+        \bottomrule
+    \end{tabular}
+    \caption[Dashes]{Proper dash usage.}
+\end{table}
+
+\begin{table}[hbtp]
+    \centering
+    \begin{tabular}{@{}*{2}{p{0.5\textwidth}}@{}}
+        \toprule
+        \textbf{Correct} &  \textbf{Incorrect}
+        \\
+        \midrule
+        \enquote{This is an \enquote{inner quote} inside an outer quote}
+        &
+        'This is an "inner quote" inside an outer quote'
+        \\
+        \bottomrule
+    \end{tabular}
+    \caption[Quotation marks]
+    {Proper quotation mark usage.
+    The \texttt{\textbackslash enquote} command chooses the correct
+    quotation marks for the specified language.}
+\end{table}
+\end{comment}
+
+\section{Outline}
+The thesis is organised as follows:
+\begin{description}
+    \item[\cref{sec:second}]
+    revolves around the fundamentals of machine learning providing some examples of machine learning methods, optimization techniques and some ways to assert the machine learning models.
+
+    \item[\cref{sec:third}]
+    asserts some important properties of quantum mechanics regarding topics like the basics of quantum mechanics containing notation and evolution of quantum systems. Measurements and entanglements which is an important aspect of quantum computing.
+
+    \item[\cref{sec:fourth}]
+    informs about some important topics of many-body theory which is especially common in connection with quantum computing.
+    
+    \item[\cref{sec:fifth}]
+    is honored the part of quantum machine learning. In this chapter some basics of quantum computing is introduced in addition to a review of the variational Quantum Boltzmann machine. 
+    
+    \item[\cref{sec:sixth}]
+    goes through the methodology of the thesis, explaining how the thesis is implemented.
+    
+    \item[\cref{sec:seventh}]
+    Here the results and discussions of the former are presented pairwise
+    
+    \item[\cref{sec:eight}]
+    Rounds up the findings with a conclusion
+    
+    \item[\cref{sec:first-app}]
+    The first appendix 
+
+    \item[\cref{sec:second-app}]
+    The second appendix
+\end{description}
+\end{document}
