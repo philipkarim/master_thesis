@@ -916,7 +916,7 @@ def final_digit(CM=False):
 
     pred_net=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
     targ_net=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
-    
+        
     pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_d.npy', allow_pickle=True)
     targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_d.npy', allow_pickle=True)
     
@@ -924,6 +924,8 @@ def final_digit(CM=False):
     target_list_nonet=[]
 
     pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+
+    exit()
     targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
     pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
     targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
@@ -1051,6 +1053,6 @@ def final_mnist(CM):
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
 
 #final_fraud(True)
-#final_digit(True)
+final_digit(True)
 #final_mnist(True)
-final_franke()
+#final_franke()

@@ -80,27 +80,6 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
 
     print(np.shape(X), np.shape(y))
 
-
-    """
-    _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-    for ax, image, label in zip(axes, digits.images, digits.target):
-        ax.set_axis_off()
-        ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-        ax.set_title("Training: %i" % label)
-    
-    plt.show()
-    """
-    """
-    classes=len(np.unique(y))
-    instances=np.zeros(classes)
-    for i in range(1000):
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=i)
-        for j in range(classes):
-            instances[j]=len(np.where(y_test==j)[0])
-        if np.all(instances == instances[0]):
-            print(i)
-            break
-    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=461)
 
     #400 samples

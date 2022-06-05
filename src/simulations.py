@@ -591,15 +591,6 @@ def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
 
     #fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=0.01, nickname='test')
     
-
-    """
-    There are many rule-of-thumb methods for determining the correct number of neurons to use in the hidden layers, such as the following:
-
-    The number of hidden neurons should be between the size of the input layer and the size of the output layer.
-    The number of hidden neurons should be 2/3 the size of the input layer, plus the size of the output layer.
-    The number of hidden neurons should be less than twice the size of the input layer.
-    """
-
     tanh_8_5= NN_nodes(8,5)
     tanh_23_8= NN_nodes(23,8)
     tanh_123_19=NN_nodes(123, 19)
