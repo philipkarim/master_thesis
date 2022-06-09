@@ -101,7 +101,7 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
     
     return fci_matrix
 
-def h2_hamiltonian(bondlength):
+def h2_hamiltonian(bondlength, JW=True):
     """
     Function returning the Jordan Wigner transformed H2 Hamiltonian,
     based on the following link: https://blog.artwolf.in/a?ID=49e3eada-cdca-4f83-b338-4cd442aae73a
@@ -112,8 +112,6 @@ def h2_hamiltonian(bondlength):
     Returns:
             List of Jordan-Wigner transformed Hamiltonian
     """
-#    geometry = [["H", [0,0,0]],
-            #["H", [0,0,bondlength]]]
     geometry = [["H", [0,0,0]], ["H", [0,0,bondlength]]]
 
     basis = "sto-3g"
@@ -122,16 +120,14 @@ def h2_hamiltonian(bondlength):
     description = "test" #str()
     
     molecule = MolecularData(geometry, basis, multiplicity, charge, description)
-
     molecule = run_psi4(molecule)
 
-    #print(molecule.get_molecular_hamiltonian())
+    if JW is True:
+        hamiltonian = jordan_wigner(get_fermion_operator(molecule.get_molecular_hamiltonian()))
+    else:
+        hamiltonian = bravyi_kitaev(get_fermion_operator(molecule.get_molecular_hamiltonian()))
 
-
-    #bk_hamiltonian = bravyi_kitaev(get_fermion_operator(molecule.get_molecular_hamiltonian()))
-    bk_hamiltonian = jordan_wigner(get_fermion_operator(molecule.get_molecular_hamiltonian()))
-
-    print(bk_hamiltonian)
+    return hamiltonian
 
 
 
@@ -141,4 +137,4 @@ def h2_hamiltonian(bondlength):
 #lam, eigv=np.linalg.eig(FCI_mat)
 #JW_Ham=pairing_hamiltonian(2,1,1)
 
-h2_hamiltonian(0.7408481486)
+#h2_hamiltonian(0.7408481486)

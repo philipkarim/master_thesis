@@ -745,8 +745,13 @@ def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", r
 
         result = backendtest.run(copy_circ).result()
 
+        #print(H_final[0][0][0])
+
         if len(h_gate)==2:
-            if h_gate[0][0]!=0.2252:
+            if h_gate!=H_final[0]:
+                #print('worked')
+                #print(h_gate[0][0])
+            #if h_gate[0][0]!=0.2252:
                 result_dict=result.get_counts(copy_circ)
                 temp_E=0
                 for state in range(0,int(len(states)),2):
@@ -754,8 +759,10 @@ def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", r
             
                 E_final+=h_gate[0][0]*temp_E#*1.20798902854
             else:
-                E_final+=0.2252
+                #E_final+=0.2252
+                E_final+=h_gate[0][0]
 
+                #print(h_gate[0][0])
                 #print(temp_E)
                 #exit()
             
@@ -784,7 +791,7 @@ def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", r
     compute_gs_energy.energy_diff.append(abs(E_exact-E_final))
     compute_gs_energy.time_t.append(time)
 
-    #print(f'Iteration: {compute_gs_energy.counter}, Energy: {round(E_final, 4)}, Error: {round(abs((E_exact-E_final)/E_exact)*100, 2)}')
+    print(f'Iteration: {compute_gs_energy.counter}, Energy: {round(E_final, 4)}, Error: {round(abs((E_exact-E_final)/E_exact)*100, 2)}')
     #exit()
     """
     if compute_gs_energy.counter==4:

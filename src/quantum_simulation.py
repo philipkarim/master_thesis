@@ -14,6 +14,7 @@ import pandas as pd
 from optimize_loss import optimize
 from utils import *
 from varQITE import *
+from H2_hamiltonian import h2_hamiltonian
 
 import multiprocessing as mp
 import seaborn as sns
@@ -236,17 +237,49 @@ def main():
     np.random.seed(1111)
 
     #time_step=0.225
-    ite_steps=1000
-    maxTime=10
+    ite_steps=100
+    maxTime=30
     rz_add=True
 
-    search_params=True
+    search_params=False
     
     compute_gs_energy.counter=0
     compute_gs_energy.computed_E=[]
     compute_gs_energy.energy_diff=[]
     compute_gs_energy.time_t=[]
 
+    hamiltonian_JW=h2_hamiltonian(0.7408481486)
+
+    #print(hamiltonian_JW)
+
+    jw_H_dict=hamiltonian_JW.terms
+
+    coeffs=[]
+
+    #for term, coefficient in h2_hamiltonian.terms.items():
+    #        print(h2_hamiltonian.__class__(term, coefficient))
+
+    names_of_dict=  [(), ((0, 'Z'), (1, 'Z')), ((0, 'Z'), (2, 'Z')),
+                    ((1, 'Z'), (2, 'Z')), ((0, 'Z'), (3, 'Z')),
+                    ((0, 'X'), (1, 'X') ,(2, 'Y'),(3, 'Y')),  ((0, 'Z'),), ((1, 'Z'),)]
+
+    for i in names_of_dict:
+        coeffs.append(np.real(jw_H_dict[i]))
+    
+    #print(coeffs)
+
+    g1=coeffs[0]-2*coeffs[1]; g2=4*coeffs[5];    g3=-2*coeffs[2]+coeffs[3]+coeffs[4]
+    g4=coeffs[6]-coeffs[7];   g5=g4
+
+    hydrogen_ham=[[[g1, 'z', 0], [g1, 'z', 0]],
+                [[g2, 'x', 0], [g2, 'x', 1]],
+                [[g3, 'z', 0], [g3, 'z', 1]],
+                [[g4, 'z', 0]],[[g5, 'z', 1]]]
+
+    #print(hydrogen_ham)
+
+
+    """
     g0=0.2252;  g1=0.3435;  g2=-0.4347
     g3=0.5716;  g4=0.0910;  g5=0.0910
 
@@ -256,6 +289,8 @@ def main():
                 [[g3, 'z', 0], [g3, 'z', 1]],
                 [[g4, 'y', 0], [g4, 'y', 1]],
                 [[g5, 'x', 0], [g5, 'x', 1]]]
+    """
+
     if rz_add:
         hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
     else:
