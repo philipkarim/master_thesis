@@ -1,0 +1,114 @@
+# Copyright 2020 Google LLC. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+book_path: /openfermion/_book.yaml
+project_path: /openfermion/_project.yaml
+description: >
+  OpenFermion is a library for compiling and analyzing quantum algorithms to
+  simulate fermionic systems, including quantum chemistry.
+landing_page:
+  custom_css_path: /site-assets/css/style.css
+  rows:
+  - classname: quantum-hero quantum-hero--openfermion quantum-hero--icon-medium
+    options:
+    - hero
+    - description-50
+    - padding-large
+    heading: OpenFermion
+    icon:
+      path: /site-assets/images/icons/icon_openfermion.png
+    description: >
+      The open source chemistry package for quantum computers
+    items:
+    - description: >
+        OpenFermion is a library for compiling and analyzing quantum algorithms
+        to simulate fermionic systems, including quantum chemistry. The package
+        provides everything from efficient data structures for representing
+        fermionic operators to fermionic circuit primitives for execution on
+        quantum devices. Plugins to OpenFermion provide users with an efficient,
+        and low overhead, means of translating electronic structure calculations
+        into quantum circuit calculations.
+      buttons:
+      - label: Get started with OpenFermion
+        path: /openfermion/tutorials/intro_to_openfermion
+        classname: button button-primary
+      - label: GitHub repository
+        path: //github.com/quantumlib/OpenFermion
+        classname: button
+      code_block: |
+        <pre class = "prettyprint">
+        from openfermion import FermionOperator, MolecularData
+        from openfermion import fermi_hubbard, get_ground_state, get_sparse_operator
+
+        # Construct a fermion operators
+        my_first_fermion = FermionOperator(‘1^ 0 2^ 3’)
+        print(my_first_fermion)
+
+        # Build a Molecule
+        geometry = [[‘H’, [0, 0, 0]], [‘H’, [0, 0, 1.4]]]
+        multiplicity = 1
+        basis = ‘cc-pvdz’
+        charge = 0
+        molecule = MolecularData(geometry, basis, multiplicity, charge)
+
+        # Create model hamiltonians on a 1 x 10 lattice
+        hubbard = fermi_hubbard(1, 10, tunneling=1, coulomb=4, periodic=True)
+        print(hubbard)
+
+        # Get ground states
+        gs_energy, gs_eigvec = get_ground_state(get_sparse_operator(hubbard))
+        </pre>
+  - classname: quantum-row quantum-row--yellow
+    background: theme
+    heading: "Features and updates"
+    options:
+    - cards
+    - padding-medium
+    items:
+    - heading: "Release paper"
+      image_path: /site-assets/images/cards/open-fermion-card-paper.png
+      description: >
+        Learn more about the OpenFermion data structures, organization,
+        capabilities, and contributing guidelines in our release paper.
+      buttons:
+      - label: "View paper"
+        path: https://arxiv.org/abs/1710.07629
+    - heading: "Announcing OpenFermion: The Open Source Chemistry Package for Quantum Computers"
+      image_path: /site-assets/images/cards/open-fermion-card-announcement.png
+      description: >
+        Announcing Openfermion, an open source platform for translating problems
+        in chemistry and materials science into quantum circuits that can be
+        executed on existing platforms.
+      buttons:
+      - label: "Read more"
+        path: https://ai.googleblog.com/2017/10/announcing-openfermion-open-source.html
+    - heading: "OpenFermion used in research"
+      image_path: /site-assets/images/cards/open-fermion-card-of-in-research16x9.jpg
+      description: >
+        Learn how to use OpenFermion to run chemistry simulations on Sycamore.
+      buttons:
+      - label: "Learn more"
+        path: /cirq/experiments/hfvqe
+    - heading: "Plugins"
+      image_path: /site-assets/images/cards/open-fermion-card-plugins.png
+      description: >
+        OpenFermion interfaces with common electronic structure codes and allows
+        users to easily execute chemistry simulation processing. Currently
+        supported plugins are to open source codes
+        <a href="https://github.com/quantumlib/OpenFermion-Psi4" target="_blank">Psi4</a>,
+        <a href="https://github.com/quantumlib/OpenFermion-PySCF" target="_blank">Pyscf</a>,
+        and <a href="https://github.com/bsenjean/Openfermion-Dirac" target="_blank">Dirac</a>.
+      buttons:
+      - label: "Learn more"
+        path: /openfermion/overview#electronic_structure_package_plugins
