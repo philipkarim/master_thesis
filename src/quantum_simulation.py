@@ -145,11 +145,7 @@ def gs_VarITE(initial_H, ansatz, steps, final_time, distribution=['U', 1],):
             else:
                 gate[1]=random.gauss(0, distribution[1])
 
-
-
-
-
-    varqite=varQITE(initial_H, ansatz, maxTime=final_time, steps=steps, gs_computations=True)
+    varqite=varQITE(initial_H, ansatz, maxTime=final_time, steps=steps, gs_computations=True, lmbs=np.logspace(-4,-2,7))
     varqite.initialize_circuits()
     omega, d_omega=varqite.state_prep(gradient_stateprep=True)
 
@@ -174,7 +170,7 @@ def plot_qe(maxTime=10):
     if energy_plot:
         for d in distribution_list:
             for s in steps_list:
-                temp_t_e=np.load('results/quantum_systems/H2_MT_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')
+                temp_t_e=np.load('results/quantum_systems/H2_MT_latest_'+str(maxTime)+str(d[0])+str(d[1])+str(s)+'.npy')
                 #plt.plot(temp_t_e[0], temp_t_e[1], label=d[0]+'- '+str(d[1])+', '+r'$\delta=$'+str(s))
                 if len(steps_list)==1:
                     if d[0]=='U':
@@ -191,7 +187,7 @@ def plot_qe(maxTime=10):
         plt.tight_layout()
         plt.legend(loc="center left")   #plt.legend()
         #plt.legend()
-        plt.savefig('results/quantum_systems/energy_H2_search_N01.pdf')
+        plt.savefig('results/quantum_systems/energy_H2_search_N01_latest.pdf')
         plt.clf()
     
     else:
@@ -293,29 +289,9 @@ def main():
                 compute_gs_energy.computed_E=[]
                 gs_VarITE(hydrogen_ham, hydrogen_ans, int(maxTime/del_step), final_time=maxTime, distribution=dist)
 
-                np.save('results/quantum_systems/H2_MT_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
+                np.save('results/quantum_systems/H2_MT_latest_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
-    print('----DAILY TASKS LEFT:----')
-    print('RBM results:')
-    print('  - Test with 2 separate hydrogen atoms to see if it works')
-    print('  - Plot 2 separate hydrogen atoms')
-    print('  - Compare with analytical result? in table with the other instance?')
-    print('  - Sigma plot')
-    print('  - Plot distributions?')
-    print('  - Plot hidden nodes and learning rate')
-    print('  - Make final computations and compare with analytical and std with citation, plot as E vs R?')
-    print('QBM results:')
-    print('  - 10 seeds')
-    print('Write about entanglement')
-
-
-
-
-
-
-
-
-    #main()
+    main()
     #plot_qe(10)
 

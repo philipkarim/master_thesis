@@ -2,6 +2,11 @@ import numpy as np
 import scipy.special as special
 import itertools as it
 
+from openfermionpsi4 import run_psi4
+from openfermion.transforms import get_fermion_operator, jordan_wigner, bravyi_kitaev
+#from openfermion.hamiltonians import MolecularData
+from openfermion.chem import MolecularData
+
 
 #TODO: Not quiet done
 def pairing_hamiltonian(n_states,non_e,int_e):
@@ -96,14 +101,44 @@ def ci_matrix_pairing(n_pairs,n_levels,non_e,int_e):
     
     return fci_matrix
 
+def h2_hamiltonian(bondlength):
+    """
+    Function returning the Jordan Wigner transformed H2 Hamiltonian,
+    based on the following link: https://blog.artwolf.in/a?ID=49e3eada-cdca-4f83-b338-4cd442aae73a
+
+    Args:
+            Bondlenght(float):  Bondlength between the atoms in units of Angstrom
+
+    Returns:
+            List of Jordan-Wigner transformed Hamiltonian
+    """
+#    geometry = [["H", [0,0,0]],
+            #["H", [0,0,bondlength]]]
+    geometry = [["H", [0,0,0]], ["H", [0,0,bondlength]]]
+
+    basis = "sto-3g"
+    multiplicity = 1
+    charge = 0
+    description = "test" #str()
+    
+    molecule = MolecularData(geometry, basis, multiplicity, charge, description)
+
+    molecule = run_psi4(molecule)
+
+    #print(molecule.get_molecular_hamiltonian())
+
+
+    #bk_hamiltonian = bravyi_kitaev(get_fermion_operator(molecule.get_molecular_hamiltonian()))
+    bk_hamiltonian = jordan_wigner(get_fermion_operator(molecule.get_molecular_hamiltonian()))
+
+    print(bk_hamiltonian)
+
+
 
 #To match the result of the fys4480 slides use interaction g_interact=2 and d=0-->gs=-6
 #Works compared to the matrix from Mortens book
-FCI_mat=ci_matrix_pairing(1, 2, 1, 1)
-lam, eigv=np.linalg.eig(FCI_mat)
-print(FCI_mat)
-print(lam)
+#FCI_mat=ci_matrix_pairing(1, 2, 1, 1)
+#lam, eigv=np.linalg.eig(FCI_mat)
+#JW_Ham=pairing_hamiltonian(2,1,1)
 
-JW_Ham=pairing_hamiltonian(2,1,1)
-
-#print(JW_Ham)
+h2_hamiltonian(0.7408481486)
