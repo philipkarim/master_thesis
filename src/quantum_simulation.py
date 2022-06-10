@@ -157,8 +157,11 @@ def plot_qe(maxTime=10):
     """
     Function to plot energy of quantum system
     """
-    distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+    #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
     steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+    
+    distribution_list=[['U', 1]]
+    #steps_list=[0.01]
 
     #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
     #steps_list=[0.5, 0.25]
@@ -190,7 +193,9 @@ def plot_qe(maxTime=10):
         plt.ylabel('Energy (Hartree)')
         plt.xlabel(r'Imaginary time $\tau$')
         plt.tight_layout()
-        plt.legend(loc="center left")   #plt.legend()
+        plt.legend(prop={'size': 8}, loc="upper right", ncol=2)   #plt.legend()
+        #plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+
         #plt.legend()
         plt.savefig('results/quantum_systems/energy_H2_search_N01_latest.pdf')
         plt.clf()
@@ -240,12 +245,13 @@ def main():
     """
     np.random.seed(1111)
 
-    #time_step=0.225
+    time_step=0.25
     ite_steps=1500
     maxTime=15
+    ite_steps= int(maxTime/time_step)
     rz_add=True
 
-    search_params=True
+    search_params=False
     
     compute_gs_energy.counter=0
     compute_gs_energy.computed_E=[]
@@ -314,7 +320,7 @@ def main():
 
     hydrogen_ham=np.array(hydrogen_ham, dtype=object)
     if search_params is not True:
-        gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime)
+        gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime, distribution=['U', 1])
     else:
         distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
         steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
