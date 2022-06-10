@@ -30,9 +30,9 @@
     -----------------------------------------------------------------------
 
 
-    Psi4 started on: Thursday, 09 June 2022 06:20PM
+    Psi4 started on: Thursday, 09 June 2022 07:51PM
 
-    Process ID: 24074
+    Process ID: 27798
     Host:       Philips-MacBook-Pro.local
     PSIDATADIR: /Users/philipniane/psi4conda/share/psi4
     Memory:     500.0 MiB
@@ -62,7 +62,7 @@ memory 8000 mb
 _description = 'test'
 if _description == 'None':
     _description = None
-molecule = MolecularData([['H', [0, 0, 0]], ['H', [0, 0, 0.7408481486]]],
+molecule = MolecularData([['H', [0, 0, 0]], ['H', [0, 0, 1.4]]],
                          'sto-3g',
                          1,
                          0,
@@ -72,7 +72,7 @@ molecule = MolecularData([['H', [0, 0, 0]], ['H', [0, 0, 0.7408481486]]],
 # Set molecular geometry and symmetry.
 molecule mol {
 H 0 0 0
-H 0 0 0.7408481486
+H 0 0 1.4
 symmetry c1
 }
 mol.set_multiplicity(1)
@@ -287,7 +287,7 @@ if False:
 Scratch directory: /tmp/
 
 *** tstart() called on Philips-MacBook-Pro.local
-*** at Thu Jun  9 18:20:32 2022
+*** at Thu Jun  9 19:51:26 2022
 
    => Loading Basis Set <=
 
@@ -314,14 +314,14 @@ Scratch directory: /tmp/
 
        Center              X                  Y                   Z               Mass       
     ------------   -----------------  -----------------  -----------------  -----------------
-         H            0.000000000000     0.000000000000    -0.370424074300     1.007825032230
-         H            0.000000000000     0.000000000000     0.370424074300     1.007825032230
+         H            0.000000000000     0.000000000000    -0.700000000000     1.007825032230
+         H            0.000000000000     0.000000000000     0.700000000000     1.007825032230
 
   Running in c1 symmetry.
 
-  Rotational constants: A = ************  B =     60.95130  C =     60.95130 [cm^-1]
-  Rotational constants: A = ************  B = 1827273.91303  C = 1827273.91303 [MHz]
-  Nuclear repulsion =    0.714285662547716
+  Rotational constants: A = ************  B =     17.06810  C =     17.06810 [cm^-1]
+  Rotational constants: A = ************  B = 511688.88416  C = 511688.88416 [MHz]
+  Nuclear repulsion =    0.377983721907143
 
   Charge       = 0
   Multiplicity = 1
@@ -378,8 +378,8 @@ Scratch directory: /tmp/
 
     OpenMP threads:              1
 
-  Minimum eigenvalue in the overlap matrix is 3.4068182897E-01.
-  Reciprocal condition number of the overlap matrix is 2.0531434834E-01.
+  Minimum eigenvalue in the overlap matrix is 7.0430092640E-01.
+  Reciprocal condition number of the overlap matrix is 5.4356828739E-01.
     Using symmetric orthogonalization.
 
   ==> Pre-Iterations <==
@@ -398,9 +398,9 @@ Scratch directory: /tmp/
 
                         Total Energy        Delta E     RMS |[F,P]|
 
-   @RHF iter SAD:    -0.71806766063281   -7.18068e-01   0.00000e+00 
-   @RHF iter   1:    -1.11671432217714   -3.98647e-01   0.00000e+00 DIIS
-   @RHF iter   2:    -1.11671432217714    0.00000e+00   0.00000e+00 DIIS
+   @RHF iter SAD:    -0.57699169871890   -5.76992e-01   0.00000e+00 
+   @RHF iter   1:    -0.94148065450138   -3.64489e-01   4.10898e-17 DIIS
+   @RHF iter   2:    -0.94148065450138   -2.22045e-16   8.21796e-17 DIIS
   Energy and wave function converged.
 
 
@@ -411,24 +411,24 @@ Scratch directory: /tmp/
 
     Doubly Occupied:                                                      
 
-       1A     -0.578203  
+       1A     -0.377323  
 
     Virtual:                                                              
 
-       2A      0.670268  
+       2A      0.258902  
 
     Final Occupation by Irrep:
               A 
     DOCC [     1 ]
 
-  @RHF Final Energy:    -1.11671432217714
+  @RHF Final Energy:    -0.94148065450138
 
    => Energetics <=
 
-    Nuclear Repulsion Energy =              0.7142856625477163
-    One-Electron Energy =                  -2.5055940588080112
-    Two-Electron Energy =                   0.6745940740831535
-    Total Energy =                         -1.1167143221771414
+    Nuclear Repulsion Energy =              0.3779837219071430
+    One-Electron Energy =                  -1.8842831023785875
+    Two-Electron Energy =                   0.5648187259700650
+    Total Energy =                         -0.9414806545013796
 
 Computation Completed
 
@@ -450,17 +450,17 @@ Properties computed using the SCF density matrix
      X:     0.0000      Y:     0.0000      Z:     0.0000     Total:     0.0000
 
 
-*** tstop() called on Philips-MacBook-Pro.local at Thu Jun  9 18:20:32 2022
+*** tstop() called on Philips-MacBook-Pro.local at Thu Jun  9 19:51:26 2022
 Module time:
-	user time   =       0.16 seconds =       0.00 minutes
+	user time   =       0.17 seconds =       0.00 minutes
 	system time =       0.01 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 Total time:
-	user time   =       0.16 seconds =       0.00 minutes
+	user time   =       0.17 seconds =       0.00 minutes
 	system time =       0.01 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 
-    Psi4 stopped on: Thursday, 09 June 2022 06:20PM
-    Psi4 wall time for execution: 0:00:01.74
+    Psi4 stopped on: Thursday, 09 June 2022 07:51PM
+    Psi4 wall time for execution: 0:00:01.63
 
 *** Psi4 exiting successfully. Buy a developer a beer!

@@ -4,6 +4,9 @@ import itertools as it
 
 from openfermionpsi4 import run_psi4
 from openfermion.transforms import get_fermion_operator, jordan_wigner, bravyi_kitaev
+#from openfermion.utils import get_ground_state
+from openfermion.linalg import get_ground_state, get_sparse_operator
+
 #from openfermion.hamiltonians import MolecularData
 from openfermion.chem import MolecularData
 
@@ -127,7 +130,10 @@ def h2_hamiltonian(bondlength, JW=True):
     else:
         hamiltonian = bravyi_kitaev(get_fermion_operator(molecule.get_molecular_hamiltonian()))
 
-    return hamiltonian
+    sparse_operator = get_sparse_operator(hamiltonian)
+    gs=get_ground_state(sparse_operator)[0]
+
+    return hamiltonian, gs
 
 
 

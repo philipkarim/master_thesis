@@ -19,6 +19,7 @@ from H2_hamiltonian import h2_hamiltonian
 import multiprocessing as mp
 import seaborn as sns
 
+
 #sns.set_style("darkgrid")
 
 def trainGS(H_operator, ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
@@ -157,11 +158,14 @@ def plot_qe(maxTime=10):
     Function to plot energy of quantum system
     """
     #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-    steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+    #steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+
+    distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+    steps_list=[0.5, 0.25]
 
     #distribution_list=[['U', 0.5], ['N', 0.5]]
     #distribution_list=[['U', 1], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.1], ['N', 0.01]]
-    distribution_list=[['N', 0.1]]
+    #distribution_list=[['N', 0.1]]
 
     #steps_list=[0.1]
 
@@ -237,18 +241,19 @@ def main():
     np.random.seed(1111)
 
     #time_step=0.225
-    ite_steps=100
-    maxTime=30
+    ite_steps=1500
+    maxTime=15
     rz_add=True
 
-    search_params=False
+    search_params=True
     
     compute_gs_energy.counter=0
     compute_gs_energy.computed_E=[]
     compute_gs_energy.energy_diff=[]
     compute_gs_energy.time_t=[]
 
-    hamiltonian_JW=h2_hamiltonian(0.7408481486)
+    #hamiltonian_JW=h2_hamiltonian(0.7408481486)
+    hamiltonian_JW, gs=h2_hamiltonian(1.4)
 
     #print(hamiltonian_JW)
 
@@ -311,9 +316,13 @@ def main():
     if search_params is not True:
         gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime)
     else:
-        distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-        steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+        #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+        #steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
         
+        distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+        steps_list=[0.5, 0.25]
+        
+
         compute_gs_energy.energies_array=np.zeros((len(distribution_list), len(steps_list)))
         compute_gs_energy.final_t=[]
 
@@ -327,6 +336,6 @@ def main():
                 np.save('results/quantum_systems/H2_MT_latest_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
-    main()
-    #plot_qe(10)
+    #main()
+    plot_qe(15)
 
