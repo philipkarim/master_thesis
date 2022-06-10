@@ -157,11 +157,11 @@ def plot_qe(maxTime=10):
     """
     Function to plot energy of quantum system
     """
-    #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-    #steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
-
     distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-    steps_list=[0.5, 0.25]
+    steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+
+    #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
+    #steps_list=[0.5, 0.25]
 
     #distribution_list=[['U', 0.5], ['N', 0.5]]
     #distribution_list=[['U', 1], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.1], ['N', 0.01]]
@@ -316,12 +316,8 @@ def main():
     if search_params is not True:
         gs_VarITE(hydrogen_ham, hydrogen_ans, ite_steps, final_time=maxTime)
     else:
-        #distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-        #steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
-        
         distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-        steps_list=[0.5, 0.25]
-        
+        steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
 
         compute_gs_energy.energies_array=np.zeros((len(distribution_list), len(steps_list)))
         compute_gs_energy.final_t=[]
@@ -336,6 +332,6 @@ def main():
                 np.save('results/quantum_systems/H2_MT_latest_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
-    #main()
-    plot_qe(15)
+    main()
+    #plot_qe(15)
 
