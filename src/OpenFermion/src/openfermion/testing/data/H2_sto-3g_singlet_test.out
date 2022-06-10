@@ -30,9 +30,9 @@
     -----------------------------------------------------------------------
 
 
-    Psi4 started on: Thursday, 09 June 2022 07:51PM
+    Psi4 started on: Thursday, 09 June 2022 08:59PM
 
-    Process ID: 27798
+    Process ID: 29747
     Host:       Philips-MacBook-Pro.local
     PSIDATADIR: /Users/philipniane/psi4conda/share/psi4
     Memory:     500.0 MiB
@@ -287,7 +287,7 @@ if False:
 Scratch directory: /tmp/
 
 *** tstart() called on Philips-MacBook-Pro.local
-*** at Thu Jun  9 19:51:26 2022
+*** at Thu Jun  9 20:59:38 2022
 
    => Loading Basis Set <=
 
@@ -450,17 +450,17 @@ Properties computed using the SCF density matrix
      X:     0.0000      Y:     0.0000      Z:     0.0000     Total:     0.0000
 
 
-*** tstop() called on Philips-MacBook-Pro.local at Thu Jun  9 19:51:26 2022
+*** tstop() called on Philips-MacBook-Pro.local at Thu Jun  9 20:59:38 2022
 Module time:
-	user time   =       0.17 seconds =       0.00 minutes
-	system time =       0.01 seconds =       0.00 minutes
+	user time   =       0.12 seconds =       0.00 minutes
+	system time =       0.00 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 Total time:
-	user time   =       0.17 seconds =       0.00 minutes
-	system time =       0.01 seconds =       0.00 minutes
+	user time   =       0.12 seconds =       0.00 minutes
+	system time =       0.00 seconds =       0.00 minutes
 	total time  =          0 seconds =       0.00 minutes
 
-    Psi4 stopped on: Thursday, 09 June 2022 07:51PM
-    Psi4 wall time for execution: 0:00:01.63
+    Psi4 stopped on: Thursday, 09 June 2022 08:59PM
+    Psi4 wall time for execution: 0:00:00.86
 
 *** Psi4 exiting successfully. Buy a developer a beer!
