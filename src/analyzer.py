@@ -1,22 +1,15 @@
+#Importing necessary packages
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix
-
-#import matplotlib.ticker as tick
-#sns.set_style("darkgrid")
-#plt.style.use('science')
-#x=np.load('results/arrays/learningrate0.507.npy', allow_pickle=True)
-
-
 import seaborn as sns
 import matplotlib
+
+#Figure parameters, fit well into the latex document
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
-
 sns.set_style("darkgrid")
-#print(plt.rcParams.keys())
-
 FIGWIDTH=4.71935 #From latex document
 FIGHEIGHT=FIGWIDTH/1.61803398875
 
@@ -30,6 +23,9 @@ plt.rcParams.update(params)
 
 
 def plot_fraud():
+    """
+    Plot the fraud functions
+    """
     acc_train=np.load('results/fraud/acc_train_5050000509_40_samples_both_sets.npy', allow_pickle=True)
     acc_test=np.load('results/fraud/acc_test_5050000509_40_samples_both_sets.npy', allow_pickle=True)
     loss_train=np.load('results/fraud/loss_train_5050000509_40_samples_both_sets.npy', allow_pickle=True)
@@ -100,17 +96,15 @@ def plot_lr_search():
     print(len(loss_A1))
     print(loss_A1[:len(loss_A1)])
     print(loss[:len(loss)])
-    #exit()
 
     sma=1
     skip=0
 
+    #Plot derivatives
     derivatives = [0] * (sma + 1)
     for i in range(1 + sma, len(lr)):
         derivative = (loss[i] - loss[i - sma]) / sma
         derivatives.append(derivative)
-
-    #print(min(derivatives), derivatives.index(min(derivatives)), lr[77])
 
     derivatives2 = [0] * (sma + 1)
     for i in range(1 + sma, len(lr_A1)):
@@ -127,7 +121,6 @@ def plot_lr_search():
     plt.tight_layout()
     plt.savefig('results/generative_learning/SGDdLVSlr_ab_new.pdf')
     plt.clf
-
 
     plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
     plt.plot(range(0,len(lr_A1)), lr_A1)
@@ -153,7 +146,7 @@ def plot_lr_search():
 
 def plot_optim_search():
     """
-    Plotting exhaustive search of optimap parameters and learning parameters
+    Plot exhaustive search of optimal parameters and learning parameters
     """
     arrays_loss=[]
     arrays_norm=[]
@@ -191,17 +184,12 @@ def plot_optim_search():
             ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'], ['Amsgrad','0.01','0.9','0.999'],
             ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'], ['RMSprop','0.01','0.99','0'],
             ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0'], ['SGD','0.01','0','0']]
-        #labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999']]
-
     
     for i in labels:
         arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
         arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
 
     epoch=range(len(arrays_loss[0]))
-
-    
-    #plt.rcParams['legend.fontsize'] = 12
 
     colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
     ticks = ["x","1",".","s", "D"]
@@ -290,19 +278,12 @@ def plot_optim_search():
         else:
             for j, i in enumerate(arrays_loss):
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
-                #plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
         
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        #fig, ax = plt.subplots()
-
-        #plt.yscale('log')
-        #plt.yticks(np.arange(0.5, 2, 0.1))
-        plt.legend()
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        #plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(format_labels))
-        plt.savefig('results/generative_learning/'+keyw+'_loss.pdf')
+        #plt.savefig('results/generative_learning/'+keyw+'_loss.pdf')
         plt.clf
 
         if half_size:
@@ -315,17 +296,10 @@ def plot_optim_search():
         else:
             for j, i in enumerate(arrays_norm):
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
-                #plt.plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
     
-        #plt.plot(range(0,len(lr)), lr, label=r'$H_2$')
         plt.xlabel('Iteration')
         plt.ylabel(r'L\textsubscript{1}-norm')
-        #plt.yscale("log")
-        #plt.legend(fontsize=4, prop={'size': 6})
-        #plt.legend(prop={'size': 6})
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
-
-        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm.pdf')
         plt.clf
@@ -337,7 +311,6 @@ def plot_optim_search():
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
-        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_rms_loss.pdf')
         plt.clf
@@ -349,7 +322,6 @@ def plot_optim_search():
         plt.xlabel('Iteration')
         plt.ylabel(r'L\textsubscript{1}-norm')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
-        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_rms_norm.pdf')
         plt.clf
@@ -361,7 +333,6 @@ def plot_optim_search():
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
         plt.legend(fontsize=4, prop={'size': 6}, loc=0)
-        #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_ams_loss.pdf')
         plt.clf
@@ -373,90 +344,13 @@ def plot_optim_search():
         plt.xlabel('Iteration')
         plt.ylabel(r'L\textsubscript{1}-norm')
         plt.legend(prop={'size': 6}, loc=0)
-        #plt.legend(prop={'size': 6})
-        #plt.legend()
-        
-        #plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
         plt.tight_layout()
         plt.savefig('results/generative_learning/test_ams_norm.pdf')
         plt.clf
 
-def plot_three_sub():
-    """
-    Plotting exhaustive search of optimap parameters and learning parameters
-    """
-    arrays_loss=[]
-    keyw='H2_real_new'
-
-    labels=[['Adam','0.2','0.9','0.999'],['Adam','0.1','0.9','0.999'], ['Adam','0.05','0.9','0.999'],
-            ['Amsgrad','0.2','0.9','0.999'], ['Amsgrad','0.1','0.9','0.999'],['Amsgrad','0.05','0.9','0.999'],
-            ['RMSprop','0.2','0.99','0'], ['RMSprop','0.1','0.99','0'], ['RMSprop','0.05','0.99','0'],
-            ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0']]
-    
-    for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+keyw+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
-
-    epoch=range(len(arrays_loss[0]))
-
-    
-    colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
-    ticks = ["x","1",".","s", "D"]
-
-    cat=[]
-
-    for i in labels:
-        temp=[]
-        if i[0]=='Adam':
-            temp.append(0)
-        elif i[0]=='Amsgrad':
-            temp.append(1)
-        elif i[0]=='RMSprop':
-            temp.append(2)
-        elif i[0]=='SGD':
-            temp.append(3)
-        
-        if i[1]=='0.2':
-            temp.append(0)
-        elif i[1]=='0.1':
-            temp.append(1)
-        elif i[1]=='0.05':
-            temp.append(2)
-        elif i[1]=='0.01':
-            temp.append(3)
-
-        cat.append(temp)
-
-        #plt.figure()
-    fig, axs = plt.subplots(3, sharex=True, sharey=False)
-
-    #plt.figure()
-    for j, i in enumerate(arrays_loss):
-        axs[cat[j][1]].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=labels[j][0], linewidth=1, ms=2)
-        #axs[1].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
-        #axs[2].plot(epoch, i, color=colors[cat[j][0]],marker=ticks[cat[j][1]],label=r'$\gamma=$'+labels[j][1]+r'$m=$'+labels[j][2], linewidth=1, ms=2)
-    
-    fontsz=8
-    axs[0].set_title('$\gamma=$'+labels[0][1], fontsize=fontsz)
-    axs[1].set_title('$\gamma=$'+labels[1][1], fontsize=fontsz)
-    axs[2].set_title('$\gamma=$'+labels[2][1], fontsize=fontsz)
-
-    plt.xlabel('Iteration')
-    axs[0].set_ylabel('Loss')
-    axs[1].set_ylabel('Loss')
-    axs[2].set_ylabel('Loss')
-
-    axs[0].legend(prop={'size': 6}, bbox_to_anchor=[1, 1], loc="upper left")   #plt.legend()
-    plt.tight_layout()
-    
-    #plt.subplots_adjust(left=0.1,bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
-    plt.subplots_adjust(hspace=0.4)
-
-    plt.savefig('results/generative_learning/loss_3_sub.pdf')
-    plt.clf()
-
 def plot_finale_seeds(std=False, plot_pbm=False):
     """
-    Plotting exhaustive search of optimap parameters and learning parameters
+    Plott finale results of data generation
     """
     keyw='H1_ab'
     dir='H1_10seeds'
@@ -468,8 +362,6 @@ def plot_finale_seeds(std=False, plot_pbm=False):
         array_norm.append(np.load('results/generative_learning/arrays/search/'+dir+'/RMSproploss_lr0.1m10.99m20norm'+keyw+'_10seedseed'+str(i)+'.npy', allow_pickle=True)[:21])
     
     epoch=range(len(arrays_loss[0]))
-    
-    #colors = ["tab:blue","tab:orange","tab:green","tab:red", "tab:purple", "tab:olive"]
 
     if std==False:
         plt.figure()
@@ -524,7 +416,7 @@ def plot_finale_seeds(std=False, plot_pbm=False):
         fig.savefig('results/generative_learning/'+keyw+'_sub_10seeds.pdf')
         plt.clf()
 
-
+    #Plot histogram of best and worst sampling probability
     if plot_pbm:
         min_error=1000
         max_error=0.0
@@ -569,17 +461,16 @@ def plot_finale_seeds(std=False, plot_pbm=False):
         plt.clf()
 
 
-
 """
 Discriminative learning plotter functions
 """
 def plot_activation_functions():
-    #labels=[['identity','Identity'],['sig','Sigmoid'], ['leaky','Leaky RELU'],['tanh','Tanh'], ['sig_out','Sigmoid out'], ['tanh_out','Tanh out']]
+    """
+    Activation functions
+    """
     labels=[['identity','Identity'],['sig','Sigmoid'],['relu','RELU'], ['leaky','Leaky RELU'],['tanh','Tanh'], ['sig_out','Sigmoid output'], ['tanh_out','Tanh output']]
-
     loss_list=[]
     name_start='loss_train12_2_'
-    #name_start='loss_test8_2_'
 
     for i in range(len(labels)):
         loss_list.append(np.load('results/disc_learning/fraud/activations/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
@@ -593,13 +484,14 @@ def plot_activation_functions():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
-    #plt.legend()
     plt.legend(prop={'size': 9})
     plt.savefig('results/disc_learning/assets/loss_activations_12_2.pdf')
     plt.clf()
 
 def plot_bias():
-    
+    """
+    Plot bias
+    """
     loss_list=[]
     name_start='loss_train12_2_'
 
@@ -614,13 +506,14 @@ def plot_bias():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
-    #plt.legend()
     plt.legend(prop={'size': 9 }, loc="lower right")
     plt.savefig('results/disc_learning/assets/bias_12_2_50_samples.pdf')
     plt.clf()
 
 def plot_NN_sizes():
-    
+    """
+    Plot NN tests
+    """
     fraud=True
     if fraud:
         labels=[['8_5_001','[8, 5]'], ['4_4','[4, 4]'],['6','[6]'], ['6_6','[6, 6]'],['12_12','[12, 12]']]
@@ -631,15 +524,11 @@ def plot_NN_sizes():
         folder='NN_sizes_mnist'
         nickname='H2_mnist/H2_NNsizes'
 
-    #labels=[['12_1_identity', '1 layer'], ['12_2_identity', '2 layers'],['12_3_identity', '3 layers']]
     name_start='loss_trainH1_'
-    #name_start='loss_testH1_'
-
     loss_list=[]
 
     for i in range(len(labels)):
         loss_list.append(np.load('results/disc_learning/'+folder+'/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
-
     epoch=range(len(loss_list[0]))
 
     plt.figure()
@@ -649,32 +538,31 @@ def plot_NN_sizes():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.tight_layout()
-    #plt.legend()
     plt.legend(prop={'size': 8.25}, loc="upper right", ncol=1)
     plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
 def plot_lr():
+    """
+    Plot learning rates
+    """
     labels=[['01','0.1'],['001','0.01']]#,['0001','0.001']]
     #switch between two colors, different forms of lines on H1 and H2
     fraud=True
     if fraud:
         name_start='loss_trainH1_8_5_'
-        #name_start='loss_testH1_8_5_'
         nickname='H2_fraud/H2_lr_fraud_no_network'
         folder='lr_fraud_no_network'
 
         name_start=name_start[:-4]+'no_network_'
     else:
         name_start='loss_trainH1_23_8_'
-        #name_start='loss_testH1_23_8_'
         nickname='H2_mnist/H2_lr_mnist'
         folder='lr_mnist'
 
     loss_list=[]
     for i in range(len(labels)):
         loss_list.append(np.load('results/disc_learning/'+folder+'/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
-
     epoch=range(len(loss_list[0]))
     
     plt.figure()
@@ -685,22 +573,16 @@ def plot_lr():
     plt.ylabel('Loss')
     plt.tight_layout()
     plt.legend()
-    #plt.legend(prop={'size': 8.25})#, loc="center right")
     plt.savefig('results/disc_learning/assets/'+nickname+'.pdf')
     plt.clf()
 
 def plot_gen(name_start, labels, end):
     loss_list=[]
-
     for i in range(len(labels)):
         loss_list.append(np.load('results/disc_learning/fraud/optimizer/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
-
     epoch=range(len(loss_list[0]))
     
-    #plt.figure()
     plt.figure(figsize=[FIGWIDTH, FIGHEIGHT/2])
-
-    #fig, ax = plt.subplots()
     for j, i in enumerate(loss_list):
         if j%2==0:
             pass
@@ -710,19 +592,16 @@ def plot_gen(name_start, labels, end):
         
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    #plt.yscale('log')
-    #ax.yaxis.set_major_locator(tick.LogLocator(0.5))
-    #plt.yticks(np.arange(min(loss_list[0]), max(loss_list[1]), 1.))
     plt.tight_layout()
-    #plt.legend()
     plt.legend(prop={'size': 6.5})#, loc="lower left")
     plt.savefig('results/disc_learning/assets/'+name_start+end+'.pdf')
     plt.clf()
 
-
 def plot_gen_sub(name_start, labels, end):
+    """
+    Plot initialisation and stuff like that
+    """
     loss_list=[]
-
     for i in range(len(labels)):
         loss_list.append(np.load('results/disc_learning/fraud/initialisation/'+name_start+labels[i][0]+'.npy', allow_pickle=True))
 
@@ -738,9 +617,15 @@ def plot_gen_sub(name_start, labels, end):
     plt.savefig('results/disc_learning/assets/'+name_start+end+'.pdf')
 
 def format_labels(x, pos):
+    """
+    function to format label, from web
+    """
     return "e$^{%i}$" % np.log(x)
 
 def final_scores(prediction, target, CM, name):
+    """
+    Final score computations
+    """
     precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='weighted')
 
     print(precision, recal, beta)
@@ -772,46 +657,20 @@ def final_scores(prediction, target, CM, name):
 
 
 def final_fraud(CM=False):
-    #Fraud
+    """
+    Computations of final run
+    """
     path='results/disc_learning/final_runs/'
     net='final_run_fraud_network/'
     nonet='final_run_fraud_no_network/'
 
-    #l_tr1=np.load(path+net+'loss_trainH1_8_5_400_40_f_001.npy', allow_pickle=True)
-    l_tr2=np.load(path+net+'loss_trainH1_8_5_400_50_f_001.npy', allow_pickle=True)
-    #l_tr3=np.load(path+net+'loss_trainH1_8_5_500_40_f_001.npy', allow_pickle=True)
-    
-    #l_tr4=np.load(path+nonet+'loss_trainH1_nonet_400_40_f.npy', allow_pickle=True)
+    l_tr2=np.load(path+net+'loss_trainH1_8_5_400_50_f_001.npy', allow_pickle=True)    
     l_tr5=np.load(path+nonet+'loss_trainH1_nonet_400_50_f.npy', allow_pickle=True)
-    #l_tr6=np.load(path+nonet+'loss_trainH1_nonet_500_40_f.npy', allow_pickle=True)
-    
-    #l_te4=np.load(path+nonet+'loss_testH1_nonet_400_40_f.npy', allow_pickle=True)
-    l_te5=np.load(path+nonet+'loss_testH1_nonet_400_50_f.npy', allow_pickle=True)
-    #l_te6=np.load(path+nonet+'loss_testH1_nonet_500_40_f.npy', allow_pickle=True)
-
-    #l_te1=np.load(path+net+'loss_testH1_8_5_400_40_f_001.npy', allow_pickle=True)
     l_te2=np.load(path+net+'loss_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
-    #l_te3=np.load(path+net+'loss_testH1_8_5_500_40_f_001.npy', allow_pickle=True)
-        
-    #l_te4=np.load(path+net+'loss_testH1_8_5_400_40_f.npy', allow_pickle=True)
-    #l_te5=np.load(path+net+'loss_testH1_8_5_400_50_f.npy', allow_pickle=True)
-    #l_te6=np.load(path+net+'loss_testH1_8_5_500_40_f.npy', allow_pickle=True)
-
-    #plt.plot(list(range(len(l_tr1))), l_tr1, label='Tr 44, 001')
-    #plt.plot(list(range(len(l_tr2))), l_tr2, label='Tr 45 001')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Tr 54 001')
+    l_te5=np.load(path+nonet+'loss_testH1_nonet_400_50_f.npy', allow_pickle=True)
     
-    #plt.plot(list(range(len(l_tr4))), l_tr4, label='Tr 44')
     plt.plot(list(range(len(l_tr5))), l_tr5, label='Tr 45')
-    #plt.plot(list(range(len(l_tr6))), l_tr6, label='Tr 54')
-    
-    #plt.plot(list(range(len(l_te1))), l_te1, label='Te 44 001')
-    #plt.plot(list(range(len(l_te2))), l_te2, label='Te 45 001')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='Te 54 001')
-
-    #plt.plot(list(range(len(l_te4))), l_te4, label='Te 44')
     plt.plot(list(range(len(l_te5))), l_te5, label='Te 45')
-    #plt.plot(list(range(len(l_te6))), l_te6, label='Te 54')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -819,9 +678,6 @@ def final_fraud(CM=False):
     plt.tight_layout()
     #plt.savefig('check_results_fr_nonet.pdf')
     plt.clf()
-
-    pred_net=np.load(path+net+'predictions_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
-    targ_net=np.load(path+net+'targets_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
     
     pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_f.npy', allow_pickle=True)
     targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_f.npy', allow_pickle=True)
@@ -855,27 +711,22 @@ def final_fraud(CM=False):
 
 
 def final_franke():
+    """
+    Final frankes function
+    """
     l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
     l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
-
-    print(np.amin(l_te1))
-    exit()
 
     plt.figure()
     plt.plot(list(range(len(l_tr1))), l_tr1, label='Train')
     plt.plot(list(range(len(l_te1))), l_te1, label='Test')
-    #plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 0001')
-    #plt.plot(list(range(len(l_te2))), l_te2, label='Test 0001')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Train 0005')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='Test 0005')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('franke_loss_final.pdf')
+    #plt.savefig('franke_loss_final.pdf')
     plt.clf()
-
 
     fig = plt.figure() 
     ax = plt.axes(projection ='3d') 
@@ -889,12 +740,14 @@ def final_franke():
     
     # Adding labels
     ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
-    #plt.tight_layout()
     #plt.savefig('results/disc_learning/franke/'+file_title+'.pdf')
     plt.clf
 
 
 def final_digit(CM=False):
+    """
+    Plot digit datasets
+    """
     path='results/disc_learning/final_runs/'
     net='final_run_digit_network/'
     nonet='final_run_digit_no_network/'
@@ -925,7 +778,6 @@ def final_digit(CM=False):
 
     pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
 
-    exit()
     targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
     pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
     targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
@@ -958,6 +810,9 @@ def final_digit(CM=False):
 
 
 def final_mnist(CM):
+    """
+    Final mnist computations
+    """
     path='results/disc_learning/final_runs/'
     net='final_run_mnist_network/'
     
@@ -978,9 +833,6 @@ def final_mnist(CM):
     plt.tight_layout()
     #plt.savefig('check_results_mnist.pdf')
     plt.clf()
-
-    #pred=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
-    #targ=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
     
     pred=np.load(path+net+'predictions_testH1_32_32_400_50_mnist.npy', allow_pickle=True)
     targ=np.load(path+net+'targets_testH1_32_32_400_50_mnist.npy', allow_pickle=True)
@@ -988,9 +840,6 @@ def final_mnist(CM):
 
     pred=pred[np.where(l_te2 == np.amin(l_te2))[0]][0]
     targ=targ[np.where(l_te2 == np.amin(l_te2))[0]][0]
-
-    #print(pred)
-    #print(targ)
 
     for i in targ:
         if i[0]==1:
@@ -1003,39 +852,22 @@ def final_mnist(CM):
             target_list.append(3)
 
     target_list=np.array(target_list)
-    #print(pred)
-    #print(target_list)
 
     final_scores(pred, target_list, CM, 'm_net')
-
-
     exit()
 
-    #pred=pred[np.where(l_te5 == np.amin(l_te5))[0]][0]
-    #targ=targ[np.where(l_te5 == np.amin(l_te5))[0]][0]
-
-    #l_tr1=np.load(path+nonet+'loss_trainH1_nonet_400_40_d.npy', allow_pickle=True)
     l_tr2=np.load(path+nonet+'loss_trainH1_nonet_400_50_d.npy', allow_pickle=True)
-    #l_tr3=np.load(path+nonet+'loss_trainH1_nonet_500_40_d.npy', allow_pickle=True)
-        
-    #l_te1=np.load(path+nonet+'loss_testH1_nonet_400_40_d.npy', allow_pickle=True)
     l_te2=np.load(path+nonet+'loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
-    #l_te3=np.load(path+nonet+'loss_testH1_nonet_500_40_d.npy', allow_pickle=True)
 
     plt.figure()
-    #plt.plot(list(range(len(l_tr1))), l_tr1, label='Train 44')
     plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 45')
-    #plt.plot(list(range(len(l_tr3))), l_tr3, label='Train, 54')
 
-    #plt.plot(list(range(len(l_te1))), l_te1, label='Test 44')
     plt.plot(list(range(len(l_te2))), l_te2, label='Test 45')
-    #plt.plot(list(range(len(l_te3))), l_te3, label='Test 54')
 
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig('check_results_di_nonet.pdf')
-
 
 
 #plot_NN_sizes()
@@ -1053,6 +885,6 @@ def final_mnist(CM):
 #plot_gen('loss_train12_2_sig_', [['HN','He N'], ['HU','He U'], ['XN','Xavier N'],['XU','Xavier U']], 'initialisation')
 
 #final_fraud(True)
-final_digit(True)
+#final_digit(True)
 #final_mnist(True)
 #final_franke()

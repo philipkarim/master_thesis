@@ -1,15 +1,4 @@
-"""
-alt+z to fix word wrap
-
-Rotating the monitor:
-xrandr --output DP-1 --rotate right
-xrandr --output DP-1 --rotate normal
-
-xrandr --query to find the name of the monitors
-
-"""
 import copy
-from pickle import FALSE
 import numpy as np
 import qiskit as qk
 from qiskit.quantum_info import DensityMatrix, partial_trace, state_fidelity
@@ -17,25 +6,17 @@ import time
 import matplotlib.pyplot as plt
 import torch
 
-# Import the other classes and functions
+# Import the classes and functions
 from simulations import *
 from optimize_loss import optimize
 from utils import *
 from varQITE import *
-from fraud_classification import fraud_detection
-from quantum_mnist import quantum_mnist
 from franke import franke
 
-#import seaborn as sns
-
-#sns.set_style("darkgrid")
-#plt.style.use('science')
-
-both=True
-
-plot_fidelity=True
-
 def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_method='Adam', plot=True):
+    """
+    Training shell with self written optimizers. Do not use this, instead use the functions in simulations.py
+    """
     print('------------------------------------------------------')
     
     init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
@@ -57,16 +38,8 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
         ansatz=update_parameters(ansatz, init_params)
         omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-        #print(omega)
-        #print(d_omega)
-
         ansatz=update_parameters(ansatz, omega)
 
-        #print(f' omega: {omega}')
-        #print(f' d_omega: {d_omega}')
-
-        #Dansity matrix measure, measure instead of computing whole DM
-        
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
@@ -81,26 +54,15 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
         loss_list.append(loss)
         epoch_list.append(epoch)
 
-        time_g_ps=time.time()
         gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-        #print(f'Time for ps: {time.time()-time_g_ps}')
 
         gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        #print(f'gradient_loss: {gradient_loss}')        
-
         H_coefficients=np.zeros(len(H_operator))
 
         for ii in range(len(H_operator)):
             H_coefficients[ii]=H_operator[ii][0][0]
 
-        #print(f'Old params: {H_coefficients}')
-        #new_parameters=optim.adam(H_coefficients, gradient_loss)
         new_parameters=optim.adam(H_coefficients, gradient_loss)
-
-        #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        #print(f'New params {new_parameters}')
-        #TODO: Try this
-        #gradient_descent_gradient_done(self, params, lr, gradient):
 
         for i in range(len(H_operator)):
             for j in range(len(H_operator[i])):
@@ -121,6 +83,10 @@ def train(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, optim_m
 
 
 def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps, names):
+    """
+    Computing multiple seeds, do not use this. Rather use function final_seed_sim() in simulations.py, 
+    that one is better, utilizing pytorch and fork() paralellization using multiple cores.
+    """
     saved_error=np.zeros((n_sims, epochs))
     l1_norm=np.zeros((n_sims, epochs))
     
@@ -142,7 +108,6 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
 
         print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
     
-
     epochs_list=list(range(0,epochs))
     avg_list=np.mean(saved_error, axis=0)
     std_list=np.std(saved_error, axis=0)
@@ -150,10 +115,7 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     avg_list_norm=np.mean(l1_norm, axis=0)
     std_list_norm=np.std(l1_norm, axis=0)
 
-    #print(l1_norm)
-    #np.save('results/arrays/.npy', saved_error, l1_norm, np.array(qbm_list))
-
-
+    #Plotting distributions and plots
     if len(target_data)==4:
         min_error=1000
         max_error=0
@@ -250,356 +212,31 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     axs[0].set(ylabel='L1 Distance')
     fig.savefig('lr'+str(l_r*1000)+str(len(target_data))+names+'_both.pdf')
 
-
     return 
-
-
-def find_best_alpha(n_steps, alpha_space, name=None):
-    params1= [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
-                ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
-    H1=        [[[1., 'z', 0]]]
-
-    params2=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
-            ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
-            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
-            ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
-
-    H2=     [[[1., 'z', 0], [1., 'z', 1]], [[-0.2, 'z', 0]], 
-        [[-0.2, 'z', 1]], [[0.3, 'x', 0]], [[0.3, 'x', 1]]]
-    
-    H1_analytical=np.array([[0.12, 0],[0, 0.88]])
-    H2_analytical= np.array([[0.10, -0.06, -0.06, 0.01], 
-                            [-0.06, 0.43, 0.02, -0.05], 
-                            [-0.06, 0.02, 0.43, -0.05], 
-                            [0.01, -0.05, -0.05, 0.05]])
-
-    fidelities1_list=[]
-    fidelities2_list=[]
-
-    for i in alpha_space:
-        varqite1=varQITE(H1, params1, steps=n_steps, alpha=i)
-        varqite1.initialize_circuits()
-        omega1, d_omega=varqite1.state_prep(gradient_stateprep=True)
-    
-        params1=update_parameters(params1, omega1)
-        trace_circ1=create_initialstate(params1)
-        DM1=DensityMatrix.from_instruction(trace_circ1)
-        PT1 =partial_trace(DM1,[1])
-        fidelities1_list.append(state_fidelity(PT1.data, H1_analytical, validate=False))
-
-        varqite2=varQITE(H2, params2, steps=n_steps, alpha=i)
-        varqite2.initialize_circuits()
-        omega2, d_omega=varqite2.state_prep(gradient_stateprep=True)
-    
-        params2=update_parameters(params2, omega2)
-        trace_circ2=create_initialstate(params2)
-        DM2=DensityMatrix.from_instruction(trace_circ2)
-        PT2 =partial_trace(DM2,[2,3])
-        fidelities2_list.append(state_fidelity(PT2.data, H2_analytical, validate=False))
-
-    max_index1 = fidelities1_list.index(max(fidelities1_list))
-    max_index2 = fidelities2_list.index(max(fidelities2_list))
-    print(fidelities1_list)
-    print(fidelities2_list)
-    print(f'H1, lambda max: {alpha_space[max_index1]}, H2: {alpha_space[max_index2]}')
-
-    plt.plot(alpha_space,fidelities1_list, label='H1')
-    plt.plot(alpha_space,fidelities2_list, label='H2')
-    plt.xlabel(r'$\lambda$')
-    plt.ylabel('Fidelity')
-    plt.legend()
-
-    if name!=None:
-        plt.savefig('results/fidelity/'+name+'.pdf')
-    else:
-        plt.show()
-
-    return
-
-
-def learningrate_investigation(n_sims, initial_H, ans, epochs, target_data,opt_met , l_r, steps, name):
-    seed_error_l1=[]
- 
-    for i in range(n_sims):
-        print(f'Seed: {i} of {n_sims}')
-        H_init_val=np.random.uniform(low=-1., high=1., size=len(initial_H))
-        print(H_init_val)
-        
-        for term_H in range(len(initial_H)):
-            for qub in range(len(initial_H[term_H])):
-                initial_H[term_H][qub][0]=H_init_val[term_H]
-        
-        time_1epoch=time.time()
-        loss_temp, norm_temp, dist=train(initial_H, copy.deepcopy(ans), epochs, target_data, n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
-        time_1epoch_end=time.time()
-        seed_error_l1.append(np.array([loss_temp, norm_temp]))
-        
-        print(f'Time for one loop: {time_1epoch_end-time_1epoch}')
-    
-    seed_error_l1=np.array(seed_error_l1)
-    np.save('results/arrays/learningrate/'+str(l_r)+name+'.npy', seed_error_l1)
-
-    return 
-
-def ite_gs(toy_example=True):
-
-    if toy_example==True:
-        H=None
-    else:
-        g0=0.2252;  g1=0.3435;  g2=-0.4347
-        g3=0.5716;  g4=0.0910;  g5=0.0910
-
-        hydrogen_ham=[[[g0, 'z', 0], [g0, 'z', 0]], 
-                    [[g1, 'z', 0]],[[g2, 'z', 1]], 
-                    [[g3, 'z', 0], [g3, 'z', 1]], 
-                    [[g4, 'y', 0], [g4, 'y', 1]], 
-                    [[g5, 'x', 0], [g5, 'x', 1]]]
-
-        uniform_params=np.random.uniform(low=-1, high=1, size=8)
-        
-        ansatz_supp=[['ry',uniform_params[0], 0],['ry',uniform_params[1], 1], 
-                    ['rz',uniform_params[2], 0],['rz',uniform_params[3], 1], 
-                    ['cx', 0, 1],
-                    ['ry',uniform_params[4], 0],['ry',uniform_params[5], 1], 
-                    ['rz',uniform_params[6], 0],['rz',uniform_params[7], 1]]
-
-        #eigenvalues=-1, -1, 1 and 1
-
-        #Is each qubit an eigenvalue maybe? No idea
-        test_hamiltonian=[[[1,'x', 0]], [[1, 'z', 1]]]
-
-        test_circ=qk.QuantumCircuit(2)
-        test_circ.x(0)
-        test_circ.z(1)
-
-        print(test_circ)
-        #psi=create_initialstate(ansatz_supp)
-        #print(psi) 
-
-        varqite_gs=varQITE(test_hamiltonian, ansatz_supp, steps=300, maxTime=4,symmetrix_matrices=False)
-        varqite_gs.initialize_circuits()
-        omega, trash=varqite_gs.state_prep(gradient_stateprep=True)
-
-
-        #varqite_gs=varQITE(hydrogen_ham, ansatz_supp, steps=10, symmetrix_matrices=False)
-        #varqite_gs.initialize_circuits()
-        #omega1, d_omega=varqite_gs.state_prep(gradient_stateprep=True)
-        ansatz_supp=update_parameters(ansatz_supp, omega)
-        psi=create_initialstate(ansatz_supp)
-
-        backend = qk.Aer.get_backend('unitary_simulator')
-        job = qk.execute(psi, backend)
-        result = job.result()
-        mat_psi=result.get_unitary(psi, decimals=3).data
-        print(mat_psi)
-
-
-        
-        backend = qk.Aer.get_backend('unitary_simulator')
-        job = qk.execute(test_circ, backend)
-        result = job.result()
-        mat_H=result.get_unitary(test_circ, decimals=3).data
-        print(mat_H)
-
-        print(mat_H@mat_psi)
-        final_mat=(mat_H@mat_psi)-mat_psi
-        print(final_mat)
-
-        print(np.linalg.eig(np.real(final_mat)))
-
-
-
-        #print(np.diag(mat))
-        
-def isingmodel(ansatz, n_epochs, n_steps=10, lr=0.1, optim_method='Amsgrad', with_field=False):    
-    
-    #Ising hamiltonian:
-    #configurations=4
-
-    if with_field==False:
-        #No clue if the Hamiltonians are correct
-        H_4=[[[0., 'z', 0], [0., 'z', 1]],
-                    [[0., 'z', 0], [0., 'z', 1]], 
-                    [[0., 'z', 0], [0., 'z', 1]], 
-                    [[0., 'z', 0], [0., 'z', 1]]]
-
-    else:
-        H_4=[[[0., 'z', 0], [0., 'z', 1]],
-                    [[0., 'z', 0], [0., 'z', 1]], 
-                    [[0., 'z', 0], [0., 'z', 1]], 
-                    [[0., 'z', 0], [0., 'z', 1]],
-                    [[0., 'x', 0]], [[0., 'x', 0]],
-                    [[0., 'x', 0]], [[0., 'x', 0]]]
-    
-    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(H_4))
-        
-    for term_H in range(len(H_4)):
-        for qub in range(len(H_4[term_H])):
-            H_4[term_H][qub][0]=H_init_val[term_H]
-    
-    #Without
-    """
-    target_data=[1,0,0,0]
-    random.seed(123)
-    H_operator=[]
-    for i in range(n_spins):
-        spin_init=random.randrange(-1,2,2)
-        H_operator.append([[spin_init, 'x', 0]])
-
-    print(H_operator)
-    #exit()
-    """
-
-    target_data=[0.5, 0, 0, 0.5]
-    
-    init_params=np.array(copy.deepcopy(ansatz))[:, 1].astype('float')
-
-    loss_list=[]
-    epoch_list=[]
-    norm_list=[]
-    tracing_q, rotational_indices=getUtilityParameters(ansatz)
-
-    #print(tracing_q, rotational_indices, n_qubits_ansatz)
-
-    optim=optimize(H_operator, rotational_indices, tracing_q, learning_rate=lr, method=optim_method) ##Do not call this each iteration, it will mess with the momentum
-
-    varqite_train=varQITE(H_operator, ansatz, steps=n_steps, symmetrix_matrices=False)
-    
-    time_intit=time.time()
-    varqite_train.initialize_circuits()
-    print(f'initialization time: {time.time()-time_intit}')
-    for epoch in range(n_epochs):
-        print(f'epoch: {epoch}')
-
-        ansatz=update_parameters(ansatz, init_params)
-        omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
-
-        optimize_time=time.time()
-
-        ansatz=update_parameters(ansatz, omega)
-
-        #print(f' omega: {omega}')
-        #print(f' d_omega: {d_omega}')
-
-        #Dansity matrix measure, measure instead of computing whole DM
-        
-        trace_circ=create_initialstate(ansatz)
-        print(trace_circ)
-        DM=DensityMatrix.from_instruction(trace_circ)
-        PT=partial_trace(DM,tracing_q)
-        
-        #TODO: Test with PT.trace instead of np.diag
-        
-
-        H_energy=apply_hamiltonian(PT, mini_max_cut=True)
-        p_QBM=np.diag(PT.data).real.astype(float)
-        print(f'p_QBM: {p_QBM}')
-
-        #loss=optim.cross_entropy_new(target_data,p_QBM)
-        print(f'Energy: {H_energy, loss_list}')
-        #norm=np.linalg.norm((target_data-p_QBM), ord=1)
-        #Appending loss and epochs
-        #norm_list.append(norm)
-        loss_list.append(H_energy)
-        epoch_list.append(epoch)
-
-        #time_g_ps=time.time()
-        gradient_qbm=optim.gradient_ps(H_operator, ansatz, d_omega)
-        #print(f'Time for ps: {time.time()-time_g_ps}')
-
-        #target_data=[0.2,3,2,1]
-        #gradient_loss=optim.gradient_loss(target_data, p_QBM, gradient_qbm)
-        #print(f'Gradient first {gradient_loss}')
-        gradient_energy=optim.gradient_energy(gradient_qbm, H_energy)
-        print(f'gradient_energy: {gradient_energy}')
-
-        #exit()
-
-        H_coefficients=np.zeros(len(H_operator))
-
-        for ii in range(len(H_operator)):
-            H_coefficients[ii]=H_operator[ii][0][0]
-
-        #print(f'Old params: {H_coefficients}')
-        #new_parameters=optim.adam(H_coefficients, gradient_loss)
-        new_parameters=optim.adam(H_coefficients, gradient_energy)
-        print(f'New parasm: {new_parameters}')
-
-        #new_parameters=optim.gradient_descent_gradient_done(np.array(H)[:,0].astype(float), gradient_loss)
-        #print(f'New params {new_parameters}')
-        #TODO: Try this
-        #gradient_descent_gradient_done(self, params, lr, gradient):
-        
-        print(H_operator)
-
-        
-        varqite_train.update_H(H_operator)
-    
-    del optim
-    del varqite_train
-
-    if plot==True:
-        plt.plot(epoch_list, loss_list)
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.show()
-    
-    print(f'Time to optimize: {time.time()-optimize_time}')
-
-    return np.array(loss_list), np.array(norm_list), p_QBM
-
-def find_hamiltonian(ansatz, steps, l_r, opt_met):
-    """
-    Function to fit an hamiltonian to experimental data, generetaed self.
-    """
-
-    #Solution
-    #H=[[[0.25, 'x', 0]], [[0.25, 'x', 1]], [[-0.5, 'z', 0], [-0.5, 'z', 0]]]
-    #initial_H=[[[0, 'x', 0]], [[0, 'x', 1]], [[0, 'z', 0], [0, 'z', 0]]]
-    #0, -0.5, -0.5, -1
-    initial_H=       [[[0., 'z', 0], [0., 'z', 1]], 
-                [[0., 'z', 0]], [[0., 'z', 1]]]
-    target_data=[0.25, 0.5, 0.25, 0]
-    #target_data=[0, 0.5, 0.5, 0]
-
-    H_init_val=np.random.uniform(low=-1.0, high=1.0, size=len(initial_H))
-    print(H_init_val)
-
-    for term_H in range(len(initial_H)):
-        for qub in range(len(initial_H[term_H])):
-            initial_H[term_H][qub][0]=H_init_val[term_H]
-    
-    print(f'Initial H: {initial_H}')
-
-    trash, trash, dont_save=train(initial_H, copy.deepcopy(ansatz), 30, target_data, 
-                        n_steps=steps, lr=l_r, optim_method=opt_met, plot=False)
-
-
 
 def main():
+    #Seeding the simulator
     np.random.seed(2202)
     torch.manual_seed(2202)
+    
+    #Extra qubit to account for the phase derivatives. Does not seem to be 
     rz_add=False
 
-    number_of_seeds=10
-    learningRate=0.01
-    ite_steps=10
-    epochs=50
-    optimizing_method='RMSprop'
+    #Define parameters
+    number_of_seeds=10          #Number of seeds, when doing multiple simulations
+    learningRate=0.01           #Learning rate
+    ite_steps=10                #Imaginary time steps
+    epochs=50                   #Epochs
+    optimizing_method='RMSprop' #Optimization technique
 
-    """
-    [gate, value, qubit]
-    """
     if rz_add==False:
+        #Ansatzes
         Ham1=       [[[1., 'z', 0]]]
         ansatz1=    [['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],
                     ['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1]]
             
         Ham2=       [[[0., 'z', 0], [0., 'z', 1]], 
                     [[0., 'z', 0]], [[0., 'z', 1]]]
-
-        #Ham2=       [[[ -0.71513973, 'z', 0], [ -0.71513973, 'z', 1]], 
-        #            [[ 0.49562183, 'z', 0]], [[-0.23914625, 'z', 1]]]
         
         ansatz2=    [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], 
                     ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
@@ -627,29 +264,13 @@ def main():
                     ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], 
                     ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3], ['rz', 0, 4]]
     
-    #print(create_initialstate(ansatz_gen_dis))
-    #exit()
 
-    #ansatz3=getAnsatz(3)
-    #ansatz4=getAnsatz(4)
-
-    #Ham3=get_Hamiltonian(3)
-    #Ham4=get_Hamiltonian(4)
-
-    #p_data1=np.array([0.5, 0.5])
-    #p_data2=np.array([0.5, 0, 0, 0.5])
-    #p_data3=np.array(np.zeros(2**3)); p_data3[0]=0.5; p_data3[-1]=0.5
-    #p_data4=np.array(np.zeros(2**4)); p_data4[0]=0.5; p_data4[-1]=0.5
-    #p_data5=np.array(np.zeros(2**5)); p_data5[0]=0.5; p_data5[-1]=0.5
+    #Target distributions
+    p_data1=np.array([0.5, 0.5])
+    p_data2=np.array([0.5, 0, 0, 0.5])
 
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
-
-    #start=time.time()
-    
-    #ite_gs(toy_example=False)
-    #Takning  a break again with the ising thingy
-    #isingmodel(ansatz2, epochs, n_steps=ite_steps,lr=0.1, optim_method=optimizing_method)
 
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.1, optimizing_method, m1=0.7, m2=0.99)#000509_40_samples_both_sets')
     #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, m1=0.7, m2=0.99, network_coeff=layers)#000509_40_samples_both_sets')
@@ -657,7 +278,6 @@ def main():
     #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.01, optimizing_method, network_coeff=layers, nickname='network_24_3_4samples')
     #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.1, optimizing_method, nickname='reg_bias_4samples')
 
-    #TODO: They use another ansatz to mimic Bell state! Rememebr to switch
     #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
     #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
     """Run these"""
@@ -786,16 +406,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-"""
-Thoughts:
-
-Todays list:
-    - Paralellize code, mpi, fork slurp, spark
-    - Run seed
-    - Check if the real gradients are fed into the optimizer, like all 3?    
-"""
