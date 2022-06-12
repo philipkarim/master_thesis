@@ -586,7 +586,7 @@ def final_seed_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10):
             sys.exit()
     
 
-def fraud_sim(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
+def discriminative_simulations(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_normal'):
     #Node, bias (bool), index in list
 
     #fraud_detection(initial_H=H_, ansatz=ansatz, n_epochs=20, n_steps=n_step, lr=l_r, opt_met=o_m, network_coeff=nc, bias_val=0.01, nickname='test')

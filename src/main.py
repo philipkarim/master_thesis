@@ -215,6 +215,9 @@ def multiple_simulations(n_sims, initial_H, ans, epochs, target_data,opt_met , l
     return 
 
 def main():
+    """
+    Variables are read here, and are sent into simulations.py where the simulations take place
+    """
     #Seeding the simulator
     np.random.seed(2202)
     torch.manual_seed(2202)
@@ -272,31 +275,6 @@ def main():
     Ham1=np.array(Ham1, dtype=object)
     Ham2=np.array(Ham2, dtype=object)
 
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.1, optimizing_method, m1=0.7, m2=0.99)#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, m1=0.7, m2=0.99, network_coeff=layers)#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, 30, ite_steps, 0.01, optimizing_method, network_coeff)#000509_40_samples_both_sets')
-    #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.01, optimizing_method, network_coeff=layers, nickname='network_24_3_4samples')
-    #quantum_mnist(1, ansatz2, epochs, ite_steps, 0.1, optimizing_method, nickname='reg_bias_4samples')
-
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_latest_10_seeds')
-    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=0.1, steps=ite_steps, names='H2_latest_10_seeds')
-    """Run these"""
-    #multiple_simulations(number_of_seeds, Ham3, ansatz3, epochs, p_data3, optimizing_method,l_r=0.1, steps=ite_steps, names='H3_no_seed_new')
-    #multiple_simulations(number_of_seeds, Ham4, ansatz4, epochs, p_data4, optimizing_method,l_r=0.1, steps=ite_steps, names='H4_no_seed')
-    """
-    """
-    #learningrate_investigation(1, Ham1, ansatz1, 15, p_data1, optimizing_method,l_r=0.1, steps=ite_steps)
-    #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.005, steps=ite_steps, name='09')
-    #learningrate_investigation(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps, name='09')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='H1_10_seed_50_epoch')
-    #multiple_simulations(1, Ham1, ansatz1, 100, p_data1, optimizing_method,l_r=0.1, steps=ite_steps, names='test_trash_run_dont_save')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=0.002, steps=ite_steps)
-    
-    #find_hamiltonian(ansatz2, ite_steps, learningRate, optimizing_method)
-
-    #multiple_simulations(1, Ham2, ansatz_gen_dis, 25, p_data2, optimizing_method,l_r=learningRate, steps=10, names='test_trash_run_dont_save')
-    #multiple_simulations(number_of_seeds, Ham1, ansatz1, epochs, p_data1, optimizing_method,l_r=learningRate, steps=ite_steps)
-    #multiple_simulations(number_of_seeds, Ham2, ansatz2, epochs, p_data2, optimizing_method,l_r=learningRate, steps=ite_steps)
     
     """
     Fidelity simulations
@@ -304,104 +282,32 @@ def main():
     #rz true and symmetric false gives best, 98.5 and 99.98
     #sim_plot_fidelity(ite_steps, rz_add=rz_add, name='Fidelity_dynamic_lmb_without_rz_new')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
     #sim_plot_fidelity(ite_steps, rz_add=True, name='Fidelity_dynamic_lmb_with_rz')#, 'Final_fidelity')#, 'after_statevector')#, 'fidelity_H1_H2_new_0_001minC')
-
     #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=False, name='without_rz_ab_new')
     #sim_lambda_fidelity_search(ite_steps, np.logspace(-12,0,13), rz_add=True, name='with_rz_ab')
 
     """
     Generative learning
     """
-    ## Remember to save all arrays in case i run it for a real quantum computer, then save.
     #learning_rate_search(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, name='H1_ab_new', optim_method='SGD', plot=False)
     #learning_rate_search(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, name='H2_ab_new', optim_method='SGD', plot=False)
-    
-    #Use that learning rate to plot for various optimization methods, rms prop, adam, amsgrad, and sgd, each with different momemntum, maybe 2 or 3 momentums, same color of same thing
-
     #exhaustive_gen_search_paralell(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
     #exhaustive_gen_search_paralell(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
-
     #final_seed_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps)
     #final_seed_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps)
-
     #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='Amsgrad', m1=0.7, m2=0.99)
-    #train(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
- 
-    #exit()
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=test_layers)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=test_layers, QBM=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-
-    #train_sim(Ham1, ansatz1, epochs, p_data1, n_steps=ite_steps,lr=0.1, optim_method='RMSprop', m1=0.99, m2=0.99)
-    
-    #TODO: I think this kind of actually works, but the learning rate have to be small enough/correct
-    #Ham22=[[[0., 'z', 0], [0., 'z', 1]], [[0., 'z', 0]], [[0., 'z', 1]], [[0, 'x', 0]],[[0, 'x', 1]]]
-
     #train_sim(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps,lr=0.01, optim_method='RMSprop', m1=0.99, m2=0.99, rz_add=rz_add)
-
-    #train(Ham2, ansatz2, epochs, p_data2, n_steps=ite_steps, lr=0.1, optim_method='Amsgrad', plot=False)
-
-
-    #Then use the generative, learning thing for q3? With 10 seeds to see that everyone converges
-    #Run it again with real computer?
     
     """
-    Discriminative learning- Fraud dataset
+    Discriminative learning
     """    
-    #TODO: Make code with fraud regular- With bias variance?
-
-    #TODO: Make code with network- With bias variance?
-    #print(compute_NN_nodes(64, 3, 1))
-    #print(compute_NN_nodes(64, 3, 2))
-    """This is the one"""
-    #fraud_sim(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)#000509_40_samples_both_sets')
-    #fraud_detection(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=1, layers=NN_nodes(8,2), ml_task='classification', directory='test', name='more_test', samp_400=False)
-    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=NN_nodes(8,2), ml_task='classification', directory='test2', name='more_test2', samp_400=True)
-    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=None, ml_task='classification', directory='test3', name='more_test3', samp_400=True)
-    #quantum_mnist(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=2, layers=NN_nodes(123,19), ml_task='classification', directory='test4', name='more_test4', samp_400=False, big_mnist=True)
-    #franke(1, ansatz2, 1, 0.01, optimizing_method, 0.99, 0, v_q=1, layers=NN_nodes(11,6), directory='test5', name='more_test5')
-
-
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.01, opt_met=optimizing_method, layers=None)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #TODO: What to do about the learning rates and stuff like that?
-    #TODO: Layers and node tests?
-    #TODO: Test for less samples?
-
-    #TODO: Create code with Franke function to test
-    #TODO: And also with mnist
-
-    #Run with all 3 hamiltonians
-
-    ###TASKS:
-    # Start plot of franke function
-    # Run with MNIST 4 samples?
-    # Find best seed values
-    # Plot the results created
-    #Insert lots of results and write a bit on them and everything
-    #Then just write methods part asap, like, just write out 5 pages of methods all night
-    #should not take that long time since method part is just what I have been  doing during
-    #the implementation
-    #Preprocessing maybe?
-
-
-    """
-    Discriminative learning- Franke Function
-    """
-    #TODO: Fix the neural network thing with activation functions and number of neurons
-
-    #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory=direc, name=name_file)
-
-    """
-    Discriminative learning- MNIST
-    """
-
+    #discriminative_simulations(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)
 
     """
     Classical Boltzmann machine
     """
     #fraud_detection(1, ansatz2, n_epochs=100, lr=0.1, opt_met=optimizing_method, samp_400=True, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, samp_400=True, big_mnist=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory='frank_plot', name='frank_plot', QBM=False)
-
+    #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory='frank_plot', name='frank_plot', QBM=False)
 
 
 if __name__ == "__main__":
