@@ -484,13 +484,17 @@ def compute_NN_nodes(input, output, layers):
 
     return hidden_layers
 
-def NN_nodes(*argv, act='tanh'):
+def NN_nodes(*argv, act='tanh', sig_last=False):
     layers_nodes=[]
 
     for arg in argv:
         layers_nodes.append([act])
         layers_nodes.append([arg, 1])
     
+    if sig_last:
+        layers_nodes.append(['sigmoid'])
+
+
     return layers_nodes
 
 def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", rz_add=True):

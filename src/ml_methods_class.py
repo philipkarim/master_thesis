@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix, log_loss, precision_recall_fscore_support
 from sklearn.utils import shuffle
 import torch.optim as optim_torch
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCELoss
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -99,10 +99,11 @@ class MlMethods():
         preds=model.predict(self.X_test)
         self.computeScores(preds)
 
-    def neural_net(self, output_size, lr=0.01, network_coeff=NN_nodes(8,5), n_epochs=50):
+    def neural_net(self, output_size, lr=0.01, network_coeff=NN_nodes(8,5, sig_last=True), n_epochs=50):
         """
         Feed forward neural network without the VarQBM
         """
+        #lr=0.001
         net=Net(network_coeff, self.X_train[0], output_size)
         net.apply(init_weights_XN)
         optimizer = optim_torch.RMSprop(net.parameters(), lr=lr)
@@ -118,11 +119,15 @@ class MlMethods():
 
         #Floating the network parameters
         net = net.float()
-        criterion = CrossEntropyLoss()
+        if output_size==1:
+            criterion = BCELoss()
+        else:
+            criterion = CrossEntropyLoss()
 
 
-        for epoch in range(50):
-            print(f'Epoch: {epoch}/{n_epochs}')
+
+        for epoch in range(n_epochs):
+            #print(f'Epoch: {epoch}/{n_epochs}')
 
             #Lists to save the predictions of the epoch
             pred_epoch=[]
@@ -135,7 +140,7 @@ class MlMethods():
             for i,sample in enumerate(X_train):
                 pred_samp=net(sample)
 
-                print(f'Prediction from network{pred_samp}')
+                #print(f'Prediction from network{pred_samp}')
 
                 if output_size==1:
                     target_data=np.zeros(2)
@@ -156,20 +161,24 @@ class MlMethods():
                 target_data[y_train[i]]=1
                 targets.append(target_data)
 
-                print(torch.tensor(y_train[i]))
-                print(pred_samp)
+                if pred_samp.item()<0:
+                    pred_samp[0]=0+1e-8
 
-                yhat = torch.Tensor([[0.4, 0.6]], requires_grad = True))
-                y = torch.Tensor([1]).to(torch.long)
+                elif pred_samp.item()>1:
+                    pred_samp[0]=1-1e-8
 
-                print(yhat)
-                print(pred_samp)
+
+                #yhat = torch.Tensor([[0.4, 0.6]], requires_grad = True)
+                #y = torch.Tensor([1]).to(torch.long)
+
+                #print(yhat)
+                #print(pred_samp)
                 
-                loss = criterion(input=yhat, target=y)
+                #loss = criterion(input=yhat, target=y)
 
 
 
-                #loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
+                loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
                 #loss = criterion(torch.tensor([0.4,0.6]).float(), torch.tensor([0,1]).float())
 
 
@@ -185,11 +194,11 @@ class MlMethods():
                 optimizer.step()
                 
                 #loss=-np.sum(target_data*np.log(p_QBM))
-                #loss_list.append(loss)
+                loss_list.append(loss.item())
                 #output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
                 #optimizer.step()
 
-                print(f'TRAIN: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
+                #print(f'TRAIN: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
             loss_mean.append(np.mean(loss_list))
             predictions_train.append(pred_epoch)
@@ -221,7 +230,14 @@ class MlMethods():
 
                     target_data[self.y_test[i]]=1
                     targets.append(target_data)                    
-                    loss = CrossEntropyLoss(pred_samp, self.y_test[i])
+                    
+                    #loss = CrossEntropyLoss(pred_samp, self.y_test[i])
+                    if pred_samp.item()<0:
+                        pred_samp[0]=0+1e-8
+                    elif pred_samp.item()>1:
+                        pred_samp[0]=1-1e-8
+                    loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
+
                     loss_list.append(loss)
 
                     
@@ -229,7 +245,7 @@ class MlMethods():
                 loss_mean_test.append(np.mean(loss_list))
                 predictions_test.append(pred_epoch)
                 targets_test.append(targets)
-                print(f'TEST: Loss: {loss_mean_test[-1],loss_mean_test}')
+            print(f'TRAIN loss: {loss_mean[-1]}TEST: Loss: {loss_mean_test[-1]}')
 
         #Save scores    
         target_list=[]
