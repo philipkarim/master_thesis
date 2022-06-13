@@ -1,3 +1,4 @@
+from importlib.metadata import requires
 from sklearn import linear_model, metrics
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression
 from sklearn.neighbors import KNeighborsRegressor
@@ -155,14 +156,29 @@ class MlMethods():
                 target_data[y_train[i]]=1
                 targets.append(target_data)
 
-                print(targets)
+                print(torch.tensor(y_train[i]))
                 print(pred_samp)
 
+                yhat = torch.Tensor([[0.4, 0.6]], requires_grad = True))
+                y = torch.Tensor([1]).to(torch.long)
 
-                #loss = criterion(pred_samp, y_train[i])
-                loss = criterion(pred_samp, torch.tensor(y_train[i]))
+                print(yhat)
+                print(pred_samp)
+                
+                loss = criterion(input=yhat, target=y)
 
-                print(f'loss: {loss}')
+
+
+                #loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
+                #loss = criterion(torch.tensor([0.4,0.6]).float(), torch.tensor([0,1]).float())
+
+
+                #print(yhat)
+                # tensor([[0.5000, 1.5000, 0.1000],
+                #         [2.2000, 1.3000, 1.7000]])
+
+                #print(y)
+                # tensor([1, 2])
 
                 optimizer.zero_grad()
                 loss.backward()
