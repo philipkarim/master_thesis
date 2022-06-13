@@ -1,7 +1,7 @@
 from importlib.metadata import requires
 from sklearn import linear_model, metrics
-from sklearn.linear_model import Ridge, Lasso, LogisticRegression
-from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import RidgeClassifier, Lasso, LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 
 import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix, log_loss, precision_recall_fscore_support
@@ -58,16 +58,18 @@ class MlMethods():
         Linear regression: Ordinary linear regression
         """
 
-        model = Ridge(alpha=0)
+        model = RidgeClassifier(alpha=0)
         model.fit(self.X_train, self.y_train)
         preds=model.predict(self.X_test)
+
+        print(preds)
         self.computeScores(preds)
 
     def ridge_reg(self):
         """
         Linear regression: Ridge
         """
-        model = Ridge()
+        model = RidgeClassifier()
         model.fit(self.X_train, self.y_train)
         preds=model.predict(self.X_test)
         self.computeScores(preds)
@@ -76,7 +78,7 @@ class MlMethods():
         """
         Linear regression: Lasso
         """
-        model = Lasso()
+        model = LogisticRegression(penalty='l1', solver='saga')
         model.fit(self.X_train, self.y_train)
         preds=model.predict(self.X_test)
         self.computeScores(preds)
@@ -85,7 +87,7 @@ class MlMethods():
         """
         K-Nearest Neighbors
         """
-        model = KNeighborsRegressor(n_neighbors = 3)
+        model = KNeighborsClassifier(n_neighbors = 3)
         model.fit(self.X_train, self.y_train)
         preds=model.predict(self.X_test)
         self.computeScores(preds)
@@ -123,8 +125,6 @@ class MlMethods():
             criterion = BCELoss()
         else:
             criterion = CrossEntropyLoss()
-
-
 
         for epoch in range(n_epochs):
             #print(f'Epoch: {epoch}/{n_epochs}')
@@ -167,38 +167,12 @@ class MlMethods():
                 elif pred_samp.item()>1:
                     pred_samp[0]=1-1e-8
 
-
-                #yhat = torch.Tensor([[0.4, 0.6]], requires_grad = True)
-                #y = torch.Tensor([1]).to(torch.long)
-
-                #print(yhat)
-                #print(pred_samp)
-                
-                #loss = criterion(input=yhat, target=y)
-
-
-
                 loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
-                #loss = criterion(torch.tensor([0.4,0.6]).float(), torch.tensor([0,1]).float())
-
-
-                #print(yhat)
-                # tensor([[0.5000, 1.5000, 0.1000],
-                #         [2.2000, 1.3000, 1.7000]])
-
-                #print(y)
-                # tensor([1, 2])
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                
-                #loss=-np.sum(target_data*np.log(p_QBM))
                 loss_list.append(loss.item())
-                #output_coef.backward(torch.tensor(gradient_loss, dtype=torch.float64))
-                #optimizer.step()
-
-                #print(f'TRAIN: Loss: {loss}, p_QBM: {p_QBM}, target: {target_data}')
 
             loss_mean.append(np.mean(loss_list))
             predictions_train.append(pred_epoch)
@@ -274,6 +248,9 @@ class MlMethods():
                 else:
                     target_list.append(3)
 
+        
+        print(target_list)
+        print(pred_net)
         
         self.computeScores(pred_net, target_list)
 

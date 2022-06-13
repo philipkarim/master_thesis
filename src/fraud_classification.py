@@ -174,16 +174,33 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
 
     if QBM==True:
         train_model(data_fraud, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
+    elif QBM==False:
+        test_data=[X_val, y_val]
+        best_params=None
+        #best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
+        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
+        #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
     else:
+        model=MlMethods(data_fraud[0], data_fraud[1], data_fraud[2], data_fraud[3])
+        
         if QBM=='NN':
-            #NN network
-            model=MlMethods(data_fraud[0], data_fraud[1], data_fraud[2], data_fraud[3])
             model.neural_net(1, 0.01)
-
+        
+        elif QBM=='OLS':
+            model.ols_reg()
+        
+        elif QBM=='Ridge':
+            model.ridge_reg()
+       
+        elif QBM=='Lasso':
+            model.lasso_reg()
+        
+        elif QBM=='KNN':
+            model.k_nn()
+        
+        elif QBM=='logreg':
+            model.logistic_reg()
+        
         else:
-            test_data=[X_val, y_val]
-            best_params=None
-            #best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
-            train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
-            #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
-    
+            sys.exit('No method defined')
+            
