@@ -194,8 +194,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
                     for qub in range(len(hamiltonian[term_H])):
                         hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
-
-            #Updating the hamitlonian
+            #Updating the Hamiltonian
             varqite_train.update_H(hamiltonian)
             ansatz=update_parameters(ansatz, init_params)
             omega, d_omega=varqite_train.state_prep(gradient_stateprep=False)
@@ -299,7 +298,7 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
                         for qub in range(len(hamiltonian[term_H])):
                             hamiltonian[term_H][qub][0]=bias_param(sample, H_parameters[term_H])
 
-                #Updating the hamitlonian
+                #Updating the Hamiltonian
                 varqite_train.update_H(hamiltonian)
                 ansatz=update_parameters(ansatz, init_params)
                 omega, not_used=varqite_train.state_prep(gradient_stateprep=True)

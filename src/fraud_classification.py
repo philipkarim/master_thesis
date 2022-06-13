@@ -27,6 +27,7 @@ from sklearn.utils import shuffle
 import torch.optim as optim_torch
 import torch
 from BM import *
+from ml_methods_class import MlMethods
 
 # Import the other classes and functions
 from varQITE import *
@@ -39,12 +40,12 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True, samp_400=False):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True, samp_400=False, test_set_90_percent=False):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
     Args:
-            initial_H(array):   The Hamiltonian which will be used, the parameters 
+            initial_H(array):   The Hamiltonian which will be used, the parameters
                                 will be initialized within this function
 
             ansatz(array):      Ansatz whill be used in the VarQBM
@@ -112,7 +113,31 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         y_val=y[y_val_indices]
 
         if samp_400:
+            X_left_overs=np.copy(X_train[400:]); y_left_overs=np.copy(y_train[400:])
             X_train=X_train[:400]; y_train=y_train[:400]
+
+        if test_set_90_percent:
+            print(len(X_left_overs))
+            print(len(y_test))
+            print(np.count_nonzero(y_test == 1))
+            print(np.count_nonzero(y_test == 0))
+            
+            switches=0
+            for i in range(25):
+                for j in range(25):
+                    if y_test[i]==1 and y_left_overs[j]==0:
+                        y_test[i]==y_left_overs[j]
+                        X_test[i]==X_left_overs[j]
+    
+                        switches+=1
+
+                        if switches==25:
+                            break
+            print(len(y_test))
+            print(np.count_nonzero(y_test == 1))
+            print(np.count_nonzero(y_test == 0))
+
+            exit()
 
     else:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances_5050.npy', allow_pickle=True)
@@ -150,10 +175,15 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
     if QBM==True:
         train_model(data_fraud, H_num, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:
-        test_data=[X_val, y_val]
-        best_params=None
-        #best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
-        train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
-        #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
+        if QBM=='NN':
+            #NN network
+            model=MlMethods(data_fraud[0], data_fraud[1], data_fraud[2], data_fraud[3])
+            model.neural_net(1, 0.01)
 
-        #Binary values?
+        else:
+            test_data=[X_val, y_val]
+            best_params=None
+            #best_params=gridsearch_params(data_fraud, 20, binarize_data=binar)
+            train_rbm(data_fraud, best_params, plot_acc_vs_epoch=n_epoc, name='fraud', binarize_data=binar, plot_acc=acc, cm=plot_cm, data_val=test_data)
+            #rbm_plot_scores(data_fraud, name='fraud2', binarize_input=binar)
+    

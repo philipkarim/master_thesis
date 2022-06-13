@@ -107,6 +107,8 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     n_epoc=20
     acc=True
 
+    n_epoc=0
+
     if QBM==True:
         train_model(data_mnist, initial_H, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
     else:

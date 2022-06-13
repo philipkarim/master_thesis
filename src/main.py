@@ -301,12 +301,13 @@ def main():
     Discriminative learning
     """    
     #discriminative_simulations(1, ansatz2, 50, ite_steps, 0.01, optimizing_method)
+    #fraud_detection(Ham2, ansatz2, 50, 0.01, optimizing_method, 0.99, 0, v_q=1, layers=NN_nodes(8,5), ml_task='classification', directory='final_run_fraud_90'+'network', name='H1_8_5_400_50_f_90', samp_400=True, test_set_90=True)
 
     """
     Classical Boltzmann machine
     """
-    #fraud_detection(1, ansatz2, n_epochs=100, lr=0.1, opt_met=optimizing_method, samp_400=True, QBM=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
-    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, samp_400=True, big_mnist=True)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    fraud_detection(1, ansatz2, n_epochs=50, lr=0.1, opt_met=optimizing_method, samp_400=True, QBM='NN')#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
+    #quantum_mnist(1, ansatz2, n_epochs=100, lr=0.01, optim_method=optimizing_method, layers=None, QBM=False, samp_400=True, big_mnist=False)#[[[8,1],[8,1]], [0, 1]])#000509_40_samples_both_sets')
     #franke(1, ansatz2, 100, learningRate, optimizing_method, m1=0.99, m2=0, directory='frank_plot', name='frank_plot', QBM=False)
 
 

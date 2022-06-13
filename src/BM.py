@@ -51,7 +51,7 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
         X_train=binarize(X_train, threshold=0.5)
         X_test=binarize(X_test, threshold=0.5)
 
-    rbm.n_components = 30
+    rbm.n_components = 4
     #rbm.n_iter = 30
 
     if best_params is not None:
@@ -75,6 +75,8 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
         metrics.classification_report(
             y_test,
             model.predict(X_test))))
+        exit()
+
     elif not isinstance(plot_acc_vs_epoch, int):
         X_val=plot_acc_vs_epoch[0]
         y_val=plot_acc_vs_epoch[1]
@@ -111,7 +113,7 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
 
         ## Display the visualization of the Confusion Matrix.
         plt.tight_layout()
-        plt.savefig('results/disc_learning/assets/rbm/CM'+name+'.pdf')
+        #plt.savefig('results/disc_learning/assets/rbm/CM'+name+'.pdf')
         plt.clf()
 
     else:
