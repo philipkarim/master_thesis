@@ -184,7 +184,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         model=MlMethods(data_fraud[0], data_fraud[1], data_fraud[2], data_fraud[3])
         
         if QBM=='NN':
-            model.neural_net(1, 0.01)
+            model.neural_net(1, 0.0001)
         
         elif QBM=='OLS':
             model.ols_reg()

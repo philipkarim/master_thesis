@@ -27,6 +27,7 @@ from sklearn.metrics import accuracy_score, f1_score, roc_curve
 from sklearn.datasets import load_digits
 from sklearn.utils import shuffle
 from sklearn.datasets import fetch_openml
+from ml_methods_class import MlMethods
 
 #Importing pytorch modules
 import torch.optim as optim_torch
@@ -111,10 +112,34 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
 
     if QBM==True:
         train_model(data_mnist, initial_H, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
-    else:
+    elif QBM==False:
         best_params=None
         #best_params=gridsearch_params(data_mnist, 20, binarize_data=binar)
 
         train_rbm(data_mnist, best_params, plot_acc_vs_epoch=n_epoc, name='mnist', binarize_data=binar,plot_acc=acc, cm=plot_cm, data_val=data_test)
         #print('Mnist')
         #rbm_plot_scores(data_mnist, name='digit2', binarize_input=binar)
+
+    else:
+        model=MlMethods(data_mnist[0], data_mnist[1], data_mnist[2], data_mnist[3])
+        
+        if QBM=='NN':
+            model.neural_net(4, 0.01)
+        
+        elif QBM=='OLS':
+            model.ols_reg()
+        
+        elif QBM=='Ridge':
+            model.ridge_reg()
+       
+        elif QBM=='Lasso':
+            model.lasso_reg()
+        
+        elif QBM=='KNN':
+            model.k_nn()
+        
+        elif QBM=='logreg':
+            model.logistic_reg()
+        
+        else:
+            sys.exit('No method defined')
