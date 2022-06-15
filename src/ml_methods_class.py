@@ -49,7 +49,7 @@ class MlMethods():
         else:
             target=self.y_test
 
-        precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='weighted')
+        precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='macro')
 
         print(f'Accuracy: {accuracy_score(target, prediction)}, Precision: {precision}, recal: {recal}, f1-score: {beta}')
 
@@ -151,13 +151,7 @@ class MlMethods():
 
                 elif output_size==4:
                     target_data=np.zeros(4)
-                    
-                    print(pred_samp)
-
                     p_QBM=pred_samp.detach().numpy()
-                    #p_QBM=np.array(pred_samp)
-
-
                     pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
 
                 else:
@@ -177,10 +171,7 @@ class MlMethods():
                 if output_size==1:
                     loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
                 else:
-                    print(pred_samp)
-                    print(y_train[i])
-                    print(torch.tensor(target_data))
-                    loss = criterion(input=pred_samp, target=torch.tensor([target_data]).float())
+                    loss = criterion(input=pred_samp, target=torch.tensor(y_train[i]).long())
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -208,8 +199,8 @@ class MlMethods():
                         pred_epoch.append(0) if p_QBM[0]>0.5 else pred_epoch.append(1)
 
                     elif output_size==4:
-                        target_data=np.zeros(2)
-                        p_QBM=np.array(pred_samp)
+                        target_data=np.zeros(4)
+                        p_QBM=pred_samp.detach().numpy()
                         pred_epoch.append(np.where(p_QBM==p_QBM.max())[0][0])
 
                     else:
@@ -219,11 +210,11 @@ class MlMethods():
                     targets.append(target_data)                    
                     
                     #loss = CrossEntropyLoss(pred_samp, self.y_test[i])
-                    if pred_samp.item()<0:
-                        pred_samp[0]=0+1e-8
-                    elif pred_samp.item()>1:
-                        pred_samp[0]=1-1e-8
-                    loss = criterion(pred_samp, torch.tensor([y_train[i]]).float())
+                    if output_size==1:
+                        loss = criterion(pred_samp, torch.tensor([self.y_test[i]]).float())
+                    else:
+                        loss = criterion(input=pred_samp, target=torch.tensor(self.y_test[i]).long())
+
 
                     loss_list.append(loss)
 

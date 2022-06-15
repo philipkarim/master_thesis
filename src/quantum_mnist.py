@@ -108,7 +108,7 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     n_epoc=20
     acc=True
 
-    n_epoc=0
+    #n_epoc=0
 
     if QBM==True:
         train_model(data_mnist, initial_H, ansatz, params_fraud, visible_q=v_q, task=ml_task, folder=directory, network_coeff=layers, nickname=name, init_w=init_ww)
@@ -124,7 +124,12 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
         model=MlMethods(data_mnist[0], data_mnist[1], data_mnist[2], data_mnist[3])
         
         if QBM=='NN':
-            model.neural_net(4, 0.01)
+            if big_mnist==True:
+                network=NN_nodes(32,32, sig_last=False)
+            else:
+                network=NN_nodes(23,8, sig_last=False)
+                
+            model.neural_net(4, lr, network_coeff=network)
         
         elif QBM=='OLS':
             model.ols_reg()

@@ -626,7 +626,7 @@ def final_scores(prediction, target, CM, name):
     """
     Final score computations
     """
-    precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='weighted')
+    precision, recal, beta, temp= precision_recall_fscore_support(target, prediction, average='macro')
 
     print(precision, recal, beta)
     print(f'Accuracy {accuracy_score(target, prediction)}')
@@ -681,12 +681,38 @@ def final_fraud(CM=False):
     
     pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_f.npy', allow_pickle=True)
     targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_f.npy', allow_pickle=True)
-   
+
+    pred=np.load(path+net+'predictions_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
+    targ=np.load(path+net+'targets_testH1_8_5_400_50_f_001.npy', allow_pickle=True)
+    
+    #pred=np.load(path+nonet+'predictions_testH1_nonet_400_50_f.npy', allow_pickle=True)
+    #targ=np.load(path+nonet+'targets_testH1_nonet_400_50_f.npy', allow_pickle=True)
+
+    acc=[]
+    for j in range(len(pred)):
+        target_list_net=[]
+        for i in targ[j]:
+            if i[0]==1:
+                target_list_net.append(0)
+            elif i[1]==1:
+                target_list_net.append(1)
+        acc.append(accuracy_score(pred[j], target_list_net))
+    
+    print(f'Acccuracy: {acc.index(max(acc))}')
+    print(acc)
+
+
     target_list_net=[]
     target_list_nonet=[]
 
-    pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
-    targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    pred_net=pred
+    targ_net=targ
+
+    pred_net=pred_net[acc.index(max(acc))]
+    targ_net=targ_net[acc.index(max(acc))]
+    
+    #pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    #targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
 
     pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
     targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
@@ -706,8 +732,8 @@ def final_fraud(CM=False):
     target_list_net=np.array(target_list_net)
     target_list_nonet=np.array(target_list_nonet)
 
-    final_scores(pred_net, target_list_net, CM, 'f_net')
-    final_scores(pred_nonet, target_list_nonet, CM, 'f_nonet')
+    final_scores(pred_net, target_list_net, CM, 'f_net_001')
+    #final_scores(pred_nonet, target_list_nonet, CM, 'f_nonet')
 
 
 def final_franke():
@@ -769,16 +795,44 @@ def final_digit(CM=False):
 
     pred_net=np.load(path+net+'predictions_testH1_23_8_400_50_d.npy', allow_pickle=True)
     targ_net=np.load(path+net+'targets_testH1_23_8_400_50_d.npy', allow_pickle=True)
-        
+
     pred_nonet=np.load(path+nonet+'predictions_testH1_nonet_400_50_d.npy', allow_pickle=True)
     targ_nonet=np.load(path+nonet+'targets_testH1_nonet_400_50_d.npy', allow_pickle=True)
     
+    pred_net=np.load(path+net+'predictions_testH1_23_8_500_40_d.npy', allow_pickle=True)
+    targ_net=np.load(path+net+'targets_testH1_23_8_500_40_d.npy', allow_pickle=True)
+
+    #Find accuracy
+    #print(pred_net)
+    #print(targ_net)
+
+    acc=[]
+    for j in range(len(pred_net)):
+        target_list_net=[]
+        for i in targ_net[j]:
+            if i[0]==1:
+                target_list_net.append(0)
+            elif i[1]==1:
+                target_list_net.append(1)
+            elif i[2]==1:
+                target_list_net.append(2)
+            else:
+                target_list_net.append(3)
+        acc.append(accuracy_score(pred_net[j], target_list_net))
+    
+    print(f'Acccuracy: {max(acc)}')
+
+
     target_list_net=[]
     target_list_nonet=[]
 
-    pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    pred_net=pred_net[acc.index(max(acc))]
+    targ_net=targ_net[acc.index(max(acc))]
 
-    targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    #pred_net=pred_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    #targ_net=targ_net[np.where(l_te2 == np.amin(l_te2))[0]][0]
+
+
     pred_nonet=pred_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
     targ_nonet=targ_nonet[np.where(l_te5 == np.amin(l_te5))[0]][0]
 
@@ -838,8 +892,27 @@ def final_mnist(CM):
     targ=np.load(path+net+'targets_testH1_32_32_400_50_mnist.npy', allow_pickle=True)
     target_list=[]
 
-    pred=pred[np.where(l_te2 == np.amin(l_te2))[0]][0]
-    targ=targ[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    acc=[]
+    for j in range(len(pred)):
+        target_list_net=[]
+        for i in targ[j]:
+            if i[0]==1:
+                target_list_net.append(0)
+            elif i[1]==1:
+                target_list_net.append(1)
+            elif i[2]==1:
+                target_list_net.append(2)
+            else:
+                target_list_net.append(3)
+        acc.append(accuracy_score(pred[j], target_list_net))
+
+    print(f'Acccuracy: {max(acc)}')
+    
+    #pred=pred[np.where(l_te2 == np.amin(l_te2))[0]][0]
+    #targ=targ[np.where(l_te2 == np.amin(l_te2))[0]][0]
+
+    pred=pred[acc.index(max(acc))]
+    targ=targ[acc.index(max(acc))]
 
     for i in targ:
         if i[0]==1:
@@ -854,20 +927,8 @@ def final_mnist(CM):
     target_list=np.array(target_list)
 
     final_scores(pred, target_list, CM, 'm_net')
-    exit()
 
-    l_tr2=np.load(path+nonet+'loss_trainH1_nonet_400_50_d.npy', allow_pickle=True)
-    l_te2=np.load(path+nonet+'loss_testH1_nonet_400_50_d.npy', allow_pickle=True)
 
-    plt.figure()
-    plt.plot(list(range(len(l_tr2))), l_tr2, label='Train 45')
-
-    plt.plot(list(range(len(l_te2))), l_te2, label='Test 45')
-
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.savefig('check_results_di_nonet.pdf')
 
 
 #plot_NN_sizes()

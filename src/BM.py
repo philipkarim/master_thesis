@@ -51,16 +51,22 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
         X_train=binarize(X_train, threshold=0.5)
         X_test=binarize(X_test, threshold=0.5)
 
-    rbm.n_components = 4
+    rbm.n_components = 30
     #rbm.n_iter = 30
 
     if best_params is not None:
         model.set_params(**best_params)
     else:
-        if name=='mnist':
+        if name=='mnist2':
             rbm.learning_rate = 0.05
-            rbm.batch_size=2
+            rbm.batch_size=1
             logistic.C = 100
+        
+        elif name=='mnist':
+            rbm.learning_rate = 0.1
+            rbm.batch_size=1
+            logistic.C = 50
+            
         else:
             #Set best values
             rbm.learning_rate = 0.001
@@ -75,7 +81,10 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
         metrics.classification_report(
             y_test,
             model.predict(X_test))))
-        exit()
+
+        precision, recal, beta, temp= metrics.precision_recall_fscore_support(y_test,model.predict(X_test), average='macro')
+        print(f'Acc: {accuracy_score(y_test, model.predict(X_test))}, Pre: {precision}, Rec: {recal}, F1: {beta}')
+
 
     elif not isinstance(plot_acc_vs_epoch, int):
         X_val=plot_acc_vs_epoch[0]
@@ -155,21 +164,14 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
             rbm.n_iter = best_index
             model.fit(X_train, y_train)
 
-            if data_val is not None:
-                X_val=data_val[0]
-                y_val=data_val[1]
-            else:
-                X_val=X_test
-                y_val=y_test
-
-            y_pred=model.predict(X_val)
-            print(f'Accuracy on final testset: {accuracy_score(y_val, y_pred)}')
+            y_pred=model.predict(X_test)
+            print(f'Accuracy on final testset: {accuracy_score(y_test, y_pred)}')
 
             print("Final testset:\n%s\n" % (
             metrics.classification_report(
-                y_val, y_pred)))
+                y_test, y_pred)))
 
-            cf_matrix = confusion_matrix(y_val, y_pred)#,  normalize='all')
+            cf_matrix = confusion_matrix(y_test, y_pred)#,  normalize='all')
 
             plt.figure()
             ax = sns.heatmap(0.01*cf_matrix/np.sum(cf_matrix), annot=True,
@@ -194,19 +196,19 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
             plt.clf()
         
         if roc:
-            y_pred_proba = model.predict_proba(X_val)
+            y_pred_proba = model.predict_proba(X_test)
             print(y_pred_proba[:10])
 
             if name=='mnist':
-                for i in range(len(y_val)):
-                    y_pred_proba[i]=y_pred_proba[i][y_val[i]]
+                for i in range(len(y_test)):
+                    y_pred_proba[i]=y_pred_proba[i][y_test[i]]
     
                 y_pred_proba=y_pred_proba[:,0]
 
             print(y_pred_proba[:10])
             
-            fprRBM, tprRBM, _ = metrics.roc_curve(y_val,y_pred_proba)
-            aucRBM = metrics.roc_auc_score(y_val,y_pred_proba)
+            fprRBM, tprRBM, _ = metrics.roc_curve(y_test,y_pred_proba)
+            aucRBM = metrics.roc_auc_score(y_test,y_pred_proba)
             plt.plot(fprRBM, tprRBM,label="Bernoulli Restricted Boltzmann Machine, auc: " + str(aucRBM),color="gray",alpha=0.8)
             plt.plot([0,1], [0,1],color="red",alpha=0.8)
             plt.xlim([0.00,1.01])
@@ -250,7 +252,7 @@ def gridsearch_params(dataset, n_iterations, binarize_data=True):
     model = Pipeline(steps=[('rbm', rbm), ('logistic', logistic)])
 
     rbm.n_iter = n_iterations
-    rbm.n_components=30
+    rbm.n_components=4
 
     parameters = {'rbm__learning_rate': [0.001, 0.005, 0.01, 0.05, 0.1, 0.5],
                   'rbm__batch_size': [1,2,5,10],
