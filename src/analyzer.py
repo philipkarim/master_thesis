@@ -733,7 +733,7 @@ def final_fraud(CM=False):
     target_list_nonet=np.array(target_list_nonet)
 
     final_scores(pred_net, target_list_net, CM, 'f_net_001')
-    #final_scores(pred_nonet, target_list_nonet, CM, 'f_nonet')
+    final_scores(pred_nonet, target_list_nonet, CM, 'f_nonet')
 
 
 def final_franke():
@@ -822,6 +822,7 @@ def final_digit(CM=False):
     
     print(f'Acccuracy: {max(acc)}')
 
+    exit()
 
     target_list_net=[]
     target_list_nonet=[]

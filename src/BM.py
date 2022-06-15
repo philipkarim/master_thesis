@@ -51,21 +51,27 @@ def train_rbm(dataset, best_params=None, plot_acc_vs_epoch=0, name='', binarize_
         X_train=binarize(X_train, threshold=0.5)
         X_test=binarize(X_test, threshold=0.5)
 
-    rbm.n_components = 30
+    rbm.n_components = 4
     #rbm.n_iter = 30
 
     if best_params is not None:
         model.set_params(**best_params)
     else:
-        if name=='mnist2':
+        #30/28x28
+        if name=='mnist1':
             rbm.learning_rate = 0.05
             rbm.batch_size=1
             logistic.C = 100
         
+        #4/digit 8x8x
         elif name=='mnist':
-            rbm.learning_rate = 0.1
-            rbm.batch_size=1
-            logistic.C = 50
+            #rbm.learning_rate = 0.1
+            #rbm.batch_size=1
+            #logistic.C = 50
+
+            rbm.learning_rate = 0.5
+            rbm.batch_size=5
+            logistic.C = 500
             
         else:
             #Set best values

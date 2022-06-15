@@ -87,7 +87,6 @@ def quantum_mnist(initial_H, ansatz, n_epochs, lr, optim_method, m1=0.7, m2=0.99
     if samp_400==True:
         X_train=X_train[0:400];  y_train=y_train[0:400]
 
-    
     #Scale the data
     scaler=MinMaxScaler()
     scaler.fit(X_train)
