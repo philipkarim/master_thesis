@@ -740,8 +740,8 @@ def final_franke():
     """
     Final frankes function
     """
-    l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
-    l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+    l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
+    l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
 
     plt.figure()
     plt.plot(list(range(len(l_tr1))), l_tr1, label='Train')
@@ -751,9 +751,10 @@ def final_franke():
     plt.ylabel('Loss')
     plt.legend()
     plt.tight_layout()
-    #plt.savefig('franke_loss_final.pdf')
+    plt.savefig('franke_loss_final_check_mse.pdf')
     plt.clf()
 
+    """
     fig = plt.figure() 
     ax = plt.axes(projection ='3d') 
 
@@ -768,6 +769,7 @@ def final_franke():
     ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
     #plt.savefig('results/disc_learning/franke/'+file_title+'.pdf')
     plt.clf
+    """
 
 
 def final_digit(CM=False):
@@ -949,4 +951,4 @@ def final_mnist(CM):
 #final_fraud(True)
 #final_digit(True)
 #final_mnist(True)
-#final_franke()
+final_franke()

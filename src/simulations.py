@@ -597,15 +597,25 @@ def discriminative_simulations(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_
     tanh_11_6= NN_nodes(11,6)
     tanh_32_32= NN_nodes(32,32)
 
-    fork_params=[[0.01, 40,tanh_8_5,'network','H1_8_5_500_40_f', False, 0],
-                [0.01, 50,tanh_8_5,'network','H1_8_5_400_50_f', True, 0],
-                [0.01, 40,tanh_8_5,'network','H1_8_5_400_40_f', True, 0],
-                [0.001, 40,tanh_8_5,'network','H1_8_5_500_40_f_001', False, 0],
-                [0.001, 50,tanh_8_5,'network','H1_8_5_400_50_f_001', True, 0],
-                [0.001, 40,tanh_8_5,'network','H1_8_5_400_40_f_001', True, 0],
-                [0.01, 40,None,'no_network','H1_nonet_500_40_f', False, 0],
-                [0.01, 50,None,'no_network','H1_nonet_400_50_f', True, 0],
-                [0.01, 40,None,'no_network','H1_nonet_400_40_f', True, 0],
+    fork_params=[[0.01, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_001', True, 0],
+                [0.001, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_0001', True, 0],
+                [0.0001, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_00001', True, 0],
+                [0.0005, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_00005', True, 0],
+                [0.005, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_0005', True, 0],
+                [0.1, 30,tanh_8_5,'network','H1_8_5_400_30_f_new_01', True, 0],
+
+                [0.01, 30,None,'no_network','H1_8_5_400_30_f_new_001', True, 0],
+                [0.001, 30,None,'no_network','H1_8_5_400_30_f_new_0001', True, 0],
+                [0.0001, 30,None,'no_network','H1_8_5_400_30_f_new_00001', True, 0],
+                [0.0005, 30,None,'no_network','H1_8_5_400_30_f_new_00005', True, 0],
+                [0.005, 30,None,'no_network','H1_8_5_400_30_f_new_0005', True, 0],
+                [0.1, 30,None,'no_network','H1_8_5_400_30_f_new_01', True, 0]]
+
+    """
+                [0.001, 30,tanh_8_5,'network','H1_8_5_400_40_f_001_new', True, 0],
+                [0.0001, 30,None,'no_network','H1_nonet_500_40_f_new', False, 0],
+                [0.0005, 30,None,'no_network','H1_nonet_400_50_f_new', True, 0],
+                [0.01, 40,None,'no_network','H1_nonet_400_40_f_new', True, 0],
                 [0.01, 40,tanh_23_8,'network','H1_23_8_500_40_d', False, 1],
                 [0.01, 50,tanh_23_8,'network','H1_23_8_400_50_d', True, 1],
                 [0.01, 40,tanh_23_8,'network','H1_23_8_400_40_d', True, 1],
@@ -621,6 +631,7 @@ def discriminative_simulations(H_, ansatz, n_ep, n_step, l_r, o_m, init='xavier_
                 [0.01, 50,tanh_11_6,'network','H1_11_6_400_50_franke_001', False, 3],
                 [0.001, 50,tanh_11_6,'network','H1_11_6_400_50_franke_0001', True, 3],
                 [0.005, 50,tanh_11_6,'network','H1_11_6_400_50_franke_0005', True, 3]]
+    """
 
     for j in fork_params:
         pid = os.fork()

@@ -40,7 +40,7 @@ import seaborn as sns
 
 #sns.set_style("darkgrid")
 
-def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True, samp_400=False, test_set_90_percent=False):
+def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=1, layers=None, ml_task='classification', directory='fraud', name=None, init_ww='xavier_normal', QBM=True, samp_400=False):
     """
     Function to run fraud classification with the variational Boltzmann machine
 
@@ -75,11 +75,15 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
 
         
         #Train: 20% 100/500
-        train_true_samples=100
-        test_true_samples=50
-        train_false_samples=400
-        test_false_samples=200
+        #train_true_samples=100
+        #test_true_samples=50
+        #train_false_samples=400
+        #test_false_samples=200
         
+        train_true_samples=80
+        test_true_samples=25
+        train_false_samples=320
+        test_false_samples=225
 
         #Parameter search 100 samples
         #train_true_samples=20
@@ -113,31 +117,7 @@ def fraud_detection(H_num, ansatz, n_epochs, lr, opt_met, m1=0.99, m2=0.99, v_q=
         y_val=y[y_val_indices]
 
         if samp_400:
-            X_left_overs=np.copy(X_train[400:]); y_left_overs=np.copy(y_train[400:])
             X_train=X_train[:400]; y_train=y_train[:400]
-
-        if test_set_90_percent:
-            print(len(X_left_overs))
-            print(len(y_test))
-            print(np.count_nonzero(y_test == 1))
-            print(np.count_nonzero(y_test == 0))
-            
-            switches=0
-            for i in range(25):
-                for j in range(25):
-                    if y_test[i]==1 and y_left_overs[j]==0:
-                        y_test[i]==y_left_overs[j]
-                        X_test[i]==X_left_overs[j]
-    
-                        switches+=1
-
-                        if switches==25:
-                            break
-            print(len(y_test))
-            print(np.count_nonzero(y_test == 1))
-            print(np.count_nonzero(y_test == 0))
-
-            exit()
 
     else:
         dataset_fraud=np.load('datasets/time_amount_zip_mcc_1000_instances_5050.npy', allow_pickle=True)
