@@ -186,8 +186,8 @@ def plot_optim_search():
             ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0'], ['SGD','0.01','0','0']]
     
     for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
-        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True)[:50])
+        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True)[:50])
 
     epoch=range(len(arrays_loss[0]))
 
@@ -283,7 +283,7 @@ def plot_optim_search():
         plt.ylabel('Loss')
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        #plt.savefig('results/generative_learning/'+keyw+'_loss.pdf')
+        plt.savefig('results/generative_learning/'+keyw+'_loss_log.pdf')
         plt.clf
 
         if half_size:
@@ -296,12 +296,13 @@ def plot_optim_search():
         else:
             for j, i in enumerate(arrays_norm):
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
-    
+
         plt.xlabel('Iteration')
+        plt.yscale('log')
         plt.ylabel(r'L\textsubscript{1}-norm')
         plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/'+keyw+'_norm.pdf')
+        plt.savefig('results/generative_learning/'+keyw+'_norm_log.pdf')
         plt.clf
     else:
         plt.figure()
@@ -942,7 +943,7 @@ def final_mnist(CM):
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-#plot_optim_search()
+plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
@@ -951,4 +952,4 @@ def final_mnist(CM):
 #final_fraud(True)
 #final_digit(True)
 #final_mnist(True)
-final_franke()
+#final_franke()
