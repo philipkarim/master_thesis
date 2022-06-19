@@ -153,8 +153,8 @@ def plot_optim_search():
     all='all'
     #keyw='H2_rms_search_ab'
     #folder='H2_rms'
-    folder='H1_ab_new'
-    keyw='H1_ab_new'
+    folder='H2_ab'
+    keyw='H2_ab'
     half_size=False
 
     if all!='RMS':
@@ -186,8 +186,8 @@ def plot_optim_search():
             ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0'], ['SGD','0.01','0','0']]
     
     for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True)[:50])
-        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True)[:50])
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
+        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
 
     epoch=range(len(arrays_loss[0]))
 
@@ -281,7 +281,8 @@ def plot_optim_search():
         
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+        plt.yscale('log')
+        plt.legend(prop={'size': 7.3}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_loss_log.pdf')
         plt.clf
@@ -300,7 +301,7 @@ def plot_optim_search():
         plt.xlabel('Iteration')
         plt.yscale('log')
         plt.ylabel(r'L\textsubscript{1}-norm')
-        plt.legend(prop={'size': 7.5}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+        plt.legend(prop={'size': 5.4}, loc="center right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_log.pdf')
         plt.clf
