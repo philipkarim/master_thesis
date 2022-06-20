@@ -68,10 +68,12 @@ def main():
     np.random.seed(1111)
 
     #Defining parameters of VarITE
-    time_step=0.25
-    ite_steps=1500
-    maxTime=15
+    time_step=0.01
+    ite_steps=10000
+    maxTime=100
     ite_steps= int(maxTime/time_step)
+
+    full_Hamiltonian=True
     rz_add=True
 
     #Search for optimal parameters?
@@ -85,7 +87,7 @@ def main():
 
     #hamiltonian_JW=h2_hamiltonian(0.7408481486)
     hamiltonian_JW, gs=h2_hamiltonian(1.4)
-    #print(hamiltonian_JW)
+    print(hamiltonian_JW)
 
     #4-qubit Hamiltonian
     jw_H_dict=hamiltonian_JW.terms
@@ -105,19 +107,51 @@ def main():
     g4=coeffs[6]-coeffs[7];   g5=g4
     
     #Final hydrogen Hamiltonian
-    hydrogen_ham=[[[g1, 'z', 0], [g1, 'z', 0]],
-                [[g2, 'x', 0], [g2, 'x', 1]],
-                [[g3, 'z', 0], [g3, 'z', 1]],
-                [[g4, 'z', 0]],[[g5, 'z', 1]]]
+    if full_Hamiltonian is not True:
+        hydrogen_ham=[[[g1, 'z', 0], [g1, 'z', 0]],
+                    [[g2, 'x', 0], [g2, 'x', 1]],
+                    [[g3, 'z', 0], [g3, 'z', 1]],
+                    [[g4, 'z', 0]],[[g5, 'z', 1]]]
+    else:
+        c=[0, ]
+        for k in jw_H_dict.keys:
+            print(k)
+            c.append(k)
+
+        hydrogen_ham=[[[c[1], 'z', 0], [c[1], 'z', 0]],
+                    [[c[2], 'x', 0], [c[2], 'x', 1], [c[2], 'y', 2], [c[2], 'y', 3]],
+                    [[c3, 'x', 0], [c3, 'y', 1], [c3, 'y', 2], [c3, 'x', 3]],
+                    [[c4, 'y', 0], [c4, 'x', 1], [c4, 'x', 2], [c4, 'y', 3]],
+                    [[c5, 'y', 0], [c5, 'y', 1], [c5, 'x', 2], [c5, 'x', 3]],
+                    [[c6, 'z', 0]],
+                    [[c7, 'z', 0], [c7, 'z', 1]],
+                    [[c8, 'z', 0], [c8, 'z', 2]],
+                    [[c9, 'z', 0], [c9, 'z', 3]],
+                    [[c10, 'z', 1]],
+                    [[c11, 'z', 1], [c11, 'z', 2]],
+                    [[c12, 'z', 1], [c12, 'z', 3]],
+                    [[c13, 'z', 2]],
+                    [[c14, 'z', 2], [c14, 'z', 3]],
+                    [[c15, 'z', 3]]]
+
 
     #print(hydrogen_ham)
 
     #Include extra qubits for phase derivatives?
-    if rz_add:
-        hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
+    if full_Hamiltonian is not True:
+        if rz_add:
+            hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
+        else:
+            hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
     else:
-        hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
-    
+        if rz_add:
+            hydrogen_ans=[['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3],['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                        ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0],['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3], ['rz', 0, 4]]
+        else:
+             hydrogen_ans=  [['ry',0, 0], ['ry',0, 1], ['ry',0, 2], ['ry',0, 3], ['cx', 3,0], ['cx', 2, 3],['cx', 1, 2], ['ry', 0, 3],
+                            ['cx', 0, 1], ['ry', 0, 2], ['ry',np.pi/2, 0], ['ry',np.pi/2, 1], ['cx', 0, 2], ['cx', 1, 3]]
+
+
     #List -> Array
     hydrogen_ham=np.array(hydrogen_ham, dtype=object)
     

@@ -54,7 +54,7 @@ def h2_hamiltonian(bondlength, JW=True):
 
     gs=psi4.energy('fci')
 
-    print(gs)
+    #print(gs)
     return hamiltonian, gs
 
 

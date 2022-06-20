@@ -281,10 +281,11 @@ def plot_optim_search():
         
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        plt.yscale('log')
+        #plt.yscale('log')
+        plt.ylim(0.693, 0.695)
         plt.legend(prop={'size': 7.3}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/'+keyw+'_loss_log.pdf')
+        plt.savefig('results/generative_learning/'+keyw+'_loss_log_portion.pdf')
         plt.clf
 
         if half_size:
@@ -299,9 +300,10 @@ def plot_optim_search():
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
 
         plt.xlabel('Iteration')
-        plt.yscale('log')
+        #plt.yscale('log')
         plt.ylabel(r'L\textsubscript{1}-norm')
-        plt.legend(prop={'size': 5.4}, loc="center right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+        #plt.ylim(0, 0.01)
+        plt.legend(prop={'size': 4.4}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
         plt.savefig('results/generative_learning/'+keyw+'_norm_log.pdf')
         plt.clf

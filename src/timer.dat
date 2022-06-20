@@ -1,14 +1,65 @@
 
 Host: Philips-MacBook-Pro.local
 
-Timers On : Sat Jun 11 18:08:02 2022
-Timers Off: Sat Jun 11 18:08:07 2022
+Timers On : Mon Jun 20 10:02:09 2022
+Timers Off: Mon Jun 20 10:02:18 2022
 
-Wall Time:        4.42 seconds
+Wall Time:        9.10 seconds
 
                                                        Time (seconds)
 Module                                       User      System        Wall        Calls
+Total PK formation time             :      0.017u      0.000s      0.009w      2 calls
+Libint2ERI::Libint2ERI              :      0.017u      0.000s      0.001w      6 calls
+HF: Form core H                     :      0.000u      0.000s      0.002w      2 calls
+HF: Form S/X                        :      0.000u      0.000s      0.000w      2 calls
+HF: Guess                           :      0.033u      0.000s      0.027w      2 calls
+SAD Guess                           :      0.033u      0.000s      0.024w      2 calls
+HF: Form G                          :      0.000u      0.000s      0.000w      6 calls
+JK: D                               :      0.000u      0.000s      0.000w      6 calls
+JK: USO2AO                          :      0.000u      0.000s      0.000w      6 calls
+JK: JK                              :      0.000u      0.000s      0.000w      6 calls
+PK computes JK                      :      0.000u      0.000s      0.000w      6 calls
+JK: AO2USO                          :      0.000u      0.000s      0.000w      6 calls
+HF: Form F                          :      0.000u      0.000s      0.000w      6 calls
+HF: Form D                          :      0.000u      0.000s      0.000w      6 calls
+HF: DIIS                            :      0.000u      0.000s      0.002w      4 calls
+DIISManager::add_entry              :      0.000u      0.000s      0.001w      4 calls
+DIISManager::extrapolate            :      0.000u      0.000s      0.000w      4 calls
+bMatrix setup                       :      0.000u      0.000s      0.000w      4 calls
+bMatrix pseudoinverse               :      0.000u      0.000s      0.000w      4 calls
+New vector                          :      0.000u      0.000s      0.000w      4 calls
+HF: Form C                          :      0.000u      0.000s      0.001w      4 calls
+CIWave: CIvect write                :      0.000u      0.000s      0.000w     36 calls
+CIWave: CIvect read                 :      0.000u      0.000s      0.000w    104 calls
+CIWave: s2                          :      0.000u      0.000s      0.000w      6 calls
+CIWave: s3                          :      0.000u      0.000s      0.000w     12 calls
 
 --------------------------------------------------------------------------------------
+Total PK formation time             :      0.017u      0.000s      0.009w      2 calls
+| Libint2ERI::Libint2ERI            :      0.017u      0.000s      0.001w      4 calls
+HF: Form core H                     :      0.000u      0.000s      0.002w      2 calls
+HF: Form S/X                        :      0.000u      0.000s      0.000w      2 calls
+HF: Guess                           :      0.033u      0.000s      0.027w      2 calls
+| SAD Guess                         :      0.033u      0.000s      0.024w      2 calls
+HF: Form G                          :      0.000u      0.000s      0.000w      6 calls
+| JK: D                             :      0.000u      0.000s      0.000w      6 calls
+| JK: USO2AO                        :      0.000u      0.000s      0.000w      6 calls
+| JK: JK                            :      0.000u      0.000s      0.000w      6 calls
+| | PK computes JK                  :      0.000u      0.000s      0.000w      6 calls
+| JK: AO2USO                        :      0.000u      0.000s      0.000w      6 calls
+HF: Form F                          :      0.000u      0.000s      0.000w      6 calls
+HF: Form D                          :      0.000u      0.000s      0.000w      6 calls
+HF: DIIS                            :      0.000u      0.000s      0.002w      4 calls
+| DIISManager::add_entry            :      0.000u      0.000s      0.001w      4 calls
+| DIISManager::extrapolate          :      0.000u      0.000s      0.000w      4 calls
+| | bMatrix setup                   :      0.000u      0.000s      0.000w      4 calls
+| | bMatrix pseudoinverse           :      0.000u      0.000s      0.000w      4 calls
+| | New vector                      :      0.000u      0.000s      0.000w      4 calls
+HF: Form C                          :      0.000u      0.000s      0.001w      4 calls
+Libint2ERI::Libint2ERI              :      0.000u      0.000s      0.000w      2 calls
+CIWave: CIvect write                :      0.000u      0.000s      0.000w     36 calls
+CIWave: CIvect read                 :      0.000u      0.000s      0.000w    104 calls
+CIWave: s2                          :      0.000u      0.000s      0.000w      6 calls
+CIWave: s3                          :      0.000u      0.000s      0.000w     12 calls
 
 **************************************************************************************
