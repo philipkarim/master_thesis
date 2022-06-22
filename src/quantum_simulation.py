@@ -65,15 +65,15 @@ def main():
     Main function
     """
     #Seeding the randomness
-    np.random.seed(1111)
+    np.random.seed(1)
 
     #Defining parameters of VarITE
-    time_step=0.01
+    time_step=0.1
     ite_steps=10000
     maxTime=100
     ite_steps= int(maxTime/time_step)
 
-    full_Hamiltonian=True
+    full_Hamiltonian=False
     rz_add=True
 
     #Search for optimal parameters?
@@ -98,6 +98,7 @@ def main():
                     ((1, 'Z'), (2, 'Z')), ((0, 'Z'), (3, 'Z')),
                     ((0, 'X'), (1, 'X') ,(2, 'Y'),(3, 'Y')),  ((0, 'Z'),), ((1, 'Z'),)]
 
+
     #Creating a list of Hamiltonian qubits
     for i in names_of_dict:
         coeffs.append(np.real(jw_H_dict[i]))
@@ -113,26 +114,40 @@ def main():
                     [[g3, 'z', 0], [g3, 'z', 1]],
                     [[g4, 'z', 0]],[[g5, 'z', 1]]]
     else:
-        c=[0, ]
-        for k in jw_H_dict.keys:
-            print(k)
-            c.append(k)
+        names_of_dict=[(), ((0, 'Z'),),
+                        ((1, 'Z'),),
+                        ((2, 'Z'),),
+                        ((3, 'Z'),),
+                        ((0, 'Z'),(1, 'Z')),
+                        ((0, 'Y'), (1, 'X'), (2, 'X'), (3, 'Y')),
+                        ((0, 'Y'),(1, 'Y'), (2, 'X'), (3, 'X')),
+                        ((0, 'X'), (1, 'X'), (2, 'Y'), (3, 'Y')),
+                        ((0, 'X'), (1, 'Y'), (2, 'Y'), (3, 'X')),
+                        ((0, 'Z'), (2, 'Z')),
+                        ((0, 'Z'), (3, 'Z')),
+                        ((1, 'Z'), (2, 'Z')),
+                        ((1, 'Z'), (3, 'Z')),
+                        ((2, 'Z'), (3, 'Z'))]
 
-        hydrogen_ham=[[[c[1], 'z', 0], [c[1], 'z', 0]],
-                    [[c[2], 'x', 0], [c[2], 'x', 1], [c[2], 'y', 2], [c[2], 'y', 3]],
-                    [[c3, 'x', 0], [c3, 'y', 1], [c3, 'y', 2], [c3, 'x', 3]],
-                    [[c4, 'y', 0], [c4, 'x', 1], [c4, 'x', 2], [c4, 'y', 3]],
-                    [[c5, 'y', 0], [c5, 'y', 1], [c5, 'x', 2], [c5, 'x', 3]],
-                    [[c6, 'z', 0]],
-                    [[c7, 'z', 0], [c7, 'z', 1]],
-                    [[c8, 'z', 0], [c8, 'z', 2]],
-                    [[c9, 'z', 0], [c9, 'z', 3]],
-                    [[c10, 'z', 1]],
-                    [[c11, 'z', 1], [c11, 'z', 2]],
-                    [[c12, 'z', 1], [c12, 'z', 3]],
-                    [[c13, 'z', 2]],
-                    [[c14, 'z', 2], [c14, 'z', 3]],
-                    [[c15, 'z', 3]]]
+        c=[]
+        for k in names_of_dict:
+            c.append(np.real(jw_H_dict[k]))
+
+        hydrogen_ham=[[[c[0], 'z', 0], [c[0], 'z', 0]],
+                    [[c[1], 'z', 0]],
+                    [[c[2], 'z', 1]],
+                    [[c[3], 'z', 2]],
+                    [[c[4], 'z', 3]],
+                    [[c[5], 'z', 0], [c[5], 'z', 1]],
+                    [[c[6], 'y', 0], [c[6], 'x', 1], [c[6], 'x', 2], [c[6], 'y', 3]],
+                    [[c[7], 'y', 0], [c[7], 'y', 1], [c[7], 'x', 2], [c[7], 'x', 3]],
+                    [[c[8], 'x', 0], [c[8], 'x', 1], [c[8], 'y', 2], [c[8], 'y', 3]],
+                    [[c[9], 'x', 0], [c[9], 'y', 1], [c[9], 'y', 2], [c[9], 'x', 3]],
+                    [[c[10], 'z', 0], [c[10], 'z', 2]],
+                    [[c[11], 'z', 0], [c[11], 'z', 3]],
+                    [[c[12], 'z', 1], [c[12], 'z', 2]],
+                    [[c[13], 'z', 1], [c[13], 'z', 3]],
+                    [[c[14], 'z', 2], [c[14], 'z', 3]]]
 
 
     #print(hydrogen_ham)
@@ -140,7 +155,8 @@ def main():
     #Include extra qubits for phase derivatives?
     if full_Hamiltonian is not True:
         if rz_add:
-            hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
+            hydrogen_ans=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rx', 0, 2]]
+            #hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
         else:
             hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
     else:

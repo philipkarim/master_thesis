@@ -150,11 +150,11 @@ def plot_optim_search():
     """
     arrays_loss=[]
     arrays_norm=[]
-    all='all'
-    #keyw='H2_rms_search_ab'
-    #folder='H2_rms'
-    folder='H2_ab'
-    keyw='H2_ab'
+    all='RMS'
+    keyw='H2_rms_search_ab'
+    folder='H2_rms'
+    #folder='H2_ab'
+    #keyw='H2_ab'
     half_size=False
 
     if all!='RMS':
@@ -186,8 +186,8 @@ def plot_optim_search():
             ['SGD','0.2','0','0'], ['SGD','0.1','0','0'], ['SGD','0.05','0','0'], ['SGD','0.01','0','0']]
     
     for i in labels:
-        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True))
-        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True))
+        arrays_loss.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'loss'+keyw+'.npy', allow_pickle=True)[:50])
+        arrays_norm.append(np.load('results/generative_learning/arrays/search/'+folder+'/'+i[0]+'loss_lr'+i[1]+'m1'+i[2]+'m2'+i[3]+'norm'+keyw+'.npy', allow_pickle=True)[:50])
 
     epoch=range(len(arrays_loss[0]))
 
@@ -281,11 +281,13 @@ def plot_optim_search():
         
         plt.xlabel('Iteration')
         plt.ylabel('Loss')
-        #plt.yscale('log')
-        plt.ylim(0.693, 0.695)
-        plt.legend(prop={'size': 7.3}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+        plt.yscale('log')
+        plt.xlim(30, 50)
+        plt.ylim(0.693, 0.7)
+        plt.legend()
+        #plt.legend(prop={'size': 7.3}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/'+keyw+'_loss_log_portion.pdf')
+        plt.savefig('results/generative_learning/'+keyw+'_loss_log_m_portion.pdf')
         plt.clf
 
         if half_size:
@@ -300,12 +302,12 @@ def plot_optim_search():
                 plt.plot(epoch, i,label=r'$m=$'+labels[j][2])
 
         plt.xlabel('Iteration')
-        #plt.yscale('log')
+        plt.yscale('log')
         plt.ylabel(r'L\textsubscript{1}-norm')
         #plt.ylim(0, 0.01)
-        plt.legend(prop={'size': 4.4}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
+        #plt.legend(prop={'size': 4.4}, loc="upper right", ncol=2) #bbox_to_anchor=[0, 1]       #plt.legend()
         plt.tight_layout()
-        plt.savefig('results/generative_learning/'+keyw+'_norm_log.pdf')
+        plt.savefig('results/generative_learning/'+keyw+'_norm_log_m.pdf')
         plt.clf
     else:
         plt.figure()

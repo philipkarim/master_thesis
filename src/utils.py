@@ -520,10 +520,19 @@ def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", r
     E_exact= -1.137275943080
     #states and their corresponding eigenvalue
     states=['00', 1, '01', -1, '10', -1, '11', 1]
+
+    states_4=['0000', 1, '0001', -1, '0010', -1, '0100', -1,
+            '0011', 1, '0110', 1, '1100', 1, '1000', -1,
+            '0101', 1, '1010', 1, '1001', 1, '0111', -1,
+            '1110', -1, '1101', -1, '1011', -1, '1111', 1,
+    ]
+
     #print(H_final)
 
     for h_gate in H_final:
         copy_circ=copy.deepcopy(circ)
+
+        #Adds measurement rotational gates
         for i in h_gate:
             if i[1]=='x':
                 copy_circ.h(i[2])
@@ -535,35 +544,39 @@ def compute_gs_energy(circuit, H_final, time, backend="statevector_simulator", r
         result = backendtest.run(copy_circ).result()
 
         if len(h_gate)==2:
-            #Here the identity matrix has to be the first one in the list
-            if h_gate!=H_final[0]:
-                result_dict=result.get_counts(copy_circ)
+            if h_gate[0][1]!=h_gate[1][1] or h_gate[0][2]!=h_gate[1][2]:
                 temp_E=0
+
+                psi=result.get_statevector()
+                prob = psi.probabilities_dict([h_gate[0][2], h_gate[1][2]])
+
                 for state in range(0,int(len(states)),2):
-                    temp_E+=(result_dict[states[state]]*states[state+1])
+                    temp_E+=(prob[states[state]]*states[state+1])
             
                 E_final+=h_gate[0][0]*temp_E
             else:
                 E_final+=h_gate[0][0]
+        
+        elif len(h_gate)==4:
+            result_dict=result.get_counts(copy_circ)
+            temp_E=0
+
+            psi=result.get_statevector()
+            prob = psi.probabilities_dict([h_gate[0][2], h_gate[1][2], h_gate[2][2], h_gate[3][2]])
+
+            #print(prob)
+
+            for state in range(0,int(len(states_4)),2):
+                temp_E+=(prob[states_4[state]]*states_4[state+1])
+        
+            E_final+=h_gate[0][0]*temp_E
             
         elif len(h_gate)==1:
             psi=result.get_statevector()
             prob = psi.probabilities([h_gate[0][2]])
             E_final+=h_gate[0][0]*(prob[0]-prob[1])
-
         else:
-            temp_E=0
-            result_dict=result.get_counts(copy_circ)
-
-            if h_gate[0][0]==0:
-                state_1q=['00', 1, '01', -1]
-            else:
-                state_1q=['11', 1, '10', -1]
-
-            for state in range(0,int(len(state_1q)),2):
-                temp_E+=(result_dict[state_1q[state]]*state_1q[state+1])
-
-            E_final+=h_gate[0][0]*temp_E
+            sys.exit('Not implemented for 3 qubit Hamiltonians')
 
     compute_gs_energy.computed_E.append(E_final)
     compute_gs_energy.energy_diff.append(abs(E_exact-E_final))
