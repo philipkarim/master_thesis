@@ -746,18 +746,41 @@ def final_franke():
     """
     Final frankes function
     """
-    l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
-    l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
+    l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+    l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
+    l_tr0001=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
+    l_te0001=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
 
     plt.figure()
-    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train')
-    plt.plot(list(range(len(l_te1))), l_te1, label='Test')
-
+    plt.plot(list(range(len(l_tr1))), l_tr1, label='Train, lr=0.01')
+    plt.plot(list(range(len(l_te1))), l_te1, label='Test, lr=0.01')
+    plt.plot(list(range(len(l_tr1))), l_tr0001, label='Train, lr=0,001')
+    plt.plot(list(range(len(l_te1))), l_te0001, label='Test, lr=0.001')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('franke_loss_final_check_mse.pdf')
+    plt.savefig('franke_loss_final_check_mse_both.pdf')
+    plt.clf()
+
+
+    plt.figure()
+    fig, axs = plt.subplots(2, sharex=True)
+    axs[0].plot(list(range(len(l_tr1))), l_tr1, label='Train, lr=0.01')
+    axs[0].plot(list(range(len(l_te1))), l_te1, label='Test, lr=0.01')
+    #axs[0].set_aspect('equal')
+
+    axs[0].set(ylabel='Loss', xlabel='Epoch')
+    
+    axs[1].plot(list(range(len(l_tr0001))), l_tr0001, label='Train, lr=0.001')
+    axs[1].plot(list(range(len(l_te0001))), l_te0001, label='Test, lr=0.001')
+       #axs[0].set(ylabel=r'L\textsubscript{1}-norm')
+    #axs[1].set_aspect('equal')
+    axs[1].set(ylabel='Loss')
+    axs[1].set_xlim([0, np.max(l_te1)])
+
+    plt.tight_layout()
+    plt.savefig('franke_loss_final_check_mse_both.pdf')
     plt.clf()
 
     """
@@ -957,4 +980,4 @@ plot_optim_search()
 #final_fraud(True)
 #final_digit(True)
 #final_mnist(True)
-#final_franke()
+final_franke()
