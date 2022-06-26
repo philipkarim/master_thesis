@@ -746,16 +746,19 @@ def final_franke():
     """
     Final frankes function
     """
+
+
     l_tr1=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_001.npy', allow_pickle=True)
     l_te1=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_001.npy', allow_pickle=True)
     l_tr0001=np.load('results/temp_results_final_runs/loss_trainH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
     l_te0001=np.load('results/temp_results_final_runs/loss_testH1_11_6_400_50_franke_0001.npy', allow_pickle=True)
 
-    plt.figure()
+    plt.figure(figsize=[FIGWIDTH/2, FIGHEIGHT])
+
     plt.plot(list(range(len(l_tr1))), l_tr1, label='Train, lr=0.01')
     plt.plot(list(range(len(l_te1))), l_te1, label='Test, lr=0.01')
-    plt.plot(list(range(len(l_tr1))), l_tr0001, label='Train, lr=0,001')
-    plt.plot(list(range(len(l_te1))), l_te0001, label='Test, lr=0.001')
+    #plt.plot(list(range(len(l_tr1))), l_tr0001, label='Train, lr=0,001')
+    #plt.plot(list(range(len(l_te1))), l_te0001, label='Test, lr=0.001')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
@@ -765,20 +768,39 @@ def final_franke():
 
 
     plt.figure()
-    fig, axs = plt.subplots(2, sharex=True)
-    axs[0].plot(list(range(len(l_tr1))), l_tr1, label='Train, lr=0.01')
-    axs[0].plot(list(range(len(l_te1))), l_te1, label='Test, lr=0.01')
+    fig, axs = plt.subplots(2, sharex=True, sharey=True)
+
+    axs[0].plot(list(range(len(l_tr1))), l_tr1, label=r'Train, $\gamma=0.01$')
+    axs[0].plot(list(range(len(l_te1))), l_te1, label=r'Test, $\gamma=0.01$')
+    
+    #plt.subplots_adjust(hspace = .001)
+    #axs[0].set_xticklabels(())
+    #axs[0].title.set_visible(False)
     #axs[0].set_aspect('equal')
 
-    axs[0].set(ylabel='Loss', xlabel='Epoch')
-    
-    axs[1].plot(list(range(len(l_tr0001))), l_tr0001, label='Train, lr=0.001')
-    axs[1].plot(list(range(len(l_te0001))), l_te0001, label='Test, lr=0.001')
+    #axs[0].set(ylabel='Loss', fontsize=36)
+    axs[0].set_ylabel(ylabel='.', fontsize=6)
+
+    axs[1].plot(list(range(len(l_tr0001))), l_tr0001, label=r'Train, $\gamma=0.001$')
+    axs[1].plot(list(range(len(l_te0001))), l_te0001, label=r'Test, $\gamma=0.001$')
+    #fig.subplots_adjust(hspace = .001)
+
        #axs[0].set(ylabel=r'L\textsubscript{1}-norm')
     #axs[1].set_aspect('equal')
-    axs[1].set(ylabel='Loss')
-    axs[1].set_xlim([0, np.max(l_te1)])
+    axs[1].set(xlabel='Epoch')#, ylabel='Loss')
+    #axs[1].set_xlim([0, np.max(l_te1)])
+    
+    #plt.subplots_adjust(wspace=0, hspace=0)
+    axs[0].legend(prop={'size': 8}, loc="upper right")
+    axs[1].legend(prop={'size': 8}, loc="upper right")
 
+    
+    #plt.setp(axs[1].get_xticklabels(), visible=False)
+
+    # Set common labels
+    fig.text(0.015, 0.56, 'Loss', ha='center', va='center', rotation='vertical')
+
+    
     plt.tight_layout()
     plt.savefig('franke_loss_final_check_mse_both.pdf')
     plt.clf()
@@ -971,7 +993,7 @@ def final_mnist(CM):
 #plot_lr_search()
 #plot_fraud()
 #plot_multiple_samples()
-plot_optim_search()
+#plot_optim_search()
 #plot_three_sub()
 #genereal_plotter('results/disc_learning/mnist/loss_trainnetwork_24_3_4samples.npy', 'mnist_12_sample_24_3_lr001_nosig')
 #plot_gen('loss_trainsig_12_2_lr', [['001_ams','AMSgrad', 0],['001_H3_ams','AMSgrad', 1],['001','RMSProp', 0], ['001_H3','RMSProp', 1]], 'optim_sub')
