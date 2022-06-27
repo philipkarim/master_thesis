@@ -277,7 +277,6 @@ class varQITE:
             if self.plot_fidelity==True:
                 self.plot_fidelity_list.append(np.copy(omega_w))
                 
-            #TODO: Is this automaticly changed?
             self.trial_circ=update_parameters(self.trial_circ, omega_w)
 
             if self.gs_computations==True:
