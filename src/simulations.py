@@ -323,7 +323,6 @@ def learning_rate_search(H_operator, ansatz, n_epochs, target_data, n_steps=10, 
         trace_circ=create_initialstate(ansatz)
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
-        #TODO: Some better way to do this?
         p_QBM=np.diag(PT.data).real.astype(float)
         
         #Computes the loss
@@ -376,7 +375,7 @@ def exhaustive_gen_search_paralell(H_operator, ansatz, n_epochs, target_data, n_
 
     names='H2_rms_search_ab'
     
-    #TODO: Fix this, it looks highly amateurish 
+    #TODO: Fix this if time, it looks highly amateurish 
     pid = os.fork()
     if pid > 0 :
         pid=os.fork()
@@ -517,7 +516,6 @@ def train_sim(H_operator, ansatz, n_epochs, target_data, n_steps=10, lr=0.1, opt
         DM=DensityMatrix.from_instruction(trace_circ)
         PT=partial_trace(DM,tracing_q)
 
-        #TODO: Some better way to do this?
         p_QBM=np.diag(PT.data).real.astype(float)
         pqbm_list.append(p_QBM)
 

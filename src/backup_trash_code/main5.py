@@ -69,38 +69,6 @@ if both==False:
         H=     [[H_init[0], 'z', 0], [H_init[0], 'z', 1], [H_init[1], 'z', 1], [H_init[2], 'z', 0]]
 
 
-    #TODO: Rewrite every if 'rx'' condition to for i in indices:
-
-    ##Computing
-    """
-    rotational_indices=[]
-    n_qubits_params=0
-    for i in range(len(params)):
-        if params[i][0]=='cx' or params[i][0]=='cy' or params[i][0]=='cz':
-            if n_qubits_params<params[i][1]:
-                n_qubits_params=params[i][1]
-        else:
-            rotational_indices.append(i)
-
-        if n_qubits<params[i][2]:
-            n_qubits=params[i][2]
-
-    n_qubits_H=0
-    for j in range(len(H)):
-        if n_qubits_H<H[j][2]:
-                n_qubits_H=H[j][2]
-
-    print(f'qubit H: {n_qubits_H}')
-    #Transforms the parameters into arrays
-    #params=np.array(params)
-    #H=np.array(H)
-    """
-    """
-    Rewrite this to work the way it says in the article, 1ZZ-0.2ZI..
-    because the coefficients must be the same for pairwise hamiltonians
-    """
-
-
     """
     Testing
     """
@@ -172,31 +140,6 @@ else:
             [-0.2, 'z', 1],[0.3, 'x', 0], [0.3, 'x', 1]]
 
     ##Computing
-    """
-    rotational_indices1=[]
-    n_qubits_params1=0
-    for i in range(len(params1)):
-        if params1[i][0]=='cx' or params1[i][0]=='cy' or params1[i][0]=='cz':
-            if n_qubits_params1<params1[i][1]:
-                n_qubits_params1=params1[i][1]
-        else:
-            rotational_indices1.append(i)
-
-        if n_qubits_params1<params1[i][2]:
-            n_qubits_params1=params1[i][2]
-
-    rotational_indices2=[]
-    n_qubits_params2=0
-    for i in range(len(params2)):
-        if params2[i][0]=='cx' or params2[i][0]=='cy' or params2[i][0]=='cz':
-            if n_qubits_params2<params2[i][1]:
-                n_qubits_params2=params2[i][1]
-        else:
-            rotational_indices2.append(i)
-
-        if n_qubits_params2<params2[i][2]:
-            n_qubits_params2=params2[i][2]
-    """
 
     """
     Testing
@@ -272,8 +215,6 @@ else:
                         f'{np.around(H_fidelity2_4, decimals=2)}')
 
 
-
-
 def train(H, ansatz, n_epochs):
     print('------------------------------------------------------')
 
@@ -312,18 +253,10 @@ def train(H, ansatz, n_epochs):
         #Then find dL/d theta by using eq. 10
         print('Updating params..')
 
-        #TODO: Check if this is right
         gradient_qbm=optim.gradient_ps(H, ansatz, d_omega, steps=10)
         print(f'gradient of qbm: {gradient_qbm}')
         gradient_loss=optim.gradient_loss(p_data, p_QBM, gradient_qbm)
 
-        #print(f'gradient_loss: {gradient_loss}')
-        #print(type(gradient_loss))
-        #TODO: Fix the thing to handle gates with same coefficient
-
-        #TODO: Make the coefficients an own list, and the parameters another. 
-        # That way I can use array for the cefficients. this might actually be the
-        #reason for the error
 
         new_parameters=optim.adam(np.array(H)[:,0].astype(float), gradient_loss)
         print(f'new coefficients: {new_parameters}')

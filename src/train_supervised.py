@@ -66,7 +66,6 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
     if network_coeff is not None:
         #Initializing the network
         net=Net(network_coeff, X_train[0], n_hamilParameters)
-        #TODO: Might want to initialize the weights anohther method which reduces the values of the coefficients, 0.001?
         
         if init_w=='xavier_normal':
             net.apply(init_weights_XN)
@@ -91,10 +90,6 @@ def train_model(dataset, initial_H, ansatz, optim_params, visible_q=1, task='reg
 
         #Floating the network parameters
         net = net.float()
-
-        #TODO: Save these
-        #print(list(net.named_parameters()))
-        #print('------------------------------------------')
 
         """
         weights_and_bias=[]

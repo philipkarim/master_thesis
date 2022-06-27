@@ -41,7 +41,6 @@ class optimize:
                 self.vhat= np.zeros_like((Hamil)).astype(float)
 
         else:
-            #TODO: Change this when the hamiltonian has non changeable coefficients
             self.n_hamil_params=len(Hamil)    
             self.m = np.zeros(self.n_hamil_params).astype(float)
             self.v = np.zeros(self.n_hamil_params).astype(float)
@@ -77,8 +76,6 @@ class optimize:
 
         Return(float):      The computed loss
         """
-        #TODO: Have to rewrite and add a sum if batch size are larger
-        #than one
 
         return -np.sum(p_data*np.log(p_BM))
 
@@ -293,10 +290,8 @@ class optimize:
         return gradients
 
     def gradient_ps(self, H, params, d_omega):
-        #TODO: added copy
         d_omega=np.array(d_omega, copy=True)
-        #print(self.H_qubit_states)
-        #TODO: self.H_qubit_state potential to give the wrong answer with hidden qubits
+
         w_k_sum=np.zeros((len(H), self.H_qubit_states))
         for i in range(len(H)):
             for k in self.rot_in:
@@ -321,10 +316,7 @@ class optimize:
         return w_k_sum.real.astype(float)
 
     def fraud_grad_ps(self, H, params, d_omega, n_visible):
-        #TODO: added copy
         d_omega=np.array(d_omega, copy=True)
-        #print(self.H_qubit_states)
-        #TODO: This is hardcoded? 2**len(..)
         w_k_sum=np.zeros((len(H), 2**len(n_visible)))
         for i in range(len(H)):
             for k in self.rot_in:
@@ -336,7 +328,6 @@ class optimize:
                 
                 trace_right=create_initialstate(params_right_shift)
                 trace_left=create_initialstate(params_left_shift)
-                #TODO: run this or just trace it?
                 DM_right=DensityMatrix.from_instruction(trace_right)
                 DM_left=DensityMatrix.from_instruction(trace_left)
 

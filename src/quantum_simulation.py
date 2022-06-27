@@ -68,7 +68,7 @@ def main():
     np.random.seed(1)
 
     #Defining parameters of VarITE
-    time_step=0.1
+    time_step=0.25
     ite_steps=10000
     maxTime=100
     ite_steps= int(maxTime/time_step)
@@ -85,9 +85,11 @@ def main():
     compute_gs_energy.energy_diff=[]
     compute_gs_energy.time_t=[]
 
-    #hamiltonian_JW=h2_hamiltonian(0.7408481486)
+    #hamiltonian_JW, gs=h2_hamiltonian(0.7408481486)
     hamiltonian_JW, gs=h2_hamiltonian(1.4)
     print(hamiltonian_JW)
+
+    #exit()
 
     #4-qubit Hamiltonian
     jw_H_dict=hamiltonian_JW.terms
@@ -97,7 +99,6 @@ def main():
     names_of_dict=  [(), ((0, 'Z'), (1, 'Z')), ((0, 'Z'), (2, 'Z')),
                     ((1, 'Z'), (2, 'Z')), ((0, 'Z'), (3, 'Z')),
                     ((0, 'X'), (1, 'X') ,(2, 'Y'),(3, 'Y')),  ((0, 'Z'),), ((1, 'Z'),)]
-
 
     #Creating a list of Hamiltonian qubits
     for i in names_of_dict:
@@ -162,7 +163,7 @@ def main():
     #Include extra qubits for phase derivatives?
     if full_Hamiltonian is not True:
         if rz_add:
-            hydrogen_ans=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rx', 0, 2]]
+            hydrogen_ans=[['ry',0, 0],['ry',0, 1], ['cx', 1,0], ['cx', 0, 1],['ry',np.pi/2, 0],['ry',0, 1], ['cx', 0, 1], ['rz', 0, 2]]
             #hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['rz', 0, 2]]
         else:
             hydrogen_ans= [['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1], ['cx', 0, 1],['ry',0, 0],['ry',0, 1],['rz',0, 0],['rz',0, 1]]
@@ -185,7 +186,8 @@ def main():
     else:
         #Parameters to search for
         distribution_list=[['U', 1], ['U', 0.5], ['U', 0.1], ['U', 0.01],['N', 1], ['N', 0.5], ['N', 0.1], ['N', 0.01]]
-        steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+        #steps_list=[0.5, 0.25, 0.1, 0.05, 0.01, 0.005]
+        steps_list=[0.01]
 
         compute_gs_energy.energies_array=np.zeros((len(distribution_list), len(steps_list)))
         compute_gs_energy.final_t=[]
@@ -198,7 +200,7 @@ def main():
                 compute_gs_energy.computed_E=[]
                 gs_VarITE(hydrogen_ham, hydrogen_ans, int(maxTime/del_step), final_time=maxTime, distribution=dist)
 
-                np.save('results/quantum_systems/H2_MT_latest_'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
+                np.save('results/quantum_systems/H2_MT_latest_4real'+str(maxTime)+str(dist[0])+str(dist[1])+str(del_step), np.array([compute_gs_energy.time_t, compute_gs_energy.computed_E]))
 
 if __name__ == "__main__":
     main()
